@@ -373,18 +373,7 @@ public struct GetQuestionsRequest: Codable {
     }
 }
 
-public struct AddDisplayRequest: Codable {
-    // No additional parameters needed if the access token and user ID are internally managed
-}
-
-public struct LogoutRequest: Codable {
-    // Assuming access token and user ID are managed internally, so no explicit properties are needed here.
-}
-
-public struct AccessTokenRequest: Codable {
-
-}
-
-public struct UploadPicRequest: Codable {
-    // Assuming access token and user ID are managed internally, so no explicit properties are needed here.
+// No additional parameters needed if the access token and user ID are internally managed
+public struct Empty: Codable {
+    public init() {}
 }

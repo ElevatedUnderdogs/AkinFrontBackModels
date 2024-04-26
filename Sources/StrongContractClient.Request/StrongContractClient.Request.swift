@@ -16,7 +16,7 @@ public extension StrongContractClient.Request where Payload == User.SignUp, Resp
     }
 }
 
-public extension StrongContractClient.Request where Payload == AccessTokenRequest, Response == TermsOfService {
+public extension StrongContractClient.Request where Payload == Empty, Response == TermsOfService {
     /// May need to explicitly import StrongContractClient when using Request.
      static var terms: Request {
         Request(path: "getTerms", method: .get)
@@ -45,7 +45,7 @@ public extension StrongContractClient.Request where Payload == Int, Response == 
 }
 
 
-public extension StrongContractClient.Request where Payload == LogoutRequest, Response == StandardPostResponse {
+public extension StrongContractClient.Request where Payload == Empty, Response == StandardPostResponse {
     /// May need to explicitly import StrongContractClient when using Request.
     static var logout: Request {
         Request(path: "logout", method: .post)
@@ -271,14 +271,14 @@ public extension StrongContractClient.Request where Payload == Settings, Respons
     }
 }
 
-public extension StrongContractClient.Request where Payload == AddDisplayRequest, Response == StandardPostResponse {
+public extension StrongContractClient.Request where Payload == Empty, Response == StandardPostResponse {
     /// May need to explicitly import StrongContractClient when using Request.
      static var addDisplay: Request {
         Request(path: "addDisplayPicture", method: .post)
     }
 }
 
-public extension StrongContractClient.Request where Payload == UploadPicRequest, Response == StandardPostResponse {
+public extension StrongContractClient.Request where Payload == Empty, Response == StandardPostResponse {
     /// May need to explicitly import StrongContractClient when using Request.
 
      static var uploadPic: Request {
@@ -324,7 +324,7 @@ public extension StrongContractClient.Request where Payload == UpdateUserLocatio
 }
 
 public extension StrongContractClient.Request where Payload == SilentPushLocationUpdatesRequest, Response == StandardPostResponse {
-    /// May need to explicitly import StrongContractClient when using Request. 
+    /// May need to explicitly import StrongContractClient when using Request.
      static var silentPushLocationUpdates: Request {
         Request(path: "shouldUpdateLocation", method: .post)
     }
@@ -343,7 +343,7 @@ public extension StrongContractClient.Request where Payload == SilentPushLocatio
 //    }
 //}
 //
-//public extension StrongContractClient.Request where Payload == AddDisplayRequest, Response == StandardPostResponse {
+//public extension StrongContractClient.Request where Payload == Empty, Response == StandardPostResponse {
 //     static var addDisplay: Request {
 //        Request(path: "addDisplayPicture", method: .post)
 //    }
