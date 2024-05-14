@@ -25,11 +25,11 @@ extension FillSettingsRequest {
     }
 }
 
-/// Payload  = Image ID, and Image Data. 
-public typealias ProfileImageRequest = Request<String, Data>
-extension ProfileImageRequest { // image data
+public typealias ProfilePictureRequest = Request<Empty, Data>
+extension ProfilePictureRequest {
 
-    public static var profileImage: Self {
+    /// Downloads the user's profile picture
+    public static var profilePicture: Self {
         .init(method: .get)
     }
 }
