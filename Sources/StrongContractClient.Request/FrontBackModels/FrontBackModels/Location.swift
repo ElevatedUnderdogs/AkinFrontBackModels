@@ -21,7 +21,7 @@ public enum LocationAuthorizationStatus: Int32, Codable {
 }
 
 extension Location {
-    func distance(from: Location, radius: Double = .earthRadius) -> Double {
+    public func distance(from: Location, radius: Double = .earthRadius) -> Double {
         let haversine: (Double) -> Double = { (1 - cos($0)) / 2 }
         let ahaversine: (Double) -> Double = { 2 * asin(sqrt($0)) }
         let fromLat = latitude.degreesToRadians

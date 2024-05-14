@@ -11,5 +11,5 @@ extension FloatingPoint {
 }
 
 extension Double {
-    static let earthRadius: Self = 6367444.7
+    public static let earthRadius: Self = 6367444.7
 }
