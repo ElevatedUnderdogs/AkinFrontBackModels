@@ -4,6 +4,7 @@
 //
 //  Created by Scott Lydon on 4/7/24.
 //
+import Foundation
 
 public typealias UpdateMidGreetSettingsRequest = Greet.Settings
 
@@ -155,10 +156,10 @@ public typealias PushkitDeviceToken = String
 
 // Define Argument public structs
 public struct BlockUser: Codable {
-    public let otherUser: Int
+    public let otherUser: UUID
     public let shouldBlock: Bool? // Optional to accommodate both block user functions
 
-    public init(otherUser: Int, shouldBlock: Bool? = nil) {
+    public init(otherUser: UUID, shouldBlock: Bool? = nil) {
         self.otherUser = otherUser
         self.shouldBlock = shouldBlock
     }
