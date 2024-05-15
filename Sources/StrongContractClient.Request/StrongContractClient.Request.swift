@@ -278,11 +278,19 @@ extension RegisterPushKitDeviceTokenRequest {
     }
 }
 
-public typealias BlockUserRequest = Request<BlockUser, StandardPostResponse>
+public typealias BlockUserRequest = Request<UUID, StandardPostResponse>
 extension BlockUserRequest {
     /// Blocks a user from being considered for meetups with this user.
     public static var blockUser: Self {
         .init(method: .post)
+    }
+}
+
+public typealias UnblockUserRequest = Request<UUID, StandardPostResponse>
+extension UnblockUserRequest {
+    /// Blocks a user from being considered for meetups with this user.
+    public static var unblockUser: Self {
+        .init(method: .delete)
     }
 }
 
