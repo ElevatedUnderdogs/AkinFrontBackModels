@@ -136,7 +136,7 @@ public struct UserLocationUpdate: Codable {
 
 public typealias ShouldEnableSilentPushNoticeUpdates = Bool
 
-public typealias ResetPassword = String
+public typealias PasswordlessAuthentication = String
 
 public struct EmailChange: Codable {
     public let currentEmail: String

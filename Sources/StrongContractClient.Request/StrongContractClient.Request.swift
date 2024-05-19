@@ -228,10 +228,10 @@ extension AddQuestion {
     }
 }
 
-public typealias ResetPasswordRequest = Request<ResetPassword, StandardPostResponse>
-extension ResetPasswordRequest {
+public typealias PasswordlessAuthenticationRequest = Request<PasswordlessAuthentication, StandardPostResponse>
+extension PasswordlessAuthenticationRequest {
     /// Used to reset the password.
-    public static var resetPassword: Self {
+    public static var passwordlessAuthentication: Self {
         .init(method: .post)
     }
 }
