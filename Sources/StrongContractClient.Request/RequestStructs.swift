@@ -162,6 +162,14 @@ public struct LoginPayload: Codable {
     }
 }
 
+public struct PasscodePayload: Codable {
+    public let email, passcode: String
+    public init(email: String, passcode: String) {
+        self.email = email.sha256hexa
+        self.passcode = passcode.sha512hexa
+    }
+}
+
 public struct AddResponse: Codable {
     public let response: Question.Response
     public let questionID: String

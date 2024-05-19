@@ -236,6 +236,14 @@ extension PasswordlessAuthenticationRequest {
     }
 }
 
+public typealias PasscodecodeAuthenticationRequest = Request<PasscodePayload, StandardPostResponse>
+extension PasscodecodeAuthenticationRequest {
+    /// Used to reset the password.
+    public static var passcodecodeAuthentication: Self {
+        .init(method: .post)
+    }
+}
+
 
 public typealias ChangeEmailRequest = Request<EmailChange, StandardPostResponse>
 extension ChangeEmailRequest {
