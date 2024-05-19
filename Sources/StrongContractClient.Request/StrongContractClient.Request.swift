@@ -236,10 +236,10 @@ extension PasswordlessAuthenticationRequest {
     }
 }
 
-public typealias PasscodecodeAuthenticationRequest = Request<PasscodePayload, StandardPostResponse>
-extension PasscodecodeAuthenticationRequest {
+public typealias PasscodeAuthenticationRequest = Request<PasscodePayload, StandardPostResponse>
+extension PasscodeAuthenticationRequest {
     /// Used to reset the password.
-    public static var passcodecodeAuthentication: Self {
+    public static var passcodeAuthentication: Self {
         .init(method: .post)
     }
 }
