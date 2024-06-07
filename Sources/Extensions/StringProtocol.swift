@@ -6,14 +6,6 @@
 //
 
 import Foundation
-//
-//  File.swift
-//
-//
-//  Created by Leonardo Dabus on 04/07/21.
-//
-
-import Foundation
 import protocol Foundation.DataProtocol
 import protocol Foundation.ContiguousBytes
 import struct Foundation.Data

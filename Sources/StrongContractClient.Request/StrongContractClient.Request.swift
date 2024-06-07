@@ -28,9 +28,8 @@ extension FillSettingsRequest {
 public typealias ProfilePictureRequest = Request<Empty, Data>
 extension ProfilePictureRequest {
 
-    /// Downloads the user's profile picture
-    public static var profilePicture: Self {
-        .init(method: .get)
+    public static var profileImage: Self {
+        .init(method: .get, mimType: .octetStream)
     }
 }
 
@@ -165,7 +164,7 @@ extension UpdateImportanceRequest {
     /// another. And so you may rate the importance of one as `Question.Importance` as `.very` important whereas another
     /// might be rated as `.trivial`.
     public static var updateImportance: Self {
-        .init(method: .post)
+        .init(method: .put)
     }
 }
 
@@ -183,7 +182,7 @@ public typealias UpdateEmailRequest = Request<CredentialUpdate, StandardPostResp
 extension UpdateEmailRequest {
     /// For a user to update/change their email address.
     public static var updateEmail: Self {
-        .init(method: .post)
+        .init(method: .put)
     }
 }
 
@@ -370,7 +369,7 @@ public typealias UpdateUserSettingsRequest = Request<Settings, StandardPostRespo
 extension UpdateUserSettingsRequest {
     /// Update this user's settings, different from midGreet settings.
     public static var updateUserSettings: Self {
-        .init(method: .post)
+        .init(method: .put)
     }
 }
 
@@ -378,7 +377,7 @@ public typealias AddDisplayPicRequest = Request<Data, StandardPostResponse>
 extension AddDisplayPicRequest {
     /// Add a display image.
     public static var addDisplayPic: Self {
-        .init(method: .post)
+        .init(method: .post, mimType: .octetStream)
     }
 }
 
@@ -390,7 +389,7 @@ extension UpdateGreetRequest {
     ///   - payload: Sends the current greet (Meet up object) updated by the user information.
     ///   - response: Returns a Greet that is updated by the other user information.
     public static var updateGreet: Self {
-        .init(method: .post)
+        .init(method: .put)
     }
 }
 
@@ -400,7 +399,7 @@ extension UpdateMidGreetSettings {
     /// There are multiple phases and permutations that users go through during the meetup process.
     /// This sends the user's intention to conclude the greet either because the users met up, or because this user wants to reject the meetup.
     public static var updateMidGreetSettings: Self {
-        .init(method: .post)
+        .init(method: .put)
     }
 }
 
@@ -408,7 +407,7 @@ public typealias UpdateScheduleRequest = Request<[Week.Day], StandardPostRespons
 extension UpdateScheduleRequest {
     /// This is used to update when people are available to meet up with others.
     public static var updateSchedule: Self {
-        .init(method: .post)
+        .init(method: .put)
     }
 }
 

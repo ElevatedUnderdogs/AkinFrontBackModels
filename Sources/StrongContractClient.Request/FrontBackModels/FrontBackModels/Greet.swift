@@ -18,7 +18,12 @@ public struct Greet: Codable {
     public var otherUser: Greet.User
     public var greetID: String
     
+    /// A random greeting method in common between both users in the greet.  If no common methods, then a wave.
     public var method: Greet.Method = .wave
+
+    /// This is the compatibility of the other user to you.  
+    /// For example, the other user might be 75% compatible as a friend, and 1% compatibility as a romantic partner.
+    ///  
     public var compatitibility: [CompatibilityContext: CompatibilityScore] = [:]
     public var openers: [String] = []
     public var meetingEvent: MeetingEvent? = nil

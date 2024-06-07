@@ -17,7 +17,12 @@ extension User {
         public var lastName: String
         public var errors: String = ""
 
-        public init(email: String? = "", password: String? = "" , firstName: String? = "" , lastName: String? = "") {
+        public init(
+            email: String? = "",
+            password: String? = nil,
+            firstName: String? = "" ,
+            lastName: String? = ""
+        ) {
             self.email = email ?? ""
             self.password = password?.sha512hexa ?? ""
             self.firstName = firstName ?? ""
