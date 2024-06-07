@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import CoreLocation
 import StrongContractClient
 
 
@@ -26,9 +25,8 @@ extension FillSettingsRequest {
     }
 }
 
-/// Payload  = Image ID, and Image Data. 
-public typealias ProfileImageRequest = Request<String, Data>
-extension ProfileImageRequest { // image data
+public typealias ProfilePictureRequest = Request<Empty, Data>
+extension ProfilePictureRequest {
 
     public static var profileImage: Self {
         .init(method: .get, mimType: .octetStream)
@@ -140,7 +138,7 @@ extension GreetRatingRequest {
     }
 }
 
-public typealias LocationUpdateRequest = Request<CLLocationCoordinate2D, StandardPostResponse>
+public typealias LocationUpdateRequest = Request<Location, StandardPostResponse>
 extension LocationUpdateRequest {
     /// In order for the system to determine whether two compatible users are close enough to meet up,
     /// the system must know each's approximate location.
@@ -229,10 +227,18 @@ extension AddQuestion {
     }
 }
 
-public typealias ResetPasswordRequest = Request<ResetPassword, StandardPostResponse>
-extension ResetPasswordRequest {
+public typealias PasswordlessAuthenticationRequest = Request<PasswordlessAuthentication, StandardPostResponse>
+extension PasswordlessAuthenticationRequest {
     /// Used to reset the password.
-    public static var resetPassword: Self {
+    public static var passwordlessAuthentication: Self {
+        .init(method: .post)
+    }
+}
+
+public typealias PasscodeAuthenticationRequest = Request<PasscodePayload, StandardPostResponse>
+extension PasscodeAuthenticationRequest {
+    /// Used to reset the password.
+    public static var passcodeAuthentication: Self {
         .init(method: .post)
     }
 }
@@ -279,11 +285,19 @@ extension RegisterPushKitDeviceTokenRequest {
     }
 }
 
-public typealias BlockUserRequest = Request<BlockUser, StandardPostResponse>
+public typealias BlockUserRequest = Request<UUID, StandardPostResponse>
 extension BlockUserRequest {
     /// Blocks a user from being considered for meetups with this user.
     public static var blockUser: Self {
         .init(method: .post)
+    }
+}
+
+public typealias UnblockUserRequest = Request<UUID, StandardPostResponse>
+extension UnblockUserRequest {
+    /// Blocks a user from being considered for meetups with this user.
+    public static var unblockUser: Self {
+        .init(method: .delete)
     }
 }
 
@@ -304,7 +318,7 @@ extension AddResponseRequest {
     }
 }
 
-public typealias NearbyUsersRequest = Request<CLLocationCoordinate2D, [Greet.User]>
+public typealias NearbyUsersRequest = Request<Location, [Greet.User]>
 extension NearbyUsersRequest {
     /// To deprecate:  `static var nearbyUsers: URL {`
     /// Get a list of nearby users.

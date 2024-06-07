@@ -6,41 +6,41 @@
 //  Copyright © 2019 ElevatedUnderdogs. All rights reserved.
 //
 
-import UserNotifications
-import CoreLocation
-
 public typealias RequirementAction = (Requirement) -> Void
 
 public enum Requirement: Equatable, Codable {
 
-    case birthday
-    case location(Location)
-    case profilePic
-    case pushNotification(PushNotification)
-    
+    case birthday,
+         location(Location),
+         profilePic,
+         pushNotification(PushNotification)
+
     public enum Location: Codable {
         case regular, requiresDeeplinkToSettings, shouldUpgradeToAlways
     }
-    
+
     public enum PushNotification: Codable {
         case requiresDeeplinkToSettings, regular
     }
 
     // MARK - inits
-    
-    init?(from authorizationStatus: CLAuthorizationStatus) {
+    init?(from authorizationStatus: LocationAuthorizationStatus) {
         switch authorizationStatus {
-        case .notDetermined: self = .location(.regular)
-        case .restricted: self = .location(.requiresDeeplinkToSettings)
-        case .denied:  self = .location(.requiresDeeplinkToSettings)
-        case .authorizedAlways:  return nil
-        case .authorizedWhenInUse: self = .location(.shouldUpgradeToAlways)
-        @unknown default: return nil
+        case .notDetermined:
+            self = .location(.regular)
+        case .restricted:
+            self = .location(.requiresDeeplinkToSettings)
+        case .denied: 
+            self = .location(.requiresDeeplinkToSettings)
+        case .authorizedAlways: 
+            return nil
+        case .authorizedWhenInUse:
+            self = .location(.shouldUpgradeToAlways)
         }
     }
-    
+
     @available(macOS 10.14, *)
-    init?(from authStatus: UNAuthorizationStatus) {
+    init?(from authStatus: NotificationAuthorizationStatus) {
         switch authStatus {
         case .notDetermined:
             self = .pushNotification(.regular)
@@ -50,10 +50,9 @@ public enum Requirement: Equatable, Codable {
             return nil
         case .provisional:
             self = .pushNotification(.requiresDeeplinkToSettings)
-        @unknown default: return nil
         }
     }
-    
+
     init?(from profilePicString: String?) {
         if profilePicString == nil {
             self = .profilePic

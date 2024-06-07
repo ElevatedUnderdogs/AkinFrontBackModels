@@ -6,8 +6,6 @@
 //  Copyright © 2019 ElevatedUnderdogs. All rights reserved.
 //
 
-import UserNotifications
-
 extension Greet {
     
     public enum Notification: Codable {

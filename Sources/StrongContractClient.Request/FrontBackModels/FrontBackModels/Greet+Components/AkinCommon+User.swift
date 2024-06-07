@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import CoreLocation
 
 public typealias UsersAction = ([Greet.User]) -> Void
 

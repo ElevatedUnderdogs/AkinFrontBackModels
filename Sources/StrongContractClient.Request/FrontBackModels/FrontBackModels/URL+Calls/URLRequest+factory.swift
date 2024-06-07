@@ -8,7 +8,6 @@
 //DOCUMENATION https://git.generalassemb.ly/Scottyblades/GreeterEndpoints
 
 import Foundation
-import CoreLocation
 
 extension URLRequest {
     
@@ -99,7 +98,7 @@ extension URLRequest {
     static func updateUserLocation(
         userId: String?/* = Keychain.thisUserID*/,
         contextId: String = "",
-        thisLocation: CLLocationCoordinate2D
+        thisLocation: Location
     ) -> Self? {
         Self.updateUserLocation(
             userId: userId,

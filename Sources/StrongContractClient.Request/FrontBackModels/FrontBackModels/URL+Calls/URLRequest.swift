@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import CoreLocation
 import StrongContractClient
 
 
@@ -515,7 +514,7 @@ extension URL {
             .url!
     }
 
-    static func nearbyUsers(location: CLLocationCoordinate2D) -> URL {
+    static func nearbyUsers(location: Location) -> URL {
         URLComponents.baseURLComponents
             .with(path: "GetNearByUserList")
             .with(queryItems: .access_token_and_user_id, .lat(location.latitude.string), .lon(location.longitude.string))

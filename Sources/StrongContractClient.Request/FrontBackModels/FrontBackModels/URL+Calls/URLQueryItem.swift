@@ -6,10 +6,11 @@
 //  Copyright © 2018 ElevatedUnderdogs. All rights reserved.
 //
 
-import CoreLocation
-import os.log
-
+import Foundation
+#if canImport(os)
+import os
 let log = OSLog(subsystem: "com.ElevatedUnderdogs.akin1", category: "networking")
+#endif
 
 extension URLQueryItem {
 
@@ -50,16 +51,20 @@ extension URLQueryItem {
     }
 
     static func device(token value: String) -> Self {
+        #if canImport(os)
         if value.isEmpty {
             os_log("The device token was empty!", log: log, type: .info)
         }
+        #endif
         return URLQueryItem(.device_token, value)
     }
 
     static func pushKitDevice(token value: String) -> Self {
+        #if canImport(os)
         if value.isEmpty {
             os_log("The push device token was empty!", log: log, type: .info)
         }
+        #endif
         return URLQueryItem(.pushKitDeviceToken, value)
     }
 
@@ -347,5 +352,3 @@ extension URLQueryItem {
      */
     static var access_token_and_user_id: URLQueryItem = URLQueryItem(.access_token, "")
 }
-
-

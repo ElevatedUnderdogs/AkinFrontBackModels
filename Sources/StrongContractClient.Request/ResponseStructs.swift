@@ -21,15 +21,19 @@ public struct RegisterResponse: Codable {
 }
 
 public struct GeneralUser: Codable {
-    public var id: Int
-    public var name: String
-    public var profileImages: [String] = []
-    public var verified: Bool = false
-    
-    public init(id: Int, name: String, profileImages: [String], verified: Bool) {
+    public let id: UUID
+    public let name: String
+    public let profilePictures: [String]
+    public let verified: Bool
+    public init(
+        id: UUID,
+        name: String,
+        profilePictures: [String] = [],
+        verified: Bool = false
+    ) {
         self.id = id
         self.name = name
-        self.profileImages = profileImages
+        self.profilePictures = profilePictures
         self.verified = verified
     }
 }

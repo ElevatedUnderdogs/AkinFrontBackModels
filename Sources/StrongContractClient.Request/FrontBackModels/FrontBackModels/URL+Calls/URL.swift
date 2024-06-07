@@ -8,7 +8,6 @@
 //DOCUMENATION https://git.generalassemb.ly/Scottyblades/GreeterEndpoints
 
 //import Foundation
-//import CoreLocation
 //import StrongContractClient
 //
 //

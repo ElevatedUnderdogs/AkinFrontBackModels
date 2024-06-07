@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import UserNotifications
 
 extension Greet.Notification {
     

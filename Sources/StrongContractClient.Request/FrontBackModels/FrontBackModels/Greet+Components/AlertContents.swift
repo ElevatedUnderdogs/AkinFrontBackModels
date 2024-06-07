@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import CoreLocation
 
 public struct Contents: Codable {
 

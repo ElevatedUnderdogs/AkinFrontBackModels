@@ -11,7 +11,7 @@ import Foundation
 extension Greet {
 
     public struct User: Codable {
-        public var id: Int
+        public var id: String
         public var name: String
         public var profileImages: [String] = []
         public var percentTravelled: Double? = nil
@@ -21,7 +21,7 @@ extension Greet {
         public var verified: Bool = false
         // var imageUpdatedTo: ImageAction? = nil
 
-        public init(id: Int, name: String, profileImages: [String], percentTravelled: Double? = nil, image: Data? = nil, minutesFromPoint: Int? = nil, settings: Greet.Settings? = nil, verified: Bool) {
+        public init(id: String, name: String, profileImages: [String], percentTravelled: Double? = nil, image: Data? = nil, minutesFromPoint: Int? = nil, settings: Greet.Settings? = nil, verified: Bool) {
             self.id = id
             self.name = name
             self.profileImages = profileImages

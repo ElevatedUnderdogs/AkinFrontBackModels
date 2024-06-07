@@ -4,6 +4,7 @@
 //
 //  Created by Scott Lydon on 4/7/24.
 //
+import Foundation
 
 public typealias UpdateMidGreetSettingsRequest = Greet.Settings
 
@@ -38,7 +39,8 @@ public struct PasswordUpdate: Codable {
 
 public typealias DeviceDescription = String
 public typealias AddQuestionRequest = String
-public typealias GreetID = Int
+// GreetID type has been changed to String to allow storage of Fluent Models identifiers (UUID string)
+public typealias GreetID = String
 public typealias Events = [Int: String]
 
 public struct CredentialUpdate: Codable {
@@ -118,15 +120,14 @@ public struct Rating: Codable {
     }
 }
 
-import CoreLocation
 // Request public structure for updating user location with user ID and context ID
 public struct UserLocationUpdate: Codable {
     public let contextId: String
-    public let coordinate: CLLocationCoordinate2D
+    public let coordinate: Location
 
     public init(
         contextId: String,
-        coordinate: CLLocationCoordinate2D
+        coordinate: Location
     ) {
         self.contextId = contextId
         self.coordinate = coordinate
@@ -135,7 +136,7 @@ public struct UserLocationUpdate: Codable {
 
 public typealias ShouldEnableSilentPushNoticeUpdates = Bool
 
-public typealias ResetPassword = String
+public typealias PasswordlessAuthentication = String
 
 public struct EmailChange: Codable {
     public let currentEmail: String
@@ -153,22 +154,19 @@ public typealias HideMe = Bool
 
 public typealias PushkitDeviceToken = String
 
-// Define Argument public structs
-public struct BlockUser: Codable {
-    public let otherUser: Int
-    public let shouldBlock: Bool? // Optional to accommodate both block user functions
-
-    public init(otherUser: Int, shouldBlock: Bool? = nil) {
-        self.otherUser = otherUser
-        self.shouldBlock = shouldBlock
-    }
-}
-
 public struct LoginPayload: Codable {
     public let email, password: String
     public init(email: String, password: String) {
         self.email = email.sha256hexa
         self.password = password.sha512hexa
+    }
+}
+
+public struct PasscodePayload: Codable {
+    public let email, passcode: String
+    public init(email: String, passcode: String) {
+        self.email = email.sha256hexa
+        self.passcode = passcode.sha512hexa
     }
 }
 

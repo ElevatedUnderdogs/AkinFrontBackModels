@@ -6,17 +6,15 @@
 //  Copyright © 2019 ElevatedUnderdogs. All rights reserved.
 //
 
-import CoreLocation
-
 extension Greet {
-    
+
     public struct MeetingEvent: Codable {
 
         public var meetInXMinutes: Int = 0
-        public var halfwayPoint: CLLocationCoordinate2D
+        public var halfwayPoint: Location
         public var business: Yelp.Business? = nil
 
-        public init(halfway: CLLocationCoordinate2D) {
+        public init(halfway: Location) {
             self.halfwayPoint = halfway
         }
     }
