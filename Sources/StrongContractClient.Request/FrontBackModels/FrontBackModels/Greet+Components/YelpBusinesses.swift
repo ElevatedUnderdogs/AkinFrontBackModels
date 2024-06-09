@@ -8,6 +8,8 @@
 
 import Foundation
 
+// https://docs.developer.yelp.com/docs/fusion-intro
+
 // MARK: - Yelp
 public struct Yelp: Codable {
     let total: Int
