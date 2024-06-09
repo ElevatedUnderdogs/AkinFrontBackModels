@@ -12,7 +12,7 @@ extension Greet {
 
         public var meetInXMinutes: Int = 0
         public var halfwayPoint: Location
-        public var business: Yelp.Business? = nil
+        public var business: Business? = nil
 
         public init(halfway: Location) {
             self.halfwayPoint = halfway

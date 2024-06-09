@@ -90,21 +90,21 @@ extension URLRequest {
         }
     }
     
-    /// Adds/Updates user's location onto the server database.
-    /// - Parameters:
-    ///   - userId: `User`'s id who's location needs to be updated. Current logged in user's id is the default value.
-    ///   - contextId: Current context id.
-    /// - Returns: New instance of `URLRequest`.
-    static func updateUserLocation(
-        userId: String?/* = Keychain.thisUserID*/,
-        contextId: String = "",
-        thisLocation: Location
-    ) -> Self? {
-        Self.updateUserLocation(
-            userId: userId,
-            latitude: thisLocation.latitude,
-            longitude: thisLocation.longitude,
-            contextId: contextId
-        )
-    }
+//    /// Adds/Updates user's location onto the server database.
+//    /// - Parameters:
+//    ///   - userId: `User`'s id who's location needs to be updated. Current logged in user's id is the default value.
+//    ///   - contextId: Current context id.
+//    /// - Returns: New instance of `URLRequest`.
+//    static func updateUserLocation(
+//        userId: String?/* = Keychain.thisUserID*/,
+//        contextId: String = "",
+//        thisLocation: Location
+//    ) -> Self? {
+//        Self.updateUserLocation(
+//            userId: userId,
+//            latitude: thisLocation.latitude,
+//            longitude: thisLocation.longitude,
+//            contextId: contextId
+//        )
+//    }
 }

@@ -514,12 +514,12 @@ extension URL {
             .url!
     }
 
-    static func nearbyUsers(location: Location) -> URL {
-        URLComponents.baseURLComponents
-            .with(path: "GetNearByUserList")
-            .with(queryItems: .access_token_and_user_id, .lat(location.latitude.string), .lon(location.longitude.string))
-            .url!
-    }
+//    static func nearbyUsers(location: Location) -> URL {
+//        URLComponents.baseURLComponents
+//            .with(path: "GetNearByUserList")
+//            .with(queryItems: .access_token_and_user_id, .lat(location.latitude.string), .lon(location.longitude.string))
+//            .url!
+//    }
 
     static func make(
         my: Question.Response.Selections.MyTheir.Choice?,
