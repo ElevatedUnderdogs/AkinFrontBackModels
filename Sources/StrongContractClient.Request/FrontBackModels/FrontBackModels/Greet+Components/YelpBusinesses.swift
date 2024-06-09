@@ -12,22 +12,22 @@ import Foundation
 
 // MARK: - Yelp
 public struct Yelp: Codable {
-    let total: Int
-    let businesses: [Business]
+    public let total: Int
+    public let businesses: [Business]
 }
 
 
 // MARK: - Business
 public struct Business: Codable {
-    let rating: Double
-    let price, phone, id: String
-    let categories: [Category]
-    let reviewCount: Int
-    let name: String
-    let url: String
-    let coordinates: Coordinates
-    let imageURL: String
-    let location: Location
+    public let rating: Double
+    public let price, phone, id: String
+    public let categories: [Category]
+    public let reviewCount: Int
+    public let name: String
+    public let url: String
+    public let coordinates: Coordinates
+    public let imageURL: String
+    public let location: Location
 
     enum CodingKeys: String, CodingKey {
         case rating, price, phone, id, categories
@@ -40,18 +40,18 @@ public struct Business: Codable {
 
 // MARK: - Category
 public struct Category: Codable {
-    let alias, title: String
+    public let alias, title: String
 }
 
 // MARK: - Coordinates
 public struct Coordinates: Codable {
-    let latitude, longitude: Double
+    public let latitude, longitude: Double
 }
 
 // MARK: - Location
 public struct Location: Codable {
-    let city, country, address2, address3: String
-    let state, address1, zipCode: String
+    public let city, country, address2, address3: String
+    public let state, address1, zipCode: String
 
     enum CodingKeys: String, CodingKey {
         case city, country, address2, address3, state, address1
