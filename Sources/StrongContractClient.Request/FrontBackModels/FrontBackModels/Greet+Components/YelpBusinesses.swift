@@ -46,6 +46,11 @@ public struct Category: Codable {
 // MARK: - Coordinates
 public struct Coordinates: Codable {
     public let latitude, longitude: Double
+
+    public init(latitude: Double, longitude: Double) {
+        self.latitude = latitude
+        self.longitude = longitude
+    }
 }
 
 // MARK: - Location
