@@ -57,4 +57,19 @@ public struct Location: Codable {
         case city, country, address2, address3, state, address1
         case zipCode = "zip_code"
     }
+
+    // Computed property to get the display address
+    public var displayAddress: String {
+        var addressComponents: [String] = []
+
+        if !address1.isEmpty { addressComponents.append(address1) }
+        if !address2.isEmpty { addressComponents.append(address2) }
+        if !address3.isEmpty { addressComponents.append(address3) }
+        if !city.isEmpty { addressComponents.append(city) }
+        if !state.isEmpty { addressComponents.append(state) }
+        if !zipCode.isEmpty { addressComponents.append(zipCode) }
+        if !country.isEmpty { addressComponents.append(country) }
+
+        return addressComponents.joined(separator: ", ")
+    }
 }
