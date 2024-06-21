@@ -14,8 +14,10 @@ extension Greet {
         case handShake = "Hand shake"
         case hug
         case kiss
-        case plur, highFive = "High Five"
-        case wave, hook_up = "Hook up"
+        case plur
+        case highFive = "High Five"
+        case wave
+        case hook_up = "Hook up"
         case wetWilly = "Wet Willy"
         
         public var displayStr: String {

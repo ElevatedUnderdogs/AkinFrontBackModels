@@ -35,7 +35,43 @@ public struct Greet: Codable {
     public var withinRangeOfEachOtherAndMeetPlace: Int? = nil
     public var matchMakingMethodVersion: Double? = nil
     public var estimatedTravelTimeInMinutes: Int? = nil
-    
+    public var rangeThreshold: Int = 0
+
+    // MARK: - Initializer
+     public init(
+         otherUser: Greet.User,
+         greetID: String,
+         method: Greet.Method = .wave,
+         compatitibility: [CompatibilityContext: CompatibilityScore] = [:],
+         openers: [String] = [],
+         meetingEvent: MeetingEvent? = nil,
+         isMrPractice: Bool = false,
+         thisSettings: Settings = Settings(status: .viewed),
+         percentThisTravelled: Double = 0,
+         minutesAway: Int? = nil,
+         travelMethod: TravelMethod? = nil,
+         withinRangeOfEachOtherAndMeetPlace: Int? = nil,
+         matchMakingMethodVersion: Double? = nil,
+         estimatedTravelTimeInMinutes: Int? = nil,
+         rangeThreshold: Int = 0
+     ) {
+         self.otherUser = otherUser
+         self.greetID = greetID
+         self.method = method
+         self.compatitibility = compatitibility
+         self.openers = openers
+         self.meetingEvent = meetingEvent
+         self.isMrPractice = isMrPractice
+         self.thisSettings = thisSettings
+         self.percentThisTravelled = percentThisTravelled
+         self.minutesAway = minutesAway
+         self.travelMethod = travelMethod
+         self.withinRangeOfEachOtherAndMeetPlace = withinRangeOfEachOtherAndMeetPlace
+         self.matchMakingMethodVersion = matchMakingMethodVersion
+         self.estimatedTravelTimeInMinutes = estimatedTravelTimeInMinutes
+         self.rangeThreshold = rangeThreshold
+     }
+
     public var meetInXMinutes: Int? {
         guard let estimatedTravelTime = estimatedTravelTimeInMinutes else { return nil }
         return estimatedTravelTime + (agreedTime ?? 0)
@@ -46,7 +82,7 @@ public struct Greet: Codable {
         return thisSettings.agreedTimeProposals.filter({ !otherUserSettings.rejectedTimeProposals.contains($0) && otherUserSettings.agreedTimeProposals.contains($0) }).first
     }
     
-    public var rangeThreshold: Int = 0
+
     
     public var isWaiting: Bool {
         let proposals = thisSettings.agreedTimeProposals
