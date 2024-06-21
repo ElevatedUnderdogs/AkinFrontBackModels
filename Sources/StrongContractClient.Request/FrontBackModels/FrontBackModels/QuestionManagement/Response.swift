@@ -24,13 +24,14 @@ extension Question {
         public var rating: Int
         public var id: Int
         public var timeStamp: String
-        public var creatorID: String
-        public var contextID: Int
-        public var answer_id: Int
-        public var userID: Int
-        public var displayPicURL: String
-        public var responseID: Int
-        public var questionText: String
+
+        /// The id of the user that created the response.
+        public var creatorID: String // TODO: Could be Response User details (image, username)
+
+        /// The context the user created the question in.  The question is not limited to the context it was created in.
+        /// ie: It may be a question originally intended for friendship, but could be used in the context of romance for
+        public var intendedContextID: ContextID
+
         public var questionID: Int
         
         public var myChoice: [ContextID: Selections.MyTheir.Choice] = [:]
@@ -39,32 +40,22 @@ extension Question {
         
         public init(
             text: String,
-             rating: Int = 0,
-             id: Int = NSUUID().hash,
-             timeStamp: String = "",
-             creatorID: String = "-1",
-             contextID: Int = -1,
-             answer_id: Int = -1,
-             userID: Int = -1,
-             displayPIcURL: String = "",
-             responseID: Int = -1,
-             questionText: String = "",
-             questionID: Int = -1
+            rating: Int = 0,
+            id: Int = NSUUID().hash,
+            timeStamp: String = "",
+            creatorID: String = "-1",
+            intendedContextID: ContextID = "neutral",
+            questionID: Int = -1
         ) {
             self.text = text
             self.rating = rating
             self.id = id
             self.timeStamp = timeStamp
             self.creatorID = creatorID
-            self.contextID = contextID
-            self.answer_id = answer_id
-            self.userID = userID
-            self.displayPicURL = displayPIcURL
-            self.responseID = responseID
-            self.questionText = questionText
+            self.intendedContextID = intendedContextID
             self.questionID = questionID
         }
-        
+
         public func has(_ myTheir: Selections.MyTheir, for contextID: String) -> Bool {
             switch myTheir {
             case .my:
