@@ -14,7 +14,7 @@ public struct Venue: Codable, Hashable, Equatable {
     public let latitude: Double
     public let longitude: Double
 
-    init(
+    public init(
         url: String,
         name: String,
         address: String,
