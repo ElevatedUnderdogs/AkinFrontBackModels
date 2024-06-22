@@ -12,5 +12,10 @@ extension Greet {
 
         public var meetInXMinutes: Int = 0
         public var business: Business? = nil
+
+        public init(meetInXMinutes: Int, business: Business? = nil) {
+            self.meetInXMinutes = meetInXMinutes
+            self.business = business
+        }
     }
 }
