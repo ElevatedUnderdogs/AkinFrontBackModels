@@ -21,12 +21,11 @@ extension Question {
         }
         
         public var text: String = ""
-        public var rating: Int
         public var id: Int
         public var timeStamp: String
 
         /// The id of the user that created the response.
-        public var creatorID: String // TODO: Could be Response User details (image, username)
+        public var creator: Creator
 
         /// The context the user created the question in.  The question is not limited to the context it was created in.
         /// ie: It may be a question originally intended for friendship, but could be used in the context of romance for
@@ -40,18 +39,16 @@ extension Question {
         
         public init(
             text: String,
-            rating: Int = 0,
             id: Int = NSUUID().hash,
             timeStamp: String = "",
-            creatorID: String = "-1",
+            creator: Creator,
             intendedContextID: ContextID = "neutral",
             questionID: Int = -1
         ) {
             self.text = text
-            self.rating = rating
             self.id = id
             self.timeStamp = timeStamp
-            self.creatorID = creatorID
+            self.creator = creator
             self.intendedContextID = intendedContextID
             self.questionID = questionID
         }

@@ -8,8 +8,18 @@
 import Foundation
 
 /// A struct to hold details for users to see details about the creator of content such as a `Response`
-struct Creator: Codable, Hashable, Equatable {
-    let profileImageURL: String
-    let displayName: String
-    let contextCompatibility: [ContextID: Decimal]
+public struct Creator: Codable, Hashable, Equatable {
+    public let profileImageURL: String
+    public let displayName: String
+    public let contextCompatibility: [ContextID: Decimal]
+
+    public init(
+        profileImageURL: String,
+        displayName: String,
+        contextCompatibility: [ContextID : Decimal]
+    ) {
+        self.profileImageURL = profileImageURL
+        self.displayName = displayName
+        self.contextCompatibility = contextCompatibility
+    }
 }
