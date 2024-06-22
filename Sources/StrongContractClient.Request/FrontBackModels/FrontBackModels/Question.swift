@@ -32,7 +32,7 @@ public struct Question: Codable, Equatable, Hashable {
     public var creatorID: String
     public var importanceFor: [ContextID: Importance] = [:] // Codable
     public var contextPopularity: [ContextID: PopularityScore] = [:] // Codable
-
+    public var originalContext: Context
     
     // MARK - computed properties
     
@@ -57,12 +57,13 @@ public struct Question: Codable, Equatable, Hashable {
         id: Int? = nil,
         type: String = "",
         creatorID: String,
-        thisUser: Bool = false
+        originalContext: Context
     ) {
         self.text = text
         self.responses = responses
+        self.id = id ?? NSUUID().hash
         self.type = type
         self.creatorID = creatorID
-        self.id = id ?? NSUUID().hash
+        self.originalContext = originalContext
     }
 }
