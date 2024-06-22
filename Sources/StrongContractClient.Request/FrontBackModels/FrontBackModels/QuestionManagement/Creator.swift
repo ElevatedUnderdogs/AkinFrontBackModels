@@ -22,4 +22,8 @@ public struct Creator: Codable, Hashable, Equatable {
         self.displayName = displayName
         self.contextCompatibility = contextCompatibility
     }
+
+    static var placeholder: Self {
+        .init(profileImageURL: "", displayName: "", contextCompatibility: [:])
+    }
 }

@@ -26,7 +26,7 @@ public struct Greet: Codable {
     ///  
     public var compatitibility: [CompatibilityContext: CompatibilityScore] = [:]
     public var openers: [String] = []
-    public var meetingEvent: MeetingEvent? = nil
+    public var venue: Venue? = nil
     public var isMrPractice: Bool = false
     public var thisSettings = Settings(status: .viewed)
     public var percentThisTravelled: Double = 0
@@ -44,7 +44,7 @@ public struct Greet: Codable {
          method: Greet.Method = .wave,
          compatitibility: [CompatibilityContext: CompatibilityScore] = [:],
          openers: [String] = [],
-         meetingEvent: MeetingEvent? = nil,
+         venue: Venue? = nil,
          isMrPractice: Bool = false,
          thisSettings: Settings = Settings(status: .viewed),
          percentThisTravelled: Double = 0,
@@ -60,7 +60,7 @@ public struct Greet: Codable {
          self.method = method
          self.compatitibility = compatitibility
          self.openers = openers
-         self.meetingEvent = meetingEvent
+         self.venue = venue
          self.isMrPractice = isMrPractice
          self.thisSettings = thisSettings
          self.percentThisTravelled = percentThisTravelled
@@ -81,9 +81,7 @@ public struct Greet: Codable {
         guard let otherUserSettings = otherUser.settings else { return nil }
         return thisSettings.agreedTimeProposals.filter({ !otherUserSettings.rejectedTimeProposals.contains($0) && otherUserSettings.agreedTimeProposals.contains($0) }).first
     }
-    
-
-    
+        
     public var isWaiting: Bool {
         let proposals = thisSettings.agreedTimeProposals
         guard let rejectedProposals = otherUser.settings?.rejectedTimeProposals else { return false }
@@ -116,7 +114,7 @@ public struct Greet: Codable {
     
     public mutating func update(with new: Greet) -> Greet.Update? {
         let rejectedTime = rejectedProposal(from: new)
-        meetingEvent = new.meetingEvent
+        venue = new.venue
         otherUser = new.otherUser
         thisSettings.updateSettings(with: otherUser.settings)
         withinRangeOfEachOtherAndMeetPlace = new.withinRangeOfEachOtherAndMeetPlace
@@ -136,18 +134,15 @@ public struct Greet: Codable {
     }
     
     // Reject
-    
+
     public func rejectedProposal(from new: Greet) -> Int? {
-        if let oldRejectedTimeProposals = otherUser.settings?.rejectedTimeProposals,
-            let newRejectedTimeProposals =  new.otherUser.settings?.rejectedTimeProposals {
-            let differentProposals = newRejectedTimeProposals.filter { !oldRejectedTimeProposals.contains($0) }
-            if let first = differentProposals.first {
-                return first
-            }
+        guard let oldRejectedTimeProposals = otherUser.settings?.rejectedTimeProposals,
+              let updatedRejectedTimeProposals =  new.otherUser.settings?.rejectedTimeProposals else {
+            return nil
         }
-        return nil
+        return updatedRejectedTimeProposals.first { !oldRejectedTimeProposals.contains($0) }
     }
-    
+
     public mutating func mrPracticeDidReject() -> Bool? {
         if !isMrPractice {return nil}
         return arc4random_uniform(4) == 0

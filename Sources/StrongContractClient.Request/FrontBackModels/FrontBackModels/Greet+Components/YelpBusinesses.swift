@@ -16,7 +16,6 @@ public struct Yelp: Codable {
     public let businesses: [Business]
 }
 
-
 // MARK: - Business
 public struct Business: Codable {
     public let rating: Double
@@ -28,6 +27,16 @@ public struct Business: Codable {
     public let coordinates: Coordinates
     public let imageURL: String
     public let location: Location
+
+    var venue: Venue {
+        Venue(
+            url: url,
+            name: name,
+            address: location.displayAddress,
+            latitude: coordinates.latitude,
+            longitude: coordinates.longitude
+        )
+    }
 
     enum CodingKeys: String, CodingKey {
         case rating, price, phone, id, categories
