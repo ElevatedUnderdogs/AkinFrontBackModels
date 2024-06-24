@@ -318,7 +318,7 @@ extension AddResponseRequest {
     }
 }
 
-public typealias NearbyUsersRequest = Request<Coordinates, [Greet.User]>
+public typealias NearbyUsersRequest = Request<Coordinates, [NearbyUser]>
 extension NearbyUsersRequest {
     /// To deprecate:  `static var nearbyUsers: URL {`
     /// Get a list of nearby users.
