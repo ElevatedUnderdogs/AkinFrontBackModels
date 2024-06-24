@@ -31,6 +31,6 @@ extension Array where Element == Greet.Method  {
 
 extension Array where Element == Greet.User {
     public func index(of id: Int) -> Int? {
-        firstIndex { Int($0.id) == id }
+        firstIndex { Int($0.personal.id) == id }
     }
 }

@@ -129,7 +129,7 @@ public struct Greet: Codable {
             withinRange: withinRange,
             rejectedProposal: rejectedTime,
             viewForProposal: viewForProposal,
-            otherUserName: otherUser.name
+            otherUserName: otherUser.personal.name
         )
     }
     
