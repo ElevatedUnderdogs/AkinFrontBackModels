@@ -325,7 +325,7 @@ public typealias NearbyUsersRequest = Request<Coordinates, [Greet.User]>
 /// with little consequences this way, and just know to not use the nil properties, or not expect
 /// much, but the current ui doesn't use those nil properties anyway except one point to try to
 /// get an image from data, but we shouldn't be sending nested data in a list anyway, we should
-///  be sending/using the url, and maybe assigning data dynamically. 
+///  be sending/using the url, and maybe assigning data dynamically.
 extension NearbyUsersRequest {
     /// To deprecate:  `static var nearbyUsers: URL {`
     /// Get a list of nearby users.
