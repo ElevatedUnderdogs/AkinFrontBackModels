@@ -17,6 +17,16 @@ extension Greet {
         public var minutesFromPoint: Int? = nil
         public var settings: Greet.Settings? = nil
 
+
+        /// <#Description#>
+        /// - Parameters:
+        ///   - nearbyUser: <#nearbyUser description#>
+        ///   - percentTravelled: <#percentTravelled description#>
+        ///   - image: <#image description#>
+        ///   - minutesFromPoint: Is this supposed to be minutes away from a central meeting location or minutes away from the other user.
+        ///   I think this solves a problem I was having.  I was worried about people triangulating exact locations of people, however, if instead
+        ///   of showing how near someone is to someone else, perhaps I can
+        ///   - settings: <#settings description#>
         public init(
             nearbyUser: NearbyUser,
             percentTravelled: Double? = nil,
