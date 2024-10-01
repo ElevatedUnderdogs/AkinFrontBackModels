@@ -60,26 +60,28 @@ func postComment(prNumber: String, comment: String, repo: String, githubToken: S
 func getChangedFiles() -> [String] {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
-    process.arguments = ["diff", "--name-only", "origin/main"]
+    process.arguments = ["diff", "--name-only", "origin/main"]  // Use 'origin/master'
     
     let pipe = Pipe()
     process.standardOutput = pipe
-    process.launch()
+    try? process.run()
     
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
     let output = String(data: data, encoding: .utf8) ?? ""
     return output.split(separator: "\n").map(String.init)
 }
 
+
 // Main function
 func main() {
     // Get environment variables
     guard let openAIKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"],
-          let githubToken = ProcessInfo.processInfo.environment["G_TOKEN"] else {
+          let githubToken = ProcessInfo.processInfo.environment["GITHUB_TOKEN"] else {
         print("Missing environment variables.")
         return
     }
-    
+
+    // Rest of your code logic
     let prNumber = "84"  // Replace with your PR number for testing
     let repo = "ElevatedUnderdogs/AkinFrontBackModels"
     
@@ -108,3 +110,4 @@ func main() {
 
 // Run the main function
 main()
+
