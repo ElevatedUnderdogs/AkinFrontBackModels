@@ -1,0 +1,24 @@
+name: GPT Swift Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize]  # Trigger on PR open and update
+
+jobs:
+  gpt-lint:
+    runs-on: macos-latest  # Using macOS since it's a Swift project
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Swift
+        run: |
+          swift --version
+
+      - name: Run GPT Lint
+        env:
+          GITHUB_TOKEN: ${{ secrets.G_TOKEN }}  # Use G_TOKEN from GitHub Secrets
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}  # Make sure to add OPENAI_API_KEY as well
+        run: |
+          swift gpt_lint.swift
