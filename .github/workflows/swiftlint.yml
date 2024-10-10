@@ -3,7 +3,7 @@ name: SwiftLint
 on:
   pull_request:
     branches:
-      - main
+      - develop
     paths:
       - '.github/workflows/swiftlint.yml'
       - '.swiftlint.yml'
@@ -19,26 +19,26 @@ jobs:
       
       - name: Run SwiftLint
         uses: norio-nomura/action-swiftlint@3.2.1
-        continue-on-error: true
-        # continue-on-error: false
+        continue-on-error: false
+        # continue-on-error: true
       
       - name: Run SwiftLint with --strict
         uses: norio-nomura/action-swiftlint@3.2.1
         with:
           args: --strict
-        continue-on-error: true
-        # continue-on-error: false
+        continue-on-error: false
+        # continue-on-error: true
       
       - name: Run SwiftLint (Only changed files in PR)
         uses: norio-nomura/action-swiftlint@3.2.1
         with:
           diff_base: ${{ github.base_ref }}
-        continue-on-error: true
-        # continue-on-error: false
+        continue-on-error: false
+        # continue-on-error: true
       
       - name: Run SwiftLint (Different working directory)
         uses: norio-nomura/action-swiftlint@3.2.1
         with:
           working_directory: Source
-        continue-on-error: true
-        # continue-on-error: false
+        continue-on-error: false
+        # continue-on-error: true

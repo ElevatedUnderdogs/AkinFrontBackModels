@@ -3,7 +3,7 @@ name: Periphery Scan
 on:
   pull_request:
     branches:
-      - main
+      - develop
 
 jobs:
   periphery-scan:
@@ -24,11 +24,12 @@ jobs:
       run: brew install peripheryapp/periphery/periphery
 
     - name: Run Periphery Scan
+      id: periphery_scan
       run: periphery scan --format github-actions --strict --relative-results
 
-    # - name: Fail if unused code is found
-    #   run: |
-    #     if periphery scan --format github-actions --strict --relative-results | grep -q "Unused"; then
-    #       echo "Unused code found!"
-    #       exit 1
-    #     fi
+    - name: Check for unused code
+      run: |
+        if echo "${{ steps.periphery_scan.outputs.stdout }}" | grep -q "Unused"; then
+          echo "Unused code found!"
+          exit 1
+        fi
