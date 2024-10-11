@@ -1,0 +1,36 @@
+name: SonarQube Workflow
+
+on:
+  push:
+    branches: [ "develop", "cicd_checks_integration" ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  sonarscan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v3.0.0
+      env:
+        SONAR_TOKEN: 4373bddf38c3e454caa0165b5470237cf328f2e7
+        SONAR_HOST_URL: https://sonarcloud.io
+      with:
+        args: "-X"
+        
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
+      timeout-minutes: 5
+      env:
+       SONAR_TOKEN: 4373bddf38c3e454caa0165b5470237cf328f2e7
+
+    - name: "SonarQube Quality Gate Status"
+      run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
+
+    - name: Fail PR if Quality Gate fails
+      if: ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status != 'PASSED' }}
+      run: exit 1
