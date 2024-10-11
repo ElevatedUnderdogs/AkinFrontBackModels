@@ -1,0 +1,58 @@
+name: GPT Pull Request Updater
+
+on:
+   pull_request:
+      types:
+         - opened
+         - synchronize
+
+jobs:
+   update_pull_request:
+      runs-on: ubuntu-latest
+
+      steps:
+         # Set up Go environment
+         - name: Set up Go
+           uses: actions/setup-go@v2
+           with:
+              go-version: 1.19
+
+         # Checkout the GPT-PullRequest-Updater repository
+         - name: Checkout GPT-PullRequest-Updater
+           uses: actions/checkout@v2
+           with:
+              repository: ravilushqa/gpt-pullrequest-updater
+              path: gpt-pullrequest-updater
+
+         # Build the description and review commands from the GPT-PullRequest-Updater
+         - name: Build description and review commands
+           run: |
+              cd gpt-pullrequest-updater
+              make build
+
+         # Update Pull Request Description
+         - name: Update Pull Request Description
+           run: |
+              ./gpt-pullrequest-updater/bin/description \
+              --gh-token $CUSTOM_GH_TOKEN \
+              --openai-token $OPENAI_API_KEY
+           env:
+              OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+              CUSTOM_GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+              OWNER: ${{ github.repository_owner }}
+              REPO: ${{ github.event.repository.name }}
+              PR_NUMBER: ${{ github.event.number }}
+
+         # Review Pull Request - this will run on both 'opened' and 'synchronize' events
+         - name: Review Pull Request
+           if: github.event.action == 'opened' || github.event.action == 'synchronize'
+           run: |
+              ./gpt-pullrequest-updater/bin/review \
+              --gh-token $CUSTOM_GH_TOKEN \
+              --openai-token $OPENAI_API_KEY
+           env:
+              OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+              CUSTOM_GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+              OWNER: ${{ github.repository_owner }}
+              REPO: ${{ github.event.repository.name }}
+              PR_NUMBER: ${{ github.event.number }}
