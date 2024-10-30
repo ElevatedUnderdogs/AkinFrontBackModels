@@ -2,9 +2,9 @@ name: SonarQube Workflow
 
 on:
   push:
-    branches: [ "develop", "cicd_checks_integration" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ master ]
+    branches: [ "main" ]
 
 jobs:
   sonarscan:
@@ -16,7 +16,7 @@ jobs:
     - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v3.0.0
       env:
-        SONAR_TOKEN: 4373bddf38c3e454caa0165b5470237cf328f2e7
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: https://sonarcloud.io
       with:
         args: "-X"
@@ -26,7 +26,7 @@ jobs:
       uses: sonarsource/sonarqube-quality-gate-action@master
       timeout-minutes: 5
       env:
-       SONAR_TOKEN: 4373bddf38c3e454caa0165b5470237cf328f2e7
+       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: "SonarQube Quality Gate Status"
       run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"

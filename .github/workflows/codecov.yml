@@ -2,9 +2,9 @@ name: Codecov Workflow
 
 on:
   push:
-    branches: [ "develop", "cicd_checks_integration" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   swift-tests:
@@ -13,21 +13,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Homebrew (macOS)
-        run: |
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>~/.profile
-          eval "$(/opt/homebrew/bin/brew shellenv)"
-          brew --version
-
       - name: Install SwiftLint
-        run: brew install swiftlint
+        run: brew install swiftlint || echo "SwiftLint already installed"
 
       - name: Run SwiftLint
         run: swiftlint
 
       - name: Run Swift Tests with Code Coverage
-        run: swift test --enable-code-coverage
+        run: swift test --enable-code-coverage --parallel
 
       - name: Find .profdata file
         run: |
@@ -37,17 +30,17 @@ jobs:
             exit 1
           fi
           echo "PROFDATA_PATH=$profdata_file" >> $GITHUB_ENV
+          echo "Profdata file path: $profdata_file"
 
       - name: Debug Test Binary Path
         run: |
-          find . -name "*.xctest"
           test_binary=$(find . -name "*.xctest" | head -n 1)
           if [ -z "$test_binary" ]; then
             echo "Error: Test binary not found!"
             exit 1
           fi
-          echo "Test binary path: $test_binary"
           echo "TEST_BINARY_PATH=$test_binary" >> $GITHUB_ENV
+          echo "Test binary path: $test_binary"
 
       - name: Convert .profdata to txt format
         run: |
@@ -58,6 +51,7 @@ jobs:
           -show-regions \
           -show-line-counts-or-regions \
           -use-color=false > coverage.txt
+          echo "Coverage data converted to coverage.txt"
 
       - name: Display Coverage Report
         run: cat coverage.txt
@@ -71,4 +65,4 @@ jobs:
           verbose: true
           fail_ci_if_error: true
         env:
-          CODECOV_TOKEN: 16a144c4-c652-49b2-94cb-c9e253ad3559
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

@@ -3,7 +3,7 @@ name: Periphery Scan
 on:
   pull_request:
     branches:
-      - develop
+      - main
 
 jobs:
   periphery-scan:
