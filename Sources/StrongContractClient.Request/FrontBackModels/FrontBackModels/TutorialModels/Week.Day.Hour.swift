@@ -7,14 +7,6 @@
 //
 
 import Foundation
-// Use conditional imports to import platform-specific frameworks
-#if canImport(UIKit)
-import UIKit
-#elseif canImport(AppKit)
-import AppKit
-#else
-// Define a placeholder type or import another graphic framework as needed
-#endif
 
 extension Week.Day {
 
@@ -33,16 +25,13 @@ extension Week.Day {
 
         public let count: Int
         public let amPM: AMPM // Codable
-#if canImport(UIKit)
-        public var btn: UIButton?
+        public var travelMethod: TravelMethod // Codable
 
-        public init(count: Int, amPM: AMPM, btn: UIButton? = nil, travelMethod: TravelMethod) {
+
+        public init(count: Int, amPM: AMPM, travelMethod: TravelMethod) {
             self.count = count
             self.amPM = amPM
-            self.btn = btn
             self.travelMethod = travelMethod
         }
-#endif
-        public var travelMethod: TravelMethod // Codable
     }
 }
