@@ -23,7 +23,7 @@ public struct Creator: Codable, Hashable, Equatable {
         self.contextCompatibility = contextCompatibility
     }
 
-    static var placeholder: Self {
+    public static var placeholder: Self {
         .init(profileImageURL: "", displayName: "", contextCompatibility: [:])
     }
 }
