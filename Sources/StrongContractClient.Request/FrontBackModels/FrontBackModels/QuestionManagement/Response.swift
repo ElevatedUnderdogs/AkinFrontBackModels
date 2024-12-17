@@ -21,39 +21,34 @@ extension Question {
         }
         
         public var text: String = ""
-        public var id: Int
-        public var timeStamp: String
+        public var timeStamp: Date
+        
+        public var id: UUID
 
         /// The id of the user that created the response.
-        public var creator: Creator
+        public var creator: UUID
 
-        /// The context the user created the question in.  The question is not limited to the context it was created in.
-        /// ie: It may be a question originally intended for friendship, but could be used in the context of romance for
-        public var intendedContextID: ContextID
+        public var questionID: UUID
 
-        public var questionID: Int
-        
         public var myChoice: [ContextID: Selections.MyTheir.Choice] = [:]
         public var theirChoices: [ContextID: Selections.MyTheir.Choice] = [:]
         public var popularity: [ContextID: PopularityScore] = [:]
-        
+
         public init(
-            text: String,
-            id: Int = NSUUID().hash,
-            timeStamp: String = "",
-            creator: Creator,
-            intendedContextID: ContextID = "neutral",
-            questionID: Int = -1
+            id: UUID,
+            addResponse: AddResponse
         ) {
-            self.text = text
+            self.text = addResponse.parts.text
             self.id = id
-            self.timeStamp = timeStamp
-            self.creator = creator
-            self.intendedContextID = intendedContextID
-            self.questionID = questionID
+            self.timeStamp = addResponse.parts.timeStamp
+            self.creator = addResponse.parts.creatorID
+            self.questionID = addResponse.questionID
         }
 
-        public func has(_ myTheir: Selections.MyTheir, for contextID: String) -> Bool {
+        public func has(
+            _ myTheir: Selections.MyTheir,
+            for contextID: String
+        ) -> Bool {
             switch myTheir {
             case .my:
                 return myChoice[contextID] == .YES || myChoice[contextID] == .NO
@@ -62,14 +57,21 @@ extension Question {
             }
         }
         
-        public mutating func set(_ myTheir: Selections.MyTheir, _  choice: Selections.MyTheir.Choice, for context: Context) {
+        public mutating func set(
+            _ myTheir: Selections.MyTheir,
+            _ choice: Selections.MyTheir.Choice,
+            for context: Context
+        ) {
             switch myTheir {
             case .my: myChoice[context.rawValue] = choice
             case .their: theirChoices[context.rawValue] = choice
             }
         }
         
-        public func choice(for myTheir: Selections.MyTheir, _ context: Context) -> Selections.MyTheir.Choice? {
+        public func choice(
+            for myTheir: Selections.MyTheir,
+            _ context: Context
+        ) -> Selections.MyTheir.Choice? {
             switch myTheir {
             case .my: return myChoice[context.rawValue]
             case .their: return theirChoices[context.rawValue]

@@ -538,24 +538,24 @@ extension URL {
             .url!
     }
 
-
-    static func responses(question: Question, context: Context) -> URL {
-        URLComponents.baseURLComponents
-            .with(path: "getOptions")
-            .with(queryItems: .access_token_and_user_id, .question_id("\(question.id ?? -1)"), .context(context.rawValue))
-            .url!
-    }
-
-    static func responses(
-        search text: String? = nil,
-        question: Question,
-        context: Context
-    ) -> URL {
-        URLComponents.baseURLComponents
-            .with(path: "getOptions")
-            .with(queryItems: .access_token_and_user_id, .search(text: text), .question_id("\(question.id ?? -1)"), .context(context.rawValue))
-            .url!
-    }
+//
+//    static func responses(question: Question, context: Context) -> URL {
+//        URLComponents.baseURLComponents
+//            .with(path: "getOptions")
+//            .with(queryItems: .access_token_and_user_id, .question_id("\(question.id ?? -1)"), .context(context.rawValue))
+//            .url!
+//    }
+//
+//    static func responses(
+//        search text: String? = nil,
+//        question: Question,
+//        context: Context
+//    ) -> URL {
+//        URLComponents.baseURLComponents
+//            .with(path: "getOptions")
+//            .with(queryItems: .access_token_and_user_id, .search(text: text), .question_id("\(question.id ?? -1)"), .context(context.rawValue))
+//            .url!
+//    }
 
     static func questions(
         search text: String? = nil,

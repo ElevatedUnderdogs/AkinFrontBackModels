@@ -170,12 +170,28 @@ public struct PasscodePayload: Codable {
     }
 }
 
-public struct AddResponse: Codable {
-    public let response: Question.Response
-    public let questionID: String
 
-    public init(response: Question.Response, questionID: String) {
-        self.response = response
+extension Question.Response {
+
+    public struct Parts: Equatable, Codable {
+        public let text: String
+        public let timeStamp: Date
+        public let creatorID: UUID
+
+        public init(text: String, timeStamp: Date, creatorID: UUID) {
+            self.text = text
+            self.timeStamp = timeStamp
+            self.creatorID = creatorID
+        }
+    }
+}
+
+public struct AddResponse: Codable {
+    public let parts: Question.Response.Parts
+    public let questionID: UUID
+
+    public init(response: Question.Response.Parts, questionID: UUID) {
+        self.parts = response
         self.questionID = questionID
     }
 }
