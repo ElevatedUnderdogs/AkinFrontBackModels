@@ -18,7 +18,7 @@ public struct User: Codable {
     public var imgData: Data?
     public var imgLocation: String?
     public var name: String
-    public var id: String
+    public var id: UUID
     public var email: String
     public var zip: Int?
     public var phoneNumber: Int? = nil
@@ -35,7 +35,7 @@ public struct User: Codable {
         img imgData: Data? = nil,
         imgLocation: String? = nil,
         name: String,
-        user_id: String,
+        user_id: UUID,
         email: String,
         zip: Int? = nil,
         dob: String? = nil,

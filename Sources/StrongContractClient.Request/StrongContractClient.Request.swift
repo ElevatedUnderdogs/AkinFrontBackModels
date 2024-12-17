@@ -213,7 +213,7 @@ extension SendMakeRequest {
     }
 }
 
-public typealias AddQuestion = Request<Question, Question>
+public typealias AddQuestion = Request<Question.Parts, Question>
 extension AddQuestion {
     /// Any user can add questions to the shared questionnaire.
     /// This adds a question.

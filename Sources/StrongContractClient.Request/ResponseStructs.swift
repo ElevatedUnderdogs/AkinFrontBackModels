@@ -80,13 +80,13 @@ public struct GetUserInformationResponse: Codable {
 }
 
 public struct UserInformation: Codable {
-    public var id: String
+    public var id: UUID
     public var name: String
     public var email: String
     public var profileImageUrl: String?
     public var bio: String?
 
-    public init(id: String, name: String, email: String, profileImageUrl: String? = nil, bio: String? = nil) {
+    public init(id: UUID, name: String, email: String, profileImageUrl: String? = nil, bio: String? = nil) {
         self.id = id
         self.name = name
         self.email = email
@@ -280,7 +280,7 @@ public struct QuestionResponsesResponse: Codable {
     public var responses: [QuestionResponse]
 
     public struct QuestionResponse: Codable {
-        public var id: Int
+        public var id: UUID
         public var text: String
         public var selected: Bool
     }
@@ -367,7 +367,7 @@ public struct PrefetchUserForResponse: Codable {
     public var users: [UserDetail]
 
     public struct UserDetail: Codable {
-        public var id: Int
+        public var id: UUID
         public var name: String
         public var profileImageUrl: String?
     }

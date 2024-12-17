@@ -8,7 +8,7 @@
 
 import Foundation
 
-public typealias QuestionAction = ((Question) -> Void)
+public typealias QuestionAction = (Question) -> Void
 
 public struct Question: Codable, Equatable, Hashable {
 
@@ -25,19 +25,19 @@ public struct Question: Codable, Equatable, Hashable {
     // MARK - stored properties
     
     public var requirementsFor: [Context: [Response.Selections.MyTheir]] = [:] // codable
-    public var text: String = ""
+    public var text: String
     public var responses: [Response] = [] // Codable
-    public var id: Int?
+    public var id: UUID
     public var creatorID: String
+
+    /// Keep in mind the instances of these models in this package are customized for each user.
     public var importanceFor: [ContextID: Importance] = [:] // Codable
+
+    /// The popularity of this question in each context.
     public var contextPopularity: [ContextID: PopularityScore] = [:] // Codable
     public var originalContext: Context
     
     // MARK - computed properties
-    
-    public var currentID: Int {
-        id ?? -53
-    }
     
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
@@ -49,18 +49,47 @@ public struct Question: Codable, Equatable, Hashable {
     
     // MARK - initializers
 
-
     public init(
-        text: String,
-        responses: [Response] = [],
-        id: Int? = nil,
-        creatorID: String,
-        originalContext: Context
+        parts: Parts,
+        id: UUID
     ) {
-        self.text = text
-        self.responses = responses
-        self.id = id ?? NSUUID().hash
-        self.creatorID = creatorID
-        self.originalContext = originalContext
+        self.text = parts.text
+        assertionFailure("the id needs to be adjusted when we learn more about the context")
+        self.responses = parts.responses.map {
+            Question.Response(
+                id: .init(),
+                addResponse: AddResponse(response: $0, questionID: id)
+            )
+        }
+        self.id = id
+        self.creatorID = parts.creatorID
+        self.originalContext = parts.originalContext
+    }
+}
+
+
+extension Question {
+
+    public struct Parts: Codable, Equatable, Hashable {
+        var text: String
+        var responses: [Response.Parts] = []
+        var creatorID: String
+        var originalContext: Context
+
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(text)
+        }
+
+        public init(
+            text: String,
+            responses: [Response.Parts],
+            creatorID: String,
+            originalContext: Context
+        ) {
+            self.text = text
+            self.responses = responses
+            self.creatorID = creatorID
+            self.originalContext = originalContext
+        }
     }
 }
