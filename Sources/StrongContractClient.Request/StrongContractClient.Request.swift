@@ -213,7 +213,7 @@ extension SendMakeRequest {
     }
 }
 
-public typealias AddQuestion = Request<Question.Parts, Question>
+public typealias AddQuestion = Request<[Question.Parts], Question>
 extension AddQuestion {
     /// Any user can add questions to the shared questionnaire.
     /// This adds a question.
@@ -309,7 +309,7 @@ extension GetBlockedUsersRequest {
     }
 }
 
-public typealias AddResponseRequest = Request<AddResponse, Question.Response>
+public typealias AddResponseRequest = Request<AddResponses, Question.Response>
 extension AddResponseRequest {
     /// To deprecate `add(response: Question.Response, questionID: String)`
     /// Add a Response to a question.
