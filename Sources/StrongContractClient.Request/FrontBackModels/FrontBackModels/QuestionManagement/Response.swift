@@ -8,7 +8,7 @@
 
 import Foundation
 
-public typealias ContextID = String
+public typealias ContextRawValue = String
 public typealias PopularityScore = Int
 public typealias ContextAction = (Context) -> Void
 
@@ -30,19 +30,19 @@ extension Question {
 
         public var questionID: UUID
 
-        public var myChoice: [ContextID: Selections.MyTheir.Choice] = [:]
-        public var theirChoices: [ContextID: Selections.MyTheir.Choice] = [:]
-        public var popularity: [ContextID: PopularityScore] = [:]
+        public var myChoice: [ContextRawValue: Selections.MyTheir.Choice] = [:]
+        public var theirChoices: [ContextRawValue: Selections.MyTheir.Choice] = [:]
+        public var popularity: [ContextRawValue: PopularityScore] = [:]
 
         public func has(
             _ myTheir: Selections.MyTheir,
-            for contextID: String
+            for contextRawValue: ContextRawValue
         ) -> Bool {
             switch myTheir {
             case .my:
-                return myChoice[contextID] == .YES || myChoice[contextID] == .NO
+                return myChoice[contextRawValue] == .YES || myChoice[contextRawValue] == .NO
             case .their:
-                return theirChoices[contextID] == .YES || theirChoices[contextID] == .NO
+                return theirChoices[contextRawValue] == .YES || theirChoices[contextRawValue] == .NO
             }
         }
         

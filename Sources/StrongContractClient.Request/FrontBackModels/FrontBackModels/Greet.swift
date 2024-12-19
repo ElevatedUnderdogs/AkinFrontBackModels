@@ -16,8 +16,8 @@ public struct Greet: Codable {
     // MARK - properties
     
     public var otherUser: Greet.User
-    public var greetID: String
-    
+    public var greetID: UUID
+
     /// A random greeting method in common between both users in the greet.  If no common methods, then a wave.
     public var method: Greet.Method = .wave
 
@@ -40,7 +40,7 @@ public struct Greet: Codable {
     // MARK: - Initializer
      public init(
          otherUser: Greet.User,
-         greetID: String,
+         greetID: UUID,
          method: Greet.Method = .wave,
          compatitibility: [CompatibilityContext: CompatibilityScore] = [:],
          openers: [String] = [],
@@ -148,7 +148,7 @@ public struct Greet: Codable {
         return arc4random_uniform(4) == 0
     }
     
-    public init(otherUser: Greet.User, greetID: String) {
+    public init(otherUser: Greet.User, greetID: UUID) {
         self.otherUser = otherUser
         self.greetID = greetID
     }

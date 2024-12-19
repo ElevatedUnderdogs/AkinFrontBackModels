@@ -14,7 +14,7 @@ extension Data {
         filePathKey: String?,
         imageDataKey: Data,
         boundary: String,
-        thisUserID: Int
+        thisUserID: UUID
     ) {
         self.init()
         if let parameters = parameters {

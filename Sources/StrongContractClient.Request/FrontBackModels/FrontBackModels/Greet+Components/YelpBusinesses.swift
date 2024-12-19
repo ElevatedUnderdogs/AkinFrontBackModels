@@ -19,7 +19,9 @@ public struct Yelp: Codable {
 // MARK: - Business
 public struct Business: Codable {
     public let rating: Double
-    public let price, phone, id: String
+    public let price: String
+    public let phone: String
+    public let id: UUID
     public let categories: [Category]
     public let reviewCount: Int
     public let name: String

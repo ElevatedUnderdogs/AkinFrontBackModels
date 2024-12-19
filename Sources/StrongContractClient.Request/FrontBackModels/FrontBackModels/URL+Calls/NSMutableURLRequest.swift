@@ -13,7 +13,7 @@ extension NSMutableURLRequest {
         self as URLRequest
     }
 
-    convenience init?(img: Data, url: URL, thisUserID: Int) {
+    convenience init?(img: Data, url: URL, thisUserID: UUID) {
         self.init(url:url)
         httpMethod = "POST"
         let boundary: String = .generateBoundaryString

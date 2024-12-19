@@ -11,9 +11,9 @@ import Foundation
 public struct RegisterResponse: Codable {
     public var success: Bool
     public var message: String?
-    public var userId: String?
+    public var userId: UUID?
 
-    public init(success: Bool, message: String?, userId: String?) {
+    public init(success: Bool, message: String?, userId: UUID?) {
         self.success = success
         self.message = message
         self.userId = userId
@@ -220,9 +220,9 @@ public struct RegisterPushKitDeviceTokenResponse: Codable {
 // Response model for `block(user:)` and `block(otherID:shouldBlock:)` API calls
 public struct BlockUserResponse: Codable {
     public var success: Bool
-    public var blockedUserId: Int?
+    public var blockedUserId: UUID?
 
-    public init(success: Bool, blockedUserId: Int? = nil) {
+    public init(success: Bool, blockedUserId: UUID? = nil) {
         self.success = success
         self.blockedUserId = blockedUserId
     }
@@ -231,10 +231,10 @@ public struct BlockUserResponse: Codable {
 // Response model for `login(email:password:)` API call
 public struct LoginResponse: Codable {
     public var success: Bool
-    public var userId: String?
+    public var userId: UUID?
     public var authToken: String?
 
-    public init(success: Bool, userId: String? = nil, authToken: String? = nil) {
+    public init(success: Bool, userId: UUID? = nil, authToken: String? = nil) {
         self.success = success
         self.userId = userId
         self.authToken = authToken
@@ -244,9 +244,9 @@ public struct LoginResponse: Codable {
 // Response model for `add(response:questionID:)` API call
 public struct AddResponseResponse: Codable {
     public var success: Bool
-    public var responseId: Int?
+    public var responseId: UUID?
 
-    public init(success: Bool, responseId: Int? = nil) {
+    public init(success: Bool, responseId: UUID? = nil) {
         self.success = success
         self.responseId = responseId
     }
@@ -351,10 +351,10 @@ public struct UploadPicResponse: Codable {
 // Assuming a response model for the commented-out `register(basicInfo:)` URL creation function
 public struct RegisterBasicInfoResponse: Codable {
     public var success: Bool
-    public var userId: String?
+    public var userId: UUID?
     public var message: String?
 
-    public init(success: Bool, userId: String? = nil, message: String? = nil) {
+    public init(success: Bool, userId: UUID? = nil, message: String? = nil) {
         self.success = success
         self.userId = userId
         self.message = message

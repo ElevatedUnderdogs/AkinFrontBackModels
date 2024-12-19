@@ -52,10 +52,10 @@ public struct CredentialUpdate: Codable {
 }
 
 public struct ImportancesUpdate: Codable {
-    public let importances: [ContextID: Question.Importance]
-    public let questionID: Int
+    public let importances: [ContextRawValue: Question.Importance]
+    public let questionID: UUID
 
-    public init(importances: [ContextID: Question.Importance], questionID: Int) {
+    public init(importances: [ContextRawValue: Question.Importance], questionID: UUID) {
         self.importances = importances
         self.questionID = questionID
     }
@@ -64,9 +64,9 @@ public struct ImportancesUpdate: Codable {
 // Define the argument public structs
 public struct ReportFlagsQuestion: Codable {
     public let flags: [Int]
-    public let questionID: Int
+    public let questionID: UUID
 
-    public init(flags: [Int], questionID: Int) {
+    public init(flags: [Int], questionID: UUID) {
         self.flags = flags
         self.questionID = questionID
     }
@@ -75,9 +75,9 @@ public struct ReportFlagsQuestion: Codable {
 // Request public structure for `reportFlags` with question ID
 public struct ReportFlagsQuestionRequest: Codable {
     public let flags: [Int]
-    public let questionId: Int
+    public let questionId: UUID
 
-    public init(flags: [Int], questionId: Int) {
+    public init(flags: [Int], questionId: UUID) {
         self.flags = flags
         self.questionId = questionId
     }
@@ -86,10 +86,10 @@ public struct ReportFlagsQuestionRequest: Codable {
 // Request public structure for `reportFlags` with response ID and question ID
 public struct ResponseFlags: Codable {
     public let flags: [Int]
-    public let responseId: Int
-    public let questionId: Int
+    public let responseId: UUID
+    public let questionId: UUID
 
-    public init(flags: [Int], responseId: Int, questionId: Int) {
+    public init(flags: [Int], responseId: UUID, questionId: UUID) {
         self.flags = flags
         self.responseId = responseId
         self.questionId = questionId
@@ -109,11 +109,11 @@ public struct PicFlags: Codable {
 
 // Request public structure for rating a greet
 public struct Rating: Codable {
-    public let greetId: String
-    public let otherUserId: Int
+    public let greetId: UUID
+    public let otherUserId: UUID
     public let rating: Double
 
-    public init(greetId: String, otherUserId: Int, rating: Double) {
+    public init(greetId: UUID, otherUserId: UUID, rating: Double) {
         self.greetId = greetId
         self.otherUserId = otherUserId
         self.rating = rating
@@ -122,11 +122,11 @@ public struct Rating: Codable {
 
 // Request public structure for updating user location with user ID and context ID
 public struct UserLocationUpdate: Codable {
-    public let contextId: String
+    public let contextId: UUID
     public let coordinates: Coordinates
 
     public init(
-        contextId: String,
+        contextId: UUID,
         coordinates: Coordinates
     ) {
         self.contextId = contextId
@@ -177,15 +177,15 @@ extension Question.Response {
         public let text: String
         public let timeStamp: Date
         public let creatorID: UUID
-        public var myChoice: [ContextID: Selections.MyTheir.Choice] = [:]
-        public var theirChoices: [ContextID: Selections.MyTheir.Choice] = [:]
+        public var myChoice: [ContextRawValue: Selections.MyTheir.Choice] = [:]
+        public var theirChoices: [ContextRawValue: Selections.MyTheir.Choice] = [:]
 
         public init(
             text: String,
             timeStamp: Date,
             creatorID: UUID,
-            myChoice: [ContextID: Selections.MyTheir.Choice],
-            theirChoices: [ContextID: Selections.MyTheir.Choice]
+            myChoice: [ContextRawValue: Selections.MyTheir.Choice],
+            theirChoices: [ContextRawValue: Selections.MyTheir.Choice]
         ) {
             self.text = text
             self.timeStamp = timeStamp
@@ -210,15 +210,15 @@ public struct AddResponses: Codable {
 public struct AnswerChoice: Codable {
     public let myTheir: Question.Response.Selections.MyTheir?
     public let choice: Question.Response.Selections.MyTheir.Choice?
-    public let responseID: Int
-    public let questionID: Int
+    public let responseID: UUID
+    public let questionID: UUID
     public let context: Context
 
     public init(
         myTheir: Question.Response.Selections.MyTheir? = nil,
         choice: Question.Response.Selections.MyTheir.Choice? = nil,
-        responseID: Int,
-        questionID: Int,
+        responseID: UUID,
+        questionID: UUID,
         context: Context
     ) {
         self.myTheir = myTheir
@@ -230,11 +230,11 @@ public struct AnswerChoice: Codable {
 }
 
 public struct ResponsesSpecifications: Codable {
-    public let questionID: Int
+    public let questionID: UUID
     public let context: Context.RawValue
     public let searchText: String?
 
-    public init(questionID: Int, context: Context.RawValue, searchText: String? = nil) {
+    public init(questionID: UUID, context: Context.RawValue, searchText: String? = nil) {
         self.questionID = questionID
         self.context = context
         self.searchText = searchText

@@ -342,8 +342,8 @@ extension MakeChoiceRequest {
      public static func make(
          my: Question.Response.Selections.MyTheir.Choice?,
          their: Question.Response.Selections.MyTheir.Choice?,
-         forResponseID: Int,
-         forQuestionID: Int,
+         forResponseID: UUID,
+         forQuestionID: UUID,
          forContext: Context
      )
      ```

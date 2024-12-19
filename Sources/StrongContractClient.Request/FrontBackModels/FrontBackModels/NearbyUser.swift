@@ -11,7 +11,7 @@ import Foundation
 public struct NearbyUser: Codable, Hashable, Equatable {
 
     /// IdValue
-    public let id: String
+    public let id: UUID
 
     /// Display name of the user.
     public let name: String
@@ -23,7 +23,7 @@ public struct NearbyUser: Codable, Hashable, Equatable {
     public var verified: Bool = false
 
     public init(
-        id: String,
+        id: UUID,
         name: String,
         profileImages: [String],
         verified: Bool = false

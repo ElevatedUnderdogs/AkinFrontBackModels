@@ -13,9 +13,9 @@ extension Greet {
         // TODO: - Temporary implementation until we have a final User object ready
         // Should be replaced with the release build
         public struct User: Codable {
-            public let id: String
+            public let id: UUID
 //            let accessToken: String
-            public init(id: String) {
+            public init(id: UUID) {
                 self.id = id
             }
         }
