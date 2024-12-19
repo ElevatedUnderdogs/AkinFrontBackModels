@@ -12,7 +12,6 @@ typealias QuestionsParts = [Question.Parts]
 
 public extension Question {
 
-
     /// Adding a response when your question you added hasn't been saved yet, and it isn't known
     ///  - question parts, response parts.
     ///  This also works for Adding a question, or Questions.
@@ -20,9 +19,9 @@ public extension Question {
     struct Parts: Codable, Equatable, Hashable {
         public var text: String
         public var responses: [Response.Parts] = []
-        public var creatorID: String
+        public var creatorID: UUID
         public var originalContext: Context
-        public var importanceFor: [ContextID: Importance] = [:]
+        public var importanceFor: [ContextRawValue: Importance] = [:]
 
         public func hash(into hasher: inout Hasher) {
             hasher.combine(text)
@@ -31,7 +30,7 @@ public extension Question {
         public init(
             text: String,
             responses: [Response.Parts],
-            creatorID: String,
+            creatorID: UUID,
             originalContext: Context
         ) {
             self.text = text

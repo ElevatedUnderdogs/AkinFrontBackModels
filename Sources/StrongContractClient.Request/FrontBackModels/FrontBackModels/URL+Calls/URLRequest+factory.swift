@@ -66,7 +66,7 @@ extension URLRequest {
     ///   - contextId: Current context id.
     /// - Returns: New instance of `URLRequest`.
     @inline(__always) static func updateUserLocation(
-        userId: String?/* = Keychain.thisUserID*/,
+        userId: UUID?/* = Keychain.thisUserID*/,
         latitude: Double?/* = CLLocationCoordinate2D.thisLocation?.latitude*/,
         longitude: Double?/* = CLLocationCoordinate2D.thisLocation?.longitude*/,
         contextId: String = ""

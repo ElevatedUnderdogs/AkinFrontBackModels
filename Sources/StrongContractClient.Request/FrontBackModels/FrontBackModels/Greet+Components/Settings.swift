@@ -21,7 +21,7 @@ public struct Settings: Codable {
     public var ring: Bool = false
     public var displayPic: String?
     public var emailPrimary: String?
-    public var userID: String = "-1"
+    public var userID: UUID = .init()
     public var phone: String?
     public var contexts: [Context] = []
     public var username: String? = nil
@@ -78,7 +78,7 @@ public struct Settings: Codable {
     
     public init() {}
     
-    public init(email: String, profilePic: String, userID: String) {
+    public init(email: String, profilePic: String, userID: UUID) {
         self.emailPrimary = email
         self.displayPic = profilePic
         self.vibrate = true

@@ -11,12 +11,12 @@ import Foundation
 public struct Creator: Codable, Hashable, Equatable {
     public let profileImageURL: String
     public let displayName: String
-    public let contextCompatibility: [ContextID: Decimal]
+    public let contextCompatibility: [ContextRawValue: Decimal]
 
     public init(
         profileImageURL: String,
         displayName: String,
-        contextCompatibility: [ContextID : Decimal]
+        contextCompatibility: [ContextRawValue : Decimal]
     ) {
         self.profileImageURL = profileImageURL
         self.displayName = displayName

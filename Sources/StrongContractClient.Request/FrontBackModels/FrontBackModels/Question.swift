@@ -28,13 +28,13 @@ public struct Question: Codable, Equatable, Hashable {
     public var text: String
     public var responses: [Response] = [] // Codable
     public var id: UUID
-    public var creatorID: String
+    public var creatorID: UUID
 
     /// Keep in mind the instances of these models in this package are customized for each user.
-    public var importanceFor: [ContextID: Importance] = [:] // Codable
+    public var importanceFor: [ContextRawValue: Importance] = [:] // Codable
 
     /// The popularity of this question in each context.
-    public var contextPopularity: [ContextID: PopularityScore] = [:] // Codable
+    public var contextPopularity: [ContextRawValue: PopularityScore] = [:] // Codable
     public var originalContext: Context
     
     // MARK - computed properties

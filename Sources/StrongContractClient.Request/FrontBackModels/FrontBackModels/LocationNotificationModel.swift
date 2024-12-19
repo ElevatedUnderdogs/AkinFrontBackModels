@@ -17,7 +17,7 @@ extension Greet.Notification {
         }
         
         public var greetIdentifier: String
-        public var otherUserID: Int
+        public var otherUserID: UUID
         public var profileURL: String?
         public var name: String
         public var timeMet: String
@@ -25,7 +25,7 @@ extension Greet.Notification {
 
         public init(
             identifier: String,
-            otherUserID: Int,
+            otherUserID: UUID,
             profileURL: String?,
             name: String,
             timeMet: String,

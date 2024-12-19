@@ -22,7 +22,7 @@ extension URLRequest {
     }
 
     /// Might not need to pass this user id if the user is signed in and passing access tokens etc.
-    static func addDisplay(img: Data, thisUserID: Int) -> URLRequest? {
+    static func addDisplay(img: Data, thisUserID: UUID) -> URLRequest? {
         NSMutableURLRequest(
             img: img,
             url: URL.addDisplay(),
@@ -310,7 +310,7 @@ extension URL {
     /// - Parameter userId: User's id who's location needs to be updated.
     /// - Parameter contextId: Current context id.
     /// - Returns: `URL` to the location update service.
-    static func updateUserLocation(userId: String, contextId: String) -> URL {
+    static func updateUserLocation(userId: UUID, contextId: String) -> URL {
         URLComponents.baseURLComponents.with(path: "user/\(userId)/location/context/\(contextId)/")
             .url!
     }
