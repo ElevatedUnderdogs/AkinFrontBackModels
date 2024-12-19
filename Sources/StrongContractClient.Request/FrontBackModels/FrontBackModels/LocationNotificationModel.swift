@@ -16,7 +16,7 @@ extension Greet.Notification {
             case getReviewTime, weClosedTheGreet
         }
         
-        public var greetIdentifier: String
+        public var greetID: UUID
         public var otherUserID: UUID
         public var profileURL: String?
         public var name: String
@@ -24,14 +24,14 @@ extension Greet.Notification {
         public var notificationKey: LocalModel.Key
 
         public init(
-            identifier: String,
+            greetID: UUID,
             otherUserID: UUID,
             profileURL: String?,
             name: String,
             timeMet: String,
             notificationKey: LocalModel.Key
         ) {
-            self.greetIdentifier = identifier
+            self.greetID = greetID
             self.otherUserID = otherUserID
             self.profileURL = profileURL
             self.name = name
