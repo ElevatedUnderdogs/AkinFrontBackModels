@@ -34,17 +34,6 @@ extension Question {
         public var theirChoices: [ContextID: Selections.MyTheir.Choice] = [:]
         public var popularity: [ContextID: PopularityScore] = [:]
 
-        public init(
-            id: UUID,
-            addResponse: AddResponse
-        ) {
-            self.text = addResponse.parts.text
-            self.id = id
-            self.timeStamp = addResponse.parts.timeStamp
-            self.creator = addResponse.parts.creatorID
-            self.questionID = addResponse.questionID
-        }
-
         public func has(
             _ myTheir: Selections.MyTheir,
             for contextID: String

@@ -177,21 +177,32 @@ extension Question.Response {
         public let text: String
         public let timeStamp: Date
         public let creatorID: UUID
+        public var myChoice: [ContextID: Selections.MyTheir.Choice] = [:]
+        public var theirChoices: [ContextID: Selections.MyTheir.Choice] = [:]
 
-        public init(text: String, timeStamp: Date, creatorID: UUID) {
+        public init(
+            text: String,
+            timeStamp: Date,
+            creatorID: UUID,
+            myChoice: [ContextID: Selections.MyTheir.Choice],
+            theirChoices: [ContextID: Selections.MyTheir.Choice]
+        ) {
             self.text = text
             self.timeStamp = timeStamp
             self.creatorID = creatorID
+            self.myChoice = myChoice
+            self.theirChoices = theirChoices
         }
     }
 }
 
-public struct AddResponse: Codable {
-    public let parts: Question.Response.Parts
+/// Adding a response when the question was saved, and its id is known - Question and Responses QuestionResponseParts (questionid, response'parts)
+public struct AddResponses: Codable {
+    public let responsesParts: [Question.Response.Parts]
     public let questionID: UUID
 
-    public init(response: Question.Response.Parts, questionID: UUID) {
-        self.parts = response
+    public init(responsesParts: [Question.Response.Parts], questionID: UUID) {
+        self.responsesParts = responsesParts
         self.questionID = questionID
     }
 }
