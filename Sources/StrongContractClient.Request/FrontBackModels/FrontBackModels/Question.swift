@@ -38,12 +38,33 @@ public struct Question: Codable, Equatable, Hashable {
     public var originalContext: Context
     
     // MARK - computed properties
-    
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
 
     public func responses(containing searchText: String) -> [Response] {
         responses.filter {  $0.text.lowercased().contains(searchText.lowercased()) }
+    }
+
+    /// This initializer isn't synthesized when Codable is conformed to.
+    public init(
+        requirementsFor: [Context : [Response.Selections.MyTheir]] = [:],
+        text: String,
+        responses: [Response] = [],
+        id: UUID,
+        creatorID: UUID,
+        importanceFor: [ContextRawValue : Importance] = [:],
+        contextPopularity: [ContextRawValue : PopularityScore] = [:],
+        originalContext: Context
+    ) {
+        self.requirementsFor = requirementsFor
+        self.text = text
+        self.responses = responses
+        self.id = id
+        self.creatorID = creatorID
+        self.importanceFor = importanceFor
+        self.contextPopularity = contextPopularity
+        self.originalContext = originalContext
     }
 }
