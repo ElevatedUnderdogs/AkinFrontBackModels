@@ -309,7 +309,7 @@ extension GetBlockedUsersRequest {
     }
 }
 
-public typealias AddResponsesRequestAddResponsesRequest = Request<AddResponses, [Question.Response]>
+public typealias AddResponsesRequest = Request<AddResponses, [Question.Response]>
 
 extension AddResponsesRequest {
     /// To deprecate `add(response: Question.Response, questionID: String)`
