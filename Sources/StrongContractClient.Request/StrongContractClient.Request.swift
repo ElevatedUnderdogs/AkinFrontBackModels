@@ -213,8 +213,8 @@ extension SendMakeRequest {
     }
 }
 
-public typealias AddQuestion = Request<[Question.Parts], Question>
-extension AddQuestion {
+public typealias AddQuestions = Request<[Question.Parts], [Question]>
+extension AddQuestions {
     /// Any user can add questions to the shared questionnaire.
     /// This adds a question.
     /// The -Response is of type Question because the question ID is determined by the server side.
@@ -222,7 +222,7 @@ extension AddQuestion {
     /// - Parameters:
     ///   - payload: The payload is the newly added question with a placeholder identifier.
     ///   - response: The response is the question with the correct identifier.
-    public static var addQuestion: Self {
+    public static var addQuestions: Self {
         .init(method: .post)
     }
 }
