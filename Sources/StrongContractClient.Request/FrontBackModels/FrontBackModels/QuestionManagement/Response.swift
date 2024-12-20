@@ -34,6 +34,27 @@ extension Question {
         public var theirChoices: [ContextRawValue: Selections.MyTheir.Choice] = [:]
         public var popularity: [ContextRawValue: PopularityScore] = [:]
 
+        /// This initializer isn't synthesized when Codable is conformed to. 
+        public init(
+            text: String,
+            timeStamp: Date,
+            id: UUID,
+            creator: UUID,
+            questionID: UUID,
+            myChoice: [ContextRawValue : Selections.MyTheir.Choice] = [:],
+            theirChoices: [ContextRawValue : Selections.MyTheir.Choice] = [:],
+            popularity: [ContextRawValue : PopularityScore] = [:]
+        ) {
+            self.text = text
+            self.timeStamp = timeStamp
+            self.id = id
+            self.creator = creator
+            self.questionID = questionID
+            self.myChoice = myChoice
+            self.theirChoices = theirChoices
+            self.popularity = popularity
+        }
+
         public func has(
             _ myTheir: Selections.MyTheir,
             for contextRawValue: ContextRawValue
