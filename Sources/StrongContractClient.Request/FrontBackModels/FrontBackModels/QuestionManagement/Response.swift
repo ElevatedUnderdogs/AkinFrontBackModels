@@ -34,7 +34,7 @@ extension Question {
         public var theirChoices: [ContextRawValue: Selections.MyTheir.Choice] = [:]
         public var popularity: [ContextRawValue: PopularityScore] = [:]
 
-        /// This initializer isn't synthesized when Codable is conformed to. 
+        /// This initializer isn't synthesized when Codable is conformed to.
         public init(
             text: String,
             timeStamp: Date,
