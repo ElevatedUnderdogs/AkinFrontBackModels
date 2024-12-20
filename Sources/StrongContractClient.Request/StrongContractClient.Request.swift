@@ -50,7 +50,7 @@ extension TermsRequest {
     }
 }
 
-public typealias QuestionRequest = Request<Int, Question>
+public typealias QuestionRequest = Request<UUID, Question>
 extension QuestionRequest {
     /// Gets a question based on the index in a list, for the purpose of smooth scrolling.
     public static var prefetchQuestion: Self {
