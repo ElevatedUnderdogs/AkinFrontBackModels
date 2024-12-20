@@ -213,7 +213,25 @@ extension SendMakeRequest {
     }
 }
 
+/// This is intended for normal behavior, a happy path.
+public typealias AddQuestion = Request<Question.Parts, Question>
+
+extension AddQuestion {
+    /// Any user can add questions to the shared questionnaire.
+    /// This adds a question.
+    /// The -Response is of type Question because the question ID is determined by the server side.
+    ///
+    /// - Parameters:
+    ///   - payload: The payload is the newly added question with a placeholder identifier.
+    ///   - response: The response is the question with the correct identifier.
+    public static var addQuestion: Self {
+        .init(method: .post)
+    }
+}
+
+/// This is intended for non happy path, the wifi or data connection prevented uploading and multiple questions were added.
 public typealias AddQuestions = Request<[Question.Parts], [Question]>
+
 extension AddQuestions {
     /// Any user can add questions to the shared questionnaire.
     /// This adds a question.
@@ -306,6 +324,16 @@ extension GetBlockedUsersRequest {
     /// Returns a list of users that are blocked by this user.
     public static var getBlockedUsers: Self {
         .init(method: .get)
+    }
+}
+
+public typealias AddResponseRequest = Request<AddResponse, Question.Response>
+
+extension AddResponseRequest {
+    /// To deprecate `add(response: Question.Response, questionID: String)`
+    /// Add a Response to a question.
+    public static var addResponse: Self {
+        .init(method: .post)
     }
 }
 

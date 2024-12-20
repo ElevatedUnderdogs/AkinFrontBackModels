@@ -207,6 +207,17 @@ public struct AddResponses: Codable {
     }
 }
 
+/// Adding a response when the question was saved, and its id is known - Question and Responses QuestionResponseParts (questionid, response'parts)
+public struct AddResponse: Codable {
+    public let responsesParts: Question.Response.Parts
+    public let questionID: UUID
+
+    public init(responsesParts: Question.Response.Parts, questionID: UUID) {
+        self.responsesParts = responsesParts
+        self.questionID = questionID
+    }
+}
+
 public struct AnswerChoice: Codable {
     public let myTheir: Question.Response.Selections.MyTheir?
     public let choice: Question.Response.Selections.MyTheir.Choice?
