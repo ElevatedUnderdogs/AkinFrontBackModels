@@ -122,11 +122,11 @@ public struct Rating: Codable {
 
 // Request public structure for updating user location with user ID and context ID
 public struct UserLocationUpdate: Codable {
-    public let contextId: UUID
+    public let contextId: String
     public let coordinates: Coordinates
 
     public init(
-        contextId: UUID,
+        contextId: String,
         coordinates: Coordinates
     ) {
         self.contextId = contextId
