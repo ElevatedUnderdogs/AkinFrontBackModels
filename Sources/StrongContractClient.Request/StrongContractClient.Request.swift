@@ -344,7 +344,7 @@ public typealias AddResponsesRequest = Request<AddResponses, [Question.Response]
 extension AddResponsesRequest {
     /// To deprecate `add(response: Question.Response, questionID: String)`
     /// Add a Response to a question.
-    public static var addResponse: Self {
+    public static var addResponses: Self {
         .init(method: .post)
     }
 }
