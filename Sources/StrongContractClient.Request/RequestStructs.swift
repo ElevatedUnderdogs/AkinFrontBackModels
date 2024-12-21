@@ -40,7 +40,7 @@ public struct PasswordUpdate: Codable {
 public typealias DeviceDescription = String
 public typealias AddQuestionRequest = String
 // GreetID type has been changed to String to allow storage of Fluent Models identifiers (UUID string)
-public typealias GreetID = String
+public typealias GreetID = UUID
 public typealias Events = [Int: String]
 
 public struct CredentialUpdate: Codable {
