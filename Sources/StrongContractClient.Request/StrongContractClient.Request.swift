@@ -50,7 +50,9 @@ extension TermsRequest {
     }
 }
 
-public typealias QuestionRequest = Request<UUID, Question>
+/// Passes the last uuid so the backend can send more... the server side shouldn't have to keep track of what questions were sent already...
+/// Need to research how server side pagination works on the backend.
+public typealias QuestionRequest = Request<UUID?, Question>
 extension QuestionRequest {
     /// Gets a question based on the index in a list, for the purpose of smooth scrolling.
     public static var prefetchQuestion: Self {
