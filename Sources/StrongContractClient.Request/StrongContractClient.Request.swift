@@ -56,7 +56,7 @@ public typealias QuestionRequest = Request<UUID?, Question>
 extension QuestionRequest {
     /// Gets a question based on the index in a list, for the purpose of smooth scrolling.
     public static var prefetchQuestion: Self {
-        .init(method: .get)
+        .init(method: .post)
     }
 }
 
@@ -361,7 +361,7 @@ extension NearbyUsersRequest {
     /// To deprecate:  `static var nearbyUsers: URL {`
     /// Get a list of nearby users.
     public static var nearbyUsers: Self {
-        .init(method: .get)
+        .init(method: .post)
     }
 }
 
@@ -391,7 +391,7 @@ public typealias GetResponsesRequest = Request<ResponsesSpecifications, [Questio
 extension GetResponsesRequest {
     /// Gets responses that have been added to a question.
     public static var getResponses: Self {
-        .init(method: .get)
+        .init(method: .post)
     }
 }
 
@@ -399,7 +399,7 @@ public typealias GetQuestionsRequest = Request<QuestionsSpecifications, [Questio
 extension GetQuestionsRequest {
     /// Gets questions for the matchmaking questionnaire.
     public static var getQuestions: Self {
-        .init(method: .get)
+        .init(method: .post)
     }
 }
 
