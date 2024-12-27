@@ -1,5 +1,5 @@
 {
-  "originHash" : "a75b7e1fa4a6c0f7c6ed0d9b039a257492a5928094014b11b08f5658b539ce1b",
+  "originHash" : "75fcc6218af1494ebd0f508e87d06fd74674ad743b2a6992ba7b6f89fc1d5b88",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ElevatedUnderdogs/Callable.git",
       "state" : {
-        "revision" : "bbb7630d631e7e0432d97cada1eca69bd5216a06",
-        "version" : "2.0.0"
+        "revision" : "5e6de476a268e5858b78eed17d51162eccaf4203",
+        "version" : "3.0.0"
       }
     },
     {
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scott-lydon/StrongContractClient.git",
       "state" : {
-        "revision" : "31bfa8ec07bf16841cc7b4319acf1ba6ec1e523c",
-        "version" : "7.0.0"
+        "revision" : "2e1a50043ebd2a941bd90c74c76cd73048c13453",
+        "version" : "9.0.1"
       }
     },
     {
@@ -231,8 +231,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "1f29415ed888a942bb23486ca9e422123a07e70f",
-        "version" : "4.110.0"
+        "revision" : "4c5d467a96fc4c64f6279327d8fd1e1600e85bc5",
+        "version" : "4.110.1"
       }
     },
     {
