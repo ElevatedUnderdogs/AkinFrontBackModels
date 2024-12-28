@@ -8,11 +8,30 @@
 import Foundation
 import StrongContractClient
 
-
-public typealias LoginRequest = Request<LoginPayload, User>
+public typealias LoginRequest = Request<LoginPayload, LoginResponse>
 extension LoginRequest {
 
+    /// Purpose: Authenticates the user using their credentials (email and password, or other methods like OAuth).
     public static var login: Self {
+        .init(method: .post)
+    }
+}
+
+public typealias LoginWithAccessToken = Request<Empty, LoginResponse>
+extension LoginWithAccessToken {
+
+    /// Purpose: Verifies the validity of an existing access token to allow the user to reauthenticate without re-entering credentials.
+    public static var loginWithAccessToken: Self {
+        .init(method: .post)
+    }
+}
+
+/// Send a Refresh token in the body, get an access token in the response.
+public typealias RefreshToken = Request<String, String>
+extension RefreshToken {
+
+    /// Issues a new access token when the current one expires.
+    public static var refreshToken: Self {
         .init(method: .post)
     }
 }
