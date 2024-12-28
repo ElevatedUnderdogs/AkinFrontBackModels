@@ -231,13 +231,15 @@ public struct BlockUserResponse: Codable {
 // Response model for `login(email:password:)` API call
 public struct LoginResponse: Codable {
     public var success: Bool
-    public var userId: UUID?
-    public var authToken: String?
+    public var user: User
+    public var authToken: String
+    public var refreshToken: String
 
-    public init(success: Bool, userId: UUID? = nil, authToken: String? = nil) {
+    public init(success: Bool, user: User, authToken: String, refreshToken: String) {
         self.success = success
-        self.userId = userId
+        self.user = user
         self.authToken = authToken
+        self.refreshToken = refreshToken
     }
 }
 
