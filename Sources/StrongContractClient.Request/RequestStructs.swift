@@ -161,18 +161,18 @@ public struct LoginPayload: Codable {
         self.password = password.sha512hexa
     }
 }
-
-struct LoginResponse: Codable, Equatable, Hashable {
-    let user: User
-    let token: String
-    let refreshToken: String
-
-    public init(user: User, token: String, refreshToken: String) {
-        self.user = user
-        self.token = token
-        self.refreshToken = refreshToken
-    }
-}
+//
+//struct LoginResponse: Codable, Equatable, Hashable {
+//    let user: User
+//    let token: String
+//    let refreshToken: String
+//
+//    public init(user: User, token: String, refreshToken: String) {
+//        self.user = user
+//        self.token = token
+//        self.refreshToken = refreshToken
+//    }
+//}
 
 public struct PasscodePayload: Codable {
     public let email, passcode: String
