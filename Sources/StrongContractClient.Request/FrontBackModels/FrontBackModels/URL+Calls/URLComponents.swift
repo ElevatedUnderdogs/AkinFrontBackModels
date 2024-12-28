@@ -10,6 +10,7 @@ import Foundation
 public extension URLComponents {
 
     /// "http://127.0.0.1:8080/api/"
+    /// Same as `localhost`
     static var debug: Self {
         var components = URLComponents()
         components.scheme = "http"
