@@ -13,7 +13,7 @@ extension LoginRequest {
 
     /// Purpose: Authenticates the user using their credentials (email and password, or other methods like OAuth).
     public static var login: Self {
-        .init(method: .post)
+        .init(method: .post, assertHasAccessToken: false)
     }
 }
 
@@ -194,10 +194,9 @@ extension TrackEventsRequest {
     /// Used to track user activity for the purpose of `UX`. And to understand how users are interacting and using the app.
     /// See `class Tracking {`. You can add events, and then update the server side by pinging this `Request`
     public static var trackEvents: Self {
-        .init(method: .post)
+        .init(method: .post, assertHasAccessToken: false)
     }
 }
-
 
 public typealias UpdateEmailRequest = Request<CredentialUpdate, StandardPostResponse>
 extension UpdateEmailRequest {
