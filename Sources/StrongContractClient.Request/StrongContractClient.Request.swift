@@ -198,7 +198,7 @@ extension TrackEventsRequest {
     }
 }
 
-public typealias UpdateEmailReques t = Request<CredentialUpdate, StandardPostResponse>
+public typealias UpdateEmailRequest = Request<CredentialUpdate, StandardPostResponse>
 extension UpdateEmailRequest {
     /// For a user to update/change their email address.
     public static var updateEmail: Self {
