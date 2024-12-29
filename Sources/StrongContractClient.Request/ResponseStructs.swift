@@ -243,6 +243,16 @@ public struct LoginResponse: Codable {
     }
 }
 
+/// Helper struct for decoding the refresh token from the body
+/// Used to request a new access token
+public struct RefreshTokenRequestPayload: Codable {
+    let refreshToken: String
+
+    public init(refreshToken: String) {
+        self.refreshToken = refreshToken
+    }
+}
+
 // Response model for `add(response:questionID:)` API call
 public struct AddResponseResponse: Codable {
     public var success: Bool

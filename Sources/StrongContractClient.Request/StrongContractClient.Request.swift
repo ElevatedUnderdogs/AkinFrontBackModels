@@ -27,8 +27,8 @@ extension LoginWithAccessToken {
 }
 
 /// Send a Refresh token in the body, get an access token in the response.
-public typealias RefreshToken = Request<String, String>
-extension RefreshToken {
+public typealias RefreshTokenRequest = Request<RefreshTokenRequestPayload, LoginResponse>
+extension RefreshTokenRequest {
 
     /// Issues a new access token when the current one expires.
     public static var refreshToken: Self {

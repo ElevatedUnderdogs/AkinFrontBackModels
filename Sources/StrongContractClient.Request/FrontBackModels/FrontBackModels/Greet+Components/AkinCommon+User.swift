@@ -27,7 +27,6 @@ public struct User: Codable {
     public var profilePicData: Data? = nil
     public var meetingSchedule: [Week.Day] = []
     public var dobString: String?
-    public var accessToken: String?
 
     // MARk - inits
 
@@ -38,8 +37,7 @@ public struct User: Codable {
         user_id: UUID,
         email: String,
         zip: Int? = nil,
-        dob: String? = nil,
-        accessToken: String? = nil
+        dob: String? = nil
     ) {
         self.imgData = imgData
         self.id = user_id
@@ -48,6 +46,5 @@ public struct User: Codable {
         self.email = email
         self.zip = zip
         self.dobString = dob
-        self.accessToken = accessToken
     }
 }
