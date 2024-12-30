@@ -228,14 +228,24 @@ public struct BlockUserResponse: Codable {
     }
 }
 
+public struct TokenResponse: Codable, Hashable, Equatable {
+    public let token: String
+    public let expiration: Date
+
+    public init(token: String, expiration: Date) {
+        self.token = token
+        self.expiration = expiration.randomEarlierDate
+    }
+}
+
 // Response model for `login(email:password:)` API call
 public struct LoginResponse: Codable {
     public var success: Bool
     public var user: User
-    public var authToken: String
-    public var refreshToken: String
+    public var authToken: TokenResponse
+    public var refreshToken: TokenResponse
 
-    public init(success: Bool, user: User, authToken: String, refreshToken: String) {
+    public init(success: Bool, user: User, authToken: TokenResponse, refreshToken: TokenResponse) {
         self.success = success
         self.user = user
         self.authToken = authToken
