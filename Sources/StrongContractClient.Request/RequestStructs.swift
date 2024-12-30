@@ -269,6 +269,10 @@ public struct QuestionsSpecifications: Codable {
     public let type: Question.Category.RawValue
     public let page: Int?
     public let context: Context.RawValue
+
+    /// Specifies if this user has marked the question to be required for the given context.
+    /// This means that in order for another user to be considered compatile, they must answer
+    /// questions marked as required.  
     public let required: Bool
 
     public init(
