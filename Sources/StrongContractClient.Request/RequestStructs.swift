@@ -189,6 +189,7 @@ extension Question.Response {
         public let text: String
         public let timeStamp: Date
         public let creatorID: UUID
+        public let originalContextID: UUID
         public var myChoice: [ContextRawValue: Selections.MyTheir.Choice] = [:]
         public var theirChoices: [ContextRawValue: Selections.MyTheir.Choice] = [:]
 
@@ -196,9 +197,11 @@ extension Question.Response {
             text: String,
             timeStamp: Date,
             creatorID: UUID,
+            originalContextId: UUID,
             myChoice: [ContextRawValue: Selections.MyTheir.Choice],
             theirChoices: [ContextRawValue: Selections.MyTheir.Choice]
         ) {
+            self.originalContextID = originalContextId
             self.text = text
             self.timeStamp = timeStamp
             self.creatorID = creatorID
