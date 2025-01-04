@@ -413,7 +413,7 @@ extension GetResponsesRequest {
     }
 }
 
-public typealias GetQuestionsRequest = Request<QuestionsSpecifications, [Question]>
+public typealias GetQuestionsRequest = Request<[QuestionsSpecifications], [Question]>
 extension GetQuestionsRequest {
     /// Gets questions for the matchmaking questionnaire.
     public static var getQuestions: Self {
