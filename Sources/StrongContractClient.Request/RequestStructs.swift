@@ -190,6 +190,7 @@ extension Question.Response {
         public let timeStamp: Date
         public let creatorID: UUID
         public let originalContextID: UUID
+        public let originalContextRaw: String
         public var myChoice: [ContextRawValue: Selections.MyTheir.Choice] = [:]
         public var theirChoices: [ContextRawValue: Selections.MyTheir.Choice] = [:]
 
@@ -198,6 +199,7 @@ extension Question.Response {
             timeStamp: Date,
             creatorID: UUID,
             originalContextId: UUID,
+            originalContextRaw: String,
             myChoice: [ContextRawValue: Selections.MyTheir.Choice],
             theirChoices: [ContextRawValue: Selections.MyTheir.Choice]
         ) {
@@ -207,6 +209,7 @@ extension Question.Response {
             self.creatorID = creatorID
             self.myChoice = myChoice
             self.theirChoices = theirChoices
+            self.originalContextRaw = originalContextRaw
         }
     }
 }
@@ -301,26 +304,3 @@ public struct QuestionsSpecifications: Codable {
         self.required = required
     }
 }
-
-//
-///// While sending `[Question]`back to the client, would be simpler,
-///// Sending the queried results allows the client to compute the `[Question]` on the client side
-///// This reduces server costs a small amount multiplied across millions of queries.
-//public struct QuestionsPayload {
-//    let incompleteQuestions: [Question]
-//    public let importances: [Question.Importance]
-//    public typealias Choice = Question.Response.Selections.MyTheir.Choice
-//    public let choices: [Choice]
-//
-//    public var questions: [Question] {
-//        let responseIdChoices: [UUID: [Choice]] = choices.reduce(into: [:]) {
-//            $0[$1.response.id, default: []].append($1)
-//        }
-//        let
-//        return incompleteQuestions.map {
-//            var buffer = $0
-//            
-//
-//        }
-//    }
-//}
