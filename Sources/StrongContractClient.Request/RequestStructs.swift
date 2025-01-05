@@ -278,6 +278,15 @@ public struct QuestionsSpecifications: Codable {
     /// questions marked as required.  
     public let required: Bool
 
+
+    /// <#Description#>
+    /// - Parameters:
+    ///   - searchText: <#searchText description#>
+    ///   - type: <#type description#>
+    ///   - page: <#page description#>
+    ///   - context: The context for which questions are popularly answered, or
+    ///    popularly important, there will be an algorithm for this.
+    ///   - required: <#required description#>
     public init(
         searchText: String? = nil,
         type: Question.Category.RawValue,
@@ -292,3 +301,26 @@ public struct QuestionsSpecifications: Codable {
         self.required = required
     }
 }
+
+//
+///// While sending `[Question]`back to the client, would be simpler,
+///// Sending the queried results allows the client to compute the `[Question]` on the client side
+///// This reduces server costs a small amount multiplied across millions of queries.
+//public struct QuestionsPayload {
+//    let incompleteQuestions: [Question]
+//    public let importances: [Question.Importance]
+//    public typealias Choice = Question.Response.Selections.MyTheir.Choice
+//    public let choices: [Choice]
+//
+//    public var questions: [Question] {
+//        let responseIdChoices: [UUID: [Choice]] = choices.reduce(into: [:]) {
+//            $0[$1.response.id, default: []].append($1)
+//        }
+//        let
+//        return incompleteQuestions.map {
+//            var buffer = $0
+//            
+//
+//        }
+//    }
+//}
