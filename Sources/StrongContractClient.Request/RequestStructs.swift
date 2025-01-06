@@ -54,10 +54,12 @@ public struct CredentialUpdate: Codable {
 public struct ImportancesUpdate: Codable {
     public let importances: [ContextRawValue: Question.Importance]
     public let questionID: UUID
+    public let createdAt: Date
 
-    public init(importances: [ContextRawValue: Question.Importance], questionID: UUID) {
+    public init(importances: [ContextRawValue: Question.Importance], questionID: UUID, createdAt: Date) {
         self.importances = importances
         self.questionID = questionID
+        self.createdAt = createdAt
     }
 }
 
@@ -241,6 +243,7 @@ public struct AnswerChoice: Codable {
     public let choice: Question.Response.Selections.MyTheir.Choice?
     public let responseID: UUID
     public let questionID: UUID
+    public let createdAt: Date
     public let context: Context
 
     public init(
@@ -248,12 +251,14 @@ public struct AnswerChoice: Codable {
         choice: Question.Response.Selections.MyTheir.Choice? = nil,
         responseID: UUID,
         questionID: UUID,
+        createdAt: Date,
         context: Context
     ) {
         self.myTheir = myTheir
         self.choice = choice
         self.responseID = responseID
         self.questionID = questionID
+        self.createdAt = createdAt
         self.context = context
     }
 }
