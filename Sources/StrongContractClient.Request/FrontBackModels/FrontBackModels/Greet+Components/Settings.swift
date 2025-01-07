@@ -35,11 +35,11 @@ public struct Settings: Codable {
     }
     
     public var isOnSocial: Bool {
-        contexts.contains(.social)
+        contexts.contains { $0.case == .social }
     }
     
     public var isOnRomance: Bool {
-        contexts.contains(.romance)
+        contexts.contains { $0.case == .romance }
     }
     
     public mutating func add(greetingMethod: Greet.Method, shouldAdd: Bool) {

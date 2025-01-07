@@ -8,6 +8,16 @@
 
 import Foundation
 
-public enum Context: String, CaseIterable, Codable {
-    case romance, social
+public struct Context: Codable, Hashable {
+
+    public typealias RawValue = String
+
+    public let id: UUID
+    public let `case`: Case
+
+    public var rawValue: RawValue { self.case.rawValue }
+
+    public enum Case: String, CaseIterable, Codable, Hashable {
+        case romance, social
+    }
 }
