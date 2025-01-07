@@ -15,6 +15,11 @@ public struct Context: Codable, Hashable {
     public let id: UUID
     public let `case`: Case
 
+    public init(id: UUID, `case`: Case) {
+        self.id = id
+        self.case = `case`
+    }
+
     public var rawValue: RawValue { self.case.rawValue }
 
     public enum Case: String, CaseIterable, Codable, Hashable {
