@@ -189,6 +189,15 @@ extension UpdateImportanceRequest {
     }
 }
 
+public typealias GetContextsRequest = Request<Empty, [Context]>
+extension GetContextsRequest {
+
+    /// Get the contexts
+    public static var getContexts: Self {
+        .init(method: .get)
+    }
+}
+
 public typealias TrackEventsRequest = Request<Events, StandardPostResponse>
 extension TrackEventsRequest {
     /// Used to track user activity for the purpose of `UX`. And to understand how users are interacting and using the app.
