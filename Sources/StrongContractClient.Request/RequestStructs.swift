@@ -157,24 +157,19 @@ public typealias HideMe = Bool
 public typealias PushkitDeviceToken = String
 
 public struct LoginPayload: Codable {
-    public let email, password: String
+
+    /// Email does not need encryption
+    public let email: String
+
+    /// The password is encrypted https to be sent in the body
+    /// The password is stored encrypted as well.
+    public let password: String
+
     public init(email: String, password: String) {
-        self.email = email.sha256hexa
-        self.password = password.sha512hexa
+        self.email = email
+        self.password = password
     }
 }
-//
-//struct LoginResponse: Codable, Equatable, Hashable {
-//    let user: User
-//    let token: String
-//    let refreshToken: String
-//
-//    public init(user: User, token: String, refreshToken: String) {
-//        self.user = user
-//        self.token = token
-//        self.refreshToken = refreshToken
-//    }
-//}
 
 public struct PasscodePayload: Codable {
     public let email, passcode: String
