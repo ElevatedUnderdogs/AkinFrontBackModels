@@ -32,8 +32,8 @@ typealias UpdateCourtesyCallSettingRequest = Bool
 public struct PasswordUpdate: Codable {
     public let oldPassword, newPassword: String
     public init(oldPassword: String, newPassword: String) {
-        self.oldPassword = oldPassword.sha512hexa
-        self.newPassword = newPassword.sha512hexa
+        self.oldPassword = oldPassword
+        self.newPassword = newPassword
     }
 }
 
@@ -47,7 +47,7 @@ public struct CredentialUpdate: Codable {
     public let newEmail, password: String
     public init(newEmail: String, password: String) {
         self.newEmail = newEmail
-        self.password = password.sha512hexa
+        self.password = password
     }
 }
 
@@ -157,33 +157,28 @@ public typealias HideMe = Bool
 public typealias PushkitDeviceToken = String
 
 public struct LoginPayload: Codable {
-    public let email, password: String
+
+    /// Email does not need encryption
+    public let email: String
+
+    /// The password is encrypted https to be sent in the body
+    /// The password is stored encrypted as well.
+    public let password: String
+
     public init(email: String, password: String) {
-        self.email = email.sha256hexa
-        self.password = password.sha512hexa
+        self.email = email
+        self.password = password
     }
 }
-//
-//struct LoginResponse: Codable, Equatable, Hashable {
-//    let user: User
-//    let token: String
-//    let refreshToken: String
-//
-//    public init(user: User, token: String, refreshToken: String) {
-//        self.user = user
-//        self.token = token
-//        self.refreshToken = refreshToken
-//    }
-//}
 
+/// I need to check if this is used for the email verification.. 
 public struct PasscodePayload: Codable {
     public let email, passcode: String
     public init(email: String, passcode: String) {
-        self.email = email.sha256hexa
-        self.passcode = passcode.sha512hexa
+        self.email = email
+        self.passcode = passcode
     }
 }
-
 
 extension Question.Response {
 
