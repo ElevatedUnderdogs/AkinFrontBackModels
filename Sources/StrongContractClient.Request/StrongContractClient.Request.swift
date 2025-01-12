@@ -50,16 +50,24 @@ extension ProfilePictureRequest {
     public static var profileImage: Self {
         .init(method: .get, mimType: .octetStream)
     }
+}
+
+public typealias ImageRequest = Request<UserImage, Data>
+extension ImageRequest {
 
     public static var image: Self {
         .init(method: .get, mimType: .octetStream)
     }
+}
 
-    public static var postProfileImage: Self {
+public typealias UploadImageRequest = Request<Empty, Data>
+extension UploadImageRequest {
+
+    public static var uploadProfileImage: Self {
         .init(method: .post, mimType: .octetStream)
     }
 
-    public static var postImage: Self {
+    public static var uploadImage: Self {
         .init(method: .post, mimType: .octetStream)
     }
 }
