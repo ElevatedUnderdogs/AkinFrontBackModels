@@ -60,7 +60,7 @@ extension ImageRequest {
     }
 }
 
-public typealias UploadImageRequest = Request<Empty, Data>
+public typealias UploadImageRequest = Request<Empty, StandardPostResponse>
 extension UploadImageRequest {
 
     public static var uploadProfileImage: Self {
