@@ -50,6 +50,18 @@ extension ProfilePictureRequest {
     public static var profileImage: Self {
         .init(method: .get, mimType: .octetStream)
     }
+
+    public static var image: Self {
+        .init(method: .get, mimType: .octetStream)
+    }
+
+    public static var postProfileImage: Self {
+        .init(method: .post, mimType: .octetStream)
+    }
+
+    public static var postImage: Self {
+        .init(method: .post, mimType: .octetStream)
+    }
 }
 
 public typealias Register = Request<User.SignUp, RegisterResponse>
