@@ -22,14 +22,14 @@ extension Greet {
         
         public var displayStr: String {
             switch self {
-            case .hug: return "Hug"
-            case .kiss: return "Kiss"
-            case .handShake: return "Hand Shake"
-            case .wave: return "Wave"
-            case .hook_up: return "Hook up"
-            case .plur: return "P.L.U.R."
-            case .highFive: return "High Five"
-            case .wetWilly: return "Wet Willy"
+            case .hug: return "Hug 🤗"
+            case .kiss: return "Kiss 😘"
+            case .handShake: return "Hand Shake 🤝"
+            case .wave: return "Wave 👋"
+            case .hook_up: return "Hook up 👉👌"
+            case .plur: return "P.L.U.R. ✌️❤️✊🫡"
+            case .highFive: return "High Five 🙏"
+            case .wetWilly: return "Wet Willy 👉💦👂"
             }
         }
     }
