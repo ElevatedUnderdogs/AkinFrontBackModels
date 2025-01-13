@@ -14,13 +14,13 @@ public typealias DictionaryAction = ([String: Any]) -> Void
 public typealias HTTPStatusAction = (HTTPURLResponse.HTTPStatus?) -> Void
 
 extension URLRequest {
-
+    
     public var post: Self {
         var buffer = self
         buffer.httpMethod = "POST"
         return buffer
     }
-
+    
     /// Might not need to pass this user id if the user is signed in and passing access tokens etc.
     static func addDisplay(img: Data, thisUserID: UUID) -> URLRequest? {
         NSMutableURLRequest(
@@ -29,7 +29,7 @@ extension URLRequest {
             thisUserID: thisUserID
         )?.urlRequest
     }
-
+    
     /// Initializes a URLRequest configured for a specified HTTP method with a JSON body from a Codable object.
     ///Sources/EncryptDecryptKey/DataCrypto.swift
     /// Using a generic type `T` constrained to `Codable` allows the Swift compiler to know the specific type
@@ -53,10 +53,10 @@ extension URLRequest {
         contentType: String = "application/octet-stream"
     ) {
         self.init(url: URLComponents.baseURLComponents.with(path: path).url!)
-
+        
         httpMethod = method.rawValue
         addValue(contentType, forHTTPHeaderField: "Content-Type")
-
+        
         let codable: TokenAndPayload<T> = .init(payload: payload)
         do {
             let encoder = JSONEncoder()
@@ -67,133 +67,12 @@ extension URLRequest {
             return nil
         }
     }
-
+    
     public var method: HTTPMethod? {
         httpMethod.flatMap { HTTPMethod(rawValue: $0) }
     }
-
-    /// Completed with: 
-    /*
-     // Conversion for `register(basicInfo:)`
-     static var register: Request<User.SignUp, RegisterResponse> {
-         Request<User.SignUp, RegisterResponse>(path: "user/register", method: .post)
-     }
-     */
-//    static func register(basicInfo: User.SignUp) -> URLRequest! {
-//        URLRequest(
-//            path: "user/register",
-//            method: .post,
-//            payload: basicInfo
-//        )
-//    }
-//   DonE
-//    static var prefetchUser: Request<Row, PrefetchUserResponse> {
-//        Request<Row, PrefetchUserResponse>(path: "nearbyUser", method: .get)
-//    }
-//    static func prefetchUser(row: Int) -> URLRequest! {
-//        URLRequest(
-//            path: "nearbyUser",
-//            method: .get,
-//            payload: row
-//        )
-//    }
-//
-/*
-
- static var prefetchQuestion: Request<Int, PrefetchQuestionForResponse> {
-     Request<Int, PrefetchQuestionForResponse>(path: "question", method: .get)
- }DonE
- */
-    ///
-//    static func prefetchQuestion(row: Int) -> URLRequest! {
-//        URLRequest(
-//            path: "question",
-//            method: .get,
-//            payload: row
-//        )
-//    }
-/*
- static var triggerTwoPersonGreet: Request<TwoIDs, TwoPersonGreetResponse> {
-     Request<TwoIDs, TwoPersonGreetResponse>(path: "makeCompatible", method: .post)
- }DonE
- */
-//    static func triggerTwoPersonGreet(twoIDs: TwoIDs) -> URLRequest! {
-//        URLRequest(
-//            path: "makeCompatible",
-//            method: .post,
-//            payload: twoIDs
-//        )
-//    }
-
-    /*
-     static var setMetersWillingToTravel: Request<Int, StandardPostResponse> {
-         Request<Int, StandardPostResponse>(path: "metersWillingToTravel", method: .post)
-     } DonE
-     */
-//    /*
-//     static func metersWillingToTravel(_ metersWillingToTravel: Int) -> URL? {
-//         URLComponents.baseURLComponents
-//             .with(path: "metersWillingToTravel")
-//             .with(queryItems: .access_token_and_user_id, .metersWillingToTravel(metersWillingToTravel))
-//             .url
-//     }
-//     */
-// done
-//    static func metersWillingToTravel(_ metersWillingToTravel: Int) -> URLRequest! {
-//        URLRequest(
-//            path: "metersWillingToTravel",
-//            method: <#T##HTTPMethod#>,
-//            payload: <#T##Decodable & Encodable#>
-//        )
-//    }
-//
-//
-//    static func _(_: _) -> URLRequest! {
-//        URLRequest(
-//            path: <#T##String#>,
-//            method: <#T##HTTPMethod#>,
-//            payload: <#T##Decodable & Encodable#>
-//        )
-//    }
-//
-
 }
 
-
-
-//struct Request<Payload: Codable, Response: Codable> {
-//    public var path: String
-//    public var method: HTTPMethod
-//}
-
-
-
-//extension Request {
-//
-//    typealias PassResponse = (Response) -> Void
-//
-//    public func task(payload: Payload, passResponse: PassResponse) {
-//
-//        // so that calling this function looks like:
-//        /*
-//         Response.aStaticProp.task(payload) { response in
-//
-//         }
-//         */
-//    }
-//
-//  //   typealias Handle
-//
-//   //  @if can import vapor
-//    public func handle(api: any RouteBui) {
-//        // VaporMethod.path
-//
-//        // so that usage looks like this:
-//        // Request.aStaticProp.handle { payload in
-//        //     return response
-//        // }
-//    }
-//}
 /// A struct to make the naming convention a bit more explicit for this simple type.
 public typealias Row = Int
 
@@ -215,37 +94,6 @@ public struct PayloadResponse {
 
 extension URL {
 
-//    static func metersWillingToTravel(_ metersWillingToTravel: Int) -> URL? {
-//        URLComponents.baseURLComponents
-//            .with(path: "metersWillingToTravel")
-//            .with(queryItems: .access_token_and_user_id, .metersWillingToTravel(metersWillingToTravel))
-//            .url
-//    }
-
-    /// URL.reportFlags(flags.ints, question: id)?.ping()
-    /// URL.reportFlags(flags.ints, question: id)?.ping()
-    /*
-     flagsAction: { flags, responseModel in
-         guard let questionID = self?.question.id else { return }
-         URL.reportFlags(
-             flags.ints,
-             response: responseModel.response.id,
-             for: questionID
-         )?.ping()
-     }
-
-     alertViewController.styleAsFlagView(
-         flagsAction: { flags, otherUser in
-         guard let firstImage = otherUser.profileImages.first else { return }
-         let id = otherUser.id
-         URL.reportFlags(
-             flags.ints,
-             picURL: firstImage,
-             userID: id
-             )?.ping()
-         }
-     )
-     */
     static func reportFlags(_ flags: [Int], question id: Int) -> URL? {
         URLComponents.baseURLComponents
             .with(path: "reportFlags")
@@ -514,13 +362,6 @@ extension URL {
             .url!
     }
 
-//    static func nearbyUsers(location: Location) -> URL {
-//        URLComponents.baseURLComponents
-//            .with(path: "GetNearByUserList")
-//            .with(queryItems: .access_token_and_user_id, .lat(location.latitude.string), .lon(location.longitude.string))
-//            .url!
-//    }
-
     static func make(
         my: Question.Response.Selections.MyTheir.Choice?,
         their: Question.Response.Selections.MyTheir.Choice?,
@@ -537,25 +378,6 @@ extension URL {
             )
             .url!
     }
-
-//
-//    static func responses(question: Question, context: Context) -> URL {
-//        URLComponents.baseURLComponents
-//            .with(path: "getOptions")
-//            .with(queryItems: .access_token_and_user_id, .question_id("\(question.id ?? -1)"), .context(context.rawValue))
-//            .url!
-//    }
-//
-//    static func responses(
-//        search text: String? = nil,
-//        question: Question,
-//        context: Context
-//    ) -> URL {
-//        URLComponents.baseURLComponents
-//            .with(path: "getOptions")
-//            .with(queryItems: .access_token_and_user_id, .search(text: text), .question_id("\(question.id ?? -1)"), .context(context.rawValue))
-//            .url!
-//    }
 
     static func questions(
         search text: String? = nil,
@@ -577,28 +399,6 @@ extension URL {
             .url!
     }
 
-    static func update(settings: Settings?) -> URL? {
-        guard let settings = settings else { return nil }
-        return URLComponents.baseURLComponents
-            .with(path: "updateUserSettings")
-            .with(queryItems: .access_token_and_user_id,
-                .phone(settings.phone ?? ""),
-                .dob(settings.dob ?? ""),
-                .social(settings.isOnSocial.int.string),
-                .romance(settings.isOnRomance.int.string),
-                .hook_up(settings.has(.hook_up)),
-                .plur(settings.has(.plur)),
-                .greetr_flutter(false.strInt),
-                .hand_shake(settings.has(.handShake)),
-                .hug(settings.has(.hug)),
-                .high_five(settings.has(.highFive)),
-                .kiss_on_the_cheek(settings.has(.kiss)),
-                .wave(settings.has(.wave)),
-                .wet_willy(settings.has(.wetWilly)),
-                .vibrate(settings.vibrate.int.string),
-                .ring(settings.ring.int.string))
-            .url!
-    }
 
     static func addDisplay() -> URL {
         URLComponents.baseURLComponents.with(path: "addDisplayPicture")
@@ -616,37 +416,4 @@ extension URL {
     static func yelpBusiness(latitude: Double, longitude: Double) -> URL? {
         URL(string: "https://api.yelp.com/v3/businesses/search?latitude=\(latitude)&longitude=\(longitude)")
     }
-
-    //    fileprivate static func register(basicInfo: User.SignUp) -> URL {
-    //        URLComponents.baseURLComponents
-    //            .with(path: "user/register")
-    //            .with(
-    //                queryItems: .primary_email(basicInfo.email),
-    //                .password(basicInfo.password),
-    //                .first_name(basicInfo.firstName),
-    //                .last_name(basicInfo.lastName)
-    //            )
-    //            .url!
-    //    }
-
-    //    static func prefetchUser(for row: Int) -> URL? {
-    //        URLComponents.baseURLComponents
-    //            .with(path: "nearbyUser")
-    //            .with(queryItems: .access_token_and_user_id, .row(row))
-    //            .url
-    //    }
-
-    //    static func prefetchQuestion(for row: Int) -> URL? {
-    //        URLComponents.baseURLComponents
-    //            .with(path: "question")
-    //            .with(queryItems: .access_token_and_user_id, .row(row))
-    //            .url
-    //    }
-
-    //    static func triggerTwoPersonGreet(with id: Int, and otherid: Int) -> URL? {
-    //        URLComponents.baseURLComponents
-    //            .with(path: "makeCompatible")
-    //            .with(queryItems: .submit(true), .user_id(id: String(id)), .other_user_id(String(otherid)))
-    //            .url
-    //    }
 }

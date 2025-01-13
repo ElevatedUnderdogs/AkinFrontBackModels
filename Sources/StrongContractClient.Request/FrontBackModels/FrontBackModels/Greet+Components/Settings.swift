@@ -9,6 +9,12 @@
 import Foundation
 
 // MARK - TODO after figuring out the user structure, put settings nested in this user/viewing user.
+public struct ContextPreferences: Codable, Hashable, Equatable {
+    public let context: Context
+    public var metersWillingToTravel: Int
+    public var allowedGreetingMethods: [Greet.Method]
+    public var isMeetEnabled: Bool
+}
 
 public struct Settings: Codable {
 
@@ -23,55 +29,57 @@ public struct Settings: Codable {
     public var emailPrimary: String?
     public var userID: UUID = .init()
     public var phone: String?
-    public var contexts: [Context] = []
+    public var contextPreferences: [ContextPreferences] = []
     public var username: String? = nil
-    public var allowedGreetingMethods: [Greet.Method] = [.wave]
     public var profileImg: Data? = nil
-    public var metersWillingToTravel: Int = 150
     public var dob: String?
 
     public var profilePicAlternator: TypeAlternator<Data, String>? {
         TypeAlternator(profileImg, displayPic)
     }
     
-    public var isOnSocial: Bool {
-        contexts.contains { $0.case == .social }
+    public var isSocialEnabled: Bool {
+        contextPreferences.first { $0.context.case == .social }?.isMeetEnabled == true
     }
     
-    public var isOnRomance: Bool {
-        contexts.contains { $0.case == .romance }
+    public var isRomanceEnabled: Bool {
+        contextPreferences.first { $0.context.case == .romance }?.isMeetEnabled == true
     }
     
-    public mutating func add(greetingMethod: Greet.Method, shouldAdd: Bool) {
-        if !shouldAdd {return}
-        allowedGreetingMethods.append(greetingMethod)
-    }
-    
-    public var greetingMethodText: String {
-        if allowedGreetingMethods.isEmpty {
-            return "wave"
+    public mutating func add(
+        greetingMethod: Greet.Method,
+        shouldAdd: Bool,
+        for context: Context.Case
+    ) {
+        guard shouldAdd,
+        let indexOfPReference = contextPreferences.firstIndex(where: { $0.context.case == context }) else { return
         }
-        if allowedGreetingMethods.hasExactlyOne {
-            return allowedGreetingMethods.first?.rawValue ?? ""
-        }
-        return "Multiple"
+        self.contextPreferences[indexOfPReference].allowedGreetingMethods.append(greetingMethod)
     }
-    
+
+    private func greetingMethods(for context: Context.Case) -> [Greet.Method] {
+        contextPreferences.first(where: { $0.context.case == context })?.allowedGreetingMethods ?? []
+    }
+
+    public func greetingMethodText(for context: Context.Case) -> String {
+        let allowedGreetingMethods = greetingMethods(for: context)
+        return allowedGreetingMethods.isEmpty ? "wave" :
+            allowedGreetingMethods.hasExactlyOne ? allowedGreetingMethods.first?.rawValue ?? "" :
+            "Multiple"
+    }
+
     public func has(_ context: Context) -> Bool {
-        contexts.contains(context)
+        contextPreferences.contains { $0.context == context }
     }
     
-    public func has(method greetingMethod: Greet.Method) -> Bool {
-        allowedGreetingMethods.contains(greetingMethod)
-    }
-    
-    public func has(_ greetingMethod: Greet.Method) -> String {
-        has(method: greetingMethod).strInt
+    public func has(method greetingMethod: Greet.Method, for context: Context.Case) -> Bool {
+        greetingMethods(for: context).contains(greetingMethod)
     }
     
     public var contextText: String {
-        contexts.count == 2 ? "Both on" :
-        contexts.first.map { "\($0.rawValue) on" } ?? "Both off"
+        let enabledContexts: [Context.Case] = contextPreferences.filter(\.isMeetEnabled).map(\.context.case)
+        return enabledContexts.count == 2 ? "Both on" :
+        enabledContexts.first.map { "\($0.rawValue) on" } ?? "Both off"
     }
     
     // MAKR - inits

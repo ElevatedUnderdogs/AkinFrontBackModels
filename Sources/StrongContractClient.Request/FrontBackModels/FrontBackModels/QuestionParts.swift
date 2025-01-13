@@ -20,7 +20,7 @@ public extension Question {
         public var text: String
         public var responses: [Response.Parts] = []
         public var creatorID: UUID
-        public var originalContext: Context
+        public var originalContext: String
         public var importanceFor: [ContextRawValue: Importance] = [:]
 
         public func hash(into hasher: inout Hasher) {
@@ -31,7 +31,7 @@ public extension Question {
             text: String,
             responses: [Response.Parts],
             creatorID: UUID,
-            originalContext: Context
+            originalContext: String
         ) {
             self.text = text
             self.responses = responses
