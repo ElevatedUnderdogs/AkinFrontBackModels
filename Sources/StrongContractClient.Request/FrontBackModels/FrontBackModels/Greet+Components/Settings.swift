@@ -9,12 +9,6 @@
 import Foundation
 
 // MARK - TODO after figuring out the user structure, put settings nested in this user/viewing user.
-public struct ContextPreferences: Codable, Hashable, Equatable {
-    public let context: Context
-    public var metersWillingToTravel: Int
-    public var allowedGreetingMethods: [Greet.Method]
-    public var isMeetEnabled: Bool
-}
 
 public struct Settings: Codable {
 
