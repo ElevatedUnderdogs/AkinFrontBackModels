@@ -27,6 +27,7 @@ public struct Settings: Codable {
     public var username: String? = nil
     public var profileImg: Data? = nil
     public var dob: String?
+    public var birthday: DateComponents?
 
     public var profilePicAlternator: TypeAlternator<Data, String>? {
         TypeAlternator(profileImg, displayPic)
