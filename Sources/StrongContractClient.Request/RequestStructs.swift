@@ -234,7 +234,12 @@ public struct AddResponse: Codable {
 }
 
 public struct AnswerChoice: Codable {
-    public let myTheir: Question.Response.Selections.MyTheir?
+    public let myTheir: Question.Response.Selections.MyTheir
+
+    /// This one is optional, because a user may deselect a choice.
+    /// This should update the backend as being nil, or delete the choice.
+    /// mathematically this is redundant to neutral, but with neutral, the app saves the explicit
+    /// communication that the user feels neutral about the choice, this makes some users feel better (Albert Yu).
     public let choice: Question.Response.Selections.MyTheir.Choice?
     public let responseID: UUID
     public let questionID: UUID
@@ -242,7 +247,7 @@ public struct AnswerChoice: Codable {
     public let context: Context
 
     public init(
-        myTheir: Question.Response.Selections.MyTheir? = nil,
+        myTheir: Question.Response.Selections.MyTheir,
         choice: Question.Response.Selections.MyTheir.Choice? = nil,
         responseID: UUID,
         questionID: UUID,
