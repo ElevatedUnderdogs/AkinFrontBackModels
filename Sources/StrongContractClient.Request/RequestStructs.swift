@@ -242,7 +242,6 @@ public struct AnswerChoice: Codable {
     /// communication that the user feels neutral about the choice, this makes some users feel better (Albert Yu).
     public let choice: Question.Response.Selections.MyTheir.Choice?
     public let responseID: UUID
-    public let questionID: UUID
     public let createdAt: Date
     public let context: Context
 
@@ -250,14 +249,12 @@ public struct AnswerChoice: Codable {
         myTheir: Question.Response.Selections.MyTheir,
         choice: Question.Response.Selections.MyTheir.Choice? = nil,
         responseID: UUID,
-        questionID: UUID,
         createdAt: Date,
         context: Context
     ) {
         self.myTheir = myTheir
         self.choice = choice
         self.responseID = responseID
-        self.questionID = questionID
         self.createdAt = createdAt
         self.context = context
     }
