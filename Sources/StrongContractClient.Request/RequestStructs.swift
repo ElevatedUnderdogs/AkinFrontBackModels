@@ -138,19 +138,25 @@ public struct EmailChange: Codable {
 
 // Helper method to determine the platform
 var getPlatform: String {
+    var platform = "Unknown"
+
     #if os(iOS)
-    return "iOS"
+    platform = "iOS"
     #elseif os(macOS)
-    return "macOS"
+    platform = "macOS"
     #elseif os(tvOS)
-    return "tvOS"
+    platform = "tvOS"
     #elseif os(watchOS)
-    return "watchOS"
+    platform = "watchOS"
     #elseif os(Linux)
-    return "Linux"
-    #else
-    return "Unknown"
+    platform = "Linux"
     #endif
+
+    #if targetEnvironment(simulator)
+    platform += " (Simulator)"
+    #endif
+
+    return platform
 }
 
 public struct DeviceTokenPayload: Codable, Hashable, Equatable {
