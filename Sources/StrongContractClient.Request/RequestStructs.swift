@@ -122,20 +122,6 @@ public struct Rating: Codable {
     }
 }
 
-// Request public structure for updating user location with user ID and context ID
-public struct UserLocationUpdate: Codable {
-    public let contextId: String
-    public let coordinates: Coordinates
-
-    public init(
-        contextId: String,
-        coordinates: Coordinates
-    ) {
-        self.contextId = contextId
-        self.coordinates = coordinates
-    }
-}
-
 public typealias ShouldEnableSilentPushNoticeUpdates = Bool
 
 public typealias PasswordlessAuthentication = String
@@ -150,7 +136,33 @@ public struct EmailChange: Codable {
     }
 }
 
-public typealias DeviceToken = String
+// Helper method to determine the platform
+var getPlatform: String {
+    #if os(iOS)
+    return "iOS"
+    #elseif os(macOS)
+    return "macOS"
+    #elseif os(tvOS)
+    return "tvOS"
+    #elseif os(watchOS)
+    return "watchOS"
+    #elseif os(Linux)
+    return "Linux"
+    #else
+    return "Unknown"
+    #endif
+}
+
+public struct DeviceTokenPayload: Codable, Hashable, Equatable {
+    public let deviceToken: String
+    public let platform: String
+
+    public init(deviceToken: String, platform: String? = nil) {
+        self.deviceToken = deviceToken
+        self.platform = platform ?? getPlatform
+    }
+}
+
 
 public typealias HideMe = Bool
 
@@ -242,6 +254,9 @@ public struct AnswerChoice: Codable {
     /// communication that the user feels neutral about the choice, this makes some users feel better (Albert Yu).
     public let choice: Question.Response.Selections.MyTheir.Choice?
     public let responseID: UUID
+
+    /// While this is a bit redundant, it helps with denormalization, saves a query
+    public let questionID: UUID
     public let createdAt: Date
     public let context: Context
 
@@ -249,12 +264,14 @@ public struct AnswerChoice: Codable {
         myTheir: Question.Response.Selections.MyTheir,
         choice: Question.Response.Selections.MyTheir.Choice? = nil,
         responseID: UUID,
+        questionID: UUID,
         createdAt: Date,
         context: Context
     ) {
         self.myTheir = myTheir
         self.choice = choice
         self.responseID = responseID
+        self.questionID = questionID
         self.createdAt = createdAt
         self.context = context
     }

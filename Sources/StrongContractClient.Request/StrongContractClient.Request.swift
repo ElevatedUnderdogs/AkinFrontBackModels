@@ -327,7 +327,7 @@ extension RegisterDeviceTokenErrorRequest {
     }
 }
 
-public typealias RegisterDeviceTokenRequest = Request<DeviceToken, StandardPostResponse>
+public typealias RegisterDeviceTokenRequest = Request<DeviceTokenPayload, StandardPostResponse>
 extension RegisterDeviceTokenRequest {
     /// Sends the device token to the server.
     public static var registerDeviceToken: Self {
@@ -496,7 +496,7 @@ extension UpdateScheduleRequest {
     }
 }
 
-public typealias UpdateUserLocationRequest = Request<UserLocationUpdate, StandardPostResponse>
+public typealias UpdateUserLocationRequest = Request<Coordinates, StandardPostResponse>
 extension UpdateUserLocationRequest {
     /// Sends an updated user location.
     public static var updateUserLocation: Self {
