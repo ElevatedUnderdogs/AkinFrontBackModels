@@ -91,6 +91,82 @@ extension TwoPersonGreetRequest {
     }
 }
 
+public struct ForceGreetPayload: Codable {
+    var continueWithoutToken: Bool
+    var userID: UUID
+    var otherUserID: UUID
+    var contextCompatibilityStructs: [UUID: ContextCompatibilityValue]
+}
+
+
+public struct ContextCompatibilityValue: Codable {
+    let contextCompatibility: ContextCompatibilityStruct
+    let inverseCompatibility: ContextCompatibilityStruct
+}
+
+/// Struct version of `ContextCompatibility` Model, used for Codable operations.
+public struct ContextCompatibilityStruct: Codable {
+
+    var id: UUID
+    var isIntroduced: Bool
+    var compatibility: Double?
+    var rawCompatibilityScore: Double?
+    var minThreshold: Double?
+    var accepted: Bool
+    var rejected: Bool
+    var createdAt: Date?
+    var updatedAt: Date?
+    var userID: UUID
+    var relatedUserID: UUID
+    var contextID: UUID
+    var userRelationID: UUID?
+    var contextRaw: String
+
+    /// Initializer for `ContextCompatibilityStruct`
+    init(
+        id: UUID,
+        isIntroduced: Bool,
+        compatibility: Double? = nil,
+        rawCompatibilityScore: Double? = nil,
+        minThreshold: Double? = nil,
+        accepted: Bool,
+        rejected: Bool,
+        createdAt: Date? = nil,
+        updatedAt: Date? = nil,
+        userID: UUID,
+        relatedUserID: UUID,
+        contextID: UUID,
+        userRelationID: UUID? = nil,
+        contextRaw: String
+    ) {
+        self.id = id
+        self.isIntroduced = isIntroduced
+        self.compatibility = compatibility
+        self.rawCompatibilityScore = rawCompatibilityScore
+        self.minThreshold = minThreshold
+        self.accepted = accepted
+        self.rejected = rejected
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.userID = userID
+        self.relatedUserID = relatedUserID
+        self.contextID = contextID
+        self.userRelationID = userRelationID
+        self.contextRaw = contextRaw
+    }
+}
+
+
+
+
+public typealias ForceGreetRequest = Request<ForceGreetPayload, StandardPostResponse>
+extension ForceGreetRequest {
+
+    public static var forceGreet: Self {
+        .init(method: .post)
+    }
+}
+
 
 public typealias ManualGreetRequest = Request<GreetID, ManualGreetResponse>
 extension ManualGreetRequest {

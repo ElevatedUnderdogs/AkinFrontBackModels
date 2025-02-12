@@ -14,7 +14,8 @@ extension Greet.Update {
         case cant(Int)
         case theySayTheyMet(String)
         case youAreCloseTo(String)
-        
+    //    case theyArrivedAtVenue(String)
+
         public static func == (lhs: Message, rhs: Message) -> Bool {
             switch (lhs, rhs) {
             case (let .cant(minutes1), let .cant(minutes2)):
@@ -23,6 +24,8 @@ extension Greet.Update {
                 return name1 == name2
             case (let .youAreCloseTo(name1), let .youAreCloseTo(name2)):
                 return name1 == name2
+//            case (let .theyArrivedAtVenue(messageText), let .theyArrivedAtVenue(rhsMessageText)):
+//                return messageText == rhsMessageText
             default: return false
             }
         }
