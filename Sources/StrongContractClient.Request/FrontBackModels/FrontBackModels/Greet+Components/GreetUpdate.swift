@@ -9,13 +9,13 @@
 import Foundation
 
 extension Greet {
-    
+
     public enum Update: Equatable, Codable {
         case errorMessage(String)
         case exitReason(ExitReason)
         case message(Message)
         case viewSetting(ViewSetting)
-        
+
         public static func == (lhs: Greet.Update, rhs: Greet.Update) -> Bool {
             switch (lhs, rhs) {
             case (let .errorMessage(errorMessage1), let .errorMessage(errorMessage2)):
@@ -29,56 +29,63 @@ extension Greet {
             default: return false
             }
         }
-        
-        public init(this: Status,
-             otherUser: Status?,
-             withinRange: Bool,
-             rejectedProposal: Int?,
-             viewForProposal: ViewSetting,
-             otherUserName: String) {
-            
+
+        public init(
+            this: Status,
+            otherUser: Status?,
+            withinRange: Bool,
+            rejectedProposal: Int?,
+            viewForProposal: ViewSetting,
+            otherUserName: String
+        ) {
+
             guard let otherStatus = otherUser else {
                 switch this {
-                case .exceededRange: self = .exitReason(.exceededRange(.my))
-                case .rejectedOther: self = .exitReason(.rejected(.my))
-                case .enroute: self = .errorMessage("if the other user is nil, this user should not be enroute")
-                case .viewed: self = .viewSetting(viewForProposal)
-                case .confirmedMet: self = .errorMessage("If this user is confirming that both met, how can the other user be nil?")
+                case .exceededRange:
+                    self = .exitReason(.exceededRange(.my))
+                case .rejectedOther:
+                    self = .exitReason(.rejected(.my))
+                case .enroute:
+                    self = .errorMessage("if the other user is nil, this user should not be enroute")
+                case .viewed:
+                    self = .viewSetting(viewForProposal)
+                case .confirmedMet:
+                    self = .errorMessage("If this user is confirming that both met, how can the other user be nil?")
                 }
                 return
             }
-            
+
             switch (this, otherStatus) {
-                
-            //THIS AGREED
+
+                //THIS AGREED
             case (.confirmedMet, .confirmedMet): self = .exitReason(.thisConfirmedMet)
             case (.confirmedMet, .enroute):  self = .exitReason(.thisConfirmedMet)
             case (.confirmedMet, .exceededRange): self = .errorMessage("exceededRange can only happen prior to both user's agreeing to meet.")
             case (.confirmedMet, .rejectedOther): self = .errorMessage("if other user rejected, should exit before this user can confirm met.  If confirmed met, it shoudl have navigated away from GreetVC")
             case (.confirmedMet, .viewed):
                 self = .errorMessage("in order for this user to confirm meeting the other user, both users would have had to have had enroute status, viewed would be impossible.")
-                
-                
-            //THIS ENROUTE
+
+
+                //THIS ENROUTE
             case (.enroute, .confirmedMet): self = .message(.theySayTheyMet(otherUserName))
             case (.enroute, .enroute):
                 self = withinRange ? .message(.youAreCloseTo(otherUserName)) : .viewSetting(.inGreet)
             case (.enroute, .exceededRange):  self = .exitReason(.exceededRange(.their))
             case (.enroute, .rejectedOther): self = .exitReason(.rejected(.their))
             case (.enroute, .viewed): self = .errorMessage("impossible")
-                
-                
-            //THIS EXCEEDEDRANGE
+
+
+                //THIS EXCEEDEDRANGE
             case (.exceededRange, .confirmedMet): self = .errorMessage("impossible, report to mustafa, exceeded range can only occur when viewing or none.")
             case (.exceededRange, .enroute): self = .errorMessage("impossible, report to mustafa, exceeded range can only occur when viewing or none.")
             case (.exceededRange, .exceededRange): self = .exitReason(.exceededRange(.my))
             case (.exceededRange, .rejectedOther): self = .exitReason(.exceededRange(.my))
             case (.exceededRange, .viewed):  self = .exitReason(.exceededRange(.my))
-                
-            //THIS REJECTED
+
+                //THIS REJECTED
             case (.rejectedOther, _): self = .exitReason(.rejected(.my))
-                
-            //THIS VIEWED
+
+                //THIS VIEWED
             case (.viewed, .confirmedMet): self = .errorMessage("impossible")
             case (.viewed, .enroute): self = .errorMessage("impossible")
             case (.viewed, .exceededRange): self = .exitReason(.exceededRange(.their))
