@@ -112,16 +112,16 @@ extension TwoPersonGreetRequest {
 }
 
 public struct ForceGreetPayload: Codable {
-    var continueWithoutToken: Bool
-    var userID: UUID
-    var otherUserID: UUID
-    var contextCompatibilityStructs: [UUID: ContextCompatibilityValue]
+    public var continueWithoutToken: Bool
+    public var userID: UUID
+    public var otherUserID: UUID
+    public var contextCompatibilityStructs: [UUID: ContextCompatibilityValue]
 }
 
 
 public struct ContextCompatibilityValue: Codable {
-    let contextCompatibility: ContextCompatibilityStruct
-    let inverseCompatibility: ContextCompatibilityStruct
+    public let contextCompatibility: ContextCompatibilityStruct
+    public let inverseCompatibility: ContextCompatibilityStruct
 }
 
 /// Struct version of `ContextCompatibility` Model, used for Codable operations.
