@@ -107,20 +107,20 @@ public struct ContextCompatibilityValue: Codable {
 /// Struct version of `ContextCompatibility` Model, used for Codable operations.
 public struct ContextCompatibilityStruct: Codable {
 
-    var id: UUID
-    var isIntroduced: Bool
-    var compatibility: Double?
-    var rawCompatibilityScore: Double?
-    var minThreshold: Double?
-    var accepted: Bool
-    var rejected: Bool
-    var createdAt: Date?
-    var updatedAt: Date?
-    var userID: UUID
-    var relatedUserID: UUID
-    var contextID: UUID
-    var userRelationID: UUID?
-    var contextRaw: String
+    public var id: UUID
+    public var isIntroduced: Bool
+    public var compatibility: Double?
+    public var rawCompatibilityScore: Double?
+    public var minThreshold: Double?
+    public var accepted: Bool
+    public var rejected: Bool
+    public var createdAt: Date?
+    public var updatedAt: Date?
+    public var userID: UUID
+    public var relatedUserID: UUID
+    public var contextID: UUID
+    public var userRelationID: UUID?
+    public var contextRaw: String
 
     /// Initializer for `ContextCompatibilityStruct`
     init(
