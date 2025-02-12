@@ -95,7 +95,8 @@ public struct ForceGreetPayload: Codable {
     public var continueWithoutToken: Bool
     public var userID: UUID
     public var otherUserID: UUID
-    public var contextCompatibilityStructs: [UUID: ContextCompatibilityValue]
+    public var contextRaw: String
+    public var greetingMethod: Greet.Method
 }
 
 
