@@ -115,13 +115,8 @@ public struct ForceGreetPayload: Codable {
     public var continueWithoutToken: Bool
     public var userID: UUID
     public var otherUserID: UUID
-    public var contextCompatibilityStructs: [UUID: ContextCompatibilityValue]
-}
-
-
-public struct ContextCompatibilityValue: Codable {
-    public let contextCompatibility: ContextCompatibilityStruct
-    public let inverseCompatibility: ContextCompatibilityStruct
+    public var contextRaw: String
+    public var greetingMethod: Greet.Method
 }
 
 /// Struct version of `ContextCompatibility` Model, used for Codable operations.
