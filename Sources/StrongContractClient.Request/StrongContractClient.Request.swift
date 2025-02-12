@@ -99,12 +99,6 @@ public struct ForceGreetPayload: Codable {
     public var greetingMethod: Greet.Method
 }
 
-
-public struct ContextCompatibilityValue: Codable {
-    public let contextCompatibility: ContextCompatibilityStruct
-    public let inverseCompatibility: ContextCompatibilityStruct
-}
-
 /// Struct version of `ContextCompatibility` Model, used for Codable operations.
 public struct ContextCompatibilityStruct: Codable {
 
