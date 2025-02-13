@@ -10,7 +10,7 @@ import Foundation
 
 extension Greet {
 
-    public struct Settings: Codable {
+    public struct Settings: Codable, Equatable, Hashable {
         public var rejectedTimeProposals: [Int] = []
         public var agreedTimeProposals: [Int] = []
         public var status: Greet.Update.Status
