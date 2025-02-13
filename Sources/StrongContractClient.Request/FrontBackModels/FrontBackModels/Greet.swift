@@ -11,7 +11,7 @@ import Foundation
 public typealias CompatibilityContext = String
 public typealias CompatibilityScore = Double
 
-public struct Greet: Codable {
+public struct Greet: Codable, Equatable, Hashable {
 
     // MARK - properties
     

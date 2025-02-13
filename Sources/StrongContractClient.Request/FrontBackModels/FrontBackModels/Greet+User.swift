@@ -10,7 +10,7 @@ import Foundation
 
 extension Greet {
 
-    public struct User: Codable {
+    public struct User: Codable, Equatable, Hashable {
         public var personal: NearbyUser
         public var percentTravelled: Double? = nil
         public var image: Data? = nil

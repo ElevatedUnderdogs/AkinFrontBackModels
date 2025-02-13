@@ -10,7 +10,7 @@ import Foundation
 
 extension Greet.Notification {
     
-    public struct LocalModel: Codable {
+    public struct LocalModel: Codable, Equatable, Hashable {
 
         public enum Key: String, Codable {
             case getReviewTime, weClosedTheGreet
