@@ -16,7 +16,7 @@ extension Greet {
         public var image: Data? = nil
         public var minutesFromPoint: Int? = nil
         public var settings: Greet.Settings? = nil
-
+        public var id: UUID
 
         /// <#Description#>
         /// - Parameters:
@@ -32,13 +32,15 @@ extension Greet {
             percentTravelled: Double? = nil,
             image: Data? = nil,
             minutesFromPoint: Int? = nil,
-            settings: Greet.Settings? = nil
+            settings: Greet.Settings? = nil,
+            id: UUID
         ) {
             self.personal = nearbyUser
             self.percentTravelled = percentTravelled
             self.image = image
             self.minutesFromPoint = minutesFromPoint
             self.settings = settings
+            self.id = id
         }
     }
 }

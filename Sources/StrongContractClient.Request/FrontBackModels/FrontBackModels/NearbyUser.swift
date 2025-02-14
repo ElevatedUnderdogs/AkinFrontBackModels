@@ -40,7 +40,8 @@ public struct NearbyUser: Codable, Hashable, Equatable {
             percentTravelled: nil,
             image: nil,
             minutesFromPoint: nil,
-            settings: nil
+            settings: nil,
+            id: id
         )
     }
 }
