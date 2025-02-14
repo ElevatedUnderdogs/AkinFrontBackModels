@@ -28,7 +28,7 @@ public struct Greet: Codable, Equatable, Hashable {
     public var openers: [String] = []
     public var venue: Venue? = nil
     public var isMrPractice: Bool = false
-    public var thisSettings = Settings(status: .viewed)
+    public var thisSettings = Settings(status: .viewed, id: .init())
     public var percentThisTravelled: Double = 0
     public var minutesAway: Int? = nil
     public var travelMethod: TravelMethod? = nil
@@ -39,19 +39,27 @@ public struct Greet: Codable, Equatable, Hashable {
 
     // MARK: - Initializer
      public init(
+        /// Alternatable.
          otherUser: Greet.User,
          greetID: UUID,
          method: Greet.Method = .wave,
+         /// alternatable
          compatitibility: [CompatibilityContext: CompatibilityScore] = [:],
+        /// alternatable optionally.
          openers: [String] = [],
          venue: Venue? = nil,
          isMrPractice: Bool = false,
-         thisSettings: Settings = Settings(status: .viewed),
+        /// alternatable
+         thisSettings: Settings = Settings(status: .viewed, id: .init()),
+        /// alternatable
          percentThisTravelled: Double = 0,
+        /// alternatable
          minutesAway: Int? = nil,
+        /// alternatable
          travelMethod: TravelMethod? = nil,
          withinRangeOfEachOtherAndMeetPlace: Int? = nil,
          matchMakingMethodVersion: Double? = nil,
+        /// alternatable
          estimatedTravelTimeInMinutes: Int? = nil,
          rangeThreshold: Int = 0
      ) {

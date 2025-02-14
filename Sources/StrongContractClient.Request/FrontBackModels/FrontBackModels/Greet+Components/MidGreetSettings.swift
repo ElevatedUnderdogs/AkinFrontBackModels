@@ -14,15 +14,18 @@ extension Greet {
         public var rejectedTimeProposals: [Int] = []
         public var agreedTimeProposals: [Int] = []
         public var status: Greet.Update.Status
+        public let id: UUID
 
         public init(
             rejectedTimeProposals: [Int] = [],
             agreedTimeProposals: [Int] = [],
-            status: Greet.Update.Status
+            status: Greet.Update.Status,
+            id: UUID
         ) {
             self.rejectedTimeProposals = rejectedTimeProposals
             self.agreedTimeProposals = agreedTimeProposals
             self.status = status
+            self.id = id
         }
 
         public mutating func updateSettings(with otherUserSettings: Settings?) {
@@ -40,8 +43,9 @@ extension Greet {
             }
         }
 
-        public init(status: Greet.Update.Status) {
+        public init(status: Greet.Update.Status, id: UUID) {
             self.status = status
+            self.id = id
         }
     }
 }
