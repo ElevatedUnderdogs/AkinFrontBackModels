@@ -25,4 +25,13 @@ public enum TravelMethod: String, Codable {
              */
         }
     }
+
+    var emoji: String {
+        switch self {
+        case .bike: return "🚲"
+        case .car: return "🚗"
+        case .none: return ""
+        case .walk: return "👣"
+        }
+    }
 }
