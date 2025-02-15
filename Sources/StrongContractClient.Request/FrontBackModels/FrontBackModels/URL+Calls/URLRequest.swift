@@ -83,8 +83,8 @@ public struct TokenAndPayload<Payload: Codable>: Codable {
 }
 
 public struct TwoIDs: Codable {
-    public var firstId: Int
-    public var otherID: Int
+    public var firstId: UUID
+    public var otherID: UUID
 }
 
 public struct PayloadResponse {
