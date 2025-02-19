@@ -172,8 +172,6 @@ public struct DeviceTokenPayload: Codable, Hashable, Equatable {
 
 public typealias HideMe = Bool
 
-public typealias PushkitDeviceToken = String
-
 public struct LoginPayload: Codable {
 
     /// Email does not need encryption

@@ -395,7 +395,7 @@ extension HideFromNearByListRequest {
     }
 }
 
-public typealias RegisterPushKitDeviceTokenRequest = Request<PushkitDeviceToken, StandardPostResponse>
+public typealias RegisterPushKitDeviceTokenRequest = Request<DeviceTokenPayload, StandardPostResponse>
 extension RegisterPushKitDeviceTokenRequest {
     /// Registers push kit device token.
     public static var registerPushKitDeviceToken: Self {
