@@ -13,7 +13,7 @@ extension Greet {
     public struct User: Codable, Equatable, Hashable {
         public var personal: NearbyUser
         public var percentTravelled: Double? = nil
-        public var image: Data? = nil
+        public var imageURL: String? = nil
         public var minutesFromPoint: Int? = nil
         public var settings: Greet.Settings? = nil
         public var id: UUID
@@ -30,14 +30,14 @@ extension Greet {
         public init(
             nearbyUser: NearbyUser,
             percentTravelled: Double? = nil,
-            image: Data? = nil,
+            imageURL: String? = nil,
             minutesFromPoint: Int? = nil,
             settings: Greet.Settings? = nil,
             id: UUID
         ) {
             self.personal = nearbyUser
             self.percentTravelled = percentTravelled
-            self.image = image
+            self.imageURL = imageURL
             self.minutesFromPoint = minutesFromPoint
             self.settings = settings
             self.id = id
