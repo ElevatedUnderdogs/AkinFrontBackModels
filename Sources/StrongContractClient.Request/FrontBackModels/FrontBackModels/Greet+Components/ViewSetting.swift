@@ -74,20 +74,34 @@ public enum ViewSetting: Equatable, Codable {
         case .rejected:
             return []
             
-        case .inGreetConfirmedMet(_):
-            return [
-                .InstructionCell,
-                .TravelProgressCell,
-                .DismissCell,
-                .GreetMapCell,
-                .AlternateDecisionCell,
-                .GreetAddressCell,
-                .ProfilePicCell,
-                .OtherGreeterSettingsCell,
-                .OpenersCell,
-                .BackToTopCell,
-            ]
-            
+        case .inGreetConfirmedMet(let reason):
+            switch reason {
+            case .nearby:
+                return [
+                    .InstructionCell,
+                    .TravelProgressCell,
+                    .DismissCell,
+                    .GreetMapCell,
+                    .AlternateDecisionCell,
+                    .GreetAddressCell,
+                    .ProfilePicCell,
+                    .OtherGreeterSettingsCell,
+                    .OpenersCell,
+                    .BackToTopCell,
+                ]
+            case .theyConfirmed:
+                return [
+                    .InstructionCell,
+                    .TravelProgressCell,
+                    .DismissCell,
+                    .GreetMapCell,
+                    .GreetAddressCell,
+                    .ProfilePicCell,
+                    .OtherGreeterSettingsCell,
+                    .OpenersCell,
+                    .BackToTopCell,
+                ]
+            }
         }
     }
 }
