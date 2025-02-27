@@ -12,6 +12,8 @@ extension Greet {
 
     public struct User: Codable, Equatable, Hashable {
         public var personal: NearbyUser
+        /// **BACKEND perspective**Sending percent travelled of the updating user to the recipient user.
+        /// **Client perspective** The other user's percent travelled for the *TravelProgressCell*
         public var percentTravelled: Double? = nil
         public var imageURL: String? = nil
         public var minutesFromPoint: Int? = nil

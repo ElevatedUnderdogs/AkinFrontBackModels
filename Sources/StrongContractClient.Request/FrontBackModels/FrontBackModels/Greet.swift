@@ -29,9 +29,13 @@ public struct Greet: Codable, Equatable, Hashable {
     public var venue: Venue? = nil
     public var isMrPractice: Bool = false
     public var thisSettings = Settings(status: .viewed, id: .init())
-    // consider moving to thisSettings.
+    /// consider moving to thisSettings.
+    /// **BACKEND**Should be given by the updater, so that it is sent to the
+    /// recipient in the otherUser.percentThisTravelled property chain.
+    /// **CLIENT** provide this information to be sent, ignore it when received. 
     public var percentThisTravelled: Double = 0
     /// Needed for updating the travel distance. for updateGreet endpoint.
+    /// This is needed to be used for the isNearby calculation.
     public var travelDistanceFromVenueInMeters: Double? = nil
     public var minutesAway: Int? = nil
     public var travelMethod: TravelMethod? = nil
