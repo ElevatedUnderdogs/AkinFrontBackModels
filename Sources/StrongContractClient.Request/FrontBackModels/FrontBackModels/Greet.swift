@@ -29,7 +29,10 @@ public struct Greet: Codable, Equatable, Hashable {
     public var venue: Venue? = nil
     public var isMrPractice: Bool = false
     public var thisSettings = Settings(status: .viewed, id: .init())
+    // consider moving to thisSettings.
     public var percentThisTravelled: Double = 0
+    /// Needed for updating the travel distance. for updateGreet endpoint.
+    public var travelDistanceFromVenueInMeters: Double? = nil
     public var minutesAway: Int? = nil
     public var travelMethod: TravelMethod? = nil
     public var withinRangeOfEachOtherAndMeetPlace: Int? = nil
@@ -53,6 +56,7 @@ public struct Greet: Codable, Equatable, Hashable {
          thisSettings: Settings = Settings(status: .viewed, id: .init()),
         /// alternatable
          percentThisTravelled: Double = 0,
+         travelDistanceFromVenueInMeters: Double? = nil,
         /// alternatable
          minutesAway: Int? = nil,
         /// alternatable
@@ -72,6 +76,7 @@ public struct Greet: Codable, Equatable, Hashable {
          self.isMrPractice = isMrPractice
          self.thisSettings = thisSettings
          self.percentThisTravelled = percentThisTravelled
+         self.travelDistanceFromVenueInMeters = travelDistanceFromVenueInMeters
          self.minutesAway = minutesAway
          self.travelMethod = travelMethod
          self.withinRangeOfEachOtherAndMeetPlace = withinRangeOfEachOtherAndMeetPlace
