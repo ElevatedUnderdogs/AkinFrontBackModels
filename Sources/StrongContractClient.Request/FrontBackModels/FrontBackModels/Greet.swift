@@ -29,15 +29,21 @@ public struct Greet: Codable, Equatable, Hashable {
     public var venue: Venue? = nil
     public var isMrPractice: Bool = false
     public var thisSettings = Settings(status: .viewed, id: .init())
-    // consider moving to thisSettings.
+    /// consider moving to thisSettings.
+    /// **BACKEND**Should be given by the updater, so that it is sent to the
+    /// recipient in the otherUser.percentThisTravelled property chain.
+    /// **CLIENT** provide this information to be sent, ignore it when received.
     public var percentThisTravelled: Double = 0
     /// Needed for updating the travel distance. for updateGreet endpoint.
+    /// This is needed to be used for the isNearby calculation.
     public var travelDistanceFromVenueInMeters: Double? = nil
-    public var minutesAway: Int? = nil
+
+    public var otherUserTravelMinutesAwayFromVenue: Int? = nil
+    public var travelMinutesToVenue: Int? = nil
+
     public var travelMethod: TravelMethod? = nil
     public var withinRangeOfEachOtherAndMeetPlace: Int? = nil
     public var matchMakingMethodVersion: Double? = nil
-    public var estimatedTravelTimeInMinutes: Int? = nil
     public var rangeThreshold: Int = 0
 
     // MARK: - Initializer
@@ -77,17 +83,21 @@ public struct Greet: Codable, Equatable, Hashable {
          self.thisSettings = thisSettings
          self.percentThisTravelled = percentThisTravelled
          self.travelDistanceFromVenueInMeters = travelDistanceFromVenueInMeters
-         self.minutesAway = minutesAway
+         self.otherUserTravelMinutesAwayFromVenue = minutesAway
          self.travelMethod = travelMethod
          self.withinRangeOfEachOtherAndMeetPlace = withinRangeOfEachOtherAndMeetPlace
          self.matchMakingMethodVersion = matchMakingMethodVersion
-         self.estimatedTravelTimeInMinutes = estimatedTravelTimeInMinutes
+         self.travelMinutesToVenue = estimatedTravelTimeInMinutes
          self.rangeThreshold = rangeThreshold
      }
 
     public var meetInXMinutes: Int? {
-        guard let estimatedTravelTime = estimatedTravelTimeInMinutes else { return nil }
-        return estimatedTravelTime + (agreedTime ?? 0)
+        guard let travelMinutesToVenue else { return nil }
+        guard let otherUserTravelMinutesAwayFromVenue else { return nil }
+        return max(
+            (travelMinutesToVenue + 5 /*buffer*/ + (validProposals.first ?? 0)),
+            (otherUserTravelMinutesAwayFromVenue + 5 /*buffer*/ + (validProposals.first ?? 0))
+        )
     }
     
     public var agreedTime: Int? {
@@ -135,7 +145,12 @@ public struct Greet: Codable, Equatable, Hashable {
         if thisSettings.status == .enroute && otherUser.settings?.status == .viewed {
             otherUser.settings?.status = .enroute
         }
-        
+
+        if !validProposals.isEmpty {
+            otherUser.settings?.status = .enroute
+            thisSettings.status = .enroute
+        }
+
         return Greet.Update(
             this: thisSettings.status,
             otherUser: otherUser.settings?.status,
@@ -145,7 +160,14 @@ public struct Greet: Codable, Equatable, Hashable {
             otherUserName: otherUser.personal.name
         )
     }
-    
+
+    var validProposals: [Int] {
+        thisSettings
+            .agreedTimeProposals
+            .filter({ otherUser.settings?.agreedTimeProposals.contains($0) == true })
+            .filter({ otherUser.settings?.rejectedTimeProposals.contains($0) != true && thisSettings.rejectedTimeProposals.contains($0) != true })
+    }
+
     // Reject
 
     public func rejectedProposal(from new: Greet) -> Int? {
@@ -167,8 +189,8 @@ public struct Greet: Codable, Equatable, Hashable {
     }
 
     public var estimatedMeetTime: String {
-        guard let minutes = meetInXMinutes else { return "unknown" }
-        return Date(timeFromNow: minutes)?.clockTime ?? "unknown"
+        guard let meetInXMinutes else { return "unknown" }
+        return Date(timeFromNow: meetInXMinutes)?.clockTime ?? "unknown"
     }
 }
 
