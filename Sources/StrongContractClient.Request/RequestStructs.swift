@@ -162,10 +162,12 @@ var getPlatform: String {
 public struct DeviceTokenPayload: Codable, Hashable, Equatable {
     public let deviceToken: String
     public let platform: String
+    public let deviceId: UUID?
 
-    public init(deviceToken: String, platform: String? = nil) {
+    public init(deviceToken: String, platform: String? = nil, deviceId: UUID?) {
         self.deviceToken = deviceToken
         self.platform = platform ?? getPlatform
+        self.deviceId = deviceId
     }
 }
 
