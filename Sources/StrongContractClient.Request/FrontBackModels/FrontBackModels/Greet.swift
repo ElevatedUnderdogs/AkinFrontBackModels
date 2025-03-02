@@ -46,6 +46,8 @@ public struct Greet: Codable, Equatable, Hashable {
     public var matchMakingMethodVersion: Double? = nil
     public var rangeThreshold: Int = 0
 
+    public var meetingTime: Date? = nil
+
     // MARK: - Initializer
      public init(
         /// Alternatable.
@@ -71,7 +73,8 @@ public struct Greet: Codable, Equatable, Hashable {
          matchMakingMethodVersion: Double? = nil,
         /// alternatable
          estimatedTravelTimeInMinutes: Int? = nil,
-         rangeThreshold: Int = 0
+         rangeThreshold: Int = 0,
+         meetingTime: Date? = nil
      ) {
          self.otherUser = otherUser
          self.greetID = greetID
@@ -89,6 +92,7 @@ public struct Greet: Codable, Equatable, Hashable {
          self.matchMakingMethodVersion = matchMakingMethodVersion
          self.travelMinutesToVenue = estimatedTravelTimeInMinutes
          self.rangeThreshold = rangeThreshold
+         self.meetingTime = meetingTime
      }
 
     public var meetInXMinutes: Int? {
@@ -161,7 +165,7 @@ public struct Greet: Codable, Equatable, Hashable {
         )
     }
 
-    var validProposals: [Int] {
+    public var validProposals: [Int] {
         thisSettings
             .agreedTimeProposals
             .filter({ otherUser.settings?.agreedTimeProposals.contains($0) == true })
