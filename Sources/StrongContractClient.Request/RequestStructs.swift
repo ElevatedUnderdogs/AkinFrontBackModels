@@ -122,6 +122,23 @@ public struct Rating: Codable {
     }
 }
 
+public struct AppleAuthorization: Hashable, Equatable, Codable {
+
+    public var userID: String
+    /// This is only provided on the first attempt.
+    public var email: String?
+    /// This is only provided on the first attempt.
+    public var fullName: String
+    public var identityToken: String
+
+    public init(userID: String, email: String?, fullName: String, identityTokenString: String) {
+        self.userID = userID
+        self.email = email
+        self.fullName = fullName
+        self.identityToken = identityTokenString
+    }
+}
+
 public typealias ShouldEnableSilentPushNoticeUpdates = Bool
 
 public typealias PasswordlessAuthentication = String

@@ -435,9 +435,10 @@ extension TravelMethod {
     public var transportType: MKDirectionsTransportType {
         switch self {
         case .bike: return .walking
-        case .car: return .automobile
+        case .car, .motorcycle: return .automobile
         case .none: return .walking
         case .walk: return .walking
+        case .transit: return .transit
         }
     }
 }

@@ -563,3 +563,11 @@ extension SilentPushLocationUpdatesRequest {
         .init(method: .post)
     }
 }
+
+public typealias SendAppleTokenRequest = Request<AppleAuthorization, LoginResponse>
+extension SendAppleTokenRequest {
+    /// Add a display image.
+    public static var sendAppleAuthID: Self {
+        .init(method: .post)
+    }
+}
