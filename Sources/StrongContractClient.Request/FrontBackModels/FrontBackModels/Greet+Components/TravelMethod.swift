@@ -76,7 +76,7 @@ public enum SafeTravelMode {
         case trafficAwareOptimal
 
         /// Maps to the API's string value.
-        var apiValue: String {
+        public var apiValue: String {
             switch self {
             case .trafficUnaware: return "TRAFFIC_UNAWARE"
             case .trafficAware: return "TRAFFIC_AWARE"
