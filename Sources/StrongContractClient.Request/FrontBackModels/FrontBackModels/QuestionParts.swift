@@ -22,6 +22,7 @@ public extension Question {
         public var creatorID: UUID
         public var originalContext: String
         public var importanceFor: [ContextRawValue: Importance] = [:]
+        public var languageCode: LanguageCodeEnum
 
         public func hash(into hasher: inout Hasher) {
             hasher.combine(text)
@@ -31,12 +32,14 @@ public extension Question {
             text: String,
             responses: [Response.Parts],
             creatorID: UUID,
-            originalContext: String
+            originalContext: String,
+            languageCode: LanguageCodeEnum
         ) {
             self.text = text
             self.responses = responses
             self.creatorID = creatorID
             self.originalContext = originalContext
+            self.languageCode = languageCode
         }
     }
 }

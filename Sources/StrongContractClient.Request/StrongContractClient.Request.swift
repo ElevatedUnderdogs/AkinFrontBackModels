@@ -513,7 +513,17 @@ extension GetResponsesRequest {
     }
 }
 
-public typealias GetQuestionsRequest = Request<[QuestionsSpecifications], [Question]>
+public struct GetQuestionsRequestPayload: Codable {
+    public let specs: [QuestionsSpecifications]
+    public let isFirst: Bool
+
+    public init(specs: [QuestionsSpecifications] = [], isFirst: Bool = false) {
+        self.specs = specs
+        self.isFirst = isFirst
+    }
+}
+
+public typealias GetQuestionsRequest = Request<GetQuestionsRequestPayload, [Question]>
 extension GetQuestionsRequest {
     /// Gets questions for the matchmaking questionnaire.
     public static var getQuestions: Self {
@@ -580,6 +590,14 @@ public typealias SilentPushLocationUpdatesRequest = Request<ShouldEnableSilentPu
 extension SilentPushLocationUpdatesRequest {
     /// Disables/enables silent push notification updates.
     public static var shouldUpdateLocation: Self {
+        .init(method: .post)
+    }
+}
+
+public typealias SendAppleTokenRequest = Request<AppleAuthorization, LoginResponse>
+extension SendAppleTokenRequest {
+    /// Add a display image.
+    public static var sendAppleAuthID: Self {
         .init(method: .post)
     }
 }
