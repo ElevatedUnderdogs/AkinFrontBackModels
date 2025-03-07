@@ -13,7 +13,7 @@ public enum TravelMethod: String, Codable {
 
     /// The string used for google places api.
     /// https://developers.google.com/maps/documentation/routes/reference/rest/v2/RouteTravelMode
-    var googlePlaces: SafeTravelMode {
+    public var googlePlaces: SafeTravelMode {
         switch self {
         case .bike: return .bicycle
         case .car: return .drive(routingPreference: .trafficAware)
@@ -23,7 +23,7 @@ public enum TravelMethod: String, Codable {
         }
     }
 
-    var emoji: String {
+    public var emoji: String {
         switch self {
         case .bike: return "🚲"
         case .car: return "🚗"
@@ -36,7 +36,7 @@ public enum TravelMethod: String, Codable {
 
 
 /// Represents the travel mode and its optional routing preference for the Google Routes API.
-enum SafeTravelMode {
+public enum SafeTravelMode {
     /// Driving with an optional routing preference (valid for DRIVE).
     case drive(routingPreference: RoutingPreference?)
     /// Two-wheeler with an optional routing preference (valid for TWO_WHEELER).
@@ -49,7 +49,7 @@ enum SafeTravelMode {
     case transit
 
     /// Represents the routing preference options, only applicable to DRIVE and TWO_WHEELER.
-    enum RoutingPreference {
+    public enum RoutingPreference {
         /*
          Computes routes without taking live traffic conditions into consideration.
          Suitable when traffic conditions don't matter or are not applicable. Using
@@ -86,7 +86,7 @@ enum SafeTravelMode {
     }
 
     /// Maps to the API's travelMode string value.
-    var apiValue: String {
+    public var apiValue: String {
         switch self {
         case .drive: return "DRIVE"
         case .twoWheeler: return "TWO_WHEELER"
@@ -97,7 +97,7 @@ enum SafeTravelMode {
     }
 
     /// Extracts the routing preference if it exists.
-    var routingPreference: RoutingPreference? {
+    public var routingPreference: RoutingPreference? {
         switch self {
         case .drive(let pref), .twoWheeler(let pref):
             return pref
