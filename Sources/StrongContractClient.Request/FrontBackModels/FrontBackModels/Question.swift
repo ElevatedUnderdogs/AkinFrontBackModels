@@ -29,6 +29,7 @@ public struct Question: Codable, Equatable, Hashable {
     public var responses: [Response] = [] // Codable
     public var id: UUID
     public var creatorID: UUID
+    public var defaultCompatibilityRule: CompatibilityRule
 
     /// Keep in mind the instances of these models in this package are customized for each user.
     public var importanceFor: [ContextRawValue: Importance] = [:] // Codable
@@ -56,7 +57,8 @@ public struct Question: Codable, Equatable, Hashable {
         creatorID: UUID,
         importanceFor: [ContextRawValue : Importance] = [:],
         contextPopularity: [ContextRawValue : PopularityScore] = [:],
-        originalContext: Context
+        originalContext: Context,
+        defaultCompatibilityRule: CompatibilityRule
     ) {
         self.requirementsFor = requirementsFor
         self.text = text
@@ -66,5 +68,6 @@ public struct Question: Codable, Equatable, Hashable {
         self.importanceFor = importanceFor
         self.contextPopularity = contextPopularity
         self.originalContext = originalContext
+        self.defaultCompatibilityRule = defaultCompatibilityRule
     }
 }
