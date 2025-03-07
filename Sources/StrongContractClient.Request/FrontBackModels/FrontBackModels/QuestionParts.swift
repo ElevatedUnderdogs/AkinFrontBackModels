@@ -23,6 +23,7 @@ public extension Question {
         public var originalContext: String
         public var importanceFor: [ContextRawValue: Importance] = [:]
         public var languageCode: LanguageCodeEnum
+        public var defaultCompatibilityRule: CompatibilityRule
 
         public func hash(into hasher: inout Hasher) {
             hasher.combine(text)
@@ -33,13 +34,15 @@ public extension Question {
             responses: [Response.Parts],
             creatorID: UUID,
             originalContext: String,
-            languageCode: LanguageCodeEnum
+            languageCode: LanguageCodeEnum,
+            defaultCompatibilityRule: CompatibilityRule
         ) {
             self.text = text
             self.responses = responses
             self.creatorID = creatorID
             self.originalContext = originalContext
             self.languageCode = languageCode
+            self.defaultCompatibilityRule = defaultCompatibilityRule
         }
     }
 }
