@@ -26,7 +26,7 @@ public struct Settings: Codable {
     public var contextPreferences: [ContextPreferences] = []
     public var username: String? = nil
     public var profileImg: Data? = nil
-    public var dob: String?
+    public var dob: Date?
     public var birthday: DateComponents?
 
     public var profilePicAlternator: TypeAlternator<Data, String>? {

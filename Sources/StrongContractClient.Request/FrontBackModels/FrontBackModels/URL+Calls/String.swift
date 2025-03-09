@@ -37,4 +37,8 @@ extension String {
             return "PRODUCTION"
         #endif
     }
+
+    var int: Int? {
+        Int(self)
+    }
 }

@@ -20,12 +20,14 @@ extension Date {
         // Use the random seconds from the TimeInterval extension
         addingTimeInterval(-.randomSeconds)
     }
-}
 
-extension TimeInterval {
-    /// Generates a random `TimeInterval` between 0.0001 and 10.0000 seconds.
-    static var randomSeconds: TimeInterval {
-        // Generate a random number within the desired range
-        Double.random(in: 0.0001...10.0000)
+    public func age(currentDate: Date = Date()) -> Int {
+        Calendar.current.dateComponents([.year], from: self, to: currentDate).year ?? 0
+    }
+
+    var birthdayReadable: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM d, yyyy" // Example: "January 5, 1993"
+        return formatter.string(from: self)
     }
 }

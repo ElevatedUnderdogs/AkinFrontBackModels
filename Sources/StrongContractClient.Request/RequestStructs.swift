@@ -128,13 +128,15 @@ public struct AppleAuthorization: Hashable, Equatable, Codable {
     /// This is only provided on the first attempt.
     public var email: String?
     /// This is only provided on the first attempt.
-    public var fullName: String
+    public var firstName: String
+    public var lastName: String
     public var identityToken: String
 
-    public init(userID: String, email: String?, fullName: String, identityTokenString: String) {
+    public init(userID: String, email: String?, firstName: String, lastName: String, identityTokenString: String) {
         self.userID = userID
         self.email = email
-        self.fullName = fullName
+        self.firstName = firstName
+        self.lastName = lastName
         self.identityToken = identityTokenString
     }
 }
