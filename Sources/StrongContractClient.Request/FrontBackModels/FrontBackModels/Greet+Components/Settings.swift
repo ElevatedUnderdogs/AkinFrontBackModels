@@ -24,7 +24,8 @@ public struct Settings: Codable {
     public var userID: UUID = .init()
     public var phone: String?
     public var contextPreferences: [ContextPreferences] = []
-    public var username: String? = nil
+    public var firstName: String? = nil
+    public var lastName: String? = nil
     public var profileImg: Data? = nil
     public var dob: Date?
     public var birthday: DateComponents?
