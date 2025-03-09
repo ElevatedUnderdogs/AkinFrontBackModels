@@ -17,7 +17,8 @@ public struct User: Codable {
     public var privacy: PrivateDetails? // Codable
     public var imgData: Data?
     public var imgLocation: String?
-    public var name: String
+    public var firstName: String
+    public var lastName: String
     public var id: UUID
     public var email: String
     public var zip: Int?
@@ -33,7 +34,8 @@ public struct User: Codable {
     public init(
         img imgData: Data? = nil,
         imgLocation: String? = nil,
-        name: String,
+        firstName: String,
+        lastName: String,
         user_id: UUID,
         email: String,
         zip: Int? = nil,
@@ -42,7 +44,8 @@ public struct User: Codable {
         self.imgData = imgData
         self.id = user_id
         self.imgLocation = imgLocation
-        self.name = name
+        self.firstName = firstName
+        self.lastName = lastName
         self.email = email
         self.zip = zip
         self.dobString = dob
