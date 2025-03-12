@@ -447,8 +447,20 @@ extension AddResponsesRequest {
     }
 }
 
+public struct NearbyUserRequest: Codable, Hashable, Equatable {
+    public let coordinates: Coordinates
+    public let page: Int
+    public let limit: Int
 
-public typealias NearbyUsersRequest = Request<Coordinates, [Greet.User]>
+    public init(coordinates: Coordinates, page: Int, limit: Int) {
+        self.coordinates = coordinates
+        self.page = page
+        self.limit = limit
+    }
+}
+
+
+public typealias NearbyUsersRequest = Request<NearbyUserRequest, [Greet.User]>
 
 /// Change the result back to Greet.User so that I can switch back and forth on the server side
 /// with little consequences this way, and just know to not use the nil properties, or not expect
@@ -496,10 +508,19 @@ extension GetResponsesRequest {
 public struct GetQuestionsRequestPayload: Codable {
     public let specs: [QuestionsSpecifications]
     public let isFirst: Bool
+    public let page: Int
+    public let limit: Int
 
-    public init(specs: [QuestionsSpecifications] = [], isFirst: Bool = false) {
+    public init(
+        specs: [QuestionsSpecifications] = [],
+        isFirst: Bool = false,
+        page: Int = 1,
+        limit: Int = 20
+    ) {
         self.specs = specs
         self.isFirst = isFirst
+        self.page = page
+        self.limit = limit
     }
 }
 
