@@ -55,7 +55,7 @@ public struct Category: Codable {
 }
 
 // MARK: - Coordinates
-public struct Coordinates: Codable {
+public struct Coordinates: Codable, Hashable, Equatable {
     public let latitude, longitude: Double
 
     public init(latitude: Double, longitude: Double) {

@@ -309,11 +309,21 @@ public struct ResponsesSpecifications: Codable {
     public let questionID: UUID
     public let context: Context.RawValue
     public let searchText: String?
+    public let page: Int
+    public let limit: Int
 
-    public init(questionID: UUID, context: Context.RawValue, searchText: String? = nil) {
+    public init(
+        questionID: UUID,
+        context: Context.RawValue,
+        searchText: String? = nil,
+        page: Int = 1,
+        limit: Int = 20
+    ) {
         self.questionID = questionID
         self.context = context
         self.searchText = searchText
+        self.page = page
+        self.limit = limit
     }
 }
 
