@@ -8,7 +8,7 @@
 //DOCUMENATION https://git.generalassemb.ly/Scottyblades/GreeterEndpoints
 
 //import Foundation
-//import StrongContractClient
+//import StrongContract
 //
 //
 //

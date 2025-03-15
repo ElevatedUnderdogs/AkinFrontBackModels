@@ -1,5 +1,5 @@
 import XCTest
-@testable import AkinFrontBackModels
+@testable import AkinFrontBack
 
 struct GreetDetailsInputOutput {
     let this: Greet.Update.Status

@@ -8,6 +8,27 @@
 
 import Foundation
 
+
+#if canImport(CryptoKit) // ✅ Covers iOS & macOS
+import CryptoKit
+
+@available(iOS 13.0, macOS 10.15, *)
+extension Data {
+    var sha256digest: Data { Data(SHA256.hash(data: self)) }
+    var sha384digest: Data { Data(SHA384.hash(data: self)) }
+    var sha512digest: Data { Data(SHA512.hash(data: self)) }
+}
+
+@available(iOS 13.0, macOS 10.15, *)
+extension StringProtocol {
+    var data: Data { .init(utf8) }
+    var sha256hexa: String { data.sha256digest.map { String(format: "%02x", $0) }.joined() }
+    var sha384hexa: String { data.sha384digest.map { String(format: "%02x", $0) }.joined() }
+    var sha512hexa: String { data.sha512digest.map { String(format: "%02x", $0) }.joined() }
+}
+#endif
+
+
 extension User {
     
     public struct SignUp: Codable, Hashable, Equatable {

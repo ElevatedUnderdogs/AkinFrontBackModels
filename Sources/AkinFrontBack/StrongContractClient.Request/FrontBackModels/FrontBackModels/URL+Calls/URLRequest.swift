@@ -7,7 +7,10 @@
 //
 
 import Foundation
-import StrongContractClient
+
+#if canImport(StrongContractServer)
+import StrongContractServer // ✅ Only available on macOS/Linux
+#endif
 
 
 public typealias DictionaryAction = ([String: Any]) -> Void

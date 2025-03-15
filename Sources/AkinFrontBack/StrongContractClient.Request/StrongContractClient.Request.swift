@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import StrongContractClient
+import StrongContract
 
 public typealias LoginRequest = Request<LoginPayload, LoginResponse>
 extension LoginRequest {

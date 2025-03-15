@@ -20,7 +20,6 @@ import enum CryptoKit.AES
 
 extension StringProtocol {
 
-    var data: Data { .init(utf8) }
     var hexaData: Data { .init(hexa) }
     var hexaBytes: [UInt8] { .init(hexa) }
 
@@ -32,8 +31,4 @@ extension StringProtocol {
             return UInt8(self[startIndex..<endIndex], radix: 16)
         }
     }
-
-    var sha256hexa: String { data.sha256digest.hexa }
-    var sha384hexa: String { data.sha384digest.hexa }
-    var sha512hexa: String { data.sha512digest.hexa }
 }

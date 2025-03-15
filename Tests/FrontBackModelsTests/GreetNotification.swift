@@ -1,13 +1,13 @@
 //
 //  File.swift
-//  AkinFrontBackModels
+//  AkinFrontBack
 //
 //  Created by Scott Lydon on 2/13/25.
 //
 
 import Foundation
 import XCTest
-@testable import AkinFrontBackModels
+@testable import AkinFrontBack
 
 class GreetNotificationTests: XCTestCase {
 
