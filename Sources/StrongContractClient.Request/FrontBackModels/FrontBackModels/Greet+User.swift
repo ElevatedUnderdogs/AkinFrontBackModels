@@ -15,7 +15,7 @@ extension Greet {
         /// **BACKEND perspective**Sending percent travelled of the updating user to the recipient user.
         /// **Client perspective** The other user's percent travelled for the *TravelProgressCell*
         public var percentTravelled: Double? = nil
-        public var imageURL: String? = nil
+        public var imageInfo: ImageInfo? = nil
         public var minutesFromPoint: Int? = nil
         public var settings: Greet.Settings? = nil
         public var id: UUID
@@ -32,14 +32,14 @@ extension Greet {
         public init(
             nearbyUser: NearbyUser,
             percentTravelled: Double? = nil,
-            imageURL: String? = nil,
+            imageInfo: ImageInfo? = nil,
             minutesFromPoint: Int? = nil,
             settings: Greet.Settings? = nil,
             id: UUID
         ) {
             self.personal = nearbyUser
             self.percentTravelled = percentTravelled
-            self.imageURL = imageURL
+            self.imageInfo = imageInfo
             self.minutesFromPoint = minutesFromPoint
             self.settings = settings
             self.id = id

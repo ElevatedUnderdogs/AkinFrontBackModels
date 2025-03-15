@@ -560,11 +560,47 @@ extension UpdateUserSettingsRequest {
     }
 }
 
-public typealias AddDisplayPicRequest = Request<Data, StandardPostResponse>
+public struct ImageMetadata: Codable, Hashable, Equatable {
+    let id: UUID
+    let userId: UUID
+    let imageUrl: String
+    let width: Int
+    let height: Int
+    let format: String
+}
+
+public struct ImageInfo: Codable, Hashable, Equatable {
+    let path: String
+    let metaData: ImageMetadata
+}
+
+struct Environment {
+    /// Detects if an iOS app is running **natively on macOS** (not Catalyst)
+    static var isIOSAppOnMac: Bool {
+        if #available(iOS 14.0, *) {
+            return ProcessInfo.processInfo.environment["RUNNING_ON_MAC"] == "1"
+        }
+        return false
+    }
+}
+
+public typealias AddDisplayPicRequest = Request<ImageMetadata, StandardPostResponse>
 extension AddDisplayPicRequest {
-    /// Add a display image.
+
+#if os(iOS)
+    public static func addDisplayPic(mimType: MimeType) -> Self {
+        .init(method: .post, mimType: mimType)
+    }
+#endif
+
     public static var addDisplayPic: Self {
-        .init(method: .post, mimType: .octetStream)
+        if Environment.isIOSAppOnMac {
+            assertionFailure("Use addDisplayPic(mimType on ios")
+        }
+#if os(iOS)
+        assertionFailure("Use addDisplayPic(mimType on ios")
+#endif
+        return .init(method: .post)
     }
 }
 

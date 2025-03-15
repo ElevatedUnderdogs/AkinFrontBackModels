@@ -38,7 +38,7 @@ public struct NearbyUser: Codable, Hashable, Equatable {
         Greet.User(
             nearbyUser: self,
             percentTravelled: nil,
-            imageURL: nil,
+            imageInfo: nil,
             minutesFromPoint: nil,
             settings: nil,
             id: id
