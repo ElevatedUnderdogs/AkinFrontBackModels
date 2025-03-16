@@ -561,11 +561,11 @@ extension UpdateUserSettingsRequest {
 }
 
 public struct ImageMetadata: Codable, Hashable, Equatable {
-    public let width: Int
-    public let height: Int
+    public let width: Double
+    public let height: Double
     public let format: String
 
-    public init(width: Int, height: Int, format: String) {
+    public init(width: Double, height: Double, format: String) {
         self.width = width
         self.height = height
         self.format = format
