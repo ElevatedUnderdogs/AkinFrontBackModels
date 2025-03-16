@@ -595,21 +595,19 @@ struct Environment {
 public typealias AddDisplayPicRequest = Request<ImageMetadata, StandardPostResponse>
 extension AddDisplayPicRequest {
 
-#if os(iOS)
-    public static func addDisplayPic(mimType: MimeType) -> Self {
-        .init(method: .post, mimType: mimType)
-    }
-#endif
-
     public static var addDisplayPic: Self {
         if Environment.isIOSAppOnMac {
             assertionFailure("Use addDisplayPic(mimType on ios")
         }
-#if os(iOS)
-        assertionFailure("Use addDisplayPic(mimType on ios")
-#endif
+        Swift.assert(!ProcessInfo.processInfo.operatingSystemVersionString.contains("iOS"), "Use addDisplayPic(mimType on ios")
         return .init(method: .post)
     }
+
+#if os(iOS)
+    public static func addDisplayPicMim(type: MimeType) -> Self {
+        .init(method: .post, mimType: mimType)
+    }
+#endif
 }
 
 public typealias UpdateGreetRequest = Request<Greet, Greet>
