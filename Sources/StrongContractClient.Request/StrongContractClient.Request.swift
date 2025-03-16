@@ -561,17 +561,25 @@ extension UpdateUserSettingsRequest {
 }
 
 public struct ImageMetadata: Codable, Hashable, Equatable {
-    let id: UUID
-    let userId: UUID
-    let imageUrl: String
-    let width: Int
-    let height: Int
-    let format: String
+    public let width: Int
+    public let height: Int
+    public let format: String
+
+    public init(width: Int, height: Int, format: String) {
+        self.width = width
+        self.height = height
+        self.format = format
+    }
 }
 
 public struct ImageInfo: Codable, Hashable, Equatable {
-    let path: String
-    let metaData: ImageMetadata
+    public let path: String
+    public let metaData: ImageMetadata
+
+    public init(path: String, metaData: ImageMetadata) {
+        self.path = path
+        self.metaData = metaData
+    }
 }
 
 struct Environment {
