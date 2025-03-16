@@ -30,9 +30,11 @@ extension DataProtocol {
 #if canImport(CryptoKit)
 import CryptoKit
 
+#if !canImport(Crypto)
 extension DataProtocol {
     var sha256digest: SHA256Digest { SHA256.hash(data: self) }
     var sha384digest: SHA384Digest { SHA384.hash(data: self) }
     var sha512digest: SHA512Digest { SHA512.hash(data: self) }
 }
+#endif
 #endif
