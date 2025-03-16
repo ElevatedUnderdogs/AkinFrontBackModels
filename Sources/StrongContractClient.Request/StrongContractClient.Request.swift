@@ -602,6 +602,10 @@ extension AddDisplayPicRequest {
         Swift.assert(!ProcessInfo.processInfo.operatingSystemVersionString.contains("iOS"), "Use addDisplayPic(mimType on ios")
         return .init(method: .post)
     }
+}
+
+// Put this in a separate extension to help the compiler disambiguate. 
+extension AddDisplayPicRequest {
 
 #if os(iOS)
     public static func addDisplayPicMim(type: MimeType) -> Self {
