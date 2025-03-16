@@ -16,10 +16,9 @@ let package = Package(
             targets: ["AkinFrontBackModels"]),
     ],
     dependencies: [
-        // Existing EncryptDecryptKey package dependency
         .package(url: "https://github.com/scott-lydon/EncryptDecryptKey.git", from: "1.0.2"),
         // Add StrongContractClient package dependency
-        .package(url: "https://github.com/scott-lydon/StrongContractClient.git", from: "9.0.3"),
+        .package(url: "https://github.com/scott-lydon/StrongContractClient.git", from: "10.0.1"),
     ],
     targets: [
         .target(
