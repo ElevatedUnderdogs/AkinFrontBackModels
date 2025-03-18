@@ -582,36 +582,20 @@ public struct ImageInfo: Codable, Hashable, Equatable {
     }
 }
 
-struct Environment {
-    /// Detects if an iOS app is running **natively on macOS** (not Catalyst)
-    static var isIOSAppOnMac: Bool {
-        if #available(iOS 14.0, *) {
-            return ProcessInfo.processInfo.environment["RUNNING_ON_MAC"] == "1"
-        }
-        return false
+public typealias ReserveImageFileRequest = Request<ImageMetadata, StandardPostResponse>
+extension ReserveImageFileRequest {
+
+    public static var reserveImageFile: Self {
+        .init(method: .post)
     }
 }
 
-public typealias AddDisplayPicRequest = Request<ImageMetadata, StandardPostResponse>
+public typealias AddDisplayPicRequest = Request<Empty, StandardPostResponse>
 extension AddDisplayPicRequest {
 
     public static var addDisplayPic: Self {
-        if Environment.isIOSAppOnMac {
-            assertionFailure("Use addDisplayPic(mimType on ios")
-        }
-        Swift.assert(!ProcessInfo.processInfo.operatingSystemVersionString.contains("iOS"), "Use addDisplayPic(mimType on ios")
-        return .init(method: .post)
+        .init(method: .post)
     }
-}
-
-// Put this in a separate extension to help the compiler disambiguate. 
-extension AddDisplayPicRequest {
-
-#if os(iOS)
-    public static func addDisplayPicMim(type: MimeType) -> Self {
-        .init(method: .post, mimType: mimType)
-    }
-#endif
 }
 
 public typealias UpdateGreetRequest = Request<Greet, Greet>
