@@ -590,7 +590,7 @@ extension ReserveImageFileRequest {
     }
 }
 
-public typealias AddDisplayPicRequest = Request<Empty, StandardPostResponse>
+public typealias AddDisplayPicRequest = Request<Data, StandardPostResponse>
 extension AddDisplayPicRequest {
 
     public static var addDisplayPic: Self {
