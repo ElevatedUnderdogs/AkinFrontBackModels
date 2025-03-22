@@ -44,6 +44,14 @@ extension FillSettingsRequest {
     }
 }
 
+public typealias GreetProfilePicRequest = Request<UUID, Data>
+extension GreetProfilePicRequest {
+
+    public static var greetProfilePic: Self {
+        .init(method: .get, mimType: .octetStream)
+    }
+}
+
 public typealias ProfilePictureRequest = Request<Empty, Data>
 extension ProfilePictureRequest {
 
