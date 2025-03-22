@@ -48,7 +48,9 @@ public typealias GreetProfilePicRequest = Request<UUID, Data>
 extension GreetProfilePicRequest {
 
     public static var greetProfilePic: Self {
-        .init(method: .get, mimType: .octetStream)
+        // This is marked as post because we send the uuid through the body for security reasons
+        // Even though the state doesn't change.  A trade off in "restfulness" its fine.  
+        .init(method: .post, mimType: .octetStream)
     }
 }
 
