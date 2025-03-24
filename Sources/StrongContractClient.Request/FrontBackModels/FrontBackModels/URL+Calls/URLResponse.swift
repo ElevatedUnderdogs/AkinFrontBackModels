@@ -7,6 +7,10 @@
 //
 
 import Foundation
+#if canImport(FoundationNetworking)
+// Provided for `URL` related objects on Linux platforms.
+import FoundationNetworking
+#endif
 
 extension HTTPURLResponse {
     public enum HTTPStatus: Int, Codable {

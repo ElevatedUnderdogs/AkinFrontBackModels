@@ -8,7 +8,10 @@
 
 import Foundation
 import StrongContractClient
-
+#if canImport(FoundationNetworking)
+// Provided for `URL` related objects on Linux platforms.
+import FoundationNetworking
+#endif
 
 public typealias DictionaryAction = ([String: Any]) -> Void
 public typealias HTTPStatusAction = (HTTPURLResponse.HTTPStatus?) -> Void
