@@ -428,6 +428,7 @@ public struct TermsOfService: Codable, Equatable, Hashable {
 
 
 
+#if canImport(MapKit)
 import MapKit
 
 extension TravelMethod {
@@ -442,3 +443,4 @@ extension TravelMethod {
         }
     }
 }
+#endif
