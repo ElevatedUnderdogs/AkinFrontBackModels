@@ -11,6 +11,10 @@ import Foundation
 import os
 let log = OSLog(subsystem: "com.ElevatedUnderdogs.akin1", category: "networking")
 #endif
+#if canImport(FoundationNetworking)
+// Provided for `URL` related objects on Linux platforms.
+import FoundationNetworking
+#endif
 
 extension URLQueryItem {
 

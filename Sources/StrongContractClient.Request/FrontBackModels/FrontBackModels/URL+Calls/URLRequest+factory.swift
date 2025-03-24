@@ -8,6 +8,10 @@
 //DOCUMENATION https://git.generalassemb.ly/Scottyblades/GreeterEndpoints
 
 import Foundation
+#if canImport(FoundationNetworking)
+// Provided for `URL` related objects on Linux platforms.
+import FoundationNetworking
+#endif
 
 extension URLRequest {
     
