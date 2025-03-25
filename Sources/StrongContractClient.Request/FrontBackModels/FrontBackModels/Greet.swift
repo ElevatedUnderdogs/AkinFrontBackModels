@@ -184,7 +184,11 @@ public struct Greet: Codable, Equatable, Hashable {
 
     public mutating func mrPracticeDidReject() -> Bool? {
         if !isMrPractice {return nil}
-        return arc4random_uniform(4) == 0
+#if canImport(Darwin)
+return arc4random_uniform(4) == 0
+#else
+return Int.random(in: 0..<4) == 0
+#endif
     }
     
     public init(otherUser: Greet.User, greetID: UUID) {
