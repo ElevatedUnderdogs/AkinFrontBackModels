@@ -1,5 +1,5 @@
 {
-  "originHash" : "a278eca09b44b4869e175d9797cdbf95f4d5294ab182073dd2f4d5d3b7c106e4",
+  "originHash" : "c0b4a96bb138535b7aadefdef42af271228c6f7f685a6211395959f75d3e7dda",
   "pins" : [
     {
       "identity" : "callable",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scott-lydon/EncryptDecryptKey.git",
       "state" : {
-        "revision" : "2edb14cf97fea00ec8d172c82aa56d419ef937b8",
-        "version" : "1.0.4"
+        "revision" : "ba48954a8070fc5cdd1e4c6c7947c1649fc6b489",
+        "version" : "1.1.1"
       }
     },
     {
@@ -26,6 +26,24 @@
       "state" : {
         "revision" : "e55497c23d54835cff7d6f19491b5d7d81f1a8c4",
         "version" : "10.0.2"
+      }
+    },
+    {
+      "identity" : "swift-asn1",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-asn1.git",
+      "state" : {
+        "revision" : "ae33e5941bb88d88538d0a6b19ca0b01e6c76dcf",
+        "version" : "1.3.1"
+      }
+    },
+    {
+      "identity" : "swift-crypto",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-crypto.git",
+      "state" : {
+        "revision" : "a6ce32a18b81b04ce7e897d1d98df6eb2da04786",
+        "version" : "3.12.2"
       }
     }
   ],
