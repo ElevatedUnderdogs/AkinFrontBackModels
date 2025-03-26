@@ -1,5 +1,5 @@
 {
-  "originHash" : "c0b4a96bb138535b7aadefdef42af271228c6f7f685a6211395959f75d3e7dda",
+  "originHash" : "4d099968cc50f4a4e6c5a647d6f35d425cbd324c866d06f7399f1fc31c4676d6",
   "pins" : [
     {
       "identity" : "callable",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scott-lydon/EncryptDecryptKey.git",
       "state" : {
-        "revision" : "ba48954a8070fc5cdd1e4c6c7947c1649fc6b489",
-        "version" : "1.1.1"
+        "revision" : "c32c7aab52c04f24072f98e6c9b3f3dc156c4d49",
+        "version" : "1.1.2"
       }
     },
     {
