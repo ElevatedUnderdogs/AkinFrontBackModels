@@ -1,0 +1,68 @@
+name: Codecov Workflow
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  swift-tests:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install SwiftLint
+        run: brew install swiftlint || echo "SwiftLint already installed"
+
+      - name: Run SwiftLint
+        run: swiftlint
+
+      - name: Run Swift Tests with Code Coverage
+        run: swift test --enable-code-coverage --parallel
+
+      - name: Find .profdata file
+        run: |
+          profdata_file=$(find . -name "*.profdata" | head -n 1)
+          if [ -z "$profdata_file" ]; then
+            echo "Error: .profdata file not found!"
+            exit 1
+          fi
+          echo "PROFDATA_PATH=$profdata_file" >> $GITHUB_ENV
+          echo "Profdata file path: $profdata_file"
+
+      - name: Debug Test Binary Path
+        run: |
+          test_binary=$(find . -name "*.xctest" | head -n 1)
+          if [ -z "$test_binary" ]; then
+            echo "Error: Test binary not found!"
+            exit 1
+          fi
+          echo "TEST_BINARY_PATH=$test_binary" >> $GITHUB_ENV
+          echo "Test binary path: $test_binary"
+
+      - name: Convert .profdata to txt format
+        run: |
+          xcrun llvm-cov show \
+          $TEST_BINARY_PATH/Contents/MacOS/$(basename $TEST_BINARY_PATH .xctest) \
+          -instr-profile=$PROFDATA_PATH \
+          -show-expansions \
+          -show-regions \
+          -show-line-counts-or-regions \
+          -use-color=false > coverage.txt
+          echo "Coverage data converted to coverage.txt"
+
+      - name: Display Coverage Report
+        run: cat coverage.txt
+
+      - name: Upload Code Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.txt
+          flags: unittests
+          name: code-coverage
+          verbose: true
+          fail_ci_if_error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
