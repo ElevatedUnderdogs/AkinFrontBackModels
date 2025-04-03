@@ -11,8 +11,11 @@ import Foundation
 public struct UserImage: Codable, Equatable {
     public let id: UUID
     public let name: String
-    public init(id: UUID, name: String) {
+    public let environment: ServerEnvironment
+    
+    public init(id: UUID, name: String, environment: ServerEnvironment) {
         self.id = id
         self.name = name
+        self.environment = environment
     }
 }
