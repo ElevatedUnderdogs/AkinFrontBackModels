@@ -54,7 +54,7 @@ extension GreetProfilePicRequest {
     }
 }
 
-public typealias ProfilePictureRequest = Request<Empty, Data>
+public typealias ProfilePictureRequest = Request<ServerEnvironment, Data>
 extension ProfilePictureRequest {
 
     public static var profileImage: Self {
@@ -70,7 +70,7 @@ extension ImageRequest {
     }
 }
 
-public typealias UploadImageRequest = Request<Empty, StandardPostResponse>
+public typealias UploadImageRequest = Request<ServerEnvironment, StandardPostResponse>
 extension UploadImageRequest {
 
     public static var uploadProfileImage: Self {
@@ -571,14 +571,22 @@ extension UpdateUserSettingsRequest {
 }
 
 public struct ImageMetadata: Codable, Hashable, Equatable {
+
     public let width: Double
     public let height: Double
     public let format: String
+    public let environment: ServerEnvironment
 
-    public init(width: Double, height: Double, format: String) {
+    public init(
+        width: Double,
+        height: Double,
+        format: String,
+        environment: ServerEnvironment
+    ) {
         self.width = width
         self.height = height
         self.format = format
+        self.environment = environment
     }
 }
 
