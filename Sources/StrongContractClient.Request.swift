@@ -54,7 +54,7 @@ extension GreetProfilePicRequest {
     }
 }
 
-public typealias ProfilePictureRequest = Request<Empty, Data>
+public typealias ProfilePictureRequest = Request<Empty, Data?>
 extension ProfilePictureRequest {
 
     public static var profileImage: Self {
