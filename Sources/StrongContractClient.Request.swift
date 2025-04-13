@@ -91,6 +91,49 @@ extension Register {
     }
 }
 
+/// POST /forgot-password
+/// Client submits this to start the password reset flow.
+/// Server replies with success regardless of whether the email exists.
+public typealias ForgotPasswordEndpoint = Request<String, StandardPostResponse>
+
+extension ForgotPasswordEndpoint {
+
+    /// Request sent from the client to initiate a password reset email.
+    /// The user provides only their email. If the account exists,
+    /// a one-time reset link is emailed to them.
+    ///
+    /// This route is anonymous (no login required).
+    public static var forgotPassword: Self {
+        .init(method: .post)
+    }
+}
+
+/// Request sent from the client after the user clicks the reset link.
+/// This contains the token (from the email) and the new password they want to set.
+///
+/// The token is verified, the password is updated, and the token is invalidated.
+public struct ResetPasswordRequest: Codable {
+
+    public let token: String
+    public let newPassword: String
+
+    public init(token: String, newPassword: String) {
+        self.token = token
+        self.newPassword = newPassword
+    }
+}
+
+/// POST /reset-password
+/// Sent after the user has clicked the link and entered a new password.
+/// If the token is valid and not expired, the server resets their password.
+public typealias ResetPasswordEndpoint = Request<ResetPasswordRequest, StandardPostResponse>
+
+extension ResetPasswordEndpoint {
+    public static var resetPassword: Self {
+        .init(method: .post)
+    }
+}
+
 public typealias TermsRequest = Request<Empty, TermsOfService>
 extension TermsRequest {
     /// Gets the terms and conditions of using the app
