@@ -108,6 +108,14 @@ extension ForgotPasswordEndpoint {
     }
 }
 
+public typealias NewPasswordEndpoint = Request<String, StandardPostResponse>
+
+extension NewPasswordEndpoint {
+    public static var newPasswordEndpoint: Self {
+        .init(method: .post)
+    }
+}
+
 /// Request sent from the client after the user clicks the reset link.
 /// This contains the token (from the email) and the new password they want to set.
 ///
