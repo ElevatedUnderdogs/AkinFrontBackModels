@@ -25,7 +25,8 @@ extension User {
             lastName: String? = ""
         ) {
             self.email = email ?? ""
-            self.password = password?.sha512hexa ?? ""
+            // It is best to hash the password on the server, send it via https. 
+            self.password = password ?? ""
             self.firstName = firstName ?? ""
             self.lastName = lastName ?? ""
             self.findErrors()
