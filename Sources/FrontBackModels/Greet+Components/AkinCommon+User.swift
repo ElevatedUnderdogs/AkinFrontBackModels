@@ -15,8 +15,7 @@ public struct User: Codable {
     // MARK - properties
 
     public var privacy: PrivateDetails? // Codable
-    public var imgData: Data?
-    public var imgLocation: String?
+    public var cloudFlareImageID: String?
     public var firstName: String
     public var lastName: String
     public var id: UUID
@@ -25,15 +24,13 @@ public struct User: Codable {
     public var phoneNumber: Int? = nil
     public var requiredQuestions: [Question] = [] // Codable
     public var birthDate: Date? = nil
-    public var profilePicData: Data? = nil
     public var meetingSchedule: [Week.Day] = []
     public var dobString: String?
 
     // MARk - inits
 
     public init(
-        img imgData: Data? = nil,
-        imgLocation: String? = nil,
+        cloudFlareImageID: String? = nil,
         firstName: String,
         lastName: String,
         user_id: UUID,
@@ -41,9 +38,8 @@ public struct User: Codable {
         zip: Int? = nil,
         dob: String? = nil
     ) {
-        self.imgData = imgData
         self.id = user_id
-        self.imgLocation = imgLocation
+        self.cloudFlareImageID = cloudFlareImageID
         self.firstName = firstName
         self.lastName = lastName
         self.email = email
