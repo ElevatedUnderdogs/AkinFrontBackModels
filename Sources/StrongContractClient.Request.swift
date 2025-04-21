@@ -634,19 +634,21 @@ public struct ImageMetadata: Codable, Hashable, Equatable {
 }
 
 public struct ImageInfo: Codable, Hashable, Equatable {
-    public let path: String
+    ///  When saving image metaData this will be the Upload url.
+    ///  When provided in a greet process, this will be the Get url.
+    public let imageStorageURL: String
     public let metaData: ImageMetadata
 
     public init(path: String, metaData: ImageMetadata) {
-        self.path = path
+        self.imageStorageURL = path
         self.metaData = metaData
     }
 }
 
-public typealias ReserveImageFileRequest = Request<ImageMetadata, StandardPostResponse>
-extension ReserveImageFileRequest {
+public typealias SaveImageMetaDataRequest = Request<ImageMetadata, String>
+extension SaveImageMetaDataRequest {
 
-    public static var reserveImageFile: Self {
+    public static var saveImageMetaData: Self {
         .init(method: .post)
     }
 }
