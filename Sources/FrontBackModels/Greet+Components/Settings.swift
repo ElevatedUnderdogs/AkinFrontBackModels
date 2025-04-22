@@ -8,8 +8,6 @@
 
 import Foundation
 
-// MARK - TODO after figuring out the user structure, put settings nested in this user/viewing user.
-
 public struct Settings: Codable {
 
     /// Set this 
@@ -19,20 +17,15 @@ public struct Settings: Codable {
     
     public var vibrate: Bool = false
     public var ring: Bool = false
-    public var displayPic: String?
+    public var cloudflareProfileImgID: String?
     public var emailPrimary: String?
     public var userID: UUID = .init()
     public var phone: String?
     public var contextPreferences: [ContextPreferences] = []
     public var firstName: String? = nil
     public var lastName: String? = nil
-    public var profileImg: Data? = nil
     public var dob: Date?
     public var birthday: DateComponents?
-
-    public var profilePicAlternator: TypeAlternator<Data, String>? {
-        TypeAlternator(profileImg, displayPic)
-    }
     
     public var isSocialEnabled: Bool {
         contextPreferences.first { $0.context.case == .social }?.isMeetEnabled == true
@@ -84,11 +77,11 @@ public struct Settings: Codable {
     
     public init(email: String, profilePic: String, userID: UUID) {
         self.emailPrimary = email
-        self.displayPic = profilePic
+        self.cloudflareProfileImgID = profilePic
         self.vibrate = true
         self.ring = true
 
-        self.displayPic = profilePic
+        self.cloudflareProfileImgID = profilePic
         self.emailPrimary = email
         self.userID = userID
     }
