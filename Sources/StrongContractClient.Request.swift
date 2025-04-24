@@ -106,6 +106,11 @@ extension ForgotPasswordEndpoint {
     public static var forgotPassword: Self {
         .init(method: .post)
     }
+
+    /// Registers a new user
+    public static var resendVerification: Self {
+        .init(method: .post)
+    }
 }
 
 public typealias NewPasswordEndpoint = Request<String, StandardPostResponse>
