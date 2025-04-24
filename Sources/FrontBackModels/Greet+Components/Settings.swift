@@ -80,9 +80,6 @@ public struct Settings: Codable {
         self.cloudflareProfileImgID = profilePic
         self.vibrate = true
         self.ring = true
-
-        self.cloudflareProfileImgID = profilePic
-        self.emailPrimary = email
         self.userID = userID
     }
 }
