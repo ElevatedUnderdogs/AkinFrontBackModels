@@ -8,6 +8,9 @@
 import Foundation
 
 extension String {
+
+    static let accountNotVerifed: String = "This account's email hasn't been verified yet.  Would you like us to resend a link?"
+
     static var generateBoundaryString: String {
         "Boundary-\(NSUUID().uuidString)"
     }
