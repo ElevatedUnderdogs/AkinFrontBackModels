@@ -91,6 +91,7 @@ extension Register {
     }
 }
 
+
 /// POST /forgot-password
 /// Client submits this to start the password reset flow.
 /// Server replies with success regardless of whether the email exists.
@@ -112,6 +113,8 @@ extension ForgotPasswordEndpoint {
         .init(method: .post)
     }
 }
+
+
 
 public typealias NewPasswordEndpoint = Request<String, StandardPostResponse>
 
@@ -400,7 +403,7 @@ extension SendMakeRequest {
 }
 
 /// This is intended for normal behavior, a happy path.
-public typealias AddQuestion = Request<Question.Parts, Question>
+public typealias AddQuestion = Request<Question, Question>
 
 extension AddQuestion {
     /// Any user can add questions to the shared questionnaire.
@@ -416,7 +419,7 @@ extension AddQuestion {
 }
 
 /// This is intended for non happy path, the wifi or data connection prevented uploading and multiple questions were added.
-public typealias AddQuestions = Request<[Question.Parts], [Question]>
+public typealias AddQuestions = Request<[Question], [Question]>
 
 extension AddQuestions {
     /// Any user can add questions to the shared questionnaire.
@@ -513,7 +516,7 @@ extension GetBlockedUsersRequest {
     }
 }
 
-public typealias AddResponseRequest = Request<AddResponse, Question.Response>
+public typealias AddResponseRequest = Request<Question.Response, Question.Response>
 
 extension AddResponseRequest {
     /// To deprecate `add(response: Question.Response, questionID: String)`
@@ -523,7 +526,7 @@ extension AddResponseRequest {
     }
 }
 
-public typealias AddResponsesRequest = Request<AddResponses, [Question.Response]>
+public typealias AddResponsesRequest = Request<[Question.Response], [Question.Response]>
 
 extension AddResponsesRequest {
     /// To deprecate `add(response: Question.Response, questionID: String)`
