@@ -217,59 +217,6 @@ public struct PasscodePayload: Codable {
     }
 }
 
-extension Question.Response {
-
-    public struct Parts: Equatable, Codable {
-        public let text: String
-        public let timeStamp: Date
-        public let creatorID: UUID
-        public let originalContextID: UUID
-        public let originalContextRaw: String
-        public var myChoice: [ContextRawValue: Selections.MyTheir.Choice] = [:]
-        public var theirChoices: [ContextRawValue: Selections.MyTheir.Choice] = [:]
-
-        public init(
-            text: String,
-            timeStamp: Date,
-            creatorID: UUID,
-            originalContextId: UUID,
-            originalContextRaw: String,
-            myChoice: [ContextRawValue: Selections.MyTheir.Choice],
-            theirChoices: [ContextRawValue: Selections.MyTheir.Choice]
-        ) {
-            self.originalContextID = originalContextId
-            self.text = text
-            self.timeStamp = timeStamp
-            self.creatorID = creatorID
-            self.myChoice = myChoice
-            self.theirChoices = theirChoices
-            self.originalContextRaw = originalContextRaw
-        }
-    }
-}
-
-/// Adding a response when the question was saved, and its id is known - Question and Responses QuestionResponseParts (questionid, response'parts)
-public struct AddResponses: Codable {
-    public let responsesParts: [Question.Response.Parts]
-    public let questionID: UUID
-
-    public init(responsesParts: [Question.Response.Parts], questionID: UUID) {
-        self.responsesParts = responsesParts
-        self.questionID = questionID
-    }
-}
-
-/// Adding a response when the question was saved, and its id is known - Question and Responses QuestionResponseParts (questionid, response'parts)
-public struct AddResponse: Codable {
-    public let responsesParts: Question.Response.Parts
-    public let questionID: UUID
-
-    public init(responsesParts: Question.Response.Parts, questionID: UUID) {
-        self.responsesParts = responsesParts
-        self.questionID = questionID
-    }
-}
-
 public struct AnswerChoice: Codable {
     public let myTheir: Question.Response.Selections.MyTheir
 
