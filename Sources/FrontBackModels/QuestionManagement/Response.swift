@@ -59,6 +59,19 @@ extension Question {
             self.originalContextID = originalContextID
         }
 
+        /// Performs a full field-by-field comparison of all properties.
+        public func deepEquals(_ other: Question.Response) -> Bool {
+            return self.id == other.id &&
+            self.text == other.text &&
+            self.timeStamp == other.timeStamp &&
+            self.creator == other.creator &&
+            self.questionID == other.questionID &&
+            self.myChoice == other.myChoice &&
+            self.theirChoices == other.theirChoices &&
+            self.popularity == other.popularity &&
+            self.originalContextID == other.originalContextID
+        }
+
         public func has(
             _ myTheir: Selections.MyTheir,
             for contextRawValue: ContextRawValue
