@@ -74,4 +74,16 @@ public struct Question: Codable, Equatable, Hashable {
         self.originalContext = originalContext
         self.defaultCompatibilityRule = defaultCompatibilityRule
     }
+
+    func isDeepEqual(to other: Question) -> Bool {
+        return self.id == other.id &&
+        self.text == other.text &&
+        self.responses == other.responses &&
+        self.creatorID == other.creatorID &&
+        self.defaultCompatibilityRule == other.defaultCompatibilityRule &&
+        self.importanceFor == other.importanceFor &&
+        self.contextPopularity == other.contextPopularity &&
+        self.originalContext == other.originalContext &&
+        self.requirementsFor == other.requirementsFor
+    }
 }
