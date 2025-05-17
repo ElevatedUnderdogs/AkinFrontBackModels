@@ -621,6 +621,15 @@ extension GetQuestionsRequest {
     }
 }
 
+public typealias GetQuestionRequest = Request<UUID, Question>
+extension GetQuestionRequest {
+
+    /// Gets questions for the matchmaking questionnaire.
+    public static var getQuestion: Self {
+        .init(method: .get)
+    }
+}
+
 public typealias UpdateUserSettingsRequest = Request<Settings, StandardPostResponse>
 extension UpdateUserSettingsRequest {
     /// Update this user's settings, different from midGreet settings.
