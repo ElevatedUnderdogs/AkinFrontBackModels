@@ -626,7 +626,7 @@ extension GetQuestionRequest {
 
     /// Gets questions for the matchmaking questionnaire.
     public static var getQuestion: Self {
-        .init(method: .get)
+        .init(method: .post)
     }
 }
 
