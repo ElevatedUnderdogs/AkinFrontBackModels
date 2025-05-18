@@ -621,7 +621,17 @@ extension GetQuestionsRequest {
     }
 }
 
-public typealias GetQuestionRequest = Request<UUID, Question>
+public struct GetQuestionPayload: Codable {
+    public let questionID: UUID
+    public let responseID: UUID?
+
+    public init(questionID: UUID, responseID: UUID?) {
+        self.questionID = questionID
+        self.responseID = responseID
+    }
+}
+
+public typealias GetQuestionRequest = Request<GetQuestionPayload, Question>
 extension GetQuestionRequest {
 
     /// Gets questions for the matchmaking questionnaire.
