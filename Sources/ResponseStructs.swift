@@ -152,7 +152,18 @@ public struct UpdateEmailResponse: Codable {
     }
 }
 
-public enum ManualGreetResponse: String, Codable, Equatable, Hashable {
+public struct ManualGreetResponse: Codable {
+
+    public let notification: Greet.Notification
+    public let status: ManualGreetStatus
+
+    public init(notification: Greet.Notification, status: ManualGreetStatus) {
+        self.notification = notification
+        self.status = status
+    }
+}
+
+public enum ManualGreetStatus: String, Codable, Equatable, Hashable {
     case unsupportedURL
     case otherUserHasNoDeviceToken
     case otherUserHasInvalidDeviceToken
