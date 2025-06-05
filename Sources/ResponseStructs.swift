@@ -152,7 +152,12 @@ public struct UpdateEmailResponse: Codable {
     }
 }
 
-public struct ManualGreetResponse: Codable {
+public enum ManualGreetResponse: Codable {
+    case notification(ManualGreetNotification)
+    case otherUserIsInGreet
+}
+
+public struct ManualGreetNotification: Codable {
 
     public let notification: Greet.Notification
     public let status: ManualGreetStatus
@@ -164,13 +169,7 @@ public struct ManualGreetResponse: Codable {
 }
 
 public enum ManualGreetStatus: String, Codable, Equatable, Hashable {
-    case unsupportedURL
-    case otherUserHasNoDeviceToken
-    case otherUserHasInvalidDeviceToken
-    case otherUserOffline
-    case sendingAlertError
     case success
-    case unkown
 }
 
 // Response model for `resetPassword(email:)` API call
