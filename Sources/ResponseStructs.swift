@@ -7,6 +7,36 @@
 
 import Foundation
 
+public enum NotificationFrequency: String, CaseIterable, Identifiable, Codable {
+    case hourly = "Hourly"
+    case daily = "Daily"
+    case weekly = "Weekly"
+
+    public var id: String { self.rawValue }
+}
+
+public struct GreetedUser: Identifiable, Codable {
+    public let id: UUID
+    public var name: String
+    public var profileImageURL: String
+    public var isBlocked: Bool
+    public var meetNotificationFrequency: NotificationFrequency
+
+    public init(
+        id: UUID,
+        name: String,
+        profileImageURL: String,
+        isBlocked: Bool,
+        meetNotificationFrequency: NotificationFrequency
+    ) {
+        self.id = id
+        self.name = name
+        self.profileImageURL = profileImageURL
+        self.isBlocked = isBlocked
+        self.meetNotificationFrequency = meetNotificationFrequency
+    }
+}
+
 // Response model for `register(basicInfo:)` API call
 public struct RegisterResponse: Codable {
     public var success: Bool
@@ -20,23 +50,23 @@ public struct RegisterResponse: Codable {
     }
 }
 
-public struct GeneralUser: Codable {
-    public let id: UUID
-    public let name: String
-    public let profilePictures: [String]
-    public let verified: Bool
-    public init(
-        id: UUID,
-        name: String,
-        profilePictures: [String] = [],
-        verified: Bool = false
-    ) {
-        self.id = id
-        self.name = name
-        self.profilePictures = profilePictures
-        self.verified = verified
-    }
-}
+//public struct GeneralUser: Codable {
+//    public let id: UUID
+//    public let name: String
+//    public let profilePictures: [String]
+//    public let verified: Bool
+//    public init(
+//        id: UUID,
+//        name: String,
+//        profilePictures: [String] = [],
+//        verified: Bool = false
+//    ) {
+//        self.id = id
+//        self.name = name
+//        self.profilePictures = profilePictures
+//        self.verified = verified
+//    }
+//}
 
 public struct StandardPostResponse: Codable {
     public var success: Bool
