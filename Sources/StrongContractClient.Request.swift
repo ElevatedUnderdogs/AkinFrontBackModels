@@ -502,16 +502,27 @@ extension BlockUserRequest {
 
 public typealias UnblockUserRequest = Request<UUID, StandardPostResponse>
 extension UnblockUserRequest {
+
     /// Blocks a user from being considered for meetups with this user.
     public static var unblockUser: Self {
         .init(method: .delete)
     }
 }
 
-public typealias GetBlockedUsersRequest = Request<Empty, [GeneralUser]>
+// pages
+public typealias GetBlockedUsersRequest = Request<Int, [GreetedUser]>
 extension GetBlockedUsersRequest {
     /// Returns a list of users that are blocked by this user.
     public static var getBlockedUsers: Self {
+        .init(method: .get)
+    }
+}
+
+// pages
+public typealias GetGreetedUsersRequest = Request<Int, [GreetedUser]>
+extension GetGreetedUsersRequest {
+    /// Returns a list of users that are blocked by this user.
+    public static var getGreetedUsers: Self {
         .init(method: .get)
     }
 }
