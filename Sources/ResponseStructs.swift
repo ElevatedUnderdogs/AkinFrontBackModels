@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum NotificationFrequency: String, CaseIterable, Identifiable, Codable {
+public enum NotificationFrequency: String, CaseIterable, Identifiable, Codable, Equatable, Hashable {
     case hourly = "Hourly"
     case daily = "Daily"
     case weekly = "Weekly"
@@ -15,7 +15,7 @@ public enum NotificationFrequency: String, CaseIterable, Identifiable, Codable {
     public var id: String { self.rawValue }
 }
 
-public struct GreetedUser: Identifiable, Codable {
+public struct GreetedUser: Identifiable, Codable, Equatable, Hashable {
     public let id: UUID
     public var name: String
     public var profileImageURL: String
