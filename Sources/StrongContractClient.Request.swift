@@ -514,7 +514,7 @@ public typealias GetBlockedUsersRequest = Request<Int, [GreetedUser]>
 extension GetBlockedUsersRequest {
     /// Returns a list of users that are blocked by this user.
     public static var getBlockedUsers: Self {
-        .init(method: .get)
+        .init(method: .post) //  in mobile apps for paginated queries with input.
     }
 }
 
@@ -523,7 +523,7 @@ public typealias GetGreetedUsersRequest = Request<Int, [GreetedUser]>
 extension GetGreetedUsersRequest {
     /// Returns a list of users that are blocked by this user.
     public static var getGreetedUsers: Self {
-        .init(method: .get)
+        .init(method: .post) //  in mobile apps for paginated queries with input.
     }
 }
 
