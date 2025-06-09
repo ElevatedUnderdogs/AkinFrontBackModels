@@ -11,6 +11,8 @@ public enum NotificationFrequency: String, CaseIterable, Identifiable, Codable, 
     case hourly = "Hourly"
     case daily = "Daily"
     case weekly = "Weekly"
+    case monthly = "Monthly"
+    case never = "Never"
 
     public var id: String { self.rawValue }
 }
@@ -20,20 +22,23 @@ public struct GreetedUser: Identifiable, Codable, Equatable, Hashable {
     public var name: String
     public var profileImageURL: String
     public var isBlocked: Bool
-    public var meetNotificationFrequency: NotificationFrequency
+    public var manualNotificationFrequency: NotificationFrequency
+    public var automaticNotificationFrequency: NotificationFrequency
 
     public init(
         id: UUID,
         name: String,
         profileImageURL: String,
         isBlocked: Bool,
-        meetNotificationFrequency: NotificationFrequency
+        manualNotificationFrequency: NotificationFrequency,
+        automaticNotificationFrequency: NotificationFrequency
     ) {
         self.id = id
         self.name = name
         self.profileImageURL = profileImageURL
         self.isBlocked = isBlocked
-        self.meetNotificationFrequency = meetNotificationFrequency
+        self.manualNotificationFrequency = manualNotificationFrequency
+        self.automaticNotificationFrequency = automaticNotificationFrequency
     }
 }
 
