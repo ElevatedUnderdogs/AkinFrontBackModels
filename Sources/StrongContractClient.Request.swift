@@ -519,7 +519,7 @@ extension GetBlockedUsersRequest {
 }
 
 // pages
-public typealias GetGreetedUsersRequest = Request<Int, [GreetedUser]>
+public typealias GetGreetedUsersRequest = Request<Int, [ClientGreetingSettings]>
 extension GetGreetedUsersRequest {
     /// Returns a list of users that are blocked by this user.
     public static var getGreetedUsers: Self {
