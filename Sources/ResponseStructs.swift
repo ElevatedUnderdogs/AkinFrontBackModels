@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum GreetedClientStatus: Codable {
+public enum GreetedClientStatus: Codable, Equatable, Hashable {
     /// After both users confirmed that they met at the meeting point.
     case confirmedMet
     /// When the user started or is moving towards the meeting point
@@ -21,7 +21,7 @@ public enum GreetedClientStatus: Codable {
     case connectionLost
 }
 
-public struct ClientGreetingSettings {
+public struct ClientGreetingSettings: Codable, Equatable, Hashable {
     public var greetedUser: GreetedUser
     public var initiatedTime: Date
     public var meetTime: Date?
