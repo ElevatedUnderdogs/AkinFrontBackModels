@@ -7,6 +7,32 @@
 
 import Foundation
 
+public enum GreetedClientStatus: Codable {
+    /// After both users confirmed that they met at the meeting point.
+    case confirmedMet
+    /// When the user started or is moving towards the meeting point
+    /// When a user when too far out of range of the meeting location.
+    case exceededRange
+    /// When the user rejects the other user for a greeting opportunity.
+    case rejectedOther
+    /// When the user opens the greet and views it.
+    case onGoing
+    // The other rejected or did something to end the greet.
+    case connectionLost
+}
+
+public struct ClientGreetingSettings {
+    public var greetedUser: GreetedUser
+    public var initiatedTime: Date
+    public var meetTime: Date?
+
+    public init(greetedUser: GreetedUser, initiatedTime: Date, meetTime: Date? = nil) {
+        self.greetedUser = greetedUser
+        self.initiatedTime = initiatedTime
+        self.meetTime = meetTime
+    }
+}
+
 public enum NotificationFrequency: String, CaseIterable, Identifiable, Codable, Equatable, Hashable {
     case hourly = "Hourly"
     case daily = "Daily"
