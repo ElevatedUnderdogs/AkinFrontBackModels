@@ -13,6 +13,7 @@ public enum NotificationFrequency: String, CaseIterable, Identifiable, Codable, 
     case weekly = "Weekly"
     case monthly = "Monthly"
     case never = "Never"
+    case unrestricted = "Unrestricted"
 
     public var id: String { self.rawValue }
 }
