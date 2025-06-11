@@ -492,7 +492,7 @@ extension RegisterPushKitDeviceTokenRequest {
     }
 }
 
-public struct RelationUpdatePayload: Codable {
+public struct RelationUpdatePayload: Codable, Hashable, Equatable {
     public var otherUserID: UUID
     public var relationUpdate: RelationUpdate
 
@@ -502,7 +502,7 @@ public struct RelationUpdatePayload: Codable {
     }
 }
 
-public enum RelationUpdate: Codable {
+public enum RelationUpdate: Codable, Hashable, Equatable {
     case automatic(NotificationFrequency)
     case manual(NotificationFrequency)
     case blocked(Bool)
