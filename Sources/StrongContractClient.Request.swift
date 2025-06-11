@@ -492,20 +492,27 @@ extension RegisterPushKitDeviceTokenRequest {
     }
 }
 
-public typealias BlockUserRequest = Request<UUID, StandardPostResponse>
-extension BlockUserRequest {
-    /// Blocks a user from being considered for meetups with this user.
-    public static var blockUser: Self {
-        .init(method: .post)
+public struct RelationUpdatePayload: Codable, Hashable, Equatable {
+    public var otherUserID: UUID
+    public var relationUpdate: RelationUpdate
+
+    public init(otherUserID: UUID, relationUpdate: RelationUpdate) {
+        self.otherUserID = otherUserID
+        self.relationUpdate = relationUpdate
     }
 }
 
-public typealias UnblockUserRequest = Request<UUID, StandardPostResponse>
-extension UnblockUserRequest {
+public enum RelationUpdate: Codable, Hashable, Equatable {
+    case automatic(NotificationFrequency)
+    case manual(NotificationFrequency)
+    case blocked(Bool)
+}
 
+public typealias UpdateUserRelationPreferenceRequest = Request<RelationUpdatePayload, StandardPostResponse>
+extension UpdateUserRelationPreferenceRequest {
     /// Blocks a user from being considered for meetups with this user.
-    public static var unblockUser: Self {
-        .init(method: .delete)
+    public static var updateUserRelation: Self {
+        .init(method: .patch)
     }
 }
 
