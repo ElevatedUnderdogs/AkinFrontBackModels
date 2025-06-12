@@ -92,6 +92,61 @@ extension Register {
 }
 
 
+public struct NearbyEmptyStateResponse: Codable, Hashable, Equatable {
+    public let userJoinRank: Int
+    public let nearbyUserCount: Int
+    public let defaultEmail: String?
+
+    public init(userJoinRank: Int, nearbyUserCount: Int, defaultEmail: String?) {
+        self.userJoinRank = userJoinRank
+        self.nearbyUserCount = nearbyUserCount
+        self.defaultEmail = defaultEmail
+    }
+}
+
+public typealias NearbyEmptyStateEndpoint = Request<Empty, NearbyEmptyStateResponse>
+extension NearbyEmptyStateEndpoint {
+
+    /// When a user signed up to an area with few users, we can send some details as part
+    /// of a pitch to convince  them to stay engaged in anticipation.
+    public static var nearbyEmptyStateDetails: Self {
+        .init(method: .get)
+    }
+}
+
+public struct NotifyUserCountProgressPayload: Codable, Hashable, Equatable {
+    public let thresholds: [Int]
+    public let locationOverride: String?   // nil if using current location
+    public let forecastDate: Date
+    public let email: String
+    public let wantsCalendarReminder: Bool
+
+    public init(
+        thresholds: [Int],
+        locationOverride: String?,
+        forecastDate: Date,
+        email: String,
+        wantsCalendarReminder: Bool
+    ) {
+        self.thresholds = thresholds
+        self.locationOverride = locationOverride
+        self.forecastDate = forecastDate
+        self.email = email
+        self.wantsCalendarReminder = wantsCalendarReminder
+    }
+}
+
+public typealias NotifyUserCountProgressEndpoint = Request<NotifyUserCountProgressPayload, StandardPostResponse>
+
+extension NotifyUserCountProgressEndpoint {
+
+    /// This endpoint is designed to receive user information to maintain ongoing engagement when there aren't many users
+    /// yet.  This is to attempt to solve the chicken and the egg problem.
+    public static var notifyUserCountProgress: Self {
+        .init(method: .post)
+    }
+}
+
 /// POST /forgot-password
 /// Client submits this to start the password reset flow.
 /// Server replies with success regardless of whether the email exists.
