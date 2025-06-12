@@ -91,16 +91,31 @@ extension Register {
     }
 }
 
-
 public struct NearbyEmptyStateResponse: Codable, Hashable, Equatable {
     public let userJoinRank: Int
     public let nearbyUserCount: Int
     public let defaultEmail: String?
+    public var cloutLocationDescription: String?
+    public var notificationLocationDescription: String?
+    public var cloutCoordinate: Coordinates?
+    public var notificationCoordinate: Coordinates?
 
-    public init(userJoinRank: Int, nearbyUserCount: Int, defaultEmail: String?) {
+    public init(
+        userJoinRank: Int,
+        nearbyUserCount: Int,
+        defaultEmail: String?,
+        cloutLocationDescription: String? = nil,
+        notificationLocationDescription: String? = nil,
+        cloutCoordinate: Coordinates? = nil,
+        notificationCoordinate: Coordinates? = nil
+    ) {
         self.userJoinRank = userJoinRank
         self.nearbyUserCount = nearbyUserCount
         self.defaultEmail = defaultEmail
+        self.cloutLocationDescription = cloutLocationDescription
+        self.notificationLocationDescription = notificationLocationDescription
+        self.cloutCoordinate = cloutCoordinate
+        self.notificationCoordinate = notificationCoordinate
     }
 }
 
@@ -116,7 +131,9 @@ extension NearbyEmptyStateEndpoint {
 
 public struct NotifyUserCountProgressPayload: Codable, Hashable, Equatable {
     public let thresholds: [Int]
+    // If the cloutCoordinates aren't set, then set it.  CloutCoordinate is only set once.
     public let location: Coordinates?   // nil if using current location
+    public let locationDescription: String?
     public let forecastDate: Date
     public let email: String
     public let wantsCalendarReminder: Bool
@@ -124,12 +141,14 @@ public struct NotifyUserCountProgressPayload: Codable, Hashable, Equatable {
     public init(
         thresholds: [Int],
         location: Coordinates?,
+        locationDescription: String?,
         forecastDate: Date,
         email: String,
         wantsCalendarReminder: Bool
     ) {
         self.thresholds = thresholds
         self.location = location
+        self.locationDescription = locationDescription
         self.forecastDate = forecastDate
         self.email = email
         self.wantsCalendarReminder = wantsCalendarReminder
