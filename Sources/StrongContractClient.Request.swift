@@ -116,20 +116,20 @@ extension NearbyEmptyStateEndpoint {
 
 public struct NotifyUserCountProgressPayload: Codable, Hashable, Equatable {
     public let thresholds: [Int]
-    public let locationOverride: String?   // nil if using current location
+    public let location: Coordinates?   // nil if using current location
     public let forecastDate: Date
     public let email: String
     public let wantsCalendarReminder: Bool
 
     public init(
         thresholds: [Int],
-        locationOverride: String?,
+        location: Coordinates?,
         forecastDate: Date,
         email: String,
         wantsCalendarReminder: Bool
     ) {
         self.thresholds = thresholds
-        self.locationOverride = locationOverride
+        self.location = location
         self.forecastDate = forecastDate
         self.email = email
         self.wantsCalendarReminder = wantsCalendarReminder
