@@ -92,30 +92,47 @@ extension Register {
 }
 
 public struct NearbyEmptyStateResponse: Codable, Hashable, Equatable {
+
+    // MARK: Clout
     public let userJoinRank: Int
+    public let cloutLocationDescription: String?
+
+    // MARK: Benchmark
+    public let wantsBenchmarkNotifications: Bool
     public let nearbyUserCount: Int
-    public let defaultEmail: String?
-    public var cloutLocationDescription: String?
-    public var notificationLocationDescription: String?
-    public var cloutCoordinate: Coordinates?
-    public var notificationCoordinate: Coordinates?
+
+    /// If none is saved for this then send the user's sign in email.
+    public let defaultEmail: String
+
+    // MARK: Forecast game
+    /// Reminder for the date that was guessed.
+    public let wantsCalendarReminder: Bool
+    public let savedForecastDate: Date?
+    public let actualDateOfBenchmark: Date?
+
+    // MARK: ui setting preference
+    public let hideFoundingMemberTileTick: Bool
 
     public init(
         userJoinRank: Int,
+        wantsBenchmarkNotifications: Bool,
         nearbyUserCount: Int,
-        defaultEmail: String?,
-        cloutLocationDescription: String? = nil,
-        notificationLocationDescription: String? = nil,
-        cloutCoordinate: Coordinates? = nil,
-        notificationCoordinate: Coordinates? = nil
+        wantsCalendarReminder: Bool,
+        savedForecastDate: Date?,
+        defaultEmail: String,
+        cloutLocationDescription: String?,
+        hideFoundingMemberTileTick: Bool,
+        actualDateOfBenchmark: Date?
     ) {
         self.userJoinRank = userJoinRank
+        self.wantsBenchmarkNotifications = wantsBenchmarkNotifications
         self.nearbyUserCount = nearbyUserCount
+        self.wantsCalendarReminder = wantsCalendarReminder
+        self.savedForecastDate = savedForecastDate
         self.defaultEmail = defaultEmail
         self.cloutLocationDescription = cloutLocationDescription
-        self.notificationLocationDescription = notificationLocationDescription
-        self.cloutCoordinate = cloutCoordinate
-        self.notificationCoordinate = notificationCoordinate
+        self.hideFoundingMemberTileTick = hideFoundingMemberTileTick
+        self.actualDateOfBenchmark = actualDateOfBenchmark
     }
 }
 
@@ -129,33 +146,27 @@ extension NearbyEmptyStateEndpoint {
     }
 }
 
-public struct NotifyUserCountProgressPayload: Codable, Hashable, Equatable {
-    public let thresholds: [Int]
-    // If the cloutCoordinates aren't set, then set it.  CloutCoordinate is only set once.
-    public let location: Coordinates?   // nil if using current location
-    public let locationDescription: String?
-    public let forecastDate: Date
+
+public struct NearbyEmptyStateSubmitPayload: Codable, Hashable, Equatable {
     public let email: String
-    public let wantsCalendarReminder: Bool
+    public let notifyForLocalBenchmarks: Bool
+    public let forecastDate: Date?
+    public let dontShowEmptyNearbyMessageAgain: Bool
 
     public init(
-        thresholds: [Int],
-        location: Coordinates?,
-        locationDescription: String?,
-        forecastDate: Date,
         email: String,
-        wantsCalendarReminder: Bool
+        notifyForLocalBenchmarks: Bool,
+        forecastDate: Date?,
+        dontShowEmptyNearbyMessageAgain: Bool
     ) {
-        self.thresholds = thresholds
-        self.location = location
-        self.locationDescription = locationDescription
-        self.forecastDate = forecastDate
         self.email = email
-        self.wantsCalendarReminder = wantsCalendarReminder
+        self.notifyForLocalBenchmarks = notifyForLocalBenchmarks
+        self.forecastDate = forecastDate
+        self.dontShowEmptyNearbyMessageAgain = dontShowEmptyNearbyMessageAgain
     }
 }
 
-public typealias NotifyUserCountProgressEndpoint = Request<NotifyUserCountProgressPayload, StandardPostResponse>
+public typealias NotifyUserCountProgressEndpoint = Request<NearbyEmptyStateSubmitPayload, StandardPostResponse>
 
 extension NotifyUserCountProgressEndpoint {
 
