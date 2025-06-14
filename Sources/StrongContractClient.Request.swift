@@ -111,7 +111,7 @@ public struct NearbyEmptyStateResponse: Codable, Hashable, Equatable {
     public let actualDateOfBenchmark: Date?
 
     // MARK: ui setting preference
-    public let hideFoundingMemberTileTick: Bool
+    public let hideFoundingMemberTile: Bool
 
     public init(
         userJoinRank: Int,
@@ -121,7 +121,7 @@ public struct NearbyEmptyStateResponse: Codable, Hashable, Equatable {
         savedForecastDate: Date?,
         defaultEmail: String,
         cloutLocationDescription: String?,
-        hideFoundingMemberTileTick: Bool,
+        hideFoundingMemberTile: Bool,
         actualDateOfBenchmark: Date?
     ) {
         self.userJoinRank = userJoinRank
@@ -131,7 +131,7 @@ public struct NearbyEmptyStateResponse: Codable, Hashable, Equatable {
         self.savedForecastDate = savedForecastDate
         self.defaultEmail = defaultEmail
         self.cloutLocationDescription = cloutLocationDescription
-        self.hideFoundingMemberTileTick = hideFoundingMemberTileTick
+        self.hideFoundingMemberTile = hideFoundingMemberTile
         self.actualDateOfBenchmark = actualDateOfBenchmark
     }
 }
@@ -148,21 +148,35 @@ extension NearbyEmptyStateEndpoint {
 
 
 public struct NearbyEmptyStateSubmitPayload: Codable, Hashable, Equatable {
+
+    // MARK: Notify for Benchmarks.
     public let email: String
     public let notifyForLocalBenchmarks: Bool
+
+    // MARK: Forecast game
     public let forecastDate: Date?
-    public let dontShowEmptyNearbyMessageAgain: Bool
+    public let wantsCalendarReminder: Bool
+
+    // MARK: offload work on client.
+    public let locationDescription: String
+
+    // MARK: ui setting preference
+    public let hideFoundingMemberTile: Bool
 
     public init(
         email: String,
         notifyForLocalBenchmarks: Bool,
         forecastDate: Date?,
-        dontShowEmptyNearbyMessageAgain: Bool
+        hideFoundingMemberTile: Bool,
+        wantsCalendarReminder: Bool,
+        locationDescription: String
     ) {
         self.email = email
         self.notifyForLocalBenchmarks = notifyForLocalBenchmarks
         self.forecastDate = forecastDate
-        self.dontShowEmptyNearbyMessageAgain = dontShowEmptyNearbyMessageAgain
+        self.hideFoundingMemberTile = hideFoundingMemberTile
+        self.wantsCalendarReminder = wantsCalendarReminder
+        self.locationDescription = locationDescription
     }
 }
 
