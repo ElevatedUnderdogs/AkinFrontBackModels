@@ -156,6 +156,7 @@ public struct NearbyEmptyStateSubmitPayload: Codable, Hashable, Equatable {
     // MARK: Forecast game
     public let forecastDate: Date?
     public let wantsCalendarReminder: Bool
+    public let forecastLocationHash: String
 
     // MARK: offload work on client.
     public let locationDescription: String
@@ -167,6 +168,7 @@ public struct NearbyEmptyStateSubmitPayload: Codable, Hashable, Equatable {
         email: String,
         notifyForLocalBenchmarks: Bool,
         forecastDate: Date?,
+        forecastLocationHash: String,
         hideFoundingMemberTile: Bool,
         wantsCalendarReminder: Bool,
         locationDescription: String
@@ -177,6 +179,7 @@ public struct NearbyEmptyStateSubmitPayload: Codable, Hashable, Equatable {
         self.hideFoundingMemberTile = hideFoundingMemberTile
         self.wantsCalendarReminder = wantsCalendarReminder
         self.locationDescription = locationDescription
+        self.forecastLocationHash = forecastLocationHash
     }
 }
 
@@ -186,7 +189,7 @@ extension NotifyUserCountProgressEndpoint {
 
     /// This endpoint is designed to receive user information to maintain ongoing engagement when there aren't many users
     /// yet.  This is to attempt to solve the chicken and the egg problem.
-    public static var notifyUserCountProgress: Self {
+    public static var submitBenchmarkNotificationPreferences: Self {
         .init(method: .post)
     }
 }
