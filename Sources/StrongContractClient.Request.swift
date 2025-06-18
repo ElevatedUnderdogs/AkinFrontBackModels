@@ -838,7 +838,17 @@ extension UpdateScheduleRequest {
     }
 }
 
-public typealias UpdateUserLocationRequest = Request<Coordinates, StandardPostResponse>
+public struct LocationPayload: Codable, Hashable, Equatable {
+    public var coordinates: Coordinates
+    public var cityName: String
+
+    public init(coordinates: Coordinates, cityName: String) {
+        self.coordinates = coordinates
+        self.cityName = cityName
+    }
+}
+
+public typealias UpdateUserLocationRequest = Request<LocationPayload, StandardPostResponse>
 extension UpdateUserLocationRequest {
     /// Sends an updated user location.
     public static var updateUserLocation: Self {
