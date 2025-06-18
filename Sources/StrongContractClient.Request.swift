@@ -164,6 +164,8 @@ public struct NearbyEmptyStateSubmitPayload: Codable, Hashable, Equatable {
     // MARK: ui setting preference
     public let hideFoundingMemberTile: Bool
 
+    public let targetBenchMark: Int
+
     public init(
         email: String,
         notifyForLocalBenchmarks: Bool,
@@ -171,7 +173,8 @@ public struct NearbyEmptyStateSubmitPayload: Codable, Hashable, Equatable {
         forecastLocationHash: String,
         hideFoundingMemberTile: Bool,
         wantsCalendarReminder: Bool,
-        locationDescription: String
+        locationDescription: String,
+        targetBenchMark: Int
     ) {
         self.email = email
         self.notifyForLocalBenchmarks = notifyForLocalBenchmarks
@@ -180,6 +183,7 @@ public struct NearbyEmptyStateSubmitPayload: Codable, Hashable, Equatable {
         self.wantsCalendarReminder = wantsCalendarReminder
         self.locationDescription = locationDescription
         self.forecastLocationHash = forecastLocationHash
+        self.targetBenchMark = targetBenchMark
     }
 }
 
