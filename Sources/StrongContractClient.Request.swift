@@ -845,10 +845,12 @@ extension UpdateScheduleRequest {
 public struct LocationPayload: Codable, Hashable, Equatable {
     public var coordinates: Coordinates
     public var cityName: String
+    public let timeZoneIdentifier: String
 
-    public init(coordinates: Coordinates, cityName: String) {
+    public init(coordinates: Coordinates, cityName: String, timeZoneIdentifier: String) {
         self.coordinates = coordinates
         self.cityName = cityName
+        self.timeZoneIdentifier = timeZoneIdentifier
     }
 }
 
