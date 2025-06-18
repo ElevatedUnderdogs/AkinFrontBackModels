@@ -49,7 +49,7 @@ extension GreetProfilePicRequest {
 
     public static var greetProfilePic: Self {
         // This is marked as post because we send the uuid through the body for security reasons
-        // Even though the state doesn't change.  A trade off in "restfulness" its fine.  
+        // Even though the state doesn't change.  A trade off in "restfulness" its fine.
         .init(method: .post, mimType: .octetStream)
     }
 }
@@ -846,11 +846,30 @@ public struct LocationPayload: Codable, Hashable, Equatable {
     public var coordinates: Coordinates
     public var cityName: String
     public let timeZoneIdentifier: String
+    public let localeIdentifier: String
+    public let regionCode: String
+    public let languageCode: String?
+    public let uses24HourClock: Bool?
+    public let calendarIdentifier: String?
 
-    public init(coordinates: Coordinates, cityName: String, timeZoneIdentifier: String) {
+    public init(
+        coordinates: Coordinates,
+        cityName: String,
+        timeZoneIdentifier: String,
+        localeIdentifier: String,
+        regionCode: String,
+        languageCode: String?,
+        uses24HourClock: Bool?,
+        calendarIdentifier: String?
+    ) {
         self.coordinates = coordinates
         self.cityName = cityName
         self.timeZoneIdentifier = timeZoneIdentifier
+        self.localeIdentifier = localeIdentifier
+        self.regionCode = regionCode
+        self.languageCode = languageCode
+        self.uses24HourClock = uses24HourClock
+        self.calendarIdentifier = calendarIdentifier
     }
 }
 
