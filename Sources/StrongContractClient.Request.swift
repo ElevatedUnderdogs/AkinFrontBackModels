@@ -581,11 +581,26 @@ extension RegisterDeviceTokenRequest {
     }
 }
 
-public typealias HideFromNearByListRequest = Request<HideMe, StandardPostResponse>
+public enum HideOption: Codable, Hashable, Equatable {
+    case automatic
+    case manual
+}
+
+public struct HideUpdatePayload: Codable, Hashable, Equatable {
+    public let hideMe: Bool
+    public let hideOption: HideOption
+
+    public init(hideMe: Bool, hideOption: HideOption) {
+        self.hideMe = hideMe
+        self.hideOption = hideOption
+    }
+}
+
+public typealias HideFromNearByListRequest = Request<HideUpdatePayload, StandardPostResponse>
 extension HideFromNearByListRequest {
     /// Disables greet. Makes it so that this user doesn't show up as a greet
     /// option when there are more than one potential meetup options.
-    public static var hideFromNearByList: Self {
+    public static var hideUpdate: Self {
         .init(method: .post)
     }
 }
