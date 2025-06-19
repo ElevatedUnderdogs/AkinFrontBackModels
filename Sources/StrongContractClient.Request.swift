@@ -687,8 +687,19 @@ public struct NearbyUserRequest: Codable, Hashable, Equatable {
     }
 }
 
+public struct NearbyUserResponse: Codable, Hashable, Equatable {
+    public let nearbyMembers: [Greet.User]
+    public let hideStatusAutomatic: Bool
+    public let hideStatusManual: Bool
 
-public typealias NearbyUsersRequest = Request<NearbyUserRequest, [Greet.User]>
+    public init(nearbyMembers: [Greet.User], hideStatusAutomatic: Bool, hideStatusManual: Bool) {
+        self.nearbyMembers = nearbyMembers
+        self.hideStatusAutomatic = hideStatusAutomatic
+        self.hideStatusManual = hideStatusManual
+    }
+}
+
+public typealias NearbyUsersRequest = Request<NearbyUserRequest, NearbyUserResponse>
 
 /// Change the result back to Greet.User so that I can switch back and forth on the server side
 /// with little consequences this way, and just know to not use the nil properties, or not expect
