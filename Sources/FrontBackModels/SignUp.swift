@@ -10,28 +10,42 @@ import Foundation
 import EncryptDecryptKey
 
 extension User {
-    
+
     public struct SignUp: Codable, Hashable, Equatable {
         public var email: String
         public var password: String
         public var firstName: String
         public var lastName: String
         public var errors: String = ""
+        public let termsAcceptedVersion: String
+        public let termsAcceptedAt: Date
+        public let termsAcceptedIP: String?
+        public let deviceInfo: String?
+        public let source: String? // "ios", "android", "web"
 
         public init(
             email: String? = "",
             password: String? = nil,
-            firstName: String? = "" ,
-            lastName: String? = ""
+            firstName: String? = "",
+            lastName: String? = "",
+            termsAcceptedVersion: String,
+            termsAcceptedAt: Date,
+            termsAcceptedIP: String?,
+            deviceInfo: String?,
+            source: String?
         ) {
             self.email = email ?? ""
-            // It is best to hash the password on the server, send it via https. 
             self.password = password ?? ""
             self.firstName = firstName ?? ""
             self.lastName = lastName ?? ""
+            self.termsAcceptedVersion = termsAcceptedVersion
+            self.termsAcceptedAt = termsAcceptedAt
+            self.termsAcceptedIP = termsAcceptedIP
+            self.deviceInfo = deviceInfo
+            self.source = source
             self.findErrors()
         }
-        
+
         public mutating func findErrors() {
             
             if email.isEmpty {
