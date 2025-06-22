@@ -19,7 +19,6 @@ extension User {
         public var errors: String = ""
         public let termsAcceptedVersion: String
         public let termsAcceptedAt: Date
-        public let termsAcceptedIP: String?
         public let deviceInfo: String?
         public let source: String? // "ios", "android", "web"
 
@@ -30,7 +29,6 @@ extension User {
             lastName: String? = "",
             termsAcceptedVersion: String,
             termsAcceptedAt: Date,
-            termsAcceptedIP: String?,
             deviceInfo: String?,
             source: String?
         ) {
@@ -40,7 +38,6 @@ extension User {
             self.lastName = lastName ?? ""
             self.termsAcceptedVersion = termsAcceptedVersion
             self.termsAcceptedAt = termsAcceptedAt
-            self.termsAcceptedIP = termsAcceptedIP
             self.deviceInfo = deviceInfo
             self.source = source
             self.findErrors()
