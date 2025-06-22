@@ -256,11 +256,44 @@ extension ResetPasswordEndpoint {
     }
 }
 
+// MARK: - Terms Acceptance Logging Payload
+
+public struct AcceptTermsRequest: Codable {
+    public let termsVersion: String
+    public let acceptedAt: Date
+    public let ipAddress: String?
+    public let deviceInfo: String?
+    public let source: String? // "ios", "android", "web"
+
+    public init(
+        termsVersion: String,
+        acceptedAt: Date,
+        ipAddress: String?,
+        deviceInfo: String?,
+        source: String?
+    ) {
+        self.termsVersion = termsVersion
+        self.acceptedAt = acceptedAt
+        self.ipAddress = ipAddress
+        self.deviceInfo = deviceInfo
+        self.source = source
+    }
+}
+
 public typealias TermsRequest = Request<Empty, TermsOfService>
 extension TermsRequest {
     /// Gets the terms and conditions of using the app
-    public static var terms: Self {
+    public static var latestTerms: Self {
         .init(method: .get)
+    }
+}
+
+public typealias AcceptTermsRequestType = Request<AcceptTermsRequest, Empty>
+
+extension AcceptTermsRequestType {
+    /// Post a new acceptance of the current Terms version
+    public static var acceptTerms: Self {
+        .init(method: .post)
     }
 }
 

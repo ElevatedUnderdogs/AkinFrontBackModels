@@ -486,19 +486,33 @@ public struct TriggerTwoPersonGreetResponse: Codable {
 public typealias Ettiquette = TermsOfService
 
 public struct TermsOfService: Codable, Equatable, Hashable {
+    public var version: String
+    public var effectiveDate: Date
+    public var requiresReacceptance: Bool
+    public var summary: String?
+
     public var text: String
     public var appName: String
-    public var lastUpdated: String
     public var contactInfo: String
-    public init(text: String, appName: String, lastUpdated: String, contactInfo: String) {
+
+    public init(
+        version: String,
+        effectiveDate: Date,
+        requiresReacceptance: Bool,
+        summary: String? = nil,
+        text: String,
+        appName: String,
+        contactInfo: String
+    ) {
+        self.version = version
+        self.effectiveDate = effectiveDate
+        self.requiresReacceptance = requiresReacceptance
+        self.summary = summary
         self.text = text
         self.appName = appName
-        self.lastUpdated = lastUpdated
         self.contactInfo = contactInfo
     }
 }
-
-
 
 #if canImport(MapKit)
 import MapKit
