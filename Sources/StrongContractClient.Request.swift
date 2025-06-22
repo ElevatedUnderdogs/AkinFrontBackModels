@@ -288,7 +288,7 @@ extension TermsRequest {
     }
 }
 
-public typealias AcceptTermsRequestType = Request<AcceptTermsRequest, Empty>
+public typealias AcceptTermsRequestType = Request<AcceptTermsRequest, StandardPostResponse>
 
 extension AcceptTermsRequestType {
     /// Post a new acceptance of the current Terms version
