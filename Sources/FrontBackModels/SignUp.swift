@@ -17,29 +17,21 @@ extension User {
         public var firstName: String
         public var lastName: String
         public var errors: String = ""
-        public let termsAcceptedVersion: String
-        public let termsAcceptedAt: Date
-        public let deviceInfo: String?
-        public let source: String? // "ios", "android", "web"
+
+        public var acceptTermsRequest: AcceptTermsRequest
 
         public init(
             email: String? = "",
             password: String? = nil,
             firstName: String? = "",
             lastName: String? = "",
-            termsAcceptedVersion: String,
-            termsAcceptedAt: Date,
-            deviceInfo: String?,
-            source: String?
+            acceptTermsRequest: AcceptTermsRequest
         ) {
             self.email = email ?? ""
             self.password = password ?? ""
             self.firstName = firstName ?? ""
             self.lastName = lastName ?? ""
-            self.termsAcceptedVersion = termsAcceptedVersion
-            self.termsAcceptedAt = termsAcceptedAt
-            self.deviceInfo = deviceInfo
-            self.source = source
+            self.acceptTermsRequest = acceptTermsRequest
             self.findErrors()
         }
 
