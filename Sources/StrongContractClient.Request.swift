@@ -258,23 +258,20 @@ extension ResetPasswordEndpoint {
 
 // MARK: - Terms Acceptance Logging Payload
 
-public struct AcceptTermsRequest: Codable {
+public struct AcceptTermsRequest: Codable, Equatable, Hashable {
     public let termsVersion: String
     public let acceptedAt: Date
-    public let ipAddress: String?
     public let deviceInfo: String?
     public let source: String? // "ios", "android", "web"
 
     public init(
         termsVersion: String,
         acceptedAt: Date,
-        ipAddress: String?,
         deviceInfo: String?,
         source: String?
     ) {
         self.termsVersion = termsVersion
         self.acceptedAt = acceptedAt
-        self.ipAddress = ipAddress
         self.deviceInfo = deviceInfo
         self.source = source
     }
