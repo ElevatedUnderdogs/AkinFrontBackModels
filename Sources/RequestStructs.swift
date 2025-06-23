@@ -209,9 +209,12 @@ public struct LoginPayload: Codable {
     /// The password is stored encrypted as well.
     public let password: String
 
-    public init(email: String, password: String) {
+    public let termsVersion: AcceptTermsRequest
+
+    public init(email: String, password: String, termsVersion: AcceptTermsRequest) {
         self.email = email
         self.password = password
+        self.termsVersion = termsVersion
     }
 }
 
