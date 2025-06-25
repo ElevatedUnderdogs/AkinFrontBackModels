@@ -1,0 +1,95 @@
+//
+//  ReportFlag.swift
+//  akin
+//
+//  Created by Scott Lydon on 8/5/19.
+//  Copyright © 2019 ElevatedUnderdogs. All rights reserved.
+//
+
+import Foundation
+
+/// Flags for reporting inappropriate content.
+/// Each case maps to a content category, and may influence moderation behavior (e.g. shadow banning, blurring, or filtering).
+public enum ReportFlag: String, Codable, CaseIterable {
+
+    // 🚫 Illegal or severely harmful content (triggers shadow ban)
+    case childSexualAbuseMaterial = "Child Sexual Abuse Material"
+    case promotesTerrorism = "Promotes Terrorism"
+    case threatensPhysicalHarm = "Threatens Physical Harm"
+
+    // ⚠️ Harmful or abusive content (blurred or hidden by default, adjustable in user settings)
+    case hateSpeech = "Hate Speech"
+    case graphicViolence = "Graphic Violence"
+    case explicitSexualContent = "Explicit Sexual Content"
+    case selfHarmPromotion = "Self-Harm Promotion"
+    case harmfulMisinformation = "Harmful Misinformation"
+
+    // ⚙️ Community moderation (soft filter or deprioritized)
+    case spam = "Spam or Misleading"
+    case copyrightViolation = "Copyright Violation"
+    case personalAttack = "Personal Attack"
+    case unwantedContact = "Unwanted Contact"
+
+    // User error
+    /// This is for when a user doesn't understand the ui/ux For example, a user adds an
+    /// unrelated question to a question Instead of a response.
+    case misunderstandingAssignment = "Misunderstanding Assignment"
+    case misstyping = "Misstyping"
+    case missSpelling = "Misspelling"
+
+    /// Numeric ID for legacy support or analytics. Category order reflects severity.
+    public var int: Int {
+        switch self {
+        case .explicitSexualContent: return 0
+        case .graphicViolence: return 1
+        case .hateSpeech: return 2
+        case .selfHarmPromotion: return 3
+        case .childSexualAbuseMaterial: return 4
+        case .copyrightViolation: return 5
+        case .promotesTerrorism: return 6
+        case .spam: return 7
+        case .harmfulMisinformation: return 8
+        case .threatensPhysicalHarm: return 9
+        case .personalAttack: return 10
+        case .unwantedContact: return 11
+        case .misunderstandingAssignment: return 12
+        case .misstyping: return 13
+        case .missSpelling: return 14
+        }
+    }
+
+    public static var commaSeparatedList: String {
+        allCases.map(\.rawValue).joined(separator: ", ")
+    }
+
+    public var isSeverelyIllegal: Bool {
+        switch self {
+        case .childSexualAbuseMaterial, .promotesTerrorism, .threatensPhysicalHarm:
+            return true
+        default:
+            return false
+        }
+    }
+
+    public var isInappropriate: Bool {
+        switch self {
+        case .explicitSexualContent, .graphicViolence, .hateSpeech, .selfHarmPromotion, .harmfulMisinformation:
+            return true
+        default:
+            return false
+        }
+    }
+
+    public var isCommunityIssue: Bool {
+        switch self {
+        case .spam, .copyrightViolation, .personalAttack, .unwantedContact:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
+extension Array where Element == ReportFlag {
+    public var ints: [Int] { map(\.int) }
+}

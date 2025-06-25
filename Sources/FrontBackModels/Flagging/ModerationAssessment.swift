@@ -1,0 +1,30 @@
+//
+//  File.swift
+//  AkinFrontBackModels
+//
+//  Created by Scott Lydon on 6/24/25.
+//
+
+import Foundation
+
+/// JSON structure returned from a moderation prompt for GPT
+public struct ModerationAssessment: Codable {
+
+    public let entries: [FlagExplanation]
+
+    public var suggestedTreatment: ModerationTreatment {
+        if entries.contains(where: \.flag.isSeverelyIllegal) {
+            return .shadowBan
+        } else if entries.contains(where: \.flag.isInappropriate) {
+            return .blurOrFilter
+        } else if entries.contains(where: \.flag.isCommunityIssue) {
+            return .deprioritize
+        }
+        return .allow
+    }
+}
+
+public struct FlagExplanation: Codable {
+    public let flag: ReportFlag
+    public let explanation: String
+}
