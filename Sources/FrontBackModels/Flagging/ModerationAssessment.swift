@@ -8,7 +8,7 @@
 import Foundation
 
 /// JSON structure returned from a moderation prompt for GPT
-public struct ModerationAssessment: Codable {
+public struct ModerationAssessment: Codable, Hashable, Equatable {
 
     public let entries: [FlagExplanation]
 
@@ -24,7 +24,7 @@ public struct ModerationAssessment: Codable {
     }
 }
 
-public struct FlagExplanation: Codable {
+public struct FlagExplanation: Codable, Hashable, Equatable {
     public let flag: ReportFlag
     public let explanation: String
 }
