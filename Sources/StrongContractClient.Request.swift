@@ -719,7 +719,7 @@ extension AddResponseRequest {
     }
 }
 
-public typealias AddResponsesRequest = Request<[Question.Response], [Question.Response]>
+public typealias AddResponsesRequest = Request<[ResponsePayload], [Question.Response]>
 
 extension AddResponsesRequest {
     /// To deprecate `add(response: Question.Response, questionID: String)`
