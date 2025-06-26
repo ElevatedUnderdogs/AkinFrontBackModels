@@ -27,7 +27,8 @@ public struct Question: Codable, Equatable, Hashable {
     }
     
     // MARK - stored properties
-    
+
+    public var moderationTreatment: ModerationTreatment
     public var requirementsFor: [Context: [Response.Selections.MyTheir]] = [:] // codable
     public var text: String
     public var responses: [Response] = [] // Codable
@@ -54,6 +55,7 @@ public struct Question: Codable, Equatable, Hashable {
 
     /// This initializer isn't synthesized when Codable is conformed to.
     public init(
+        moderationTreatment: ModerationTreatment,
         requirementsFor: [Context : [Response.Selections.MyTheir]] = [:],
         text: String,
         responses: [Response] = [],
@@ -73,6 +75,7 @@ public struct Question: Codable, Equatable, Hashable {
         self.contextPopularity = contextPopularity
         self.originalContext = originalContext
         self.defaultCompatibilityRule = defaultCompatibilityRule
+        self.moderationTreatment = moderationTreatment
     }
 
     func isDeepEqual(to other: Question) -> Bool {

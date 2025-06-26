@@ -832,11 +832,13 @@ public struct ImageMetadata: Codable, Hashable, Equatable {
     public let width: Double
     public let height: Double
     public let format: String
+    public let moderationTreatment: ModerationTreatment
 
-    public init(width: Double, height: Double, format: String) {
+    public init(moderationTreatment: ModerationTreatment, width: Double, height: Double, format: String) {
         self.width = width
         self.height = height
         self.format = format
+        self.moderationTreatment = moderationTreatment
     }
 }
 
