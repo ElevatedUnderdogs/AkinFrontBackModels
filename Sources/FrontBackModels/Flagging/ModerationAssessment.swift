@@ -12,6 +12,10 @@ public struct ModerationAssessment: Codable, Hashable, Equatable {
 
     public let entries: [FlagExplanation]
 
+    public init(entries: [FlagExplanation]) {
+        self.entries = entries
+    }
+
     public var suggestedTreatment: ModerationTreatment {
         if entries.contains(where: \.flag.isSeverelyIllegal) {
             return .shadowBan
