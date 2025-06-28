@@ -54,16 +54,26 @@ extension String {
     }
 
     /// Generates a moderation prompt based on label, question, and user response.
-    public static func user(flagged flagLabel: ReportFlag, question: String, response: String) -> String {
-        user(flagged: flagLabel, forContent: "Question: \(question)\nResponse: \(response)")
+    public static func verifyUserAction(
+        flagged flagLabel: ReportFlag,
+        question: String,
+        response: String
+    ) -> String {
+        verifyUserAction(flagged: flagLabel, forContent: "Question: \(question)\nResponse: \(response)")
     }
 
     /// Builds a system prompt for moderation (question only).
-    public static func user(flagged flagLabel: ReportFlag, question: String) -> String {
-        user(flagged: flagLabel, forContent: "Question: \(question)")
+    public static func verifyUserAction(
+        flagged flagLabel: ReportFlag,
+        question: String
+    ) -> String {
+        verifyUserAction(flagged: flagLabel, forContent: "Question: \(question)")
     }
 
-    private static func user(flagged flagLabel: ReportFlag, forContent content: String) -> String {
+    private static func verifyUserAction(
+        flagged flagLabel: ReportFlag,
+        forContent content: String
+    ) -> String {
         """
         \(moderationPromptFormatIntro)
 
@@ -97,7 +107,7 @@ extension String {
 extension String {
     /// Attempts to decode a moderation assessment from the string, assuming it's the LLM's JSON response.
     /// Returns an empty assessment if decoding fails.
-    func moderationAssessment() throws -> ModerationAssessment {
+    public func moderationAssessment() throws -> ModerationAssessment {
         guard let data = self.data(using: .utf8) else {
             throw GenericError(text: "Couldn't convert the llm output into a valid ModerationAssessment instance.  -->\(self)")
         }
