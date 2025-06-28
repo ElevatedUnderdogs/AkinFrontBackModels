@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Callable
 
 extension String {
 
@@ -90,5 +91,16 @@ extension String {
 
         Return only the JSON. Do not include extra text or formatting.
         """
+    }
+}
+
+extension String {
+    /// Attempts to decode a moderation assessment from the string, assuming it's the LLM's JSON response.
+    /// Returns an empty assessment if decoding fails.
+    func moderationAssessment() throws -> ModerationAssessment {
+        guard let data = self.data(using: .utf8) else {
+            throw GenericError(text: "Couldn't convert the llm output into a valid ModerationAssessment instance.  -->\(self)")
+        }
+        return try JSONDecoder().decode(ModerationAssessment.self, from: data)
     }
 }
