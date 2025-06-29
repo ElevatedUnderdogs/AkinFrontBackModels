@@ -10,7 +10,7 @@ import Foundation
 
 /// Flags for reporting inappropriate content.
 /// Each case maps to a content category, and may influence moderation behavior (e.g. shadow banning, blurring, or filtering).
-public enum ReportFlag: String, Codable, CaseIterable {
+public enum ReportFlag: String, Codable, CaseIterable, Hashable {
 
     // 🚫 Illegal or severely harmful content (triggers shadow ban)
     case childSexualAbuseMaterial = "Child Sexual Abuse Material"
@@ -58,36 +58,75 @@ public enum ReportFlag: String, Codable, CaseIterable {
         }
     }
 
+    /// For analytics/debug output.
     public static var commaSeparatedList: String {
         allCases.map(\.rawValue).joined(separator: ", ")
     }
 
+    /// 🔒 Do not expose to anyone except content creator.
     public var isSeverelyIllegal: Bool {
         switch self {
-        case .childSexualAbuseMaterial, .promotesTerrorism, .threatensPhysicalHarm:
+        case .childSexualAbuseMaterial,
+             .promotesTerrorism,
+             .threatensPhysicalHarm,
+             .selfHarmPromotion:
             return true
         default:
             return false
         }
     }
 
+    /// 🚫 Should default to hidden/blurred unless explicitly allowed by user.
     public var isInappropriate: Bool {
         switch self {
-        case .explicitSexualContent, .graphicViolence, .hateSpeech, .selfHarmPromotion, .harmfulMisinformation:
+        case .explicitSexualContent,
+             .graphicViolence,
+             .hateSpeech,
+             .harmfulMisinformation:
             return true
         default:
             return false
         }
     }
 
+    /// ⚙️ Soft-moderated community behavior issues.
     public var isCommunityIssue: Bool {
         switch self {
-        case .spam, .copyrightViolation, .personalAttack, .unwantedContact:
+        case .spam,
+             .copyrightViolation,
+             .personalAttack,
+             .unwantedContact:
             return true
         default:
             return false
         }
     }
+
+    /// 🍏 App Store violations that must be treated with extreme caution to remain compliant.
+    public var isAppStoreNonCompliant: Bool {
+        switch self {
+        case .childSexualAbuseMaterial,
+             .promotesTerrorism,
+             .threatensPhysicalHarm,
+             .selfHarmPromotion,
+             .explicitSexualContent,
+             .graphicViolence:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// Unified list for enforcing server-side content hiding
+    public static let hideFromNonCreator: Set<ReportFlag> = [
+        .childSexualAbuseMaterial,
+        .promotesTerrorism,
+        .threatensPhysicalHarm,
+        .selfHarmPromotion,
+        // Optional: these two can be filtered based on user settings or App Store mode
+        .explicitSexualContent,
+        .graphicViolence
+    ]
 }
 
 extension Array where Element == ReportFlag {
