@@ -127,6 +127,19 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
         .explicitSexualContent,
         .graphicViolence
     ]
+
+    public var moderationTreatment: ModerationTreatment {
+        switch self {
+        case .childSexualAbuseMaterial, .promotesTerrorism, .threatensPhysicalHarm:
+            return .shadowBan
+        case .explicitSexualContent, .graphicViolence, .hateSpeech, .selfHarmPromotion, .harmfulMisinformation:
+            return .blurOrFilter
+        case .spam, .copyrightViolation, .personalAttack, .unwantedContact:
+            return .deprioritize
+        case .misunderstandingAssignment, .misstyping, .missSpelling:
+            return .areYouSureMessage
+        }
+    }
 }
 
 extension Array where Element == ReportFlag {

@@ -37,6 +37,8 @@ extension Question {
 
         public var originalContextID: UUID
 
+        public var assessment: ModerationAssessment
+
         /// This initializer isn't synthesized when Codable is conformed to.
         public init(
             moderationTreatment: ModerationTreatment,
@@ -48,7 +50,8 @@ extension Question {
             myChoice: [ContextRawValue : Selections.MyTheir.Choice] = [:],
             theirChoices: [ContextRawValue : Selections.MyTheir.Choice] = [:],
             popularity: [ContextRawValue : PopularityScore] = [:],
-            originalContextID: UUID
+            originalContextID: UUID,
+            assessment: ModerationAssessment
         ) {
             self.text = text
             self.timeStamp = timeStamp
@@ -60,6 +63,7 @@ extension Question {
             self.popularity = popularity
             self.originalContextID = originalContextID
             self.moderationTreatment = moderationTreatment
+            self.assessment = assessment
         }
 
         /// Performs a full field-by-field comparison of all properties.
