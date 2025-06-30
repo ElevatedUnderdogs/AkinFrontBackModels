@@ -42,7 +42,8 @@ public struct Question: Codable, Equatable, Hashable {
     /// The popularity of this question in each context.
     public var contextPopularity: [ContextRawValue: PopularityScore] = [:] // Codable
     public var originalContext: Context
-    
+    public var assessment: ModerationAssessment
+
     // MARK - computed properties
 
     public func hash(into hasher: inout Hasher) {
@@ -64,7 +65,8 @@ public struct Question: Codable, Equatable, Hashable {
         importanceFor: [ContextRawValue : Importance] = [:],
         contextPopularity: [ContextRawValue : PopularityScore] = [:],
         originalContext: Context,
-        defaultCompatibilityRule: CompatibilityRule
+        defaultCompatibilityRule: CompatibilityRule,
+        assessment: ModerationAssessment
     ) {
         self.requirementsFor = requirementsFor
         self.text = text
@@ -76,6 +78,7 @@ public struct Question: Codable, Equatable, Hashable {
         self.originalContext = originalContext
         self.defaultCompatibilityRule = defaultCompatibilityRule
         self.moderationTreatment = moderationTreatment
+        self.assessment = assessment
     }
 
     func isDeepEqual(to other: Question) -> Bool {

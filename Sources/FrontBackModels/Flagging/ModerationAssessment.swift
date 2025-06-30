@@ -26,11 +26,16 @@ public struct ModerationAssessment: Codable, Hashable, Equatable {
         }
         return .allow
     }
+
+    public var treatment: ModerationTreatment {
+        entries.map(\.flag.moderationTreatment).min() ?? .allow
+    }
 }
 
 public struct FlagExplanation: Codable, Hashable, Equatable {
     public let flag: ReportFlag
     public let explanation: String
+
 
     public init(flag: ReportFlag, explanation: String) {
         self.flag = flag

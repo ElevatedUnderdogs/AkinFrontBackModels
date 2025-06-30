@@ -817,7 +817,9 @@ public struct GetQuestionsRequestPayload: Codable {
     }
 }
 
-public typealias GetQuestionsRequest = Request<GetQuestionsRequestPayload, [Question]>
+
+
+public typealias GetQuestionsRequest = Request<GetQuestionsRequestPayload, QuestionsResponse>
 extension GetQuestionsRequest {
     /// Gets questions for the matchmaking questionnaire.
     public static var getQuestions: Self {
@@ -857,17 +859,20 @@ public struct ImageMetadata: Codable, Hashable, Equatable {
     public let height: Double
     public let format: String
     public let moderationTreatment: ModerationTreatment
+    public let assessment: ModerationAssessment
 
     public init(
         width: Double,
         height: Double,
         format: String,
-        moderationTreatment: ModerationTreatment
+        moderationTreatment: ModerationTreatment,
+        assessment: ModerationAssessment
     ) {
         self.width = width
         self.height = height
         self.format = format
         self.moderationTreatment = moderationTreatment
+        self.assessment = assessment
     }
 }
 
