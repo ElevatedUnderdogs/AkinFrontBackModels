@@ -888,18 +888,7 @@ public struct ImageInfo: Codable, Hashable, Equatable {
     }
 }
 
-public struct ImageMetaDataPayload: Codable {
-    /// If the client supports local ai assessments then this is non-nil otherwise nil.
-    public let assessment: ModerationAssessment?
-    public let imageMetaData: ImageMetadata
-
-    public init(assessment: ModerationAssessment?, imageMetaData: ImageMetadata) {
-        self.assessment = assessment
-        self.imageMetaData = imageMetaData
-    }
-}
-
-public typealias SaveImageMetaDataRequest = Request<ImageMetaDataPayload, String>
+public typealias SaveImageMetaDataRequest = Request<ImageMetadata, String>
 extension SaveImageMetaDataRequest {
 
     public static var saveImageMetaData: Self {
