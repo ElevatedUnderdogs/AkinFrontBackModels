@@ -538,20 +538,8 @@ extension SendMakeRequest {
     }
 }
 
-public struct QuestionPayload: Codable, Equatable, Hashable {
-    public let question: Question
-
-    /// If the client supports local ai assessments then this is non-nil otherwise nil.
-    public let assessment: ModerationAssessment?
-
-    public init(question: Question, assessment: ModerationAssessment?) {
-        self.question = question
-        self.assessment = assessment
-    }
-}
-
 /// This is intended for normal behavior, a happy path.
-public typealias AddQuestion = Request<QuestionPayload, Question>
+public typealias AddQuestion = Request<Question, Question>
 
 extension AddQuestion {
     /// Any user can add questions to the shared questionnaire.
@@ -697,19 +685,7 @@ extension GetGreetedUsersRequest {
     }
 }
 
-public struct ResponsePayload: Codable, Equatable {
-    public let response: Question.Response
-
-    /// If the client supports local ai assessments then this is non-nil otherwise nil.  
-    public let assessment: ModerationAssessment?
-
-    public init(response: Question.Response, assessment: ModerationAssessment?) {
-        self.response = response
-        self.assessment = assessment
-    }
-}
-
-public typealias AddResponseRequest = Request<ResponsePayload, Question.Response>
+public typealias AddResponseRequest = Request<Question.Response, Question.Response>
 
 extension AddResponseRequest {
     /// To deprecate `add(response: Question.Response, questionID: String)`
@@ -719,7 +695,7 @@ extension AddResponseRequest {
     }
 }
 
-public typealias AddResponsesRequest = Request<[ResponsePayload], [Question.Response]>
+public typealias AddResponsesRequest = Request<[Question.Response], [Question.Response]>
 
 extension AddResponsesRequest {
     /// To deprecate `add(response: Question.Response, questionID: String)`
