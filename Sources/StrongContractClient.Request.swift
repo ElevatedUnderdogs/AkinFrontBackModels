@@ -413,27 +413,36 @@ extension LogoutRequest {
     }
 }
 
+public enum ModerationContentType: String, Codable {
+    case question
+    case response
+    case imageMetaData
+}
 
-public typealias ReportQuestionRequest = Request<ReportFlagsQuestion, StandardPostResponse>
-extension ReportQuestionRequest {
-    /// If a user believes a `Question` violates the terms or is otherwise dangerous, this sends that opinion.
-    public static var reportFlagsQuestion: Self {
-        .init(method: .post)
+public struct SubmitFlagRequest: Codable {
+    public let contentType: ModerationContentType
+    public let contentID: UUID
+    public let flag: ReportFlag
+    public let explanation: String? // optional user input
+
+    public init(
+        contentType: ModerationContentType,
+        contentID: UUID,
+        flag: ReportFlag,
+        explanation: String?
+    ) {
+        self.contentType = contentType
+        self.contentID = contentID
+        self.flag = flag
+        self.explanation = explanation
     }
 }
 
-public typealias ReportResponseRequest = Request<ResponseFlags, ReportFlagsResponse>
-extension ReportResponseRequest {
-    /// If a user believes a `Response` violates the terms or is otherwise dangerous, this sends that opinion.
-    public static var reportFlagsQuestionResponse: Self {
-        .init(method: .post)
-    }
-}
+public typealias ReportFlagRequest = Request<SubmitFlagRequest, StandardPostResponse>
 
-public typealias ReportPicRequest = Request<PicFlags, ReportFlagsResponse>
-extension ReportPicRequest {
-    /// If a user believes an image violates the terms or is otherwise dangerous, this sends that opinion.
-    public static var reportFlagsPic: Self {
+extension ReportFlagRequest {
+
+    public static var reportFlags: Self {
         .init(method: .post)
     }
 }
