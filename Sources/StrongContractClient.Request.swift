@@ -819,7 +819,7 @@ public struct GetQuestionsRequestPayload: Codable {
 
 
 
-public typealias GetQuestionsRequest = Request<GetQuestionsRequestPayload, QuestionsResponse>
+public typealias GetQuestionsRequest = Request<GetQuestionsRequestPayload, [Question]>
 extension GetQuestionsRequest {
     /// Gets questions for the matchmaking questionnaire.
     public static var getQuestions: Self {
