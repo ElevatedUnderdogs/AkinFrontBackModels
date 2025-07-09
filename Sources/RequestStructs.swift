@@ -63,52 +63,6 @@ public struct ImportancesUpdate: Codable {
     }
 }
 
-// Define the argument public structs
-public struct ReportFlagsQuestion: Codable {
-    public let flags: [Int]
-    public let questionID: UUID
-
-    public init(flags: [Int], questionID: UUID) {
-        self.flags = flags
-        self.questionID = questionID
-    }
-}
-
-// Request public structure for `reportFlags` with question ID
-public struct ReportFlagsQuestionRequest: Codable {
-    public let flags: [Int]
-    public let questionId: UUID
-
-    public init(flags: [Int], questionId: UUID) {
-        self.flags = flags
-        self.questionId = questionId
-    }
-}
-
-// Request public structure for `reportFlags` with response ID and question ID
-public struct ResponseFlags: Codable {
-    public let flags: [Int]
-    public let responseId: UUID
-    public let questionId: UUID
-
-    public init(flags: [Int], responseId: UUID, questionId: UUID) {
-        self.flags = flags
-        self.responseId = responseId
-        self.questionId = questionId
-    }
-}
-
-// Request public structure for `reportFlags` with pic URL and userID
-public struct PicFlags: Codable {
-    public let flags: [Int]
-    public let picURL: String
-
-    public init(flags: [Int], picURL: String) {
-        self.flags = flags
-        self.picURL = picURL
-    }
-}
-
 // Request public structure for rating a greet
 public struct Rating: Codable {
     public let greetId: UUID

@@ -35,10 +35,21 @@ public struct ModerationAssessment: Codable, Hashable, Equatable {
 public struct FlagExplanation: Codable, Hashable, Equatable {
     public let flag: ReportFlag
     public let explanation: String
+    public let source: FlagSource
 
-
-    public init(flag: ReportFlag, explanation: String) {
+    public init(flag: ReportFlag, explanation: String, source: FlagSource) {
         self.flag = flag
         self.explanation = explanation
+        self.source = source
     }
+}
+
+/// Represents the source that triggered the moderation flag.
+/// Combines both manual user reports and automatic flagging (e.g. AI, heuristics)
+/// This prevents creating two nearly identical moderation models and a combinatorial
+/// explosion of join/audit logic.
+public enum FlagSource: String, Codable {
+    case appleIntelligence
+    case autoServerOpenAI
+    case manualOtherUser
 }
