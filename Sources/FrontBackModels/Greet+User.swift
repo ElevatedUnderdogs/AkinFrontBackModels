@@ -19,6 +19,7 @@ extension Greet {
         public var minutesFromPoint: Int? = nil
         public var settings: Greet.Settings? = nil
         public var id: UUID
+        
 
         /// <#Description#>
         /// - Parameters:
@@ -44,5 +45,35 @@ extension Greet {
             self.settings = settings
             self.id = id
         }
+    }
+}
+
+extension String {
+
+    var imageIDFromString: String {
+        if contains("/"), let imageID = components(separatedBy: "/").last {
+            return imageID
+        }
+        return self
+    }
+}
+
+
+public extension Greet.User {
+
+    var cloudFlareImageStrings: [String] {
+        personal.profileImages + [imageInfo?.imageStorageURL].compactMap { $0 }
+    }
+
+    var cloudFlareImageIds: Set<String> {
+        Set(cloudFlareImageStrings.map(\.imageIDFromString))
+    }
+
+    var cloudFlareURL: URL? {
+        print("final strings: \(cloudFlareImageIds)")
+        guard let cloudFlareImageID = cloudFlareImageIds.first else {
+            return nil
+        }
+        return URL.cloudflareImageURL(imageID: cloudFlareImageID)
     }
 }

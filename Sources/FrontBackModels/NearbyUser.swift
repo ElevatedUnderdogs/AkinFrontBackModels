@@ -45,3 +45,13 @@ public struct NearbyUser: Codable, Hashable, Equatable {
         )
     }
 }
+
+public struct ProfileImageDetails: Codable {
+    public let url: String
+    public let metaDataID: UUID
+
+    public init(url: String, metaDataID: UUID) {
+        self.url = url
+        self.metaDataID = metaDataID
+    }
+}

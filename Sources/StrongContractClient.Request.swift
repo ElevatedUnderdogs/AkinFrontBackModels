@@ -422,19 +422,16 @@ public enum ModerationContentType: String, Codable {
 public struct SubmitFlagRequest: Codable {
     public let contentType: ModerationContentType
     public let contentID: UUID
-    public let flag: ReportFlag
-    public let explanation: String? // optional user input
+    public let flagExplanation: FlagExplanation
 
     public init(
         contentType: ModerationContentType,
         contentID: UUID,
-        flag: ReportFlag,
-        explanation: String?
+        flagExplanation: FlagExplanation
     ) {
         self.contentType = contentType
         self.contentID = contentID
-        self.flag = flag
-        self.explanation = explanation
+        self.flagExplanation = flagExplanation
     }
 }
 
@@ -845,19 +842,22 @@ public struct ImageMetadata: Codable, Hashable, Equatable {
     public let format: String
     public let moderationTreatment: ModerationTreatment
     public let assessment: ModerationAssessment
+    public let id: UUID
 
     public init(
         width: Double,
         height: Double,
         format: String,
         moderationTreatment: ModerationTreatment,
-        assessment: ModerationAssessment
+        assessment: ModerationAssessment,
+        id: UUID
     ) {
         self.width = width
         self.height = height
         self.format = format
         self.moderationTreatment = moderationTreatment
         self.assessment = assessment
+        self.id = id
     }
 }
 

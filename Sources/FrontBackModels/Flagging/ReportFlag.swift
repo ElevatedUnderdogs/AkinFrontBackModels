@@ -140,6 +140,32 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
             return .areYouSureMessage
         }
     }
+
+
+    /// 🚨 Risk level used to determine escalation thresholds and AI audit behavior.
+    public var riskLevel: RiskLevel {
+        switch self {
+        case .childSexualAbuseMaterial,
+             .promotesTerrorism,
+             .threatensPhysicalHarm:
+            return .critical
+        case .selfHarmPromotion,
+             .graphicViolence,
+             .hateSpeech:
+            return .high
+        case .explicitSexualContent,
+             .harmfulMisinformation,
+             .copyrightViolation,
+             .personalAttack,
+             .unwantedContact:
+            return .medium
+        case .spam,
+             .misunderstandingAssignment,
+             .misstyping,
+             .missSpelling:
+            return .low
+        }
+    }
 }
 
 extension Array where Element == ReportFlag {
