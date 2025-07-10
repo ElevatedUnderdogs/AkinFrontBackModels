@@ -63,6 +63,10 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
         allCases.map(\.rawValue).joined(separator: ", ")
     }
 
+    public static var permissableFlags: [ReportFlag] {
+        allCases.filter { !$0.isSeverelyIllegal && !$0.isAppStoreNonCompliant }
+    }
+
     /// 🔒 Do not expose to anyone except content creator.
     public var isSeverelyIllegal: Bool {
         switch self {
