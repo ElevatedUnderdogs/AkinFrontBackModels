@@ -20,7 +20,7 @@ public struct ModerationAssessment: Codable, Hashable, Equatable {
         if entries.contains(where: \.flag.isSeverelyIllegal) {
             return .shadowBan
         } else if entries.contains(where: \.flag.isInappropriate) {
-            return .blurOrFilter
+            return .blur
         } else if entries.contains(where: \.flag.isCommunityIssue) {
             return .deprioritize
         }
