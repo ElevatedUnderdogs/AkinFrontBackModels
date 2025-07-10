@@ -8,26 +8,51 @@
 import Foundation
 
 /// Recommended moderation action to take on content.
-public enum ModerationTreatment: String, Codable, Comparable {
+public enum ModerationTreatment: String, CaseIterable, Codable, Identifiable, Comparable {
     /// Illegal or harmful content; hidden from all users (shadow banned).
-    case shadowBan
+    case shadowBan = "🕳️ Omit"
 
-    /// Potentially inappropriate; content is blurred or filtered unless the user opts in to view it.
-    case blurOrFilter
+    /// Potentially inappropriate; content is blurred or filtered unless user opts in.
+    case blur = "🌫️ Blur"
 
-    /// Content is allowed but shown less prominently (e.g., ranked lower in feeds or search).
-    case deprioritize
+    /// Warns the user before posting, optionally requiring confirmation.
+    case areYouSureMessage = "⚠️ Are You Sure?"
 
-    /// Prompts the user with an "Are you sure?" message before posting; typically used for likely accidental or inappropriate posts.
-    case areYouSureMessage
+    /// Content is allowed but shown less prominently (e.g., ranked lower).
+    case deprioritize = "⬇️ Deprioritize"
 
-    /// Safe content; no moderation action needed.
-    case allow
+    /// Content is allowed with no action.
+    case allow = "🚫 No Action"
 
+    // MARK: - Display & Behavior
+
+    public var id: String { rawValue }
+
+    public var shortLabel: String {
+        switch self {
+        case .shadowBan: return "Omit"
+        case .blur: return "Blur"
+        case .areYouSureMessage: return "Warn"
+        case .deprioritize: return "Deprioritize"
+        case .allow: return "No Action"
+        }
+    }
+
+    public var symbol: String {
+        switch self {
+        case .shadowBan: return "🕳️"
+        case .blur: return "🌫️"
+        case .areYouSureMessage: return "⚠️"
+        case .deprioritize: return "⬇️"
+        case .allow: return "🚫"
+        }
+    }
+
+    /// Used to control sorting or severity comparison.
     public var rank: Int {
         switch self {
         case .shadowBan: return 0
-        case .blurOrFilter: return 1
+        case .blur: return 1
         case .deprioritize: return 2
         case .areYouSureMessage: return 3
         case .allow: return 4

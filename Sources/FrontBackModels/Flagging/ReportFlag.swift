@@ -133,7 +133,7 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
         case .childSexualAbuseMaterial, .promotesTerrorism, .threatensPhysicalHarm:
             return .shadowBan
         case .explicitSexualContent, .graphicViolence, .hateSpeech, .selfHarmPromotion, .harmfulMisinformation:
-            return .blurOrFilter
+            return .blur
         case .spam, .copyrightViolation, .personalAttack, .unwantedContact:
             return .deprioritize
         case .misunderstandingAssignment, .misstyping, .missSpelling:
