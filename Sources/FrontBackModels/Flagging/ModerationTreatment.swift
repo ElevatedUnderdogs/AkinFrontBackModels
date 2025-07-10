@@ -9,8 +9,9 @@ import Foundation
 
 /// Recommended moderation action to take on content.
 public enum ModerationTreatment: String, CaseIterable, Codable, Identifiable, Comparable {
-    /// Illegal or harmful content; hidden from all users (shadow banned).
-    case shadowBan = "🕳️ Omit"
+
+    /// Applied to Illegal or harmful content; hidden from all users (shadow banned), and whatever a user sets for their settings. 
+    case shadowBan = "🕳️ Don't show me"
 
     /// Potentially inappropriate; content is blurred or filtered unless user opts in.
     case blur = "🌫️ Blur"
@@ -22,7 +23,7 @@ public enum ModerationTreatment: String, CaseIterable, Codable, Identifiable, Co
     case deprioritize = "⬇️ Deprioritize"
 
     /// Content is allowed with no action.
-    case allow = "🚫 No Action"
+    case allow = "✅ Show me"
 
     // MARK: - Display & Behavior
 
