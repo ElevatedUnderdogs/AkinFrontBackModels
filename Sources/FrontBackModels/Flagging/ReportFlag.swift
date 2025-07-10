@@ -20,15 +20,22 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
     // ⚠️ Harmful or abusive content (blurred or hidden by default, adjustable in user settings)
     case hateSpeech = "Hate Speech"
     case graphicViolence = "Graphic Violence"
+
+    /// 1.1.4 Overtly sexual or pornographic material, defined by Webster’s Dictionary as “explicit descriptions or displays of sexual organs or activities intended to stimulate erotic rather than aesthetic or emotional feelings,” is not allowed on the App Store.
     case explicitSexualContent = "Explicit Sexual Content"
+    case sexual = "Sexual Content"
     case selfHarmPromotion = "Self-Harm Promotion"
     case harmfulMisinformation = "Harmful Misinformation"
+
+    // TODO: profanity, vulgarity,
 
     // ⚙️ Community moderation (soft filter or deprioritized)
     case spam = "Spam or Misleading"
     case copyrightViolation = "Copyright Violation"
     case personalAttack = "Personal Attack"
     case unwantedContact = "Unwanted Contact"
+    case profanity = "Profanity"
+    case vulgarity = "Vulgarity"
 
     // User error
     /// This is for when a user doesn't understand the ui/ux For example, a user adds an
@@ -37,30 +44,37 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
     case misstyping = "Misstyping"
     case missSpelling = "Misspelling"
 
-    /// Numeric ID for legacy support or analytics. Category order reflects severity.
+    /// Numeric ID for legacy support or analytics. Category order reflects severity from most at 0 to least.  .
     public var int: Int {
         switch self {
-        case .explicitSexualContent: return 0
-        case .graphicViolence: return 1
-        case .hateSpeech: return 2
-        case .selfHarmPromotion: return 3
-        case .childSexualAbuseMaterial: return 4
-        case .copyrightViolation: return 5
-        case .promotesTerrorism: return 6
-        case .spam: return 7
-        case .harmfulMisinformation: return 8
-        case .threatensPhysicalHarm: return 9
+        case .childSexualAbuseMaterial: return 0
+        case .promotesTerrorism: return 1
+        case .threatensPhysicalHarm: return 2
+        case .explicitSexualContent: return 3
+        case .graphicViolence: return 4
+        case .hateSpeech: return 5
+        case .selfHarmPromotion: return 6
+        case .harmfulMisinformation: return 7
+        case .copyrightViolation: return 8
+        case .spam: return 9
         case .personalAttack: return 10
         case .unwantedContact: return 11
-        case .misunderstandingAssignment: return 12
-        case .misstyping: return 13
-        case .missSpelling: return 14
+        case .sexual: return 12
+        case .profanity: return 13
+        case .vulgarity: return 14
+        case .misunderstandingAssignment: return 15
+        case .misstyping: return 16
+        case .missSpelling: return 17
         }
     }
 
     /// For analytics/debug output.
     public static var commaSeparatedList: String {
         allCases.map(\.rawValue).joined(separator: ", ")
+    }
+
+    public static var permissableFlags: [ReportFlag] {
+        allCases.filter { !$0.isSeverelyIllegal && !$0.isAppStoreNonCompliant }
     }
 
     /// 🔒 Do not expose to anyone except content creator.
@@ -132,9 +146,11 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
         switch self {
         case .childSexualAbuseMaterial, .promotesTerrorism, .threatensPhysicalHarm:
             return .shadowBan
-        case .explicitSexualContent, .graphicViolence, .hateSpeech, .selfHarmPromotion, .harmfulMisinformation:
+        case .explicitSexualContent, .graphicViolence, .hateSpeech, .selfHarmPromotion,
+             .harmfulMisinformation, .sexual, .profanity, .vulgarity:
             return .blur
-        case .spam, .copyrightViolation, .personalAttack, .unwantedContact:
+        case .spam, .copyrightViolation,
+             .personalAttack, .unwantedContact:
             return .deprioritize
         case .misunderstandingAssignment, .misstyping, .missSpelling:
             return .areYouSureMessage
@@ -154,10 +170,13 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
              .hateSpeech:
             return .high
         case .explicitSexualContent,
+             .sexual,
              .harmfulMisinformation,
              .copyrightViolation,
              .personalAttack,
-             .unwantedContact:
+             .unwantedContact,
+             .profanity,
+             .vulgarity:
             return .medium
         case .spam,
              .misunderstandingAssignment,
