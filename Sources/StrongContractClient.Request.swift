@@ -444,6 +444,25 @@ extension ReportFlagRequest {
     }
 }
 
+public struct UpdateFlagTreatment: Codable {
+    public let treatment: ModerationTreatment
+    public let flag: ReportFlag
+
+    public init(treatment: ModerationTreatment, flag: ReportFlag) {
+        self.treatment = treatment
+        self.flag = flag
+    }
+}
+
+public typealias UpdateFlagTreatmentRequest = Request<UpdateFlagTreatment, StandardPostResponse>
+
+extension UpdateFlagTreatmentRequest {
+
+    public static var updateFlagTreatment: Self {
+        .init(method: .put)
+    }
+}
+
 public typealias UserSettingsRequest = Request<Empty, Settings>
 extension UserSettingsRequest {
     /// Gets the user's Settings information.
