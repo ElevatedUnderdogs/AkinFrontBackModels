@@ -11,23 +11,33 @@ import Foundation
 public enum ModerationTreatment: String, CaseIterable, Codable, Identifiable, Comparable {
 
     /// Applied to Illegal or harmful content; hidden from all users (shadow banned), and whatever a user sets for their settings. 
-    case shadowBan = "🕳️ Don't show me"
+    case shadowBan
 
     /// Potentially inappropriate; content is blurred or filtered unless user opts in.
-    case blur = "🌫️ Blur"
+    case blur
 
     /// Warns the user before posting, optionally requiring confirmation.
-    case areYouSureMessage = "⚠️ Are You Sure?"
+    case areYouSureMessage
 
     /// Content is allowed but shown less prominently (e.g., ranked lower).
-    case deprioritize = "⬇️ Deprioritize"
+    case deprioritize
 
     /// Content is allowed with no action.
-    case allow = "✅ Show me"
+    case allow
 
     // MARK: - Display & Behavior
 
     public var id: String { rawValue }
+
+    public var displayText: String {
+        switch self {
+        case .shadowBan: return "🕳️ Don't show me"
+        case .blur: return "🌫️ Blur"
+        case .areYouSureMessage: return "⚠️ Are You Sure?"
+        case .deprioritize: return "⬇️ Deprioritize"
+        case .allow: return "✅ Show me"
+        }
+    }
 
     public var shortLabel: String {
         switch self {
