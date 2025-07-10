@@ -463,6 +463,15 @@ extension UpdateFlagTreatmentRequest {
     }
 }
 
+public typealias GetFlagTreatmentRequest = Request<Empty, [ReportFlag: ModerationTreatment]>
+
+extension GetFlagTreatmentRequest {
+
+    public static var getFlagTreatmentSettings: Self {
+        .init(method: .get)
+    }
+}
+
 public typealias UserSettingsRequest = Request<Empty, Settings>
 extension UserSettingsRequest {
     /// Gets the user's Settings information.
