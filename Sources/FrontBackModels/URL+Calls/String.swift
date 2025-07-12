@@ -14,16 +14,14 @@ extension String {
     You are a content moderation assistant. Analyze the following user-generated content and assess whether it falls into any of the predefined categories of inappropriate or problematic content.
 
     You must return your answer as a JSON string that can be parsed into the following Swift structure:
+    
+    // NOTES: 
+    // ... you may include more than one entry 0 - n
+    // The report flag will be one of: \(ReportFlag.commaSeparatedList)
+    //  explanation is (1–2 sentences) describing why this flag was applied
+    // The source should always be "autoServerOpenAI".
 
-    {
-      "entries": [
-        {
-          "flag": "ReportFlag", // One of: \(ReportFlag.commaSeparatedList)
-          "explanation": "Short explanation (1–2 sentences) describing why this flag was applied"
-        }
-        // ... you may include more than one entry
-      ]
-    }
+    \(ModerationAssessment.exampleJSONString)
 
     Do not include any fields other than "entries". Do not include the computed field `suggestedTreatment` — the system will calculate that automatically.
     """
@@ -112,5 +110,30 @@ extension String {
             throw GenericError(text: "Couldn't convert the llm output into a valid ModerationAssessment instance.  -->\(self)")
         }
         return try JSONDecoder().decode(ModerationAssessment.self, from: data)
+    }
+}
+
+
+import Foundation
+
+public extension ModerationAssessment {
+    static var exampleJSONString: String {
+        let example = ModerationAssessment(entries: [
+            FlagExplanation(
+                flag: .threatensPhysicalHarm,
+                explanation: "The content contains a direct threat of physical harm.",
+                source: .autoServerOpenAI
+            )
+        ])
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+
+        guard let data = try? encoder.encode(example),
+              let jsonString = String(data: data, encoding: .utf8) else {
+            return "// Failed to encode example JSON"
+        }
+
+        return jsonString
     }
 }
