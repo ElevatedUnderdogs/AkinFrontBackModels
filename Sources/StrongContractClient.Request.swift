@@ -729,7 +729,17 @@ extension AddResponseRequest {
     }
 }
 
-public typealias AddResponsesRequest = Request<[Question.Response], [Question.Response]>
+public struct AddResponsePayload: Codable {
+    public let questionText: String
+    public let responses: [Question.Response]
+
+    public init(questionText: String, responses: [Question.Response]) {
+        self.questionText = questionText
+        self.responses = responses
+    }
+}
+
+public typealias AddResponsesRequest = Request<AddResponsePayload, [Question.Response]>
 
 extension AddResponsesRequest {
     /// To deprecate `add(response: Question.Response, questionID: String)`
