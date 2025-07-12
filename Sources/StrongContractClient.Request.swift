@@ -878,7 +878,6 @@ public struct ImageMetadata: Codable, Hashable, Equatable {
     public let width: Double
     public let height: Double
     public let format: String
-    public let moderationTreatment: ModerationTreatment
     public let assessment: ModerationAssessment
     public let id: UUID
 
@@ -886,14 +885,12 @@ public struct ImageMetadata: Codable, Hashable, Equatable {
         width: Double,
         height: Double,
         format: String,
-        moderationTreatment: ModerationTreatment,
         assessment: ModerationAssessment,
         id: UUID
     ) {
         self.width = width
         self.height = height
         self.format = format
-        self.moderationTreatment = moderationTreatment
         self.assessment = assessment
         self.id = id
     }
