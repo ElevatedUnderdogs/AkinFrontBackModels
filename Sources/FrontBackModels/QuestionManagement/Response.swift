@@ -20,7 +20,6 @@ extension Question {
             lhs.id == rhs.id
         }
 
-        public var moderationTreatment: ModerationTreatment
         public var text: String = ""
         public var timeStamp: Date
         
@@ -41,7 +40,6 @@ extension Question {
 
         /// This initializer isn't synthesized when Codable is conformed to.
         public init(
-            moderationTreatment: ModerationTreatment,
             text: String,
             timeStamp: Date,
             id: UUID,
@@ -62,7 +60,6 @@ extension Question {
             self.theirChoices = theirChoices
             self.popularity = popularity
             self.originalContextID = originalContextID
-            self.moderationTreatment = moderationTreatment
             self.assessment = assessment
         }
 
