@@ -916,10 +916,11 @@ extension SaveImageMetaDataRequest {
     }
 }
 
-public typealias AddDisplayPicRequest = Request<Data, StandardPostResponse>
-extension AddDisplayPicRequest {
+/// String should be the cloudflareurl at which the image can be accessed. 
+public typealias ModeratePicRequest = Request<String, StandardPostResponse>
+extension ModeratePicRequest {
 
-    public static var addDisplayPic: Self {
+    public static var moderatePic: Self {
         .init(method: .post)
     }
 }
