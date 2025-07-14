@@ -17,7 +17,7 @@ public struct Settings: Codable {
     
     public var vibrate: Bool = false
     public var ring: Bool = false
-    public var cloudflareProfileImgID: String?
+    public var cloudflareProfileImageURL: String?
     public var emailPrimary: String?
     public var userID: UUID = .init()
     public var phone: String?
@@ -75,9 +75,9 @@ public struct Settings: Codable {
     
     public init() {}
     
-    public init(email: String, profilePic: String, userID: UUID) {
+    public init(email: String, cloudflareProfileImageURL: String, userID: UUID) {
         self.emailPrimary = email
-        self.cloudflareProfileImgID = profilePic
+        self.cloudflareProfileImageURL = cloudflareProfileImageURL
         self.vibrate = true
         self.ring = true
         self.userID = userID

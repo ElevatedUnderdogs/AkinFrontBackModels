@@ -69,11 +69,11 @@ public extension Greet.User {
         Set(cloudFlareImageStrings.map(\.imageIDFromString))
     }
 
-    var cloudFlareURL: URL? {
-        print("final strings: \(cloudFlareImageIds)")
-        guard let cloudFlareImageID = cloudFlareImageIds.first else {
-            return nil
-        }
-        return URL.cloudflareImageURL(imageID: cloudFlareImageID)
-    }
+//    var cloudFlareURL: URL? {
+//        print("final strings: \(cloudFlareImageIds)")
+//        guard let cloudFlareImageID = cloudFlareImageIds.first else {
+//            return nil
+//        }
+//        return URL.cloudflareImageURL(imageID: cloudFlareImageID)
+//    }
 }

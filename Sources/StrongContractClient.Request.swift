@@ -874,6 +874,8 @@ extension UpdateUserSettingsRequest {
     }
 }
 
+/// This is provided from the client side before the cloudflare image id is available, that is why there
+///  is also ImageInfo for when the cloudflareurl is available.
 public struct ImageMetadata: Codable, Hashable, Equatable {
     public let width: Double
     public let height: Double
@@ -896,6 +898,8 @@ public struct ImageMetadata: Codable, Hashable, Equatable {
     }
 }
 
+/// The ImageMetadata is provided from the client side before the cloudflare image id is available, that is why there
+///  is also ImageInfo for when the cloudflareurl is available.
 public struct ImageInfo: Codable, Hashable, Equatable {
     ///  When saving image metaData this will be the Upload url.
     ///  When provided in a greet process, this will be the Get url.
@@ -916,7 +920,7 @@ extension SaveImageMetaDataRequest {
     }
 }
 
-/// String should be the cloudflareurl at which the image can be accessed. 
+/// String should be the cloudflareurl at which the image can be accessed.
 public typealias ModeratePicRequest = Request<String, StandardPostResponse>
 extension ModeratePicRequest {
 
