@@ -28,12 +28,12 @@
 //    }
 //}
 
-import Foundation
-
-public extension URL {
-
-    static func cloudflareImageURL(imageID: String, variant: String = "public") -> URL {
-        let deliveryID = "zhbimJ0OE5fdkDM6_OkY1A" // safe to hardcode
-        return URL(string: "https://imagedelivery.net/\(deliveryID)/\(imageID)/\(variant)")!
-    }
-}
+//import Foundation
+//
+//public extension URL {
+//
+//    static func cloudflareImageURL(imageID: String, variant: String = "public") -> URL {
+//        let deliveryID = "zhbimJ0OE5fdkDM6_OkY1A" // safe to hardcode
+//        return URL(string: "https://imagedelivery.net/\(deliveryID)/\(imageID)/\(variant)")!
+//    }
+//}
