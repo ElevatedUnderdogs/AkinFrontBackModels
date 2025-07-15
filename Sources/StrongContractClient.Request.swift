@@ -919,6 +919,7 @@ public struct CloudflareImageURLS: Codable {
     public let uploadURL: String
 
     /// The download url that our server configures using the cloudflare image id.
+    /// It  won't work until you use the upload url to upload the image.
     public let downloadURL: String
 
     public init(uploadURL: String, downloadURL: String) {
