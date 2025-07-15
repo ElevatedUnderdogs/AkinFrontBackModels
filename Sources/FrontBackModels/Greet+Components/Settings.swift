@@ -68,14 +68,14 @@ public struct Settings: Codable {
     public var contextText: String {
         let enabledContexts: [Context.Case] = contextPreferences.filter(\.isMeetEnabled).map(\.context.case)
         return enabledContexts.count == 2 ? "Both on" :
-        enabledContexts.first.map { "\($0.rawValue) on" } ?? "Both off"
+           enabledContexts.first.map { "\($0.rawValue) on" } ?? "Both off"
     }
     
     // MAKR - inits
     
     public init() {}
     
-    public init(email: String, cloudflareProfileImageURL: String, userID: UUID) {
+    public init(email: String, cloudflareProfileImageURL: String?, userID: UUID) {
         self.emailPrimary = email
         self.cloudflareProfileImageURL = cloudflareProfileImageURL
         self.vibrate = true
