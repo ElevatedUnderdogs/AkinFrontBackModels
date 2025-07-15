@@ -15,7 +15,7 @@ public struct User: Codable {
     // MARK - properties
 
     public var privacy: PrivateDetails? // Codable
-    public var cloudFlareImageID: String?
+    public var cloudFlareImageURL: String?
     public var firstName: String
     public var lastName: String
     public var id: UUID
@@ -30,7 +30,7 @@ public struct User: Codable {
     // MARk - inits
 
     public init(
-        cloudFlareImageID: String? = nil,
+        cloudFlareImageURL: String? = nil,
         firstName: String,
         lastName: String,
         user_id: UUID,
@@ -39,7 +39,7 @@ public struct User: Codable {
         dob: String? = nil
     ) {
         self.id = user_id
-        self.cloudFlareImageID = cloudFlareImageID
+        self.cloudFlareImageURL = cloudFlareImageURL
         self.firstName = firstName
         self.lastName = lastName
         self.email = email
