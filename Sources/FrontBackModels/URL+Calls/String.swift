@@ -17,8 +17,9 @@ extension String {
     
     // NOTES: 
     // ... you may include more than one entry 0 - n
-    // The report flag will be one of: \(ReportFlag.commaSeparatedList)
-    //  explanation is (1–2 sentences) describing why this flag was applied
+    // The report flags will be drawn from these: \(ReportFlag.commaSeparatedList)
+    // Include all flags that apply!
+    //  explanation is (1–2 sentences) describing why each flag was applied
     // The source should always be "autoServerOpenAI".
 
     \(ModerationAssessment.exampleJSONString)
