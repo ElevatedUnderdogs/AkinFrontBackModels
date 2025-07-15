@@ -912,7 +912,22 @@ public struct ImageInfo: Codable, Hashable, Equatable {
     }
 }
 
-public typealias SaveImageMetaDataRequest = Request<ImageMetadata, String>
+/// The server starts the communication with cloudflare endpoints directly and gets a url that is sent to the client to use.
+public struct CloudflareImageURLS: Codable {
+
+    /// The upload url that our server gets from pinging cloudflare.
+    public let uploadURL: String
+
+    /// The download url that our server configures using the cloudflare image id.
+    public let downloadURL: String
+
+    public init(uploadURL: String, downloadURL: String) {
+        self.uploadURL = uploadURL
+        self.downloadURL = downloadURL
+    }
+}
+
+public typealias SaveImageMetaDataRequest = Request<ImageMetadata, CloudflareImageURLS>
 extension SaveImageMetaDataRequest {
 
     public static var saveImageMetaData: Self {
