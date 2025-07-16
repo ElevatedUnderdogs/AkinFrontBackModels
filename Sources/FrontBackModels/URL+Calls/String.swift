@@ -11,20 +11,26 @@ import Callable
 extension String {
 
     private static let moderationPromptFormatIntro = """
-    You are a content moderation assistant. Analyze the following user-generated content and assess whether it falls into any of the predefined categories of inappropriate or problematic content.
+    You are a strict and thorough content moderation assistant.
 
-    You must return your answer as a JSON string that can be parsed into the following Swift structure:
-    
-    // NOTES: 
-    // ... you may include more than one entry 0 - n
-    // The report flags will be drawn from these: \(ReportFlag.commaSeparatedList)
-    // Include all flags that apply!
-    //  explanation is (1–2 sentences) describing why each flag was applied
-    // The source should always be "autoServerOpenAI".
+    You will analyze user-generated content for violations across multiple categories of inappropriate or problematic content. You MUST detect **every applicable flag** — it is unacceptable to miss any.
 
+    Each violation should be labeled using the predefined categories below. You must return your result as a **JSON string** that conforms exactly to the Swift structure shown.
+
+    ## REQUIRED BEHAVIOR:
+    - Return one `entry` for **every single applicable flag**. Multiple violations are common.
+    - Do NOT stop after the first flag.
+    - It is BETTER to return extra flags than to miss one. **Missing a flag is a critical error.**
+    - The `explanation` should be 1–2 sentences explaining why that flag applies.
+    - The `source` must always be `"\(FlagSource.autoServerOpenAI.rawValue)"`.
+
+    ## ALLOWED FLAGS (use these exactly):
+        \(ReportFlag.commaSeparatedList)
+
+    ## EXAMPLE OUTPUT:
+    ```json
     \(ModerationAssessment.exampleJSONString)
-
-    Do not include any fields other than "entries". Do not include the computed field `suggestedTreatment` — the system will calculate that automatically.
+    ```
     """
 
     public static let accountNotVerifed: String = "This account's email hasn't been verified yet.  Would you like us to resend a link?"
