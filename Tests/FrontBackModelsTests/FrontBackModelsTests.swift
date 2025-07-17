@@ -37,8 +37,7 @@ final class FrontBackModelsTests: XCTestCase {
         // https://developer.apple.com/documentation/xctest/defining_test_cases_and_test_methods
 
         print(ModerationAssessment.exampleJSONString)
-
-        
+    
     }
 
     func testWholePrompt() throws {

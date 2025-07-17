@@ -26,6 +26,8 @@ extension String {
 
     ## ALLOWED FLAGS (use these exactly):
         \(ReportFlag.commaSeparatedList)
+    
+    Note: There is a 
 
     ## EXAMPLE OUTPUT (you must match this format — but DO NOT wrap it in ```json or any Markdown code block):
     ```json
@@ -34,6 +36,40 @@ extension String {
     
     Return only the raw JSON. Do not include backticks, do not wrap in a code block, and do not say "Here is your result" or anything else. Only the JSON.
     """
+
+    static let questionMisunderstanding: String =
+    """
+        ✳️ For questions:
+
+        Use this flag when a user submits a question that may be grammatically valid, but doesn’t align with the purpose of the platform — such as matchmaking or compatibility filtering.
+        Example:
+
+        ❌ “How are you?” — While this is a valid question, it lacks the depth or relevance expected from a matchmaking prompt designed to reveal preferences, values, or personality traits.
+    """
+
+    static let responseMisunderstanding: String =
+    """
+    ✳️ For responses:
+
+    Use this flag when a user submits a response that is unrelated to the original question — for example when the response is itself a separate, unrelated question.
+    Example:
+
+       Question: “What is the best way to skin a cat?”
+    ❌ Response: “What is your favorite color?” — This is not a valid answer; it’s an unrelated topic that indicates the user didn’t understand the assignment when they submitted the response.
+    """
+
+    func misunderstandingAssignmentPromptNote(middleContent: String = .questionMisunderstanding) -> String {
+    """
+    🔧 misunderstandingAssignment — Moderation Note
+    This flag is used when a user attempts to contribute content (either a question or a response) but misunderstands the intended purpose or structure of the interaction.
+    
+    \(middleContent)
+    
+    ✅ Goal of this flag:
+    
+    Identify content that appears sincere or non-malicious but fails to fulfill the intended content structure, likely due to confusion or unfamiliarity with how the platform works.
+    """
+    }
 
     public static let accountNotVerifed: String = "This account's email hasn't been verified yet.  Would you like us to resend a link?"
 
