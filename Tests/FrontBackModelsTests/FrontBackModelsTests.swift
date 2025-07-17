@@ -41,6 +41,11 @@ final class FrontBackModelsTests: XCTestCase {
         
     }
 
+    func testWholePrompt() throws {
+        print(String.moderationPromptFormatIntro)
+        XCTAssertFalse(String.moderationPromptFormatIntro.contains("\\"), .moderationPromptFormatIntro)
+    }
+
     static var otherName: String { "Tom" }
 
 

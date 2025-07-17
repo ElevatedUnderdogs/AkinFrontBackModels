@@ -10,7 +10,7 @@ import Callable
 
 extension String {
 
-    private static let moderationPromptFormatIntro = """
+    static let moderationPromptFormatIntro = """
     You are a strict and thorough content moderation assistant.
 
     You will analyze user-generated content for violations across multiple categories of inappropriate or problematic content. You MUST detect **every applicable flag** — it is unacceptable to miss any.
@@ -27,10 +27,12 @@ extension String {
     ## ALLOWED FLAGS (use these exactly):
         \(ReportFlag.commaSeparatedList)
 
-    ## EXAMPLE OUTPUT:
+    ## EXAMPLE OUTPUT (you must match this format — but DO NOT wrap it in ```json or any Markdown code block):
     ```json
     \(ModerationAssessment.exampleJSONString)
     ```
+    
+    Return only the raw JSON. Do not include backticks, do not wrap in a code block, and do not say "Here is your result" or anything else. Only the JSON.
     """
 
     public static let accountNotVerifed: String = "This account's email hasn't been verified yet.  Would you like us to resend a link?"
