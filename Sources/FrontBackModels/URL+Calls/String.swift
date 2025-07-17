@@ -37,7 +37,7 @@ extension String {
     Return only the raw JSON. Do not include backticks, do not wrap in a code block, and do not say "Here is your result" or anything else. Only the JSON.
     """
 
-    static let questionMisunderstanding: String =
+    public static let questionMisunderstanding: String =
     """
         ✳️ For questions:
 
@@ -47,7 +47,7 @@ extension String {
         ❌ “How are you?” — While this is a valid question, it lacks the depth or relevance expected from a matchmaking prompt designed to reveal preferences, values, or personality traits.
     """
 
-    static let responseMisunderstanding: String =
+    public static let responseMisunderstanding: String =
     """
     ✳️ For responses:
 
@@ -58,7 +58,7 @@ extension String {
     ❌ Response: “What is your favorite color?” — This is not a valid answer; it’s an unrelated topic that indicates the user didn’t understand the assignment when they submitted the response.
     """
 
-    func misunderstandingAssignmentPromptNote(middleContent: String = .questionMisunderstanding) -> String {
+    public func misunderstandingAssignmentPromptNote(middleContent: String = .questionMisunderstanding) -> String {
     """
     🔧 misunderstandingAssignment — Moderation Note
     This flag is used when a user attempts to contribute content (either a question or a response) but misunderstands the intended purpose or structure of the interaction.
