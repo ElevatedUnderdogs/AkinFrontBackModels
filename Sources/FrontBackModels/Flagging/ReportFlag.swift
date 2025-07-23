@@ -34,6 +34,7 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
     case copyrightViolation = "Copyright Violation"
     case personalAttack = "Personal Attack"
     case unwantedContact = "Unwanted Contact"
+    case under18 = "Under 18"
     case profanity = "Profanity"
     case vulgarity = "Vulgarity"
     case nudity = "Nudity"
@@ -61,19 +62,23 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
         case .spam: return 10
         case .personalAttack: return 11
         case .unwantedContact: return 12
-        case .sexual: return 13
-        case .profanity: return 14
-        case .vulgarity: return 15
-        case .misunderstandingAssignment: return 16
-        case .misstyping: return 17
-        case .missSpelling: return 18
+        case .under18: return 13
+        case .sexual: return 14
+        case .profanity: return 15
+        case .vulgarity: return 16
+        case .misunderstandingAssignment: return 17
+        case .misstyping: return 18
+        case .missSpelling: return 19
         }
     }
 
-    /// For analytics/debug output.
-    public static var commaSeparatedList: String {
-        allCases.map(\.rawValue).joined(separator: ", ")
+    public static var gptModerationCommaSeparatedList: String {
+        allCases
+            .filter { $0 != .childSexualAbuseMaterial }
+            .map(\.rawValue)
+            .joined(separator: ", ")
     }
+
     public static var permissableFlags: [ReportFlag] {
         allCases.filter { !$0.isSeverelyIllegal && !$0.isAppStoreNonCompliant }
     }
@@ -81,9 +86,9 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
     public var isSeverelyIllegal: Bool {
         switch self {
         case .childSexualAbuseMaterial,
-             .promotesTerrorism,
-             .threatensPhysicalHarm,
-             .selfHarmPromotion:
+                .promotesTerrorism,
+                .threatensPhysicalHarm,
+                .selfHarmPromotion:
             return true
         default:
             return false
@@ -93,10 +98,10 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
     public var isInappropriate: Bool {
         switch self {
         case .explicitSexualContent,
-             .nudity,
-             .graphicViolence,
-             .hateSpeech,
-             .harmfulMisinformation:
+                .nudity,
+                .graphicViolence,
+                .hateSpeech,
+                .harmfulMisinformation:
             return true
         default:
             return false
@@ -106,9 +111,10 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
     public var isCommunityIssue: Bool {
         switch self {
         case .spam,
-             .copyrightViolation,
-             .personalAttack,
-             .unwantedContact:
+                .copyrightViolation,
+                .personalAttack,
+                .unwantedContact,
+                .under18:
             return true
         default:
             return false
@@ -118,12 +124,12 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
     public var isAppStoreNonCompliant: Bool {
         switch self {
         case .childSexualAbuseMaterial,
-             .promotesTerrorism,
-             .threatensPhysicalHarm,
-             .selfHarmPromotion,
-             .explicitSexualContent,
-             .graphicViolence,
-             .nudity:
+                .promotesTerrorism,
+                .threatensPhysicalHarm,
+                .selfHarmPromotion,
+                .explicitSexualContent,
+                .graphicViolence,
+                .nudity:
             return true
         default:
             return false
@@ -138,32 +144,34 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
         .explicitSexualContent,
         .graphicViolence,
         .nudity
+        // Note: under18 is NOT hidden by default
     ]
 
     public var moderationTreatment: ModerationTreatment {
         switch self {
         case .childSexualAbuseMaterial,
-             .promotesTerrorism,
-             .threatensPhysicalHarm:
+                .promotesTerrorism,
+                .threatensPhysicalHarm:
             return .shadowBan
         case .explicitSexualContent,
-             .nudity,
-             .graphicViolence,
-             .hateSpeech,
-             .selfHarmPromotion,
-             .harmfulMisinformation,
-             .sexual,
-             .profanity,
-             .vulgarity:
+                .nudity,
+                .graphicViolence,
+                .hateSpeech,
+                .selfHarmPromotion,
+                .harmfulMisinformation,
+                .sexual,
+                .profanity,
+                .vulgarity:
             return .blur
         case .spam,
-             .copyrightViolation,
-             .personalAttack,
-             .unwantedContact:
+                .copyrightViolation,
+                .personalAttack,
+                .unwantedContact,
+                .under18:
             return .deprioritize
         case .misunderstandingAssignment,
-             .misstyping,
-             .missSpelling:
+                .misstyping,
+                .missSpelling:
             return .areYouSureMessage
         }
     }
@@ -171,27 +179,28 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
     public var riskLevel: RiskLevel {
         switch self {
         case .childSexualAbuseMaterial,
-             .promotesTerrorism,
-             .threatensPhysicalHarm:
+                .promotesTerrorism,
+                .threatensPhysicalHarm:
             return .critical
         case .selfHarmPromotion,
-             .graphicViolence,
-             .hateSpeech:
+                .graphicViolence,
+                .hateSpeech:
             return .high
         case .explicitSexualContent,
-             .nudity,
-             .sexual,
-             .harmfulMisinformation,
-             .copyrightViolation,
-             .personalAttack,
-             .unwantedContact,
-             .profanity,
-             .vulgarity:
+                .nudity,
+                .sexual,
+                .harmfulMisinformation,
+                .copyrightViolation,
+                .personalAttack,
+                .unwantedContact,
+                .profanity,
+                .vulgarity:
             return .medium
         case .spam,
-             .misunderstandingAssignment,
-             .misstyping,
-             .missSpelling:
+                .under18,
+                .misunderstandingAssignment,
+                .misstyping,
+                .missSpelling:
             return .low
         }
     }
@@ -199,4 +208,18 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
 
 extension Array where Element == ReportFlag {
     public var ints: [Int] { map(\.int) }
+
+    var isChildSexualHeuristic: Bool {
+        self.contains(.childSexualAbuseMaterial) ||
+        (
+            self.contains(.under18) &&
+            (
+                self.contains(.sexual) ||
+                self.contains(.explicitSexualContent) ||
+                self.contains(.nudity) ||
+                self.contains(.graphicViolence)
+            )
+        )
+    }
 }
+

@@ -25,7 +25,7 @@ extension String {
     - The `source` must always be `"\(FlagSource.autoServerOpenAI.rawValue)"`.
 
     ## ALLOWED FLAGS (use these exactly):
-        \(ReportFlag.commaSeparatedList)
+        \(ReportFlag.gptModerationCommaSeparatedList)
     
     Note: There is a 
 
