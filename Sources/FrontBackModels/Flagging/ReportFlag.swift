@@ -13,38 +13,64 @@ import Foundation
 public enum ReportFlag: String, Codable, CaseIterable, Hashable {
 
     // 🚫 Illegal or severely harmful content (triggers shadow ban)
-    case childSexualAbuseMaterial = "Child Sexual Abuse Material"
-    case promotesTerrorism = "Promotes Terrorism"
-    case threatensPhysicalHarm = "Threatens Physical Harm"
+    case childSexualAbuseMaterial
+    case promotesTerrorism
+    case threatensPhysicalHarm
 
     // ⚠️ Harmful or abusive content (blurred or hidden by default, adjustable in user settings)
-    case hateSpeech = "Hate Speech"
-    case graphicViolence = "Graphic Violence"
+    case hateSpeech
+    case graphicViolence
 
     /// 1.1.4 Overtly sexual or pornographic material, defined by Webster’s Dictionary as “explicit descriptions or displays of sexual organs or activities intended to stimulate erotic rather than aesthetic or emotional feelings,” is not allowed on the App Store.
-    case explicitSexualContent = "Explicit Sexual Content"
-    case sexual = "Sexual Content"
-    case selfHarmPromotion = "Self-Harm Promotion"
-    case harmfulMisinformation = "Harmful Misinformation"
+    case explicitSexualContent
+    case sexual
+    case selfHarmPromotion
+    case harmfulMisinformation
 
     // TODO: profanity, vulgarity,
 
     // ⚙️ Community moderation (soft filter or deprioritized)
-    case spam = "Spam or Misleading"
-    case copyrightViolation = "Copyright Violation"
-    case personalAttack = "Personal Attack"
-    case unwantedContact = "Unwanted Contact"
-    case under18 = "Under 18"
-    case profanity = "Profanity"
-    case vulgarity = "Vulgarity"
-    case nudity = "Nudity"
+    case spam
+    case copyrightViolation
+    case personalAttack
+    case unwantedContact
+    case under18
+    case profanity
+    case vulgarity
+    case nudity
 
     // User error
     /// This is for when a user doesn't understand the ui/ux For example, a user adds an
     /// unrelated question to a question Instead of a response.
-    case misunderstandingAssignment = "Misunderstanding Assignment"
-    case misstyping = "Misstyping"
-    case missSpelling = "Misspelling"
+    case misunderstandingAssignment
+    case misstyping
+    case missSpelling
+
+    /// Human-readable string for display purposes (UI, emails, etc.)
+    public var displayName: String {
+        switch self {
+        case .childSexualAbuseMaterial: return "Child Sexual Abuse Material"
+        case .promotesTerrorism: return "Promotes Terrorism"
+        case .threatensPhysicalHarm: return "Threatens Physical Harm"
+        case .hateSpeech: return "Hate Speech"
+        case .graphicViolence: return "Graphic Violence"
+        case .explicitSexualContent: return "Explicit Sexual Content"
+        case .sexual: return "Sexual Content"
+        case .selfHarmPromotion: return "Self-Harm Promotion"
+        case .harmfulMisinformation: return "Harmful Misinformation"
+        case .spam: return "Spam or Misleading"
+        case .copyrightViolation: return "Copyright Violation"
+        case .personalAttack: return "Personal Attack"
+        case .unwantedContact: return "Unwanted Contact"
+        case .under18: return "Under 18"
+        case .profanity: return "Profanity"
+        case .vulgarity: return "Vulgarity"
+        case .nudity: return "Nudity"
+        case .misunderstandingAssignment: return "Misunderstanding Assignment"
+        case .misstyping: return "Misstyping"
+        case .missSpelling: return "Misspelling"
+        }
+    }
 
     /// Numeric ID for legacy support or analytics. Category order reflects severity from most at 0 to least.  .
     public var int: Int {
