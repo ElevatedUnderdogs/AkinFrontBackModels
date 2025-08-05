@@ -167,17 +167,14 @@ public extension ModerationAssessment {
             FlagExplanation(
                 flag: .threatensPhysicalHarm,
                 explanation: "The content contains a direct threat of physical harm.",
-                source: .autoServerOpenAI
+                source: .autoServerOpenAI,
+                aiConfidence: 0.9
             ),
             FlagExplanation(
                 flag: .sexual,
                 explanation: "The content contains a breast.",
-                source: .autoServerOpenAI
-            ),
-            FlagExplanation(
-                flag: .childSexualAbuseMaterial,
-                explanation: "There is a naked child getting flogged.",
-                source: .autoServerOpenAI
+                source: .autoServerOpenAI,
+                aiConfidence: 0.7
             )
         ])
 
