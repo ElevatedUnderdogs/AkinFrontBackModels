@@ -36,11 +36,13 @@ public struct FlagExplanation: Codable, Hashable, Equatable {
     public let flag: ReportFlag
     public let explanation: String
     public let source: FlagSource
+    public let aiConfidence: Double?
 
-    public init(flag: ReportFlag, explanation: String, source: FlagSource) {
+    public init(flag: ReportFlag, explanation: String, source: FlagSource, aiConfidence: Double?) {
         self.flag = flag
         self.explanation = explanation
         self.source = source
+        self.aiConfidence = aiConfidence
     }
 }
 
