@@ -173,7 +173,7 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
         // Note: under18 is NOT hidden by default
     ]
 
-    public var moderationTreatment: ModerationTreatment {
+    public var defaultTreatment: ModerationTreatment {
         switch self {
         case .childSexualAbuseMaterial,
                 .promotesTerrorism,
