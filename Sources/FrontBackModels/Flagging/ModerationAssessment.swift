@@ -27,8 +27,8 @@ public struct ModerationAssessment: Codable, Hashable, Equatable {
         return .allow
     }
 
-    public var treatment: ModerationTreatment {
-        entries.map(\.flag.moderationTreatment).min() ?? .allow
+    public var defaultTreatment: ModerationTreatment {
+        entries.map(\.flag.defaultTreatment).min() ?? .allow
     }
 }
 
