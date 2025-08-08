@@ -198,7 +198,7 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
         case .misunderstandingAssignment,
                 .misstyping,
                 .missSpelling:
-            return .areYouSureMessage
+            return .allow
         }
     }
 
