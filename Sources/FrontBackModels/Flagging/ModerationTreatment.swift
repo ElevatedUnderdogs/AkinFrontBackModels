@@ -16,9 +16,6 @@ public enum ModerationTreatment: String, CaseIterable, Codable, Identifiable, Co
     /// Potentially inappropriate; content is blurred or filtered unless user opts in.
     case blur
 
-    /// Warns the user before posting, optionally requiring confirmation.
-    case areYouSureMessage
-
     /// Content is allowed but shown less prominently (e.g., ranked lower).
     case deprioritize
 
@@ -33,7 +30,6 @@ public enum ModerationTreatment: String, CaseIterable, Codable, Identifiable, Co
         switch self {
         case .shadowBan: return "🕳️ Don't show me"
         case .blur: return "🌫️ Blur"
-        case .areYouSureMessage: return "⚠️ Are You Sure?"
         case .deprioritize: return "⬇️ Deprioritize"
         case .allow: return "✅ Show me"
         }
@@ -43,7 +39,6 @@ public enum ModerationTreatment: String, CaseIterable, Codable, Identifiable, Co
         switch self {
         case .shadowBan: return "Omit"
         case .blur: return "Blur"
-        case .areYouSureMessage: return "Warn"
         case .deprioritize: return "Deprioritize"
         case .allow: return "No Action"
         }
@@ -53,7 +48,6 @@ public enum ModerationTreatment: String, CaseIterable, Codable, Identifiable, Co
         switch self {
         case .shadowBan: return "🕳️"
         case .blur: return "🌫️"
-        case .areYouSureMessage: return "⚠️"
         case .deprioritize: return "⬇️"
         case .allow: return "🚫"
         }
@@ -65,8 +59,7 @@ public enum ModerationTreatment: String, CaseIterable, Codable, Identifiable, Co
         case .shadowBan: return 0
         case .blur: return 1
         case .deprioritize: return 2
-        case .areYouSureMessage: return 3
-        case .allow: return 4
+        case .allow: return 3
         }
     }
 
