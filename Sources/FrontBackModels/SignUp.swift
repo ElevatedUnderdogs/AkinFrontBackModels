@@ -38,8 +38,13 @@ public struct VenueInfo: Identifiable, Hashable, Equatable, Codable {
 }
 
 public struct ReferralSelection: Hashable, Equatable, Codable {
-    let venue: VenueInfo
-    let personName: String?
+    public let venue: VenueInfo
+    public let personName: String?
+
+    public init(venue: VenueInfo, personName: String?) {
+        self.venue = venue
+        self.personName = personName
+    }
 }
 
 extension User {
