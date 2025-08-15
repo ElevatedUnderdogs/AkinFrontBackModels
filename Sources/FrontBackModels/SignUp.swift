@@ -9,6 +9,39 @@
 import Foundation
 import EncryptDecryptKey
 
+
+// MARK: - Data shape you’ll pass back
+public struct VenueInfo: Identifiable, Hashable, Equatable, Codable {
+    /// Could be Google places id
+    public let id: UUID
+    public let name: String
+    public let address: String?
+    public let coordinate: Coordinates?
+
+    public init(
+        id: UUID = UUID(),
+        name: String,
+        address: String? = nil,
+        coordinate: Coordinates? = nil
+    ) {
+        self.id = id
+        self.name = name
+        self.address = address
+        self.coordinate = coordinate
+    }
+
+    // Equality by id only (stable identity)
+    public static func == (lhs: VenueInfo, rhs: VenueInfo) -> Bool { lhs.id == rhs.id }
+
+    // Hash by id only
+    public func hash(into hasher: inout Hasher) { hasher.combine(id) }
+}
+
+public struct ReferralSelection: Hashable, Equatable, Codable {
+    let venue: VenueInfo
+    let personName: String?
+}
+
 extension User {
 
     public struct SignUp: Codable, Hashable, Equatable {
@@ -17,6 +50,7 @@ extension User {
         public var firstName: String
         public var lastName: String
         public var errors: String = ""
+        public var referral: ReferralSelection? = nil
 
         public var acceptTermsRequest: AcceptTermsRequest
 
@@ -25,6 +59,7 @@ extension User {
             password: String? = nil,
             firstName: String? = "",
             lastName: String? = "",
+            referral: ReferralSelection?,
             acceptTermsRequest: AcceptTermsRequest
         ) {
             self.email = email ?? ""
@@ -32,6 +67,7 @@ extension User {
             self.firstName = firstName ?? ""
             self.lastName = lastName ?? ""
             self.acceptTermsRequest = acceptTermsRequest
+            self.referral = referral
             self.findErrors()
         }
 
