@@ -9,32 +9,36 @@
 import Foundation
 import EncryptDecryptKey
 
-
 // MARK: - Data shape you’ll pass back
-public struct VenueInfo: Identifiable, Hashable, Equatable, Codable {
+public struct VenueInfo: Hashable, Equatable, Codable {
     /// Could be Google places id
-    public let id: UUID
+    public let googlePlacesid: UUID
     public let name: String
-    public let address: String?
-    public let coordinate: Coordinates?
+    public let address: String
+    public let coordinates: Coordinates
+    public let url: String
 
     public init(
-        id: UUID = UUID(),
+        googlePlacesid: UUID,
         name: String,
-        address: String? = nil,
-        coordinate: Coordinates? = nil
+        address: String,
+        coordinate: Coordinates,
+        url: String
     ) {
-        self.id = id
+        self.googlePlacesid = googlePlacesid
         self.name = name
         self.address = address
-        self.coordinate = coordinate
+        self.coordinates = coordinate
+        self.url = url
     }
 
     // Equality by id only (stable identity)
-    public static func == (lhs: VenueInfo, rhs: VenueInfo) -> Bool { lhs.id == rhs.id }
+    public static func == (lhs: VenueInfo, rhs: VenueInfo) -> Bool {
+        lhs.googlePlacesid == rhs.googlePlacesid
+    }
 
     // Hash by id only
-    public func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    public func hash(into hasher: inout Hasher) { hasher.combine(googlePlacesid) }
 }
 
 public struct ReferralSelection: Hashable, Equatable, Codable {
