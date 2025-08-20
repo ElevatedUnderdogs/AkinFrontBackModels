@@ -91,6 +91,101 @@ extension Register {
     }
 }
 
+// MARK: - Data Contracts
+
+public struct ImpactVenue: Identifiable, Hashable, Codable, Equatable {
+
+    public let id: UUID
+    /// Venue name
+    public let name: String
+    public let address: String
+
+    public init(id: UUID, name: String, address: String) {
+        self.id = id
+        self.name = name
+        self.address = address
+    }
+}
+
+public struct ImpactEmployeeSummary: Identifiable, Hashable, Codable, Equatable {
+
+    public let id: UUID
+    public let employeeName: String            // Name captured on referral
+    public let referralsCount: Int            // Raw referral count
+    public let estimatedUsersSentFromReferrals: Int // Estimated users routed due to this employee's referrals
+
+    public init(
+        id: UUID,
+        displayName: String,
+        referralsCount: Int,
+        estimatedUsersSentFromReferrals: Int
+    ) {
+        self.id = id
+        self.employeeName = displayName
+        self.referralsCount = referralsCount
+        self.estimatedUsersSentFromReferrals = estimatedUsersSentFromReferrals
+    }
+}
+
+public struct ImpactEmployeeDetail: Hashable, Codable, Equatable {
+
+    public let employeeName: String
+    public let venueName: String
+    public let referralsCount: Int
+    public let estimatedUsersSentFromReferrals: Int
+    public let totalUsersSentToVenue: Int
+
+    public init(
+        displayName: String,
+        venueName: String,
+        referralsCount: Int,
+        estimatedUsersSentFromReferrals: Int,
+        totalUsersSentToVenue: Int
+    ) {
+        self.employeeName = displayName
+        self.venueName = venueName
+        self.referralsCount = referralsCount
+        self.estimatedUsersSentFromReferrals = estimatedUsersSentFromReferrals
+        self.totalUsersSentToVenue = totalUsersSentToVenue
+    }
+}
+
+/// String is search query.
+public typealias SearchSavedVenues = Request<String, ImpactVenue>
+extension SearchSavedVenues {
+
+    public static var searchSavedVenues: Self {
+        .init(method: .post)
+    }
+}
+
+///
+public typealias EmployeeLeaderboard = Request<UUID, ImpactEmployeeSummary>
+extension EmployeeLeaderboard {
+
+    public static var employeeLeaderboard: Self {
+        .init(method: .post)
+    }
+}
+
+public struct EmployeeDetailPayload {
+    public let venueID: UUID
+    public let employeeID: String
+
+    public init(venueID: UUID, employeeID: String) {
+        self.venueID = venueID
+        self.employeeID = employeeID
+    }
+}
+
+public typealias EmployeeDetail = Request<String, ImpactEmployeeDetail>
+extension EmployeeDetail {
+
+    public static var employeeDetail: Self {
+        .init(method: .post)
+    }
+}
+
 public struct NearbyEmptyStateResponse: Codable, Hashable, Equatable {
 
     // MARK: Clout
