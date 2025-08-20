@@ -18,19 +18,22 @@ public struct VenueInfo: Hashable, Equatable, Codable {
     public let address: String
     public let coordinates: Coordinates
     public let url: String
+    public let googlePlacesTypes: [String]
 
     public init(
         googlePlacesid: String,
         name: String,
         address: String,
         coordinate: Coordinates,
-        url: String
+        url: String,
+        googlePlacesTypes: [String]
     ) {
         self.googlePlacesid = googlePlacesid
         self.name = name
         self.address = address
         self.coordinates = coordinate
         self.url = url
+        self.googlePlacesTypes = googlePlacesTypes
     }
 
     // Equality by id only (stable identity)
