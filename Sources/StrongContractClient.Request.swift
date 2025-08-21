@@ -95,9 +95,13 @@ extension Register {
 
 public struct ImpactVenue: Identifiable, Hashable, Codable, Equatable {
 
+    /// Venue id
     public let id: UUID
+
     /// Venue name
     public let name: String
+    
+    /// venue address
     public let address: String
 
     public init(id: UUID, name: String, address: String) {
@@ -109,18 +113,24 @@ public struct ImpactVenue: Identifiable, Hashable, Codable, Equatable {
 
 public struct ImpactEmployeeSummary: Identifiable, Hashable, Codable, Equatable {
 
-    public let id: UUID
-    public let employeeName: String            // Name captured on referral
-    public let referralsCount: Int            // Raw referral count
-    public let estimatedUsersSentFromReferrals: Int // Estimated users routed due to this employee's referrals
+    /// Employee who is referring user/s to this app.
+    public let employeeName: String
+
+    /// The number of user/s this employee has referred to this app.
+    public let referralsCount: Int
+
+    /// Estimated user/s routed due to this employee's referrals
+    public let estimatedUsersSentFromReferrals: Int
+
+    public var id: String {
+        "\(employeeName)-\(referralsCount)-\(estimatedUsersSentFromReferrals)"
+    }
 
     public init(
-        id: UUID,
         displayName: String,
         referralsCount: Int,
         estimatedUsersSentFromReferrals: Int
     ) {
-        self.id = id
         self.employeeName = displayName
         self.referralsCount = referralsCount
         self.estimatedUsersSentFromReferrals = estimatedUsersSentFromReferrals
@@ -129,10 +139,20 @@ public struct ImpactEmployeeSummary: Identifiable, Hashable, Codable, Equatable 
 
 public struct ImpactEmployeeDetail: Hashable, Codable, Equatable {
 
+    /// Employee who is referring user/s to this app.
     public let employeeName: String
+
+    /// Venue that referred user/s to this app, OR the venue that the referrer works for.
     public let venueName: String
+
+    /// The number of user/s this employee has referred to this app.
     public let referralsCount: Int
+
+    /// Estimated users sent to the venue from this app in proportion to the referrals
+    /// Sent from their venue to this app.
     public let estimatedUsersSentFromReferrals: Int
+
+    /// Total users sent to the venue from this app regardless of the reason why sent them.
     public let totalUsersSentToVenue: Int
 
     public init(
