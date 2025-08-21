@@ -151,7 +151,7 @@ public struct ImpactEmployeeDetail: Hashable, Codable, Equatable {
 }
 
 /// String is search query.
-public typealias SearchSavedVenues = Request<String, ImpactVenue>
+public typealias SearchSavedVenues = Request<String, [ImpactVenue]>
 extension SearchSavedVenues {
 
     public static var searchSavedVenues: Self {
@@ -160,7 +160,7 @@ extension SearchSavedVenues {
 }
 
 ///
-public typealias EmployeeLeaderboard = Request<UUID, ImpactEmployeeSummary>
+public typealias EmployeeLeaderboard = Request<UUID, [ImpactEmployeeSummary]>
 extension EmployeeLeaderboard {
 
     public static var employeeLeaderboard: Self {
