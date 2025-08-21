@@ -127,11 +127,11 @@ public struct ImpactEmployeeSummary: Identifiable, Hashable, Codable, Equatable 
     }
 
     public init(
-        displayName: String,
+        employeeName: String,
         referralsCount: Int,
         estimatedUsersSentFromReferrals: Int
     ) {
-        self.employeeName = displayName
+        self.employeeName = employeeName
         self.referralsCount = referralsCount
         self.estimatedUsersSentFromReferrals = estimatedUsersSentFromReferrals
     }
