@@ -93,23 +93,26 @@ extension Register {
 
 // MARK: - Data Contracts
 
-public struct ImpactVenue: Identifiable, Hashable, Codable, Equatable {
+public struct VenueImpactSummary: Hashable, Codable, Equatable {
 
-    /// Venue id
-    public let id: UUID
+    public let venue: ImpactVenue
 
-    /// Venue name
-    public let name: String
-    
-    /// venue address
-    public let address: String
+    /// Total users sent to the venue from this app regardless of the reason why sent them.
+    public let totalUsersSentToVenue: Int
 
-    public init(id: UUID, name: String, address: String) {
-        self.id = id
-        self.name = name
-        self.address = address
+    public let employeeImpactSummaries: [ImpactEmployeeSummary]
+
+    public init(
+        venue: ImpactVenue,
+        totalUsersSentToVenue: Int,
+        employeeImpactSummaries: [ImpactEmployeeSummary]
+    ) {
+        self.venue = venue
+        self.totalUsersSentToVenue = totalUsersSentToVenue
+        self.employeeImpactSummaries = employeeImpactSummaries
     }
 }
+
 
 public struct ImpactEmployeeSummary: Identifiable, Hashable, Codable, Equatable {
 
@@ -137,39 +140,6 @@ public struct ImpactEmployeeSummary: Identifiable, Hashable, Codable, Equatable 
     }
 }
 
-public struct ImpactEmployeeDetail: Hashable, Codable, Equatable {
-
-    /// Employee who is referring user/s to this app.
-    public let employeeName: String
-
-    /// Venue that referred user/s to this app, OR the venue that the referrer works for.
-    public let venueName: String
-
-    /// The number of user/s this employee has referred to this app.
-    public let referralsCount: Int
-
-    /// Estimated users sent to the venue from this app in proportion to the referrals
-    /// Sent from their venue to this app.
-    public let estimatedUsersSentFromReferrals: Int
-
-    /// Total users sent to the venue from this app regardless of the reason why sent them.
-    public let totalUsersSentToVenue: Int
-
-    public init(
-        employeeName: String,
-        venueName: String,
-        referralsCount: Int,
-        estimatedUsersSentFromReferrals: Int,
-        totalUsersSentToVenue: Int
-    ) {
-        self.employeeName = employeeName
-        self.venueName = venueName
-        self.referralsCount = referralsCount
-        self.estimatedUsersSentFromReferrals = estimatedUsersSentFromReferrals
-        self.totalUsersSentToVenue = totalUsersSentToVenue
-    }
-}
-
 /// String is search query.
 public typealias SearchSavedVenues = Request<String, [ImpactVenue]>
 extension SearchSavedVenues {
@@ -180,28 +150,10 @@ extension SearchSavedVenues {
 }
 
 ///
-public typealias EmployeeLeaderboard = Request<UUID, [ImpactEmployeeSummary]>
+public typealias EmployeeLeaderboard = Request<UUID, VenueImpactSummary>
 extension EmployeeLeaderboard {
 
     public static var employeeLeaderboard: Self {
-        .init(method: .post)
-    }
-}
-
-public struct EmployeeDetailPayload {
-    public let venueID: UUID
-    public let employeeID: String
-
-    public init(venueID: UUID, employeeID: String) {
-        self.venueID = venueID
-        self.employeeID = employeeID
-    }
-}
-
-public typealias EmployeeDetail = Request<String, ImpactEmployeeDetail>
-extension EmployeeDetail {
-
-    public static var employeeDetail: Self {
         .init(method: .post)
     }
 }
