@@ -119,21 +119,21 @@ public struct ImpactEmployeeSummary: Identifiable, Hashable, Codable, Equatable 
     /// The number of user/s this employee has referred to this app.
     public let referralsCount: Int
 
-    /// Estimated user/s routed due to this employee's referrals
-    public let estimatedUsersSentFromReferrals: Int
+    /// Estimated user/s routed due to/attributed to this employee's referrals
+    public let usersSentToVenue: Int
 
     public var id: String {
-        "\(employeeName)-\(referralsCount)-\(estimatedUsersSentFromReferrals)"
+        "\(employeeName)-\(referralsCount)-\(usersSentToVenue)"
     }
 
     public init(
         employeeName: String,
         referralsCount: Int,
-        estimatedUsersSentFromReferrals: Int
+        usersSentToVenue: Int
     ) {
         self.employeeName = employeeName
         self.referralsCount = referralsCount
-        self.estimatedUsersSentFromReferrals = estimatedUsersSentFromReferrals
+        self.usersSentToVenue = usersSentToVenue
     }
 }
 
