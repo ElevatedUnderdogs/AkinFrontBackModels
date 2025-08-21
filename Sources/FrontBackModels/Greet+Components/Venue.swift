@@ -28,3 +28,21 @@ public struct Venue: Codable, Hashable, Equatable {
         self.longitude = longitude
     }
 }
+
+public struct ImpactVenue: Identifiable, Hashable, Codable, Equatable {
+
+    /// Venue id
+    public let id: UUID
+
+    /// Venue name
+    public let name: String
+
+    /// venue address
+    public let address: String
+
+    public init(id: UUID, name: String, address: String) {
+        self.id = id
+        self.name = name
+        self.address = address
+    }
+}
