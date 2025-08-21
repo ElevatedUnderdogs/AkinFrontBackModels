@@ -156,13 +156,13 @@ public struct ImpactEmployeeDetail: Hashable, Codable, Equatable {
     public let totalUsersSentToVenue: Int
 
     public init(
-        displayName: String,
+        employeeName: String,
         venueName: String,
         referralsCount: Int,
         estimatedUsersSentFromReferrals: Int,
         totalUsersSentToVenue: Int
     ) {
-        self.employeeName = displayName
+        self.employeeName = employeeName
         self.venueName = venueName
         self.referralsCount = referralsCount
         self.estimatedUsersSentFromReferrals = estimatedUsersSentFromReferrals
