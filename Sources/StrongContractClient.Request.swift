@@ -1064,6 +1064,25 @@ extension UpdateMidGreetSettings {
     }
 }
 
+public struct GreetEventPayload: Codable {
+
+    public let event: GreetActionEvent
+    public let greetID: UUID
+
+    public init(event: GreetActionEvent, greetID: UUID) {
+        self.event = event
+        self.greetID = greetID
+    }
+}
+
+public typealias GreetEvent = Request<GreetEventPayload, StandardPostResponse>
+extension GreetEvent {
+
+    public static var greetEvent: Self {
+        .init(method: .put)
+    }
+}
+
 public typealias UpdateScheduleRequest = Request<[Week.Day], StandardPostResponse>
 extension UpdateScheduleRequest {
     /// This is used to update when people are available to meet up with others.
