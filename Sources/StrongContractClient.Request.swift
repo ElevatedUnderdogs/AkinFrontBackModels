@@ -1068,10 +1068,22 @@ public struct GreetEventPayload: Codable {
 
     public let event: GreetActionEvent
     public let greetID: UUID
+    public let otherUserID: UUID
+    public let otherUserName: String
+    public let otherUSerEmail: String?
 
-    public init(event: GreetActionEvent, greetID: UUID) {
+    public init(
+        event: GreetActionEvent,
+        greetID: UUID,
+        otherUserID: UUID,
+        otherUserName: String,
+        otherUSerEmail: String?
+    ) {
         self.event = event
         self.greetID = greetID
+        self.otherUserID = otherUserID
+        self.otherUserName = otherUserName
+        self.otherUSerEmail = otherUSerEmail
     }
 }
 
