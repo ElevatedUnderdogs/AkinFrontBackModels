@@ -28,6 +28,8 @@ public enum GreetActionEvent: Codable {
     case pushNotifReceived(providerMessageID: UUID) // APNS
     case voipReceived(providerMessageID: UUID)      // VoIP
 
+    case rejectedViaAnotherCall
+
     // User intent (existing)
     case userTappedMeet
     case userTappedCancel
@@ -102,6 +104,7 @@ public enum GreetActionEvent: Codable {
         case .greetCanceled:                 return .greetCanceled
         case .greetExpired:                  return .greetExpired
         case .settingsUpdated:               return .settingsUpdated
+        case .rejectedViaAnotherCall:       return .rejectedViaAnotherCall
         }
     }
 
@@ -118,7 +121,7 @@ public enum GreetActionEvent: Codable {
         // Received on device – set explicit channels
         case .pushNotifReceived:
             return .applePush
-        case .voipReceived:
+        case .voipReceived, .rejectedViaAnotherCall:
             return .voicePush
 
         case .webSocketSent:
@@ -158,7 +161,7 @@ public enum GreetActionEvent: Codable {
              .userViewed, .userAgreedNow, .userAgreedToUnplannedTime,
              .userRejectNow, .userRejectToUnplannedTime, .tappedRedRejectButton,
              .tappedRedVoipReject, .distanceTravelledChanged, .exceededRange,
-             .userClosedApp, .greetCreated, .greetCanceled, .greetExpired, .settingsUpdated:
+             .userClosedApp, .greetCreated, .greetCanceled, .greetExpired, .settingsUpdated, .rejectedViaAnotherCall:
             return nil
         }
     }
@@ -182,7 +185,7 @@ public enum GreetActionEvent: Codable {
              .userViewed, .userAgreedNow, .userAgreedToUnplannedTime,
              .userRejectNow, .userRejectToUnplannedTime,
              .tappedRedRejectButton, .tappedRedVoipReject, .distanceTravelledChanged,
-             .exceededRange, .userClosedApp:
+             .exceededRange, .userClosedApp, .rejectedViaAnotherCall:
             return .user
         }
     }
@@ -249,6 +252,8 @@ public enum GreetActionType: Equatable, Hashable, Sendable {
     case greetExpired
     case settingsUpdated
 
+    case rejectedViaAnotherCall
+
     // Forward-compat: holds unknown/new strings without migrations
     case other(String)
 
@@ -299,6 +304,7 @@ public enum GreetActionType: Equatable, Hashable, Sendable {
         case .settingsUpdated:             return "settings_updated"
 
         case .other(let value):            return value
+        case .rejectedViaAnotherCall:      return "rejected_via_another_call"
         }
     }
 
