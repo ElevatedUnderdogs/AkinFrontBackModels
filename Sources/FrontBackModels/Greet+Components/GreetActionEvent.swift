@@ -7,8 +7,6 @@
 
 import Foundation
 
-
-
 // MARK: - Event enum (top-level) with helpers
 public enum GreetActionEvent: Codable {
 
@@ -41,9 +39,9 @@ public enum GreetActionEvent: Codable {
     // User intent (new)
     case userViewed
     case userAgreedNow
-    case userAgreedToUnplannedTime(chosenStart: Date)
+    case userAgreedToUnplannedTime(chosenStart: Int)
     case userRejectNow
-    case userRejectToUnplannedTime(proposedStart: Date)
+    case userRejectToUnplannedTime(proposedStart: Int)
     case tappedRedRejectButton
     case tappedRedVoipReject
 
