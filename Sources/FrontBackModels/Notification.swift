@@ -6,6 +6,18 @@
 //  Copyright © 2019 ElevatedUnderdogs. All rights reserved.
 //
 
+import Foundation
+
+public struct APNSPayload<Payload: Codable>: Codable {
+    public let payload: Payload
+    public let apnsID: UUID
+
+    public init(payload: Payload, apnsID: UUID) {
+        self.payload = payload
+        self.apnsID = apnsID
+    }
+}
+
 extension Greet {
 
     public enum Notification: Codable, Equatable, Hashable {
