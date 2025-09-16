@@ -58,6 +58,9 @@ public enum GreetActionEvent: Codable {
     case greetExpired
     case settingsUpdated
 
+    case serverFound(error: String)
+    case clientFound(error: String)
+
     /// Maps to the persisted action type as a typed enum.
     /// NOTE: You must ensure GreetActionType has corresponding cases for the new events below.
     public var action: GreetActionType {
@@ -105,6 +108,8 @@ public enum GreetActionEvent: Codable {
         case .greetExpired:                  return .greetExpired
         case .settingsUpdated:               return .settingsUpdated
         case .rejectedViaAnotherCall:       return .rejectedViaAnotherCall
+        case .serverFound:                  return .serverFound
+        case .clientFound:                   return .clientFound
         }
     }
 
@@ -134,7 +139,7 @@ public enum GreetActionEvent: Codable {
              .userRejectNow, .userRejectToUnplannedTime, .tappedRedRejectButton,
              .tappedRedVoipReject, .distanceTravelledChanged, .exceededRange,
              .userClosedApp, .greetCreated, .greetCanceled, .greetExpired, .settingsUpdated,
-             .pushProviderAccepted:
+             .pushProviderAccepted, .serverFound, .clientFound:
             return .notApplicable
         }
     }
@@ -161,7 +166,7 @@ public enum GreetActionEvent: Codable {
              .userViewed, .userAgreedNow, .userAgreedToUnplannedTime,
              .userRejectNow, .userRejectToUnplannedTime, .tappedRedRejectButton,
              .tappedRedVoipReject, .distanceTravelledChanged, .exceededRange,
-             .userClosedApp, .greetCreated, .greetCanceled, .greetExpired, .settingsUpdated, .rejectedViaAnotherCall:
+             .userClosedApp, .greetCreated, .greetCanceled, .greetExpired, .settingsUpdated, .rejectedViaAnotherCall, .serverFound, .clientFound:
             return nil
         }
     }
@@ -172,11 +177,11 @@ public enum GreetActionEvent: Codable {
         // Delivery lifecycle (server-initiated)
         case .pushQueued, .pushSent, .pushProviderAccepted, .pushFailed,
              .webSocketSent, .webSocketFailed, .fallbackTriggered, .rateLimited,
-             .greetCreated, .greetCanceled, .settingsUpdated:
+             .greetCreated, .greetCanceled, .settingsUpdated, .serverFound:
             return .server
 
         // Device acknowledged receipt; treat as system by default.
-        case .pushNotifReceived, .voipReceived, .deliveryConfirmed, .greetExpired:
+        case .pushNotifReceived, .voipReceived, .deliveryConfirmed, .greetExpired, .clientFound:
             return .system
 
         // Explicit user intents
@@ -254,6 +259,9 @@ public enum GreetActionType: Equatable, Hashable, Sendable {
 
     case rejectedViaAnotherCall
 
+    case serverFound
+    case clientFound
+
     // Forward-compat: holds unknown/new strings without migrations
     case other(String)
 
@@ -305,6 +313,8 @@ public enum GreetActionType: Equatable, Hashable, Sendable {
 
         case .other(let value):            return value
         case .rejectedViaAnotherCall:      return "rejected_via_another_call"
+        case .serverFound:                 return "server_found_error"
+        case .clientFound:                 return "client_found_error"
         }
     }
 
