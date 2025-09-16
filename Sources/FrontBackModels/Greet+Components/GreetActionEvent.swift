@@ -50,6 +50,7 @@ public enum GreetActionEvent: Codable {
 
     // Motion/geo
     case distanceTravelledChanged(totalMeters: Double)
+    case percentTravelledChanged(percent: Double)
     case exceededRange(currentMeters: Double, allowedMeters: Double)
 
     // App/system state
@@ -114,6 +115,7 @@ public enum GreetActionEvent: Codable {
         case .rejectedViaAnotherCall:          return "rejected_via_another_call"
         case .serverFound:                     return "server_found_error"
         case .clientFound:                     return "client_found_error"
+        case .percentTravelledChanged:      return "percent_travelled_changed"
         }
     }
 
@@ -147,7 +149,7 @@ public enum GreetActionEvent: Codable {
              .userRejectNow, .userRejectToUnplannedTime, .tappedRedRejectButton,
              .tappedRedVoipReject, .distanceTravelledChanged, .exceededRange,
              .userClosedApp, .greetCreated, .greetCanceled, .greetExpired, .settingsUpdated,
-             .pushProviderAccepted, .serverFound, .clientFound:
+             .pushProviderAccepted, .serverFound, .clientFound, .percentTravelledChanged:
             return .notApplicable
         }
     }
@@ -191,6 +193,8 @@ public enum GreetActionEvent: Codable {
              .userClosedApp, .greetCreated, .greetCanceled, .greetExpired, .settingsUpdated,
              .rejectedViaAnotherCall:
             return nil
+        case .percentTravelledChanged(percent: let percent):
+            return percent.string
         }
     }
 
@@ -213,7 +217,7 @@ public enum GreetActionEvent: Codable {
              .userViewed, .userAgreedNow, .userAgreedToUnplannedTime,
              .userRejectNow, .userRejectToUnplannedTime,
              .tappedRedRejectButton, .tappedRedVoipReject, .distanceTravelledChanged,
-             .exceededRange, .userClosedApp, .rejectedViaAnotherCall:
+             .exceededRange, .userClosedApp, .rejectedViaAnotherCall, .percentTravelledChanged:
             return .user
         }
     }
