@@ -1064,6 +1064,15 @@ extension UpdateMidGreetSettings {
     }
 }
 
+public typealias CheckForActiveGreet = Request<Empty, Greet.Notification>
+
+extension CheckForActiveGreet {
+
+    public static var checkForActiveGreet: Self {
+        .init(method: .get)
+    }
+}
+
 public struct GreetEventPayload: Codable {
 
     public let event: GreetActionEvent
