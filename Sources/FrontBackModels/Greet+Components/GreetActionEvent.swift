@@ -63,6 +63,8 @@ public enum GreetActionEvent: Codable {
     case serverFound(error: String)
     case clientFound(error: String)
 
+    case userConfirmedMet
+
     // MARK: Persisted action string
 
     /// Stable, database-friendly identifier for this event.
@@ -116,6 +118,8 @@ public enum GreetActionEvent: Codable {
         case .serverFound:                     return "server_found_error"
         case .clientFound:                     return "client_found_error"
         case .percentTravelledChanged:      return "percent_travelled_changed"
+        case .userConfirmedMet:
+            return "user_confirmed_met"
         }
     }
 
@@ -149,7 +153,7 @@ public enum GreetActionEvent: Codable {
              .userRejectNow, .userRejectToUnplannedTime, .tappedRedRejectButton,
              .tappedRedVoipReject, .distanceTravelledChanged, .exceededRange,
              .userClosedApp, .greetCreated, .greetCanceled, .greetExpired, .settingsUpdated,
-             .pushProviderAccepted, .serverFound, .clientFound, .percentTravelledChanged:
+             .pushProviderAccepted, .serverFound, .clientFound, .percentTravelledChanged, .userConfirmedMet:
             return .notApplicable
         }
     }
@@ -191,7 +195,7 @@ public enum GreetActionEvent: Codable {
              .userRejectNow, .userRejectToUnplannedTime, .tappedRedRejectButton,
              .tappedRedVoipReject, .distanceTravelledChanged, .exceededRange,
              .userClosedApp, .greetCreated, .greetCanceled, .greetExpired, .settingsUpdated,
-             .rejectedViaAnotherCall:
+             .rejectedViaAnotherCall, .userConfirmedMet:
             return nil
         case .percentTravelledChanged(percent: let percent):
             return percent.string
@@ -217,7 +221,7 @@ public enum GreetActionEvent: Codable {
              .userViewed, .userAgreedNow, .userAgreedToUnplannedTime,
              .userRejectNow, .userRejectToUnplannedTime,
              .tappedRedRejectButton, .tappedRedVoipReject, .distanceTravelledChanged,
-             .exceededRange, .userClosedApp, .rejectedViaAnotherCall, .percentTravelledChanged:
+             .exceededRange, .userClosedApp, .rejectedViaAnotherCall, .percentTravelledChanged, .userConfirmedMet:
             return .user
         }
     }
