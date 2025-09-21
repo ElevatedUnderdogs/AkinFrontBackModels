@@ -1064,7 +1064,7 @@ extension UpdateMidGreetSettings {
     }
 }
 
-public typealias CheckForActiveGreet = Request<Empty, Greet.Notification>
+public typealias CheckForActiveGreet = Request<Empty, Greet.Notification?>
 
 extension CheckForActiveGreet {
 
