@@ -217,6 +217,8 @@ public struct UpdateEmailResponse: Codable {
 public enum ManualGreetResponse: Codable {
     case notification(ManualGreetNotification)
     case otherUserIsInGreet
+    case thisUserIsInGreet
+    case thisAndOtherUserAlreadyInSameGreet
 }
 
 public struct ManualGreetNotification: Codable {
