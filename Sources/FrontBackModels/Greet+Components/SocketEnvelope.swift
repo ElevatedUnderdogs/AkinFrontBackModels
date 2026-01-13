@@ -10,4 +10,5 @@ import Foundation
 public enum SocketPayload: Codable {
     case greetUpdate(Greet.Notification)
     case nearbyUserUpdate
+    case pong
 }
