@@ -18,7 +18,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/scott-lydon/EncryptDecryptKey.git", from: "1.1.2"),
         // Add StrongContractClient package dependency
-        .package(url: "https://github.com/scott-lydon/StrongContractClient.git", from: "10.0.2"),
+        .package(url: "https://github.com/scott-lydon/StrongContractClient.git", from: "10.1.0"),
     ],
     targets: [
         .target(
