@@ -128,7 +128,7 @@ public struct VenueImpactSummary: Hashable, Codable, Equatable {
 ///   ```
 public struct PayloadWithEvent<Payload: Codable>: Codable {
     public let oldPayload: Payload
-    public let event: GreetActionEvent
+    public let event: GreetLogEvent
 
     /// Creates a payload that augments the original body with a `GreetActionEvent`.
     /// - Parameters:
@@ -136,7 +136,7 @@ public struct PayloadWithEvent<Payload: Codable>: Codable {
     ///   - event: The client-side action metadata (`GreetActionEvent`).
     public init(
         oldPayload: Payload,
-        event: GreetActionEvent
+        event: GreetLogEvent
     ) {
         self.oldPayload = oldPayload
         self.event = event
@@ -1075,14 +1075,14 @@ extension CheckForActiveGreet {
 
 public struct GreetEventPayload: Codable {
 
-    public let event: GreetActionEvent
+    public let event: GreetLogEvent
     public let greetID: UUID
     public let otherUserID: UUID
     public let otherUserName: String
     public let otherUSerEmail: String?
 
     public init(
-        event: GreetActionEvent,
+        event: GreetLogEvent,
         greetID: UUID,
         otherUserID: UUID,
         otherUserName: String,
@@ -1096,8 +1096,8 @@ public struct GreetEventPayload: Codable {
     }
 }
 
-public typealias GreetEvent = Request<GreetEventPayload, StandardPostResponse>
-extension GreetEvent {
+public typealias GreetEventRequest = Request<GreetEventPayload, StandardPostResponse>
+extension GreetEventRequest {
 
     public static var greetEvent: Self {
         .init(method: .put)
