@@ -14,4 +14,8 @@ extension Int {
     }
 
     public var boolValue: Bool { self != 0 }
+
+    var double: Double {
+        Double(self)
+    }
 }

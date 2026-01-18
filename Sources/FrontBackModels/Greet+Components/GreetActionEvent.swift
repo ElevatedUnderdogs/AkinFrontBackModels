@@ -7,8 +7,84 @@
 
 import Foundation
 
+public struct FullGreetEventLedger: Codable, Sendable {
+
+    public let greetID: UUID
+    public let participantUserIDs: [UUID]
+    public let events: [GreetEvent]
+
+    public var latestServerSequenceNumber: Int {
+        events.last?.serverSequenceNumber ?? 0
+    }
+}
+
+public struct GreetEvent: Codable, Sendable, Hashable {
+
+    /// Stable identity for this event (idempotency, debugging).
+    public let eventID: UUID
+
+    /// Monotonic ordering number assigned by the server, scoped to greetID.
+    public let serverSequenceNumber: Int
+
+    /// The user who authored the action.
+    public let actorUserID: UUID
+
+    /// Server-side timestamp.
+    public let serverDate: Date
+
+    /// Client Date
+
+    /// Domain action.
+    public let action: GreetAction
+}
+
 // MARK: - Event enum (top-level) with helpers
-public enum GreetActionEvent: Codable {
+public enum GreetAction: Codable, Sendable, Hashable, Equatable {
+
+    /// When a user taps or swipes on another user to try to meet them now.
+    ///  **UI Effect:**
+    /// It can affect the alert text, instead of "We think you may want to meet", "They'd like to meet you".
+    case manualGreetInitiated
+
+    /// The associated value represents a time from the agreement to meet that they would like to leave.
+    ///  For example, if both agree to meet in 30 minutes at 5:00PM, then both users should aim to start traveling no later than
+    ///  5:30PM
+    ///  **UI Effect:** May prompt a user asking if they would like to meet at an alternative time.
+    case agreedToMeet(Int)
+
+    /// The current verbiage in the app ui is "dismiss" which is essentially rejecting the meetup with the other person
+    /// altogether.
+    ///  **UI Effect:** Should navigate to a "sorry it didn't work out screen"
+    case dismissGreet
+
+    /// In the negotiation
+    case rejectTime(Int)
+
+    /// A rejection of the other user.
+    case closeApp
+
+    /// Associated value in minutes.
+    case travelTimeToVenueUpdate(start: Int, current: Int)
+
+    ///
+    case confirmedMet
+
+    case rated(Int, outOf: Int)
+
+    /// If you are moving in a way that the travel time is growing past a certain point/allowance,
+    ///  then the greet may auto close.  When current > (start + allowance), then auto-close.
+    /// - starting travel time.
+    /// - allowance
+    /// - current travel time.
+    case exceededTravelTimeAllowance(start: Int, allowance: Int, current: Int)
+
+    case tappedRedVoipReject
+}
+
+// MARK: - Event enum (top-level) with helpers
+public enum GreetLogEvent: Codable {
+
+    case greetAction(GreetAction)
 
     // Delivery lifecycle
     case pushQueued(channel: GreetActionChannel, providerMessageID: UUID?)
@@ -31,39 +107,18 @@ public enum GreetActionEvent: Codable {
 
     case rejectedViaAnotherCall
 
-    // User intent (existing)
-    case userTappedMeet
-    case userTappedCancel
-    case userTappedDismiss
-    case userSelectedLater30m
-    case userAgreedLater30m
-    case userRejectedLater30m
-
-    // User intent (new)
+    // User intent
     case userViewed
-    case userAgreedNow
-    case userAgreedToUnplannedTime(chosenStart: Int)
-    case userRejectNow
-    case userRejectToUnplannedTime(proposedStart: Int)
-    case tappedRedRejectButton
-    case tappedRedVoipReject
-
-    // Motion/geo
-    case distanceTravelledChanged(totalMeters: Double)
-    case percentTravelledChanged(percent: Double)
-    case exceededRange(currentMeters: Double, allowedMeters: Double)
 
     // App/system state
-    case userClosedApp
     case greetCreated
-    case greetCanceled
+
+    /// Nobody acted on it within a time frame.
     case greetExpired
     case settingsUpdated
 
     case serverFound(error: String)
     case clientFound(error: String)
-
-    case userConfirmedMet
 
     // MARK: Persisted action string
 
@@ -71,55 +126,99 @@ public enum GreetActionEvent: Codable {
     /// Use this when persisting the "action" column.
     public var action: String {
         switch self {
-        // Delivery lifecycle
-        case .pushQueued:                      return "push_queued"
-        case .pushSent:                        return "push_sent"
-        case .pushProviderAccepted:            return "push_provider_accepted"
-        case .pushFailed:                      return "push_failed"
-        case .webSocketSent:                   return "websocket_sent"
-        case .webSocketFailed:                 return "websocket_failed"
-        case .deliveryConfirmed:               return "delivery_confirmed"
-        case .fallbackTriggered:               return "fallback_triggered"
-        case .rateLimited:                     return "rate_limited"
 
-        // Received on device
-        case .pushNotifReceived:               return "push_notif_received"
-        case .voipReceived:                    return "voip_received"
+        // MARK: - Shared greet actions (wrapped)
+        case .greetAction(let greetAction):
+            switch greetAction {
 
-        // User intent (existing)
-        case .userTappedMeet:                  return "user_tapped_meet"
-        case .userTappedCancel:                return "user_tapped_cancel"
-        case .userTappedDismiss:               return "user_tapped_dismiss"
-        case .userSelectedLater30m:            return "user_selected_later_30m"
-        case .userAgreedLater30m:              return "user_agreed_later_30m"
-        case .userRejectedLater30m:            return "user_rejected_later_30m"
+            case .manualGreetInitiated:
+                return "manual_greet_initiated"
 
-        // User intent (new)
-        case .userViewed:                      return "user_viewed"
-        case .userAgreedNow:                   return "user_agreed_now"
-        case .userAgreedToUnplannedTime:       return "user_agreed_to_unplanned_time"
-        case .userRejectNow:                   return "user_reject_now"
-        case .userRejectToUnplannedTime:       return "user_reject_to_unplanned_time"
-        case .tappedRedRejectButton:           return "tapped_red_reject_button"
-        case .tappedRedVoipReject:             return "tapped_red_voip_reject"
+            case .agreedToMeet:
+                return "agreed_to_meet"
 
-        // Motion/geo
-        case .distanceTravelledChanged:        return "distance_travelled_changed"
-        case .exceededRange:                   return "exceeded_range"
+            case .dismissGreet:
+                return "dismiss_greet"
 
-        // App/system state
-        case .userClosedApp:                   return "user_closed_app"
-        case .greetCreated:                    return "greet_created"
-        case .greetCanceled:                   return "greet_canceled"
-        case .greetExpired:                    return "greet_expired"
-        case .settingsUpdated:                 return "settings_updated"
+            case .rejectTime:
+                return "reject_time"
 
-        case .rejectedViaAnotherCall:          return "rejected_via_another_call"
-        case .serverFound:                     return "server_found_error"
-        case .clientFound:                     return "client_found_error"
-        case .percentTravelledChanged:      return "percent_travelled_changed"
-        case .userConfirmedMet:
-            return "user_confirmed_met"
+            case .closeApp:
+                return "close_app"
+
+            case .travelTimeToVenueUpdate:
+                return "travel_time_to_venue_update"
+
+            case .confirmedMet:
+                return "confirmed_met"
+
+            case .rated:
+                return "rated"
+
+            case .exceededTravelTimeAllowance:
+                return "exceeded_travel_time_allowance"
+
+            case .tappedRedVoipReject:
+                return "tapped_red_voip_reject"
+            }
+
+        // MARK: - Delivery lifecycle
+        case .pushQueued:
+            return "push_queued"
+
+        case .pushSent:
+            return "push_sent"
+
+        case .pushProviderAccepted:
+            return "push_provider_accepted"
+
+        case .pushFailed:
+            return "push_failed"
+
+        case .webSocketSent:
+            return "websocket_sent"
+
+        case .webSocketFailed:
+            return "websocket_failed"
+
+        case .deliveryConfirmed:
+            return "delivery_confirmed"
+
+        case .fallbackTriggered:
+            return "fallback_triggered"
+
+        case .rateLimited:
+            return "rate_limited"
+
+        // MARK: - Received on device
+        case .pushNotifReceived:
+            return "push_notif_received"
+
+        case .voipReceived:
+            return "voip_received"
+
+        // MARK: - User / app state
+        case .userViewed:
+            return "user_viewed"
+
+        case .greetCreated:
+            return "greet_created"
+
+        case .greetExpired:
+            return "greet_expired"
+
+        case .settingsUpdated:
+            return "settings_updated"
+
+        case .rejectedViaAnotherCall:
+            return "rejected_via_another_call"
+
+        // MARK: - Error reporting
+        case .serverFound:
+            return "server_found_error"
+
+        case .clientFound:
+            return "client_found_error"
         }
     }
 
@@ -146,14 +245,9 @@ public enum GreetActionEvent: Codable {
         case .webSocketSent:
             return .websocket
 
-        case .webSocketFailed, .rateLimited,
-             .userTappedMeet, .userTappedCancel, .userTappedDismiss,
-             .userSelectedLater30m, .userAgreedLater30m, .userRejectedLater30m,
-             .userViewed, .userAgreedNow, .userAgreedToUnplannedTime,
-             .userRejectNow, .userRejectToUnplannedTime, .tappedRedRejectButton,
-             .tappedRedVoipReject, .distanceTravelledChanged, .exceededRange,
-             .userClosedApp, .greetCreated, .greetCanceled, .greetExpired, .settingsUpdated,
-             .pushProviderAccepted, .serverFound, .clientFound, .percentTravelledChanged, .userConfirmedMet:
+        case .webSocketFailed, .rateLimited, .greetAction,
+             .userViewed, .greetCreated, .greetExpired, .settingsUpdated,
+             .pushProviderAccepted, .serverFound, .clientFound:
             return .notApplicable
         }
     }
@@ -188,17 +282,15 @@ public enum GreetActionEvent: Codable {
 
         case .pushFailed,
              .webSocketSent, .webSocketFailed,
-             .fallbackTriggered, .rateLimited,
-             .userTappedMeet, .userTappedCancel, .userTappedDismiss,
-             .userSelectedLater30m, .userAgreedLater30m, .userRejectedLater30m,
-             .userViewed, .userAgreedNow, .userAgreedToUnplannedTime,
-             .userRejectNow, .userRejectToUnplannedTime, .tappedRedRejectButton,
-             .tappedRedVoipReject, .distanceTravelledChanged, .exceededRange,
-             .userClosedApp, .greetCreated, .greetCanceled, .greetExpired, .settingsUpdated,
-             .rejectedViaAnotherCall, .userConfirmedMet:
+             .fallbackTriggered, .rateLimited, .userViewed,
+              .greetCreated, .greetExpired, .settingsUpdated,
+             .rejectedViaAnotherCall:
             return nil
-        case .percentTravelledChanged(percent: let percent):
-            return percent.string
+        case .greetAction(let action):
+            if case let .travelTimeToVenueUpdate(start, current) = action {
+                return ((start - current).double/start.double).string
+            }
+            return nil
         }
     }
 
@@ -208,7 +300,7 @@ public enum GreetActionEvent: Codable {
         // Delivery lifecycle (server-initiated)
         case .pushQueued, .pushSent, .pushProviderAccepted, .pushFailed,
              .webSocketSent, .webSocketFailed, .fallbackTriggered, .rateLimited,
-             .greetCreated, .greetCanceled, .settingsUpdated, .serverFound:
+             .greetCreated, .settingsUpdated, .serverFound:
             return .server
 
         // Device acknowledged receipt; treat as system by default.
@@ -216,12 +308,8 @@ public enum GreetActionEvent: Codable {
             return .system
 
         // Explicit user intents
-        case .userTappedMeet, .userTappedCancel, .userTappedDismiss,
-             .userSelectedLater30m, .userAgreedLater30m, .userRejectedLater30m,
-             .userViewed, .userAgreedNow, .userAgreedToUnplannedTime,
-             .userRejectNow, .userRejectToUnplannedTime,
-             .tappedRedRejectButton, .tappedRedVoipReject, .distanceTravelledChanged,
-             .exceededRange, .userClosedApp, .rejectedViaAnotherCall, .percentTravelledChanged, .userConfirmedMet:
+        case .greetAction,
+             .userViewed, .rejectedViaAnotherCall:
             return .user
         }
     }
