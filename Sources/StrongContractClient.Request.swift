@@ -1042,7 +1042,12 @@ extension ModeratePicRequest {
     }
 }
 
-public typealias SendGreetEvent = Request<GreetAction, GreetEvent>
+public struct GreetActionPayload: Equatable, Codable, Hashable {
+    let greetAction: GreetAction
+    let greetID: UUID
+}
+
+public typealias SendGreetEvent = Request<GreetActionPayload, GreetEvent>
 extension SendGreetEvent {
 
     public static var sendGreetEvent: Self {
@@ -1115,7 +1120,7 @@ public struct GreetEventPayload: Codable {
 public typealias GreetEventRequest = Request<GreetEventPayload, StandardPostResponse>
 extension GreetEventRequest {
 
-    public static var greetEvent: Self {
+    public static var logGreetEvent: Self {
         .init(method: .put)
     }
 }
