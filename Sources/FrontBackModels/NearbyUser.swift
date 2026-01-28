@@ -34,16 +34,16 @@ public struct NearbyUser: Codable, Hashable, Equatable {
         self.verified = verified
     }
 
-    public var placeholderGreetUser: Greet.User {
-        Greet.User(
-            nearbyUser: self,
-            percentTravelled: nil,
-            imageInfo: nil,
-            minutesFromPoint: nil,
-            settings: nil,
-            id: id
-        )
-    }
+//    public var placeholderGreetUser: NearbyUser {
+//        NearbyUser(
+//            nearbyUser: self,
+//            percentTravelled: nil,
+//            imageInfo: nil,
+//            minutesFromPoint: nil,
+//            settings: nil,
+//            id: id
+//        )
+//    }
 }
 
 public struct ProfileImageDetails: Codable {

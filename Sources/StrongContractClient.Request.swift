@@ -859,11 +859,11 @@ public struct NearbyUserRequest: Codable, Hashable, Equatable {
 }
 
 public struct NearbyUserResponse: Codable, Hashable, Equatable {
-    public let nearbyMembers: [Greet.User]
+    public let nearbyMembers: [NearbyUser]
     public let hideStatusAutomatic: Bool
     public let hideStatusManual: Bool
 
-    public init(nearbyMembers: [Greet.User], hideStatusAutomatic: Bool, hideStatusManual: Bool) {
+    public init(nearbyMembers: [NearbyUser], hideStatusAutomatic: Bool, hideStatusManual: Bool) {
         self.nearbyMembers = nearbyMembers
         self.hideStatusAutomatic = hideStatusAutomatic
         self.hideStatusManual = hideStatusManual
@@ -872,7 +872,7 @@ public struct NearbyUserResponse: Codable, Hashable, Equatable {
 
 public typealias NearbyUsersRequest = Request<NearbyUserRequest, NearbyUserResponse>
 
-/// Change the result back to Greet.User so that I can switch back and forth on the server side
+/// Change the result back to NearbyUser so that I can switch back and forth on the server side
 /// with little consequences this way, and just know to not use the nil properties, or not expect
 /// much, but the current ui doesn't use those nil properties anyway except one point to try to
 /// get an image from data, but we shouldn't be sending nested data in a list anyway, we should
@@ -1042,27 +1042,43 @@ extension ModeratePicRequest {
     }
 }
 
-public typealias UpdateGreetRequest = Request<PayloadWithEvent<Greet>, Greet>
-extension UpdateGreetRequest {
-    /// Send other user updates to the Greet. For example, if the user exceeded the range of the meetup location.
-    /// Look to the Greet Unit tests to get a sense of which combination of events create which outcomes.
-    /// - Parameters:
-    ///   - payload: Sends the current greet (Meet up object) updated by the user information.
-    ///   - response: Returns a Greet that is updated by the other user information.
-    public static var updateGreet: Self {
-        .init(method: .put)
+public typealias SendGreetEvent = Request<GreetAction, GreetEvent>
+extension SendGreetEvent {
+
+    public static var sendGreetEvent: Self {
+        .init(method: .post)
     }
 }
 
-public typealias UpdateMidGreetSettings = Request<PayloadWithEvent<Greet.Settings>, StandardPostResponse>
-extension UpdateMidGreetSettings {
-    /// Deprecates: `URLRequest.update(midGreetSettings: self.greet.thisSettings)?.post.task()`
-    /// There are multiple phases and permutations that users go through during the meetup process.
-    /// This sends the user's intention to conclude the greet either because the users met up, or because this user wants to reject the meetup.
-    public static var updateMidGreetSettings: Self {
-        .init(method: .put)
+public typealias GetGreetByID = Request<UUID, Greet>
+extension GetGreetByID {
+
+    public static var getGreetByID: Self {
+        .init(method: .post)
     }
 }
+//
+//public typealias UpdateGreetRequest = Request<PayloadWithEvent<Greet>, Greet>
+//extension UpdateGreetRequest {
+//    /// Send other user updates to the Greet. For example, if the user exceeded the range of the meetup location.
+//    /// Look to the Greet Unit tests to get a sense of which combination of events create which outcomes.
+//    /// - Parameters:
+//    ///   - payload: Sends the current greet (Meet up object) updated by the user information.
+//    ///   - response: Returns a Greet that is updated by the other user information.
+//    public static var updateGreet: Self {
+//        .init(method: .put)
+//    }
+//}
+//
+//public typealias UpdateMidGreetSettings = Request<PayloadWithEvent<Greet.Settings>, StandardPostResponse>
+//extension UpdateMidGreetSettings {
+//    /// Deprecates: `URLRequest.update(midGreetSettings: self.greet.thisSettings)?.post.task()`
+//    /// There are multiple phases and permutations that users go through during the meetup process.
+//    /// This sends the user's intention to conclude the greet either because the users met up, or because this user wants to reject the meetup.
+//    public static var updateMidGreetSettings: Self {
+//        .init(method: .put)
+//    }
+//}
 
 public typealias CheckForActiveGreet = Request<Empty, Greet.Notification?>
 

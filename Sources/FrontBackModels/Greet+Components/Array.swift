@@ -29,8 +29,8 @@ extension Array where Element == Greet.Method  {
     }
 }
 
-extension Array where Element == Greet.User {
+extension Array where Element == NearbyUser {
     public func index(of id: UUID) -> Int? {
-        firstIndex { $0.personal.id == id }
+        firstIndex { $0.id == id }
     }
 }

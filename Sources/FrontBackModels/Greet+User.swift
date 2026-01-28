@@ -1,5 +1,5 @@
 //
-//  Greet.User.swift
+//  NearbyUser.swift
 //  akin
 //
 //  Created by Scott Lydon on 8/4/19.
@@ -8,45 +8,50 @@
 
 import Foundation
 
-extension Greet {
-
-    public struct User: Codable, Equatable, Hashable {
-        public var personal: NearbyUser
-        /// **BACKEND perspective**Sending percent travelled of the updating user to the recipient user.
-        /// **Client perspective** The other user's percent travelled for the *TravelProgressCell*
-        public var percentTravelled: Double? = nil
-        public var imageInfo: ImageInfo? = nil
-        public var minutesFromPoint: Int? = nil
-        public var settings: Greet.Settings? = nil
-        public var id: UUID
-        
-
-        /// <#Description#>
-        /// - Parameters:
-        ///   - nearbyUser: <#nearbyUser description#>
-        ///   - percentTravelled: <#percentTravelled description#>
-        ///   - image: <#image description#>
-        ///   - minutesFromPoint: Is this supposed to be minutes away from a central meeting location or minutes away from the other user.
-        ///   I think this solves a problem I was having.  I was worried about people triangulating exact locations of people, however, if instead
-        ///   of showing how near someone is to someone else, perhaps I can
-        ///   - settings: <#settings description#>
-        public init(
-            nearbyUser: NearbyUser,
-            percentTravelled: Double? = nil,
-            imageInfo: ImageInfo? = nil,
-            minutesFromPoint: Int? = nil,
-            settings: Greet.Settings? = nil,
-            id: UUID
-        ) {
-            self.personal = nearbyUser
-            self.percentTravelled = percentTravelled
-            self.imageInfo = imageInfo
-            self.minutesFromPoint = minutesFromPoint
-            self.settings = settings
-            self.id = id
-        }
-    }
-}
+//extension Greet {
+//
+//    @available(*, deprecated, renamed: "NearbyUser", message: "This has redundant properties. Please use NearbyUser instead.")
+////    public struct User: Codable, Equatable, Hashable {
+////        public var personal: NearbyUser
+////        /// **BACKEND perspective**Sending percent travelled of the updating user to the recipient user.
+////        /// **Client perspective** The other user's percent travelled for the *TravelProgressCell*
+////        public var percentTravelled: Double? = nil
+////        public var imageInfo: ImageInfo? = nil
+////        public var minutesFromPoint: Int? = nil
+////        public var settings: Greet.Settings? = nil
+////        public var id: UUID
+////        
+////
+////        /// <#Description#>
+////        /// - Parameters:
+////        ///   - nearbyUser: <#nearbyUser description#>
+////        ///   - percentTravelled: <#percentTravelled description#>
+////        ///   - image: <#image description#>
+////        ///   - minutesFromPoint: Is this supposed to be minutes away from a central meeting location or minutes away from the other user.
+////        ///   I think this solves a problem I was having.  I was worried about people triangulating exact locations of people, however, if instead
+////        ///   of showing how near someone is to someone else, perhaps I can
+////        ///   - settings: <#settings description#>
+////        public init(
+////            nearbyUser: NearbyUser,
+////            percentTravelled: Double? = nil,
+////            imageInfo: ImageInfo? = nil,
+////            minutesFromPoint: Int? = nil,
+////            settings: Greet.Settings? = nil,
+////            id: UUID
+////        ) {
+////            self.personal = nearbyUser
+////            self.percentTravelled = percentTravelled
+////            self.imageInfo = imageInfo
+////            self.minutesFromPoint = minutesFromPoint
+////            self.settings = settings
+////            self.id = id
+////        }
+////
+////        var cloudFlareURL: URL? {
+////            imageInfo?.imageStorageURL.url ?? personal.profileImages.first?.url
+////        }
+////    }
+//}
 
 extension String {
 
@@ -58,22 +63,22 @@ extension String {
     }
 }
 
-
-public extension Greet.User {
-
-    var cloudFlareImageStrings: [String] {
-        personal.profileImages + [imageInfo?.imageStorageURL].compactMap { $0 }
-    }
-
-    var cloudFlareImageIds: Set<String> {
-        Set(cloudFlareImageStrings.map(\.imageIDFromString))
-    }
-
-//    var cloudFlareURL: URL? {
-//        print("final strings: \(cloudFlareImageIds)")
-//        guard let cloudFlareImageID = cloudFlareImageIds.first else {
-//            return nil
-//        }
-//        return URL.cloudflareImageURL(imageID: cloudFlareImageID)
+//
+//public extension NearbyUser {
+//
+//    var cloudFlareImageStrings: [String] {
+//        personal.profileImages + [imageInfo?.imageStorageURL].compactMap { $0 }
 //    }
-}
+//
+//    var cloudFlareImageIds: Set<String> {
+//        Set(cloudFlareImageStrings.map(\.imageIDFromString))
+//    }
+//
+////    var cloudFlareURL: URL? {
+////        print("final strings: \(cloudFlareImageIds)")
+////        guard let cloudFlareImageID = cloudFlareImageIds.first else {
+////            return nil
+////        }
+////        return URL.cloudflareImageURL(imageID: cloudFlareImageID)
+////    }
+//}
