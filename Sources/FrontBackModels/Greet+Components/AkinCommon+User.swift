@@ -8,7 +8,7 @@
 
 import Foundation
 
-public typealias UsersAction = ([Greet.User]) -> Void
+public typealias UsersAction = ([NearbyUser]) -> Void
 
 public struct User: Codable {
 

@@ -9,10 +9,10 @@ import Foundation
 
 /// A web socket message used for real time Nearby User updates.
 public enum NearbyUserMessage: Codable {
-    case addUser(Greet.User)
+    case addUser(NearbyUser)
     case removeUser(UUID)
-    case updateUser(Greet.User)
-    case resetAll([Greet.User])
+    case updateUser(NearbyUser)
+    case resetAll([NearbyUser])
 
     public enum CodingKeys: String, CodingKey {
         case type, user, userID, users
@@ -31,16 +31,16 @@ public enum NearbyUserMessage: Codable {
 
         switch type {
         case .addUser:
-            let user = try container.decode(Greet.User.self, forKey: .user)
+            let user = try container.decode(NearbyUser.self, forKey: .user)
             self = .addUser(user)
         case .removeUser:
             let userID = try container.decode(UUID.self, forKey: .userID)
             self = .removeUser(userID)
         case .updateUser:
-            let user = try container.decode(Greet.User.self, forKey: .user)
+            let user = try container.decode(NearbyUser.self, forKey: .user)
             self = .updateUser(user)
         case .resetAll:
-            let users = try container.decode([Greet.User].self, forKey: .users)
+            let users = try container.decode([NearbyUser].self, forKey: .users)
             self = .resetAll(users)
         }
     }

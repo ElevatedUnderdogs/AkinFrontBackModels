@@ -145,9 +145,19 @@ extension String {
         Return only the JSON. Do not include extra text or formatting.
         """
     }
-}
 
-extension String {
+    /// Converts `pushProviderAccepted` → `push_provider_accepted`
+    var snakeCased: String {
+        unicodeScalars.reduce(into: "") { result, scalar in
+            if CharacterSet.uppercaseLetters.contains(scalar) {
+                if !result.isEmpty { result.append("_") }
+                result.append(Character(scalar).lowercased())
+            } else {
+                result.append(Character(scalar))
+            }
+        }
+    }
+
     /// Attempts to decode a moderation assessment from the string, assuming it's the LLM's JSON response.
     /// Returns an empty assessment if decoding fails.
     public func moderationAssessment() throws -> ModerationAssessment {

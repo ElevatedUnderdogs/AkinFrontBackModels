@@ -7,82 +7,192 @@
 
 import Foundation
 
-public struct FullGreetEventLedger: Codable, Sendable {
+public struct InstructionCellContents: Equatable {
+    let venueNaeme: String
+    let targetMeetTime: Date
 
-    public let greetID: UUID
-    public let participantUserIDs: [UUID]
-    public let events: [GreetEvent]
 
-    public var latestServerSequenceNumber: Int {
-        events.last?.serverSequenceNumber ?? 0
+    public static func == (
+        left: InstructionCellContents,
+        right: InstructionCellContents
+    ) -> Bool {
+        guard left.venueNaeme == right.venueNaeme else {
+            return false
+        }
+
+        let timeDifferenceInSeconds = abs(
+            left.targetMeetTime.timeIntervalSince1970
+            - right.targetMeetTime.timeIntervalSince1970
+        )
+
+        return timeDifferenceInSeconds <= 1.0
     }
 }
 
-public struct GreetEvent: Codable, Sendable, Hashable {
 
-    /// Stable identity for this event (idempotency, debugging).
-    public let eventID: UUID
-
-    /// Monotonic ordering number assigned by the server, scoped to greetID.
-    public let serverSequenceNumber: Int
-
-    /// The user who authored the action.
-    public let actorUserID: UUID
-
-    /// Server-side timestamp.
-    public let serverDate: Date
-
-    /// Client Date
-
-    /// Domain action.
-    public let action: GreetAction
+public enum MeetTimeState {
+    case show
+    case rejectedHidden
+    case waiting
 }
 
-// MARK: - Event enum (top-level) with helpers
-public enum GreetAction: Codable, Sendable, Hashable, Equatable {
+public struct MeetDecisionCellContents: Equatable {
+    let venueName: String
+    let proposalState: TimeNegotiationContents
 
-    /// When a user taps or swipes on another user to try to meet them now.
-    ///  **UI Effect:**
-    /// It can affect the alert text, instead of "We think you may want to meet", "They'd like to meet you".
-    case manualGreetInitiated
+    public enum TimeNegotiationContents: Equatable, Hashable {
+        /// The other user proposed meeting in x: Int minutes. Show this when the other user proposed in 30 and this user hasn't rejected it.
+        case alternateProposal(AlternateRequestCellModel)
+        /// Current build does not allow for now to be rejected, only rejecting the whole greet altogether.
+        case select(now: MeetTimeState, in30: MeetTimeState)
+    }
 
-    /// The associated value represents a time from the agreement to meet that they would like to leave.
-    ///  For example, if both agree to meet in 30 minutes at 5:00PM, then both users should aim to start traveling no later than
-    ///  5:30PM
-    ///  **UI Effect:** May prompt a user asking if they would like to meet at an alternative time.
-    case agreedToMeet(Int)
-
-    /// The current verbiage in the app ui is "dismiss" which is essentially rejecting the meetup with the other person
-    /// altogether.
-    ///  **UI Effect:** Should navigate to a "sorry it didn't work out screen"
-    case dismissGreet
-
-    /// In the negotiation
-    case rejectTime(Int)
-
-    /// A rejection of the other user.
-    case closeApp
-
-    /// Associated value in minutes.
-    case travelTimeToVenueUpdate(start: Int, current: Int)
-
-    ///
-    case confirmedMet
-
-    case rated(Int, outOf: Int)
-
-    /// If you are moving in a way that the travel time is growing past a certain point/allowance,
-    ///  then the greet may auto close.  When current > (start + allowance), then auto-close.
-    /// - starting travel time.
-    /// - allowance
-    /// - current travel time.
-    case exceededTravelTimeAllowance(start: Int, allowance: Int, current: Int)
-
-    case tappedRedVoipReject
 }
 
+public enum GreetViewContents: Equatable {
+    case negotiation(StartViewContents) // if no one has rejected in any form, not confirmed met, this user hasn't agreed to any.
+    case enroute(EnrouteContents)
+    case rejected(RejectedContents)
+    /// Go to the rating screen.
+    case giveRating
+
+    /// If the client asks what should be displayed and the greet is finito. 
+    case showInHistory
+}
+
+public struct StartViewContents: Equatable {
+    let profilePicURL: String
+    let openers: [String]
+    let meetDecisionContents: MeetDecisionCellContents
+}
+
+public struct AlternateRequestCellModel: Equatable, Hashable {
+
+    public enum GeneralStyle: Equatable, Hashable {
+        case minutes(Int)
+        case theySaidTheyMet(String)
+        case youAreClose(String)
+    }
+
+     var title: String
+     var message: String
+     var leftButtonTitle: String?
+     var rightButtonTitle: String
+     var style: GeneralStyle
+
+    static func theyProposed(minutes: Int) -> AlternateRequestCellModel {
+        AlternateRequestCellModel(title: "Meet in \(String(minutes)) minutes?",
+            message: "They want to meet you!  Would in \(String(minutes)) minutes be okay?",
+            leftButtonTitle: "I can't",
+            rightButtonTitle: "Sure!",
+            style: .minutes(minutes))
+    }
+
+    static func youAreClose(otherName: String) -> AlternateRequestCellModel {
+        AlternateRequestCellModel(
+            title: "You seem pretty close",
+            message: "Did you meet \(otherName) yet?",
+            leftButtonTitle: nil,
+            rightButtonTitle: "Yes",
+            style: .youAreClose(otherName))
+    }
+
+    static func theySaidTheyMet(otherName: String) -> AlternateRequestCellModel {
+        AlternateRequestCellModel(title: "\(otherName) said you met.",
+            message: "Did you meet \(otherName) yet?",
+            leftButtonTitle: nil,
+            rightButtonTitle: "Yes",
+            style: .theySaidTheyMet(otherName))
+    }
+}
+
+// The user goes to the rating screen based on tapping the yes we met which sends an event and navigates to the rating screen,
+// I suppose if there is
+public struct EnrouteContents: Equatable {
+    let profilePicURL: String
+    let openers: [String]
+    let address: String
+    let percentTravelled: Double
+    let instructionContents: InstructionCellContents
+    // map cell details are personal to the viewing user,
+    // not related to the greet/relation
+    let otherContents: OtherUserContents
+    /// Set to true if the other user and this user are within 5 minutes of each other and the venue.
+    /// So we can show the check if you met ui. 
+    ///let checkIfMet: Bool
+    let alternateRequestCellModel: AlternateRequestCellModel?
+}
+
+public struct ConfirmedMetContents: Equatable {
+    var profilePicURL: String
+    let address: String
+    let percentTravelled: Double
+    let openers: [String]
+    let instructionContents: InstructionCellContents
+
+    // map cell details are personal to the viewing user,
+    // not related to the greet/relation
+    let otherContents: OtherUserContents
+}
+
+public struct RejectedContents: Equatable {
+    let title: String
+    let body: String
+    // Probably says something like okay, or lets go!
+    let confirmText: String
+
+    static var thisUserDismissed: RejectedContents {
+        .init(title: "Don't worry we closed it for both you and them", body: "", confirmText: "")
+    }
+
+    static var otherUserDismissed: RejectedContents {
+        .init(title: "There are more fish in the sea.", body: "", confirmText: "")
+    }
+
+    static func theyWrongWay(travelTime: Int) -> RejectedContents {
+        .init(
+            title: "Wrong way.",
+            body: "It looks like they are going the wrong way.  It would take them \(travelTime) minutes to get to the meeting point.  We closed it to save you the hassle.",
+            confirmText: "There are more fish in the sea."
+        )
+    }
+
+    static func thisWrongWay(travelTime: Int) -> RejectedContents {
+        .init(
+            title: "Wrong way.",
+            body: "It looks like you are going the wrong way.  It would take you \(travelTime) minutes to get to the meeting point.",
+            confirmText: "There are more fish in the sea."
+        )
+    }
+
+    static func theySlowProgress(travelTime: Int) -> RejectedContents {
+        .init(
+            title: "No progress",
+            body: "It looks like they weren’t making progress toward the meeting point. They were still about \(travelTime) minutes away, so we closed the greet to save you the wait.",
+            confirmText: "There are more fish in the sea."
+        )
+    }
+
+    static func thisSlowProgress(travelTime: Int) -> RejectedContents {
+        .init(
+            title: "No progress",
+            body: "It looks like you weren’t making progress toward the meeting point and were still about \(travelTime) minutes away. We closed the greet to keep things moving.",
+            confirmText: "There are more fish in the sea."
+        )
+    }
+}
+
+public struct OtherUserContents: Equatable {
+    let otherUserName: String
+    let greetingMethod: String
+    // Get it from greet.otherUserTravelStatusText
+    let travelStatusText: String
+}
+
+
+
 // MARK: - Event enum (top-level) with helpers
-public enum GreetLogEvent: Codable {
+public enum GreetLogEvent: Codable, ActionStringConvertible {
 
     case greetAction(GreetAction)
 
@@ -126,99 +236,10 @@ public enum GreetLogEvent: Codable {
     /// Use this when persisting the "action" column.
     public var action: String {
         switch self {
-
-        // MARK: - Shared greet actions (wrapped)
         case .greetAction(let greetAction):
-            switch greetAction {
-
-            case .manualGreetInitiated:
-                return "manual_greet_initiated"
-
-            case .agreedToMeet:
-                return "agreed_to_meet"
-
-            case .dismissGreet:
-                return "dismiss_greet"
-
-            case .rejectTime:
-                return "reject_time"
-
-            case .closeApp:
-                return "close_app"
-
-            case .travelTimeToVenueUpdate:
-                return "travel_time_to_venue_update"
-
-            case .confirmedMet:
-                return "confirmed_met"
-
-            case .rated:
-                return "rated"
-
-            case .exceededTravelTimeAllowance:
-                return "exceeded_travel_time_allowance"
-
-            case .tappedRedVoipReject:
-                return "tapped_red_voip_reject"
-            }
-
-        // MARK: - Delivery lifecycle
-        case .pushQueued:
-            return "push_queued"
-
-        case .pushSent:
-            return "push_sent"
-
-        case .pushProviderAccepted:
-            return "push_provider_accepted"
-
-        case .pushFailed:
-            return "push_failed"
-
-        case .webSocketSent:
-            return "websocket_sent"
-
-        case .webSocketFailed:
-            return "websocket_failed"
-
-        case .deliveryConfirmed:
-            return "delivery_confirmed"
-
-        case .fallbackTriggered:
-            return "fallback_triggered"
-
-        case .rateLimited:
-            return "rate_limited"
-
-        // MARK: - Received on device
-        case .pushNotifReceived:
-            return "push_notif_received"
-
-        case .voipReceived:
-            return "voip_received"
-
-        // MARK: - User / app state
-        case .userViewed:
-            return "user_viewed"
-
-        case .greetCreated:
-            return "greet_created"
-
-        case .greetExpired:
-            return "greet_expired"
-
-        case .settingsUpdated:
-            return "settings_updated"
-
-        case .rejectedViaAnotherCall:
-            return "rejected_via_another_call"
-
-        // MARK: - Error reporting
-        case .serverFound:
-            return "server_found_error"
-
-        case .clientFound:
-            return "client_found_error"
+            return greetAction.actionString
+        default:
+            return actionString
         }
     }
 
@@ -287,8 +308,8 @@ public enum GreetLogEvent: Codable {
              .rejectedViaAnotherCall:
             return nil
         case .greetAction(let action):
-            if case let .travelTimeToVenueUpdate(start, current) = action {
-                return ((start - current).double/start.double).string
+            if case let .travelTimeToVenue(changedTo: current) = action {
+                return current.string
             }
             return nil
         }
