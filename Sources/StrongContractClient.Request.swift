@@ -1043,8 +1043,13 @@ extension ModeratePicRequest {
 }
 
 public struct GreetActionPayload: Equatable, Codable, Hashable {
-    let greetAction: GreetAction
-    let greetID: UUID
+    public let greetAction: GreetAction
+    public let greetID: UUID
+
+    public init(greetAction: GreetAction, greetID: UUID) {
+        self.greetAction = greetAction
+        self.greetID = greetID
+    }
 }
 
 public typealias SendGreetEvent = Request<GreetActionPayload, GreetEvent>
