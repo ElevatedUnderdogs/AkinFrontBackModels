@@ -9,6 +9,7 @@ import Foundation
 
 public enum SocketPayload: Codable {
     case greetUpdate(Greet.Notification)
+    case greetEvent(GreetEvent)
     case nearbyUserUpdate
     case pong
 }
