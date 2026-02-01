@@ -101,7 +101,7 @@ public struct Greet: Codable, Equatable, Hashable {
         10
     }
 
-    var eventsLedger: [GreetEvent]
+    public var eventsLedger: [GreetEvent]
 
     // MARK: - Initializer
     public init(
@@ -295,7 +295,7 @@ public struct Greet: Codable, Equatable, Hashable {
         ""
     }
 
-    var otherUserTravelStatusText: String {
+    public var otherUserTravelStatusText: String {
         let lastDistanceUpdate: Int = events
             .filter { $0.actorUserID == otherUser.id }
             .sorted(by: { $0.serverSequenceNumber < $1.serverSequenceNumber })
@@ -308,11 +308,13 @@ public struct Greet: Codable, Equatable, Hashable {
 
 typealias Minutes = Int
 fileprivate extension Date {
+
     init?(timeFromNow: Minutes) {
         guard let date = Calendar.current.date(byAdding: .minute, value: timeFromNow, to: Date()) else { return nil}
         self = date
     }
-    var clockTime: String {
+
+    public var clockTime: String {
         let dateFormatter = DateFormatter()
         dateFormatter.calendar = .init(identifier: .gregorian)
         dateFormatter.locale = .init(identifier: "en_US_POSIX")
@@ -419,35 +421,35 @@ public enum GreetAction: Codable, Sendable, Hashable, Equatable, ActionStringCon
 
     case rated(Int, outOf: Int)
 
-    var isTravelTimeUpdate: Bool {
+    public var isTravelTimeUpdate: Bool {
         if case .travelTimeToVenue = self {
             return true
         }
         return false
     }
 
-    var travelTime: Int? {
+    public var travelTime: Int? {
         if case .travelTimeToVenue(let changedTo) = self {
             return changedTo
         }
         return nil
     }
 
-    var isRated: Bool {
+    public var isRated: Bool {
         if case .rated = self {
             return true
         }
         return false
     }
 
-    var isAgreeToMeet: Bool {
+    public var isAgreeToMeet: Bool {
         if case .agreedToMeet = self {
             return true
         }
         return false
     }
 
-    var isRejectMeet: Bool {
+    public var isRejectMeet: Bool {
         if case .rejectTime = self {
             return true
         }
@@ -455,7 +457,7 @@ public enum GreetAction: Codable, Sendable, Hashable, Equatable, ActionStringCon
     }
 
     /// If the case is agreedToMeet then this returns the time in minutes
-    var agreeToTime: Int? {
+    public var agreeToTime: Int? {
         if case .agreedToMeet(let int) = self {
             return int
         }
