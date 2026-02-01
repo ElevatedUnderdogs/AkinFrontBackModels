@@ -17,7 +17,9 @@ public struct NearbyUser: Codable, Hashable, Equatable {
     public let name: String
 
     /// Shows an image of the user.
-    public var profileImages: [String] = []
+    public var profileImage: String
+
+    public var imageMetaData: ImageMetadata
 
     /// Confirms if the user verified their identity.
     public var verified: Bool = false
@@ -25,13 +27,15 @@ public struct NearbyUser: Codable, Hashable, Equatable {
     public init(
         id: UUID,
         name: String,
-        profileImages: [String],
+        profileImage: String,
+        imageMetaData: ImageMetadata,
         verified: Bool = false
     ) {
         self.id = id
         self.name = name
-        self.profileImages = profileImages
+        self.profileImage = profileImage
         self.verified = verified
+        self.imageMetaData = imageMetaData
     }
 
 //    public var placeholderGreetUser: NearbyUser {

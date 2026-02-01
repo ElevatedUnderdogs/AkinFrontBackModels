@@ -8,9 +8,13 @@
 import Foundation
 
 public struct InstructionCellContents: Equatable {
-    let venueNaeme: String
-    let targetMeetTime: Date
+    public let venueNaeme: String
+    public let targetMeetTime: Date
 
+    public init(venueNaeme: String, targetMeetTime: Date) {
+        self.venueNaeme = venueNaeme
+        self.targetMeetTime = targetMeetTime
+    }
 
     public static func == (
         left: InstructionCellContents,
@@ -37,8 +41,13 @@ public enum MeetTimeState {
 }
 
 public struct MeetDecisionCellContents: Equatable {
-    let venueName: String
-    let proposalState: TimeNegotiationContents
+    public let venueName: String
+    public let proposalState: TimeNegotiationContents
+
+    public init(venueName: String, proposalState: TimeNegotiationContents) {
+        self.venueName = venueName
+        self.proposalState = proposalState
+    }
 
     public enum TimeNegotiationContents: Equatable, Hashable {
         /// The other user proposed meeting in x: Int minutes. Show this when the other user proposed in 30 and this user hasn't rejected it.
@@ -61,9 +70,15 @@ public enum GreetViewContents: Equatable {
 }
 
 public struct StartViewContents: Equatable {
-    let profilePicURL: String
-    let openers: [String]
-    let meetDecisionContents: MeetDecisionCellContents
+    public let profilePicURL: String
+    public let openers: [String]
+    public let meetDecisionContents: MeetDecisionCellContents
+
+    public init(profilePicURL: String, openers: [String], meetDecisionContents: MeetDecisionCellContents) {
+        self.profilePicURL = profilePicURL
+        self.openers = openers
+        self.meetDecisionContents = meetDecisionContents
+    }
 }
 
 public struct AlternateRequestCellModel: Equatable, Hashable {
@@ -74,11 +89,19 @@ public struct AlternateRequestCellModel: Equatable, Hashable {
         case youAreClose(String)
     }
 
-     var title: String
-     var message: String
-     var leftButtonTitle: String?
-     var rightButtonTitle: String
-     var style: GeneralStyle
+     public var title: String
+     public var message: String
+     public var leftButtonTitle: String?
+     public var rightButtonTitle: String
+     public var style: GeneralStyle
+
+    public init(title: String, message: String, leftButtonTitle: String? = nil, rightButtonTitle: String, style: GeneralStyle) {
+        self.title = title
+        self.message = message
+        self.leftButtonTitle = leftButtonTitle
+        self.rightButtonTitle = rightButtonTitle
+        self.style = style
+    }
 
     static func theyProposed(minutes: Int) -> AlternateRequestCellModel {
         AlternateRequestCellModel(title: "Meet in \(String(minutes)) minutes?",
@@ -109,47 +132,72 @@ public struct AlternateRequestCellModel: Equatable, Hashable {
 // The user goes to the rating screen based on tapping the yes we met which sends an event and navigates to the rating screen,
 // I suppose if there is
 public struct EnrouteContents: Equatable {
-    let profilePicURL: String
-    let openers: [String]
-    let address: String
-    let percentTravelled: Double
-    let instructionContents: InstructionCellContents
+    public let profilePicURL: String
+    public let openers: [String]
+    public let address: String
+    public let percentTravelled: Double
+    public let instructionContents: InstructionCellContents
     // map cell details are personal to the viewing user,
     // not related to the greet/relation
-    let otherContents: OtherUserContents
+    public let otherContents: OtherUserContents
     /// Set to true if the other user and this user are within 5 minutes of each other and the venue.
     /// So we can show the check if you met ui. 
     ///let checkIfMet: Bool
-    let alternateRequestCellModel: AlternateRequestCellModel?
+    public let alternateRequestCellModel: AlternateRequestCellModel?
+
+    public init(profilePicURL: String, openers: [String], address: String, percentTravelled: Double, instructionContents: InstructionCellContents, otherContents: OtherUserContents, alternateRequestCellModel: AlternateRequestCellModel?) {
+        self.profilePicURL = profilePicURL
+        self.openers = openers
+        self.address = address
+        self.percentTravelled = percentTravelled
+        self.instructionContents = instructionContents
+        self.otherContents = otherContents
+        self.alternateRequestCellModel = alternateRequestCellModel
+    }
 }
 
 public struct ConfirmedMetContents: Equatable {
-    var profilePicURL: String
-    let address: String
-    let percentTravelled: Double
-    let openers: [String]
-    let instructionContents: InstructionCellContents
+    public var profilePicURL: String
+    public let address: String
+    public let percentTravelled: Double
+    public let openers: [String]
+    public let instructionContents: InstructionCellContents
 
     // map cell details are personal to the viewing user,
     // not related to the greet/relation
-    let otherContents: OtherUserContents
+    public let otherContents: OtherUserContents
+
+    public init(profilePicURL: String, address: String, percentTravelled: Double, openers: [String], instructionContents: InstructionCellContents, otherContents: OtherUserContents) {
+        self.profilePicURL = profilePicURL
+        self.address = address
+        self.percentTravelled = percentTravelled
+        self.openers = openers
+        self.instructionContents = instructionContents
+        self.otherContents = otherContents
+    }
 }
 
 public struct RejectedContents: Equatable {
-    let title: String
-    let body: String
+    public let title: String
+    public let body: String
     // Probably says something like okay, or lets go!
-    let confirmText: String
+    public let confirmText: String
 
-    static var thisUserDismissed: RejectedContents {
+    public init(title: String, body: String, confirmText: String) {
+        self.title = title
+        self.body = body
+        self.confirmText = confirmText
+    }
+
+    public static var thisUserDismissed: RejectedContents {
         .init(title: "Don't worry we closed it for both you and them", body: "", confirmText: "")
     }
 
-    static var otherUserDismissed: RejectedContents {
+    public static var otherUserDismissed: RejectedContents {
         .init(title: "There are more fish in the sea.", body: "", confirmText: "")
     }
 
-    static func theyWrongWay(travelTime: Int) -> RejectedContents {
+    public static func theyWrongWay(travelTime: Int) -> RejectedContents {
         .init(
             title: "Wrong way.",
             body: "It looks like they are going the wrong way.  It would take them \(travelTime) minutes to get to the meeting point.  We closed it to save you the hassle.",
@@ -157,7 +205,7 @@ public struct RejectedContents: Equatable {
         )
     }
 
-    static func thisWrongWay(travelTime: Int) -> RejectedContents {
+    public static func thisWrongWay(travelTime: Int) -> RejectedContents {
         .init(
             title: "Wrong way.",
             body: "It looks like you are going the wrong way.  It would take you \(travelTime) minutes to get to the meeting point.",
@@ -165,7 +213,7 @@ public struct RejectedContents: Equatable {
         )
     }
 
-    static func theySlowProgress(travelTime: Int) -> RejectedContents {
+    public static func theySlowProgress(travelTime: Int) -> RejectedContents {
         .init(
             title: "No progress",
             body: "It looks like they weren’t making progress toward the meeting point. They were still about \(travelTime) minutes away, so we closed the greet to save you the wait.",
@@ -173,7 +221,7 @@ public struct RejectedContents: Equatable {
         )
     }
 
-    static func thisSlowProgress(travelTime: Int) -> RejectedContents {
+    public static func thisSlowProgress(travelTime: Int) -> RejectedContents {
         .init(
             title: "No progress",
             body: "It looks like you weren’t making progress toward the meeting point and were still about \(travelTime) minutes away. We closed the greet to keep things moving.",
@@ -183,10 +231,16 @@ public struct RejectedContents: Equatable {
 }
 
 public struct OtherUserContents: Equatable {
-    let otherUserName: String
-    let greetingMethod: String
+    public let otherUserName: String
+    public let greetingMethod: String
     // Get it from greet.otherUserTravelStatusText
-    let travelStatusText: String
+    public let travelStatusText: String
+
+    public init(otherUserName: String, greetingMethod: String, travelStatusText: String) {
+        self.otherUserName = otherUserName
+        self.greetingMethod = greetingMethod
+        self.travelStatusText = travelStatusText
+    }
 }
 
 

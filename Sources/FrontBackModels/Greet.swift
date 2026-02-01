@@ -476,7 +476,7 @@ public extension Greet {
     /// If it returns nil then fetch the correct ledger.
     func viewContents(now: Date = .init()) -> GreetViewContents? {
         let sortedEvents = events.sorted { $0.serverSequenceNumber < $1.serverSequenceNumber }
-        let otherProfilePic = otherUser.profileImages.first ?? "no image url provided...When we refactor the otherUser then we can throw an error when it doesn't have the requisite values."
+        let otherProfilePic = otherUser.profileImage
         guard let last = sortedEvents.last else {
             return .negotiation(
                 StartViewContents(
