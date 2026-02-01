@@ -101,8 +101,6 @@ public struct Greet: Codable, Equatable, Hashable {
         10
     }
 
-    public var eventsLedger: [GreetEvent]
-
     // MARK: - Initializer
     public init(
         thisUserID: UUID,
@@ -160,7 +158,6 @@ public struct Greet: Codable, Equatable, Hashable {
          self.participantUserIDs = participantUserIDs
          self.events = events
          self.thisUserID = thisUserID
-        self.eventsLedger = events
      }
 //
 //    public var meetInXMinutes: Int? {
@@ -286,7 +283,7 @@ public struct Greet: Codable, Equatable, Hashable {
         self.travelMethod = travelMethod
         self.matchMakingMethodVersion = matchMakingMethodVersion
         self.participantUserIDs = participantUserIDs
-        self.eventsLedger = events
+        self.events = events
     }
 
     public var estimatedMeetTime: String {
