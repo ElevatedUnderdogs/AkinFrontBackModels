@@ -311,7 +311,7 @@ fileprivate extension Date {
         self = date
     }
 
-    public var clockTime: String {
+    var clockTime: String {
         let dateFormatter = DateFormatter()
         dateFormatter.calendar = .init(identifier: .gregorian)
         dateFormatter.locale = .init(identifier: "en_US_POSIX")

@@ -24,18 +24,23 @@ public struct NearbyUser: Codable, Hashable, Equatable {
     /// Confirms if the user verified their identity.
     public var verified: Bool = false
 
+    /// If nil, this means the location hasn't been updated.
+    public let lastLocationUpdate: Date?
+
     public init(
         id: UUID,
         name: String,
         profileImage: String,
         imageMetaData: ImageMetadata,
-        verified: Bool = false
+        verified: Bool = false,
+        lastLocationUpdate: Date? = nil
     ) {
         self.id = id
         self.name = name
         self.profileImage = profileImage
         self.verified = verified
         self.imageMetaData = imageMetaData
+        self.lastLocationUpdate = lastLocationUpdate
     }
 
 //    public var placeholderGreetUser: NearbyUser {
