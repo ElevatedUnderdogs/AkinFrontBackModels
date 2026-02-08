@@ -39,6 +39,13 @@ extension [GreetEvent] {
     }
 }
 
+public enum InitiationMethod: Equatable, Hashable, Codable {
+    /// The user that manually initiated the greet.
+    case manual(userID: UUID)
+    /// The user id of the user whose location update triggered the automatic greet.
+    case automatic(userID: UUID)
+}
+
 public struct Greet: Codable, Equatable, Hashable {
 
     // MARK - properties
@@ -72,6 +79,8 @@ public struct Greet: Codable, Equatable, Hashable {
 
 //    /// The starting distance away from the venue of this user.
 //    public var travelMinutesToVenue: Int
+
+    public var initiationMethod: InitiationMethod
 
     /// I presume this user's travel method.   Though it might be the other user's travel method.
     public var travelMethod: TravelMethod
@@ -127,6 +136,7 @@ public struct Greet: Codable, Equatable, Hashable {
         /// Other user starting minutes away that this user is from the venue.
         otherMinutesAway: Int,
         /// alternatable
+        initiationMethod: InitiationMethod,
         travelMethod: TravelMethod,
         //         withinRangeOfEachOtherAndMeetPlace: Int? = nil,
         matchMakingMethodVersion: Double,
@@ -146,6 +156,7 @@ public struct Greet: Codable, Equatable, Hashable {
 //         self.percentThisTravelled = percentThisTravelled
 //         self.travelDistanceFromVenueInMeters = travelDistanceFromVenueInMeters
         // self.otherUserTravelMinutesAwayFromVenue = minutesAway
+        self.initiationMethod = initiationMethod
          self.travelMethod = travelMethod
 //         self.withinRangeOfEachOtherAndMeetPlace = withinRangeOfEachOtherAndMeetPlace
          self.matchMakingMethodVersion = matchMakingMethodVersion
@@ -272,6 +283,7 @@ public struct Greet: Codable, Equatable, Hashable {
         travelMethod: TravelMethod,
         matchMakingMethodVersion: Double,
         participantUserIDs: [UUID],
+        initiationMethod: InitiationMethod,
         events: [GreetEvent] = []
     ) {
         self.thisUserID = thisUserID
@@ -284,6 +296,7 @@ public struct Greet: Codable, Equatable, Hashable {
         self.matchMakingMethodVersion = matchMakingMethodVersion
         self.participantUserIDs = participantUserIDs
         self.events = events
+        self.initiationMethod = initiationMethod
     }
 
     public var estimatedMeetTime: String {
