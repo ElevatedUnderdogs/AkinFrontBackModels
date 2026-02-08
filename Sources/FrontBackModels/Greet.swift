@@ -44,6 +44,10 @@ public enum InitiationMethod: Equatable, Hashable, Codable {
     case manual(userID: UUID)
     /// The user id of the user whose location update triggered the automatic greet.
     case automatic(userID: UUID)
+
+    case devForced
+
+    case unknown
 }
 
 public struct Greet: Codable, Equatable, Hashable {
