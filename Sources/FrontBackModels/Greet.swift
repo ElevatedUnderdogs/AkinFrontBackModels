@@ -124,7 +124,7 @@ public struct Greet: Codable, Equatable, Hashable {
     public let participantUserIDs: [UUID]
     private(set) public var events: [GreetEvent] = []
 
-    mutating func add(event: GreetEvent) throws {
+    public mutating func add(event: GreetEvent) throws {
         var buffer = self.events
         buffer.append(event)
         if buffer.isValid {
