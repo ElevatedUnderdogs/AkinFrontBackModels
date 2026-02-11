@@ -134,6 +134,20 @@ public struct Greet: Codable, Equatable, Hashable {
         }
     }
 
+    public mutating func replace(element tempID: UUID, with updatedElement: GreetEvent) throws {
+        if let index = events.firstIndex(where: { $0.eventID == tempID }) {
+            var buffer = events
+            buffer[index] = updatedElement
+            if buffer.isValid {
+                self.events[index] = updatedElement
+            } else {
+                throw GenericError(text: "replacing the element with the new element would make the events invalid: events: \(events)")
+            }
+        } else {
+            throw GenericError(text: "We couldn't find an element with id: \(tempID) and events: \(events)")
+        }
+    }
+
     /// If their travel time goes beyond this then the greet is auto rejected because someone went the wrong way.
     public var wrongWayThreshold: Int {
         5
