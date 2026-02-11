@@ -41,7 +41,7 @@ extension [GreetEvent] {
 
     /// Checks that the events are ordered and in a sequence.
     /// Considered calling it `isSequentialFromZeroNoGapsIfSorted`
-    var isValid: Bool {
+    public var isValid: Bool {
         var counter: Int = 0
         for event in self.sorted(by: <) {
             if event.serverSequenceNumber != counter {
