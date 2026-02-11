@@ -28,7 +28,46 @@ struct GreetDetailsInputOutput {
 }
 
 final class FrontBackModelsTests: XCTestCase {
-    
+
+    let zeroEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 0, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let oneEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 1, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let twoEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 2, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let threeEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 3, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let fourEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 4, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let fiveEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 5, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let sixEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 6, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let sevenEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 7, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+
+    func testEventsAreValid() {
+        let invalidEvents: [GreetEvent] = [zeroEvent, zeroEvent]
+        XCTAssertFalse(invalidEvents.isValid)
+    }
+
+    func testEventsAreValid2() {
+        let invalidEvents: [GreetEvent] = [zeroEvent, zeroEvent, twoEvent]
+        XCTAssertFalse(invalidEvents.isValid)
+    }
+
+    func testEventsAreValid3() {
+        let invalidEvents: [GreetEvent] = [zeroEvent, zeroEvent, threeEvent, threeEvent]
+        XCTAssertFalse(invalidEvents.isValid)
+    }
+
+    func testValidEvents() {
+        let validEvents: [GreetEvent] = [zeroEvent, oneEvent, twoEvent]
+        XCTAssertTrue(validEvents.isValid)
+    }
+
+    func testValidEvents2() {
+        let validEvents: [GreetEvent] = []
+        XCTAssertTrue(validEvents.isValid)
+    }
+
+    func testValidEvents3() {
+        let validEvents: [GreetEvent] = [oneEvent, twoEvent, zeroEvent]
+        XCTAssertTrue(validEvents.isValid)
+    }
+
     public func testExample() throws {
         // XCTest Documentation
         // https://developer.apple.com/documentation/xctest

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Callable
 
 public typealias CompatibilityContext = String
 public typealias CompatibilityScore = Double
@@ -37,6 +38,25 @@ extension [GreetEvent] {
                 $0.actorUserID == userID }
         )
     }
+
+    /// Checks that the events are ordered and in a sequence.
+    /// Considered calling it `isSequentialFromZeroNoGapsIfSorted`
+    var isValid: Bool {
+        var counter: Int = 0
+        for event in self.sorted(by: <) {
+            if event.serverSequenceNumber != counter {
+                return false
+            }
+            counter += 1
+        }
+        return true
+    }
+}
+
+extension GreetEvent: Comparable {
+    public static func < (lhs: AkinFrontBackModels.GreetEvent, rhs: AkinFrontBackModels.GreetEvent) -> Bool {
+        lhs.serverSequenceNumber < rhs.serverSequenceNumber
+    }
 }
 
 public enum InitiationMethod: Equatable, Hashable, Codable {
@@ -61,38 +81,38 @@ public struct Greet: Codable, Equatable, Hashable {
     /// A random greeting method in common between both users in the greet.  If no common methods, then a wave.
     public var method: Greet.Method = .wave
 
-    /// This is the compatibility of the other user to you.  
+    /// This is the compatibility of the other user to you.
     /// For example, the other user might be 75% compatible as a friend, and 1% compatibility as a romantic partner.
-    ///  
+    ///
     public var compatitibility: [CompatibilityContext: CompatibilityScore] = [:]
     public var openers: [String] = []
     public var venue: Venue
-//    public var isMrPractice: Bool = false
-//    public var thisSettings = Settings(status: .viewed, id: .init())
-//    /// consider moving to thisSettings.
-//    /// **BACKEND**Should be given by the updater, so that it is sent to the
-//    /// recipient in the otherUser.percentThisTravelled property chain.
-//    /// **CLIENT** provide this information to be sent, ignore it when received.
-//    public var percentThisTravelled: Double = 0
-//    /// Needed for updating the travel distance. for updateGreet endpoint.
-//    /// This is needed to be used for the isNearby calculation.
-//    public var travelDistanceFromVenueInMeters: Double? = nil
-//
+    //    public var isMrPractice: Bool = false
+    //    public var thisSettings = Settings(status: .viewed, id: .init())
+    //    /// consider moving to thisSettings.
+    //    /// **BACKEND**Should be given by the updater, so that it is sent to the
+    //    /// recipient in the otherUser.percentThisTravelled property chain.
+    //    /// **CLIENT** provide this information to be sent, ignore it when received.
+    //    public var percentThisTravelled: Double = 0
+    //    /// Needed for updating the travel distance. for updateGreet endpoint.
+    //    /// This is needed to be used for the isNearby calculation.
+    //    public var travelDistanceFromVenueInMeters: Double? = nil
+    //
     /// The starting distance away from the venue of the other user.
-//    public var otherUserTravelMinutesAwayFromVenue: Int
+    //    public var otherUserTravelMinutesAwayFromVenue: Int
 
-//    /// The starting distance away from the venue of this user.
-//    public var travelMinutesToVenue: Int
+    //    /// The starting distance away from the venue of this user.
+    //    public var travelMinutesToVenue: Int
 
     public var initiationMethod: InitiationMethod
 
     /// I presume this user's travel method.   Though it might be the other user's travel method.
     public var travelMethod: TravelMethod
-//    public var withinRangeOfEachOtherAndMeetPlace: Int? = nil
+    //    public var withinRangeOfEachOtherAndMeetPlace: Int? = nil
     public var matchMakingMethodVersion: Double
 
     /// Don't know what this is for...on the lookout.. or what it is measured in..
-  //  public var rangeThreshold: Int = 0
+    //  public var rangeThreshold: Int = 0
     public var minutesAway: Int
     //        /// Starting minutes away that this user is.
     //         estimatedTravelTimeInMinutes: Int,
@@ -102,7 +122,17 @@ public struct Greet: Codable, Equatable, Hashable {
     // public var meetingTime: Date? = nil
 
     public let participantUserIDs: [UUID]
-    public var events: [GreetEvent] = []
+    private(set) public var events: [GreetEvent] = []
+
+    mutating func add(event: GreetEvent) throws {
+        var buffer = self.events
+        buffer.append(event)
+        if buffer.isValid {
+            self.events.append(event)
+        } else {
+            throw GenericError(text: "Events \(self.events) would not be valid after adding this event: \(event)")
+        }
+    }
 
     /// If their travel time goes beyond this then the greet is auto rejected because someone went the wrong way.
     public var wrongWayThreshold: Int {
@@ -148,128 +178,131 @@ public struct Greet: Codable, Equatable, Hashable {
         //  meetingTime: Date? = nil,
         participantUserIDs: [UUID],
         events: [GreetEvent] = []
-    ) {
+    ) throws {
         self.otherUser = otherUser
-         self.greetID = greetID
-         self.method = method
-         self.compatitibility = compatitibility
-         self.openers = openers
-         self.venue = venue
-//         self.isMrPractice = isMrPractice
-//         self.thisSettings = thisSettings
-//         self.percentThisTravelled = percentThisTravelled
-//         self.travelDistanceFromVenueInMeters = travelDistanceFromVenueInMeters
+        self.greetID = greetID
+        self.method = method
+        self.compatitibility = compatitibility
+        self.openers = openers
+        self.venue = venue
+        //         self.isMrPractice = isMrPractice
+        //         self.thisSettings = thisSettings
+        //         self.percentThisTravelled = percentThisTravelled
+        //         self.travelDistanceFromVenueInMeters = travelDistanceFromVenueInMeters
         // self.otherUserTravelMinutesAwayFromVenue = minutesAway
         self.initiationMethod = initiationMethod
-         self.travelMethod = travelMethod
-//         self.withinRangeOfEachOtherAndMeetPlace = withinRangeOfEachOtherAndMeetPlace
-         self.matchMakingMethodVersion = matchMakingMethodVersion
+        self.travelMethod = travelMethod
+        //         self.withinRangeOfEachOtherAndMeetPlace = withinRangeOfEachOtherAndMeetPlace
+        self.matchMakingMethodVersion = matchMakingMethodVersion
         // self.travelMinutesToVenue = estimatedTravelTimeInMinutes
         // self.rangeThreshold = rangeThreshold
         // self.meetingTime = meetingTime
 
         self.minutesAway = minutesAway
         self.otherMinutesAway = otherMinutesAway
-         self.participantUserIDs = participantUserIDs
-         self.events = events
-         self.thisUserID = thisUserID
-     }
-//
-//    public var meetInXMinutes: Int? {
-//        guard let travelMinutesToVenue else { return nil }
-//        guard let otherUserTravelMinutesAwayFromVenue else { return nil }
-//        return max(
-//            (travelMinutesToVenue + 5 /*buffer*/ + (validProposals.first ?? 0)),
-//            (otherUserTravelMinutesAwayFromVenue + 5 /*buffer*/ + (validProposals.first ?? 0))
-//        )
-//    }
-//    
-//    public var agreedTime: Int? {
-//        guard let otherUserSettings = otherUser.settings else { return nil }
-//        return thisSettings.agreedTimeProposals.filter({ !otherUserSettings.rejectedTimeProposals.contains($0) && otherUserSettings.agreedTimeProposals.contains($0) }).first
-//    }
-//        
-//    public var isWaiting: Bool {
-//        let proposals = thisSettings.agreedTimeProposals
-//        guard let rejectedProposals = otherUser.settings?.rejectedTimeProposals else { return false }
-//        return !proposals.filter { !rejectedProposals.contains($0) }.isEmpty
-//    }
-//    
-//    public var viewForProposal: ViewSetting {
-//        guard let newProposals = otherUser.settings?.agreedTimeProposals.filter({ !thisSettings.rejectedTimeProposals.contains($0) && $0 != 0 }),
-//            let firstNewProposal = newProposals.first else { return .start }
-//        return .otherAskedIfCanMeetLater(firstNewProposal)
-//    }
-//    
-//    public var withinRange: Bool {
-//        if let withinRange = withinRangeOfEachOtherAndMeetPlace {
-//            return withinRange < rangeThreshold
-//        }
-//        return false
-//    }
-//    
-//    public var otherUserIsEligibleToMeet: Bool {
-//        if let otherStatus = otherUser.settings?.status {
-//            return otherStatus != .rejectedOther
-//                && otherStatus != .exceededRange
-//        } else {
-//            return false
-//        }
-//    }
-//    
-//    // MARK - updates
-//    
-//    public mutating func update(with new: Greet) -> Greet.Update? {
-//        let rejectedTime = rejectedProposal(from: new)
-//        venue = new.venue
-//        otherUser = new.otherUser
-//        thisSettings.updateSettings(with: otherUser.settings)
-//        withinRangeOfEachOtherAndMeetPlace = new.withinRangeOfEachOtherAndMeetPlace
-//        
-//        if thisSettings.status == .enroute && otherUser.settings?.status == .viewed {
-//            otherUser.settings?.status = .enroute
-//        }
-//
-//        if !validProposals.isEmpty {
-//            otherUser.settings?.status = .enroute
-//            thisSettings.status = .enroute
-//        }
-//
-//        return Greet.Update(
-//            this: thisSettings.status,
-//            otherUser: otherUser.settings?.status,
-//            withinRange: withinRange,
-//            rejectedProposal: rejectedTime,
-//            viewForProposal: viewForProposal,
-//            otherUserName: otherUser.personal.name
-//        )
-//    }
-//
-//    public var validProposals: [Int] {
-//        thisSettings
-//            .agreedTimeProposals
-//            .filter({ otherUser.settings?.agreedTimeProposals.contains($0) == true })
-//            .filter({ otherUser.settings?.rejectedTimeProposals.contains($0) != true && thisSettings.rejectedTimeProposals.contains($0) != true })
-//    }
-//
-//    // Reject
-//
-//    public func rejectedProposal(from new: Greet) -> Int? {
-//        guard let oldRejectedTimeProposals = otherUser.settings?.rejectedTimeProposals,
-//              let updatedRejectedTimeProposals =  new.otherUser.settings?.rejectedTimeProposals else {
-//            return nil
-//        }
-//        return updatedRejectedTimeProposals.first { !oldRejectedTimeProposals.contains($0) }
-//    }
-//
-//    public mutating func mrPracticeDidReject() -> Bool? {
-//        if !isMrPractice {return nil}
-//#if canImport(Darwin)
-//return arc4random_uniform(4) == 0
-//#else
-//return Int.random(in: 0..<4) == 0
-//#endif
-//    }
+        self.participantUserIDs = participantUserIDs
+        self.events = events
+        if !self.events.isValid {
+            throw GenericError(text: "events are not valid.")
+        }
+        self.thisUserID = thisUserID
+    }
+    //
+    //    public var meetInXMinutes: Int? {
+    //        guard let travelMinutesToVenue else { return nil }
+    //        guard let otherUserTravelMinutesAwayFromVenue else { return nil }
+    //        return max(
+    //            (travelMinutesToVenue + 5 /*buffer*/ + (validProposals.first ?? 0)),
+    //            (otherUserTravelMinutesAwayFromVenue + 5 /*buffer*/ + (validProposals.first ?? 0))
+    //        )
+    //    }
+    //
+    //    public var agreedTime: Int? {
+    //        guard let otherUserSettings = otherUser.settings else { return nil }
+    //        return thisSettings.agreedTimeProposals.filter({ !otherUserSettings.rejectedTimeProposals.contains($0) && otherUserSettings.agreedTimeProposals.contains($0) }).first
+    //    }
+    //
+    //    public var isWaiting: Bool {
+    //        let proposals = thisSettings.agreedTimeProposals
+    //        guard let rejectedProposals = otherUser.settings?.rejectedTimeProposals else { return false }
+    //        return !proposals.filter { !rejectedProposals.contains($0) }.isEmpty
+    //    }
+    //
+    //    public var viewForProposal: ViewSetting {
+    //        guard let newProposals = otherUser.settings?.agreedTimeProposals.filter({ !thisSettings.rejectedTimeProposals.contains($0) && $0 != 0 }),
+    //            let firstNewProposal = newProposals.first else { return .start }
+    //        return .otherAskedIfCanMeetLater(firstNewProposal)
+    //    }
+    //
+    //    public var withinRange: Bool {
+    //        if let withinRange = withinRangeOfEachOtherAndMeetPlace {
+    //            return withinRange < rangeThreshold
+    //        }
+    //        return false
+    //    }
+    //
+    //    public var otherUserIsEligibleToMeet: Bool {
+    //        if let otherStatus = otherUser.settings?.status {
+    //            return otherStatus != .rejectedOther
+    //                && otherStatus != .exceededRange
+    //        } else {
+    //            return false
+    //        }
+    //    }
+    //
+    //    // MARK - updates
+    //
+    //    public mutating func update(with new: Greet) -> Greet.Update? {
+    //        let rejectedTime = rejectedProposal(from: new)
+    //        venue = new.venue
+    //        otherUser = new.otherUser
+    //        thisSettings.updateSettings(with: otherUser.settings)
+    //        withinRangeOfEachOtherAndMeetPlace = new.withinRangeOfEachOtherAndMeetPlace
+    //
+    //        if thisSettings.status == .enroute && otherUser.settings?.status == .viewed {
+    //            otherUser.settings?.status = .enroute
+    //        }
+    //
+    //        if !validProposals.isEmpty {
+    //            otherUser.settings?.status = .enroute
+    //            thisSettings.status = .enroute
+    //        }
+    //
+    //        return Greet.Update(
+    //            this: thisSettings.status,
+    //            otherUser: otherUser.settings?.status,
+    //            withinRange: withinRange,
+    //            rejectedProposal: rejectedTime,
+    //            viewForProposal: viewForProposal,
+    //            otherUserName: otherUser.personal.name
+    //        )
+    //    }
+    //
+    //    public var validProposals: [Int] {
+    //        thisSettings
+    //            .agreedTimeProposals
+    //            .filter({ otherUser.settings?.agreedTimeProposals.contains($0) == true })
+    //            .filter({ otherUser.settings?.rejectedTimeProposals.contains($0) != true && thisSettings.rejectedTimeProposals.contains($0) != true })
+    //    }
+    //
+    //    // Reject
+    //
+    //    public func rejectedProposal(from new: Greet) -> Int? {
+    //        guard let oldRejectedTimeProposals = otherUser.settings?.rejectedTimeProposals,
+    //              let updatedRejectedTimeProposals =  new.otherUser.settings?.rejectedTimeProposals else {
+    //            return nil
+    //        }
+    //        return updatedRejectedTimeProposals.first { !oldRejectedTimeProposals.contains($0) }
+    //    }
+    //
+    //    public mutating func mrPracticeDidReject() -> Bool? {
+    //        if !isMrPractice {return nil}
+    //#if canImport(Darwin)
+    //return arc4random_uniform(4) == 0
+    //#else
+    //return Int.random(in: 0..<4) == 0
+    //#endif
+    //    }
 
 
 
@@ -289,7 +322,7 @@ public struct Greet: Codable, Equatable, Hashable {
         participantUserIDs: [UUID],
         initiationMethod: InitiationMethod,
         events: [GreetEvent] = []
-    ) {
+    ) throws {
         self.thisUserID = thisUserID
         self.otherUser = otherUser
         self.greetID = greetID
@@ -300,14 +333,17 @@ public struct Greet: Codable, Equatable, Hashable {
         self.matchMakingMethodVersion = matchMakingMethodVersion
         self.participantUserIDs = participantUserIDs
         self.events = events
+        if !self.events.isValid {
+            throw GenericError(text: "events are not valid.")
+        }
         self.initiationMethod = initiationMethod
     }
 
-    public var estimatedMeetTime: String {
-        // when the second agreed to comes in. then we grab the server date of the second agreed to time.
-        // or the later of the two times
-        ""
-    }
+    //    public var estimatedMeetTime: String {
+    //        // when the second agreed to comes in. then we grab the server date of the second agreed to time.
+    //        // or the later of the two times
+    //        ""
+    //    }
 
     public var otherUserTravelStatusText: String {
         let lastDistanceUpdate: Int = events
@@ -422,7 +458,7 @@ public enum GreetAction: Codable, Sendable, Hashable, Equatable, ActionStringCon
 
     case tappedRedVoipReject
 
-    /// Maybe this shouldn't translate to a rejection... But a warning to the other user.  That they aren't getting closer, and we will keep track of that.  you can keep waiting if you'd like. 
+    /// Maybe this shouldn't translate to a rejection... But a warning to the other user.  That they aren't getting closer, and we will keep track of that.  you can keep waiting if you'd like.
     /// If you are moving in a way that the travel time is growing past a certain point/allowance,
     ///  then the greet may auto close.  When current > (start + allowance), then auto-close.
     /// - starting travel time.
