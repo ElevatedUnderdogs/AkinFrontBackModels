@@ -27,16 +27,79 @@ struct GreetDetailsInputOutput {
     }
 }
 
+extension UUID {
+    static var zeroID: UUID = .init()
+    static var oneID: UUID = .init()
+    static var twoID: UUID = .init()
+    static var threeID: UUID = .init()
+    static var fourID: UUID = .init()
+    static var fiveID: UUID = .init()
+    static var sixthID: UUID = .init()
+    static var seventhID: UUID = .init()
+}
+
 final class FrontBackModelsTests: XCTestCase {
 
-    let zeroEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 0, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let oneEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 1, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let twoEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 2, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let threeEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 3, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let fourEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 4, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let fiveEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 5, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let sixEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 6, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let sevenEvent: GreetEvent = GreetEvent(eventID: .init(), serverSequenceNumber: 7, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+
+
+    let zeroEvent: GreetEvent = GreetEvent(eventID: .zeroID, serverSequenceNumber: 0, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let oneEvent: GreetEvent = GreetEvent(eventID: .oneID, serverSequenceNumber: 1, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let twoEvent: GreetEvent = GreetEvent(eventID: .twoID, serverSequenceNumber: 2, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let threeEvent: GreetEvent = GreetEvent(eventID: .threeID, serverSequenceNumber: 3, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let fourEvent: GreetEvent = GreetEvent(eventID: .fourID, serverSequenceNumber: 4, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let fiveEvent: GreetEvent = GreetEvent(eventID: .fiveID, serverSequenceNumber: 5, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let sixEvent: GreetEvent = GreetEvent(eventID: .sixthID, serverSequenceNumber: 6, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let sevenEvent: GreetEvent = GreetEvent(eventID: .seventhID, serverSequenceNumber: 7, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+
+
+    let thisID: UUID = .init()
+    let otherID: UUID = .init()
+
+    var greet: Greet {
+        try! .init(thisUserID: thisID, otherUser: NearbyUser(id: .init(), name: "Scott", profileImage: "", imageMetaData: .init(width: 20, height: 20, format: "jpeg", assessment: ModerationAssessment(entries: []), id: .init()), verified: true, lastLocationUpdate: nil), greetID: .init(), venue: Venue(url: "", name: "Starbucks", address: "", latitude: 37, longitude: 36), minutesAway: 10, otherMinutesAway: 15, initiationMethod: .manual(userID: .init()), travelMethod: .bike, matchMakingMethodVersion: 1, participantUserIDs: [thisID, otherID])
+    }
+
+    func testAddEvent() {
+        var buffer = greet
+        XCTAssertNoThrow(try buffer.add(event: zeroEvent))
+        XCTAssertThrowsError(try buffer.add(event: zeroEvent))
+    }
+
+    func testAddEvent1() {
+        var buffer = greet
+        XCTAssertThrowsError(try buffer.add(event: oneEvent))
+        XCTAssertNoThrow(try buffer.add(event: zeroEvent))
+    }
+
+    func testAddEvent2() {
+        var buffer = greet
+        XCTAssertNoThrow(try buffer.add(event: zeroEvent))
+        XCTAssertNoThrow(try buffer.add(event: oneEvent))
+        XCTAssertNoThrow(try buffer.add(event: twoEvent))
+        XCTAssertNoThrow(try buffer.add(event: threeEvent))
+    }
+
+    func testReplaceEvent() {
+        var buffer = greet
+        let zeroBuffer = zeroEvent
+        XCTAssertNoThrow(try buffer.add(event: zeroEvent))
+        XCTAssertNoThrow(try buffer.replace(element: .zeroID, with: zeroBuffer))
+        XCTAssertEqual(buffer.events.count, 1)
+    }
+
+    func testReplaceEventFail1() {
+        var buffer = greet
+        XCTAssertNoThrow(try buffer.add(event: zeroEvent))
+        XCTAssertThrowsError(try buffer.replace(element: .zeroID, with: oneEvent))
+        XCTAssertEqual(buffer.events.count, 1)
+        XCTAssertEqual(buffer.events.first, zeroEvent)
+    }
+
+    func testReplaceEventFailNotThere() {
+        var buffer = greet
+        XCTAssertThrowsError(try buffer.replace(element: .zeroID, with: zeroEvent))
+        XCTAssertEqual(buffer.events.count, 0)
+    }
 
     func testEventsAreValid() {
         let invalidEvents: [GreetEvent] = [zeroEvent, zeroEvent]
