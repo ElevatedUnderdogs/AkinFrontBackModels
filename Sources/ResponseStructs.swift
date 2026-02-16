@@ -219,6 +219,7 @@ public enum ManualGreetResponse: Codable {
     case otherUserIsInGreet
     case thisUserIsInGreet
     case thisAndOtherUserAlreadyInSameGreet
+    case noNearbyVenuesOpen
 }
 
 public struct ManualGreetNotification: Codable {
