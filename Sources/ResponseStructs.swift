@@ -46,7 +46,6 @@ public enum NotificationFrequency: String, CaseIterable, Identifiable, Codable, 
 
 public struct GreetedUser: Identifiable, Codable, Equatable, Hashable {
     public let id: UUID
-    public let greetID: UUID
     public var name: String
     public var profileImageURL: String
     public var isBlocked: Bool
@@ -55,7 +54,6 @@ public struct GreetedUser: Identifiable, Codable, Equatable, Hashable {
 
     public init(
         id: UUID,
-        greetID: UUID,
         name: String,
         profileImageURL: String,
         isBlocked: Bool,
@@ -63,7 +61,6 @@ public struct GreetedUser: Identifiable, Codable, Equatable, Hashable {
         automaticNotificationFrequency: NotificationFrequency
     ) {
         self.id = id
-        self.greetID = greetID
         self.name = name
         self.profileImageURL = profileImageURL
         self.isBlocked = isBlocked
