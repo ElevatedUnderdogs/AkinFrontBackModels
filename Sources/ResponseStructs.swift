@@ -51,6 +51,7 @@ public struct GreetedUser: Identifiable, Codable, Equatable, Hashable {
     public var isBlocked: Bool
     public var manualNotificationFrequency: NotificationFrequency
     public var automaticNotificationFrequency: NotificationFrequency
+    public var rating: Int?
 
     public init(
         id: UUID,
@@ -58,7 +59,8 @@ public struct GreetedUser: Identifiable, Codable, Equatable, Hashable {
         profileImageURL: String,
         isBlocked: Bool,
         manualNotificationFrequency: NotificationFrequency,
-        automaticNotificationFrequency: NotificationFrequency
+        automaticNotificationFrequency: NotificationFrequency,
+        rating: Int? = nil
     ) {
         self.id = id
         self.name = name
@@ -66,6 +68,7 @@ public struct GreetedUser: Identifiable, Codable, Equatable, Hashable {
         self.isBlocked = isBlocked
         self.manualNotificationFrequency = manualNotificationFrequency
         self.automaticNotificationFrequency = automaticNotificationFrequency
+        self.rating = rating
     }
 }
 
