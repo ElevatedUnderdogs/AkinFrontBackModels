@@ -65,12 +65,10 @@ public struct ImportancesUpdate: Codable {
 
 // Request public structure for rating a greet
 public struct Rating: Codable {
-    //public let greetId: UUID
     public let otherUserId: UUID
     public let rating: Double
 
-    public init(greetId: UUID, otherUserId: UUID, rating: Double) {
-       // self.greetId = greetId
+    public init(otherUserId: UUID, rating: Double) {
         self.otherUserId = otherUserId
         self.rating = rating
     }

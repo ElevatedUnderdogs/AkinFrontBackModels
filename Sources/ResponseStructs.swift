@@ -52,15 +52,19 @@ public struct GreetedUser: Identifiable, Codable, Equatable, Hashable {
     public var manualNotificationFrequency: NotificationFrequency
     public var automaticNotificationFrequency: NotificationFrequency
     public var rating: Int?
+    public var greetIDs: [UUID] = []
+    public var metOnDate: Date?
 
     public init(
         id: UUID,
         name: String,
         profileImageURL: String,
-        isBlocked: Bool,
-        manualNotificationFrequency: NotificationFrequency,
-        automaticNotificationFrequency: NotificationFrequency,
-        rating: Int? = nil
+        isBlocked: Bool = false,
+        manualNotificationFrequency: NotificationFrequency = .unrestricted,
+        automaticNotificationFrequency: NotificationFrequency = .unrestricted,
+        rating: Int? = nil,
+        greetIDs: [UUID] = [],
+        metOnDate: Date? = nil
     ) {
         self.id = id
         self.name = name
@@ -69,6 +73,8 @@ public struct GreetedUser: Identifiable, Codable, Equatable, Hashable {
         self.manualNotificationFrequency = manualNotificationFrequency
         self.automaticNotificationFrequency = automaticNotificationFrequency
         self.rating = rating
+        self.greetIDs = greetIDs
+        self.metOnDate = metOnDate
     }
 }
 
