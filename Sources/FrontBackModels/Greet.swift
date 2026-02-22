@@ -394,6 +394,8 @@ public struct GreetEvent: Codable, Sendable, Hashable {
     /// Stable identity for this event (idempotency, debugging).
     public let eventID: UUID
 
+    public let greetID: UUID
+
     /// Monotonic ordering number assigned by the server, scoped to greetID.
     public let serverSequenceNumber: Int
 
@@ -413,13 +415,15 @@ public struct GreetEvent: Codable, Sendable, Hashable {
         serverSequenceNumber: Int,
         actorUserID: UUID,
         serverDate: Date,
-        action: GreetAction
+        action: GreetAction,
+        greetID: UUID
     ) {
         self.eventID = eventID
         self.serverSequenceNumber = serverSequenceNumber
         self.actorUserID = actorUserID
         self.serverDate = serverDate
         self.action = action
+        self.greetID = greetID
     }
 }
 
