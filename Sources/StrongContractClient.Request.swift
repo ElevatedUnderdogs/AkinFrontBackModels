@@ -196,6 +196,14 @@ extension EmployeeLeaderboard {
     }
 }
 
+public typealias EmployeeLeaderboardFromGoogleID = Request<String, VenueImpactSummary>
+extension EmployeeLeaderboardFromGoogleID {
+
+    public static var employeeLeaderboard: Self {
+        .init(method: .post)
+    }
+}
+
 public struct NearbyEmptyStateResponse: Codable, Hashable, Equatable {
 
     // MARK: Clout
