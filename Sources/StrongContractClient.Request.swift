@@ -179,6 +179,14 @@ extension SearchSavedVenues {
     }
 }
 
+public typealias VenueByGoogleID = Request<String, ImpactVenue?>
+extension VenueByGoogleID {
+
+    public static var venueByGoogleID: Self {
+        .init(method: .post)
+    }
+}
+
 ///
 public typealias EmployeeLeaderboard = Request<UUID, VenueImpactSummary>
 extension EmployeeLeaderboard {
