@@ -204,6 +204,34 @@ extension EmployeeLeaderboardFromGoogleID {
     }
 }
 
+/// Fetched from and decoded from: `https://places.googleapis.com/v1/places:autocomplete` Its good for searching based on a text query.
+/// But it does not include lat lon and the full proper address with details, therefore we need  to make a  second  call to: https://places.googleapis.com/v1/ to get more details.
+public struct PlaceSuggestion: Identifiable, Hashable, Sendable {
+    /// Google uses string ids not uuid.
+    public var id: String { placeID }
+    ///Usually the name of  the venue
+    public let primaryText: String
+    ///The  street and city, but not full address.
+    public let secondaryText: String?
+    /// Google uses string ids not uuid.
+    public let placeID: String
+
+    var name: String {
+        primaryText
+    }
+
+    var address: String? {
+        secondaryText
+    }
+
+    public init(primaryText: String, secondaryText: String?, placeID: String) {
+        self.primaryText = primaryText
+        self.secondaryText = secondaryText
+        self.placeID = placeID
+    }
+}
+
+
 public struct NearbyEmptyStateResponse: Codable, Hashable, Equatable {
 
     // MARK: Clout
