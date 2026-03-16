@@ -206,7 +206,7 @@ extension EmployeeLeaderboardFromGoogleID {
 
 /// Fetched from and decoded from: `https://places.googleapis.com/v1/places:autocomplete` Its good for searching based on a text query.
 /// But it does not include lat lon and the full proper address with details, therefore we need  to make a  second  call to: https://places.googleapis.com/v1/ to get more details.
-public struct PlaceSuggestion: Identifiable, Hashable, Sendable {
+public struct PlaceSuggestion: Identifiable, Hashable, Sendable, Codable, Equatable {
     /// Google uses string ids not uuid.
     public var id: String { placeID }
     ///Usually the name of  the venue
