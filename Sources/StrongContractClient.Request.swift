@@ -196,7 +196,7 @@ extension EmployeeLeaderboard {
     }
 }
 
-public typealias EmployeeLeaderboardFromGoogleID = Request<String, VenueImpactSummary>
+public typealias EmployeeLeaderboardFromGoogleID = Request<PlaceSuggestion, VenueImpactSummary>
 extension EmployeeLeaderboardFromGoogleID {
 
     public static var employeeLeaderboard: Self {
