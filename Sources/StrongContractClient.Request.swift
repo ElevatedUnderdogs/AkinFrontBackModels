@@ -1237,3 +1237,78 @@ extension SendAppleTokenRequest {
         .init(method: .post)
     }
 }
+
+// MARK: - CallKit Consent
+
+/// The payload the client sends when the user grants or revokes CallKit consent.
+public struct CallKitConsentPayload: Codable, Equatable, Hashable {
+
+    /// `true` when the user opts in, `false` when they opt out.
+    public let hasGrantedCallKitConsent: Bool
+
+    public init(hasGrantedCallKitConsent: Bool) {
+        self.hasGrantedCallKitConsent = hasGrantedCallKitConsent
+    }
+}
+
+/// The server's response after updating or fetching CallKit consent.
+public struct CallKitConsentResponse: Codable, Equatable, Hashable {
+
+    /// Whether the user currently has CallKit consent granted.
+    public let hasGrantedCallKitConsent: Bool
+
+    /// Server timestamp of when consent was last changed, if ever.
+    public let consentUpdatedAt: Date?
+
+    public init(
+        hasGrantedCallKitConsent: Bool,
+        consentUpdatedAt: Date?
+    ) {
+        self.hasGrantedCallKitConsent = hasGrantedCallKitConsent
+        self.consentUpdatedAt = consentUpdatedAt
+    }
+}
+
+public typealias UpdateCallKitConsentRequest = Request<CallKitConsentPayload, CallKitConsentResponse>
+extension UpdateCallKitConsentRequest {
+
+    /// Posts the user's CallKit consent decision so it persists
+    /// across devices and survives app reinstalls.
+    public static var updateCallKitConsent: Self {
+        .init(method: .post)
+    }
+}
+
+public typealias GetCallKitConsentRequest = Request<Empty, CallKitConsentResponse>
+extension GetCallKitConsentRequest {
+
+    /// Fetches the user's current CallKit consent state from the server.
+    public static var getCallKitConsent: Self {
+        .init(method: .get)
+    }
+}
+
+/// Payload for initiating a VoIP call to another user during a greet.
+public struct InitiateVoipCallPayload: Codable, Equatable, Hashable {
+
+    /// The greet in which this call is being placed.
+    public let greetID: UUID
+
+    /// The type of call being initiated.
+    public let callType: CallType
+
+    public init(greetID: UUID, callType: CallType) {
+        self.greetID = greetID
+        self.callType = callType
+    }
+}
+
+public typealias InitiateVoipCallRequest = Request<InitiateVoipCallPayload, StandardPostResponse>
+extension InitiateVoipCallRequest {
+
+    /// Asks the server to send a VoIP push to the other participant
+    /// in the greet, triggering their phone to ring.
+    public static var initiateVoipCall: Self {
+        .init(method: .post)
+    }
+}

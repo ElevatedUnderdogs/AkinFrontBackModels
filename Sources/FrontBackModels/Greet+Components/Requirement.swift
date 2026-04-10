@@ -13,7 +13,8 @@ public enum Requirement: Equatable, Codable {
     case birthday,
          location(Location),
          profilePic,
-         pushNotification(PushNotification)
+         pushNotification(PushNotification),
+         callKitConsent
 
     public enum Location: Codable {
         case regular, requiresDeeplinkToSettings, shouldUpgradeToAlways

@@ -465,6 +465,9 @@ public enum GreetAction: Codable, Sendable, Hashable, Equatable, ActionStringCon
     /// Associated value in minutes.
     case travelTimeToVenue(changedTo: Int)
 
+    /// Associated value in meters.
+    case travelDistanceToVenue(changedTo: Double)
+
     // MARK: - Greet closers.
     /// The current verbiage in the app ui is "dismiss" which is essentially rejecting the meetup with the other person
     /// altogether.
@@ -484,6 +487,25 @@ public enum GreetAction: Codable, Sendable, Hashable, Equatable, ActionStringCon
     /// - current travel time.
     case notGettingCloser(start: Int, allowance: Int, current: Int)
 
+    // MARK: - CallKit activity
+
+    /// A user initiated a VoIP call to the other participant.
+    /// The associated `CallType` distinguishes the purpose of the call.
+    case callInitiated(CallType)
+
+    /// The recipient answered an incoming VoIP call.
+    case callAnswered(CallType)
+
+    /// The recipient actively declined an incoming VoIP call.
+    case callDeclined(CallType)
+
+    /// Either party ended an in-progress VoIP call.
+    case callEnded(CallType)
+
+    /// The other user has viewed the greet screen. Used to track
+    /// whether the "no response" call offer should appear.
+    case viewedGreetScreen
+
     // MARK: - Conclusion.
     case confirmedMet
 
@@ -496,8 +518,22 @@ public enum GreetAction: Codable, Sendable, Hashable, Equatable, ActionStringCon
         return false
     }
 
+    public var isDistanceUpdate: Bool {
+        if case .travelDistanceToVenue = self {
+            return true
+        }
+        return false
+    }
+
     public var travelTime: Int? {
         if case .travelTimeToVenue(let changedTo) = self {
+            return changedTo
+        }
+        return nil
+    }
+
+    public var travelDistance: Double? {
+        if case .travelDistanceToVenue(let changedTo) = self {
             return changedTo
         }
         return nil
@@ -530,5 +566,36 @@ public enum GreetAction: Codable, Sendable, Hashable, Equatable, ActionStringCon
             return int
         }
         return nil
+    }
+
+    /// Whether this action represents any CallKit-related activity.
+    public var isCallKitAction: Bool {
+        switch self {
+        case .callInitiated, .callAnswered, .callDeclined, .callEnded:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// The `CallType` associated with a CallKit action, if any.
+    public var callType: CallType? {
+        switch self {
+        case .callInitiated(let callType),
+             .callAnswered(let callType),
+             .callDeclined(let callType),
+             .callEnded(let callType):
+            return callType
+        default:
+            return nil
+        }
+    }
+
+    /// Whether this action indicates the other user viewed the greet screen.
+    public var isViewedGreetScreen: Bool {
+        if case .viewedGreetScreen = self {
+            return true
+        }
+        return false
     }
 }

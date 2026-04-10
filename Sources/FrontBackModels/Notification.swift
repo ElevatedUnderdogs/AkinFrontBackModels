@@ -26,6 +26,10 @@ extension Greet {
         case greet(Greet)
         case silentLocationUpdate
 
+        /// A VoIP call notification that carries a callType so the
+        /// client can distinguish ring-to-greet from live VoIP calls.
+        case voipCall(Greet, callType: CallType)
+
         public init(localNotificationModel: Greet.Notification.LocalModel) {
             self = .getRating(localNotificationModel)
         }
@@ -35,11 +39,13 @@ extension Greet {
             case getRating
             case greet
             case silentLocationUpdate
+            case voipCall
         }
 
         private enum CodingKeys: String, CodingKey {
             case caseType
             case associatedValue
+            case callType
         }
 
         // Encode
@@ -57,6 +63,11 @@ extension Greet {
 
             case .silentLocationUpdate:
                 try container.encode(CaseType.silentLocationUpdate, forKey: .caseType)
+
+            case .voipCall(let greet, let callType):
+                try container.encode(CaseType.voipCall, forKey: .caseType)
+                try container.encode(greet, forKey: .associatedValue)
+                try container.encode(callType, forKey: .callType)
             }
         }
 
@@ -76,6 +87,11 @@ extension Greet {
 
             case .silentLocationUpdate:
                 self = .silentLocationUpdate
+
+            case .voipCall:
+                let greet = try container.decode(Greet.self, forKey: .associatedValue)
+                let callType = try container.decode(CallType.self, forKey: .callType)
+                self = .voipCall(greet, callType: callType)
             }
         }
     }
