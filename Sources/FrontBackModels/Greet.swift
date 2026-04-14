@@ -12,24 +12,6 @@ import Callable
 public typealias CompatibilityContext = String
 public typealias CompatibilityScore = Double
 
-//public struct GreetPayload {
-//    // MARK - properties
-//
-//    public var greetID: UUID
-//    public var method: Greet.Method = .wave
-//    /// Will have to refactor this when accounting for more than two users.
-//    public var compatibility: [CompatibilityContext: CompatibilityScore] = [:]
-//    public var openers: [String] = []
-//    public var venue: Venue? = nil
-//    public var travelMethod: TravelMethod? = nil
-//    public var matchMakingMethodVersion: Double? = nil
-//    public var rangeThreshold: Int = 0
-//    public var meetingTime: Date? = nil
-//
-//    public var users: [UUID: NearbyUser]
-//
-//}
-
 extension [GreetEvent] {
 
     func userAgreedTo(meetIn: Int, userID: UUID) -> Bool {
@@ -42,7 +24,7 @@ extension [GreetEvent] {
     /// Checks that the events are ordered and in a sequence.
     /// Considered calling it `isSequentialFromZeroNoGapsIfSorted`
     public var isValid: Bool {
-        var counter: Int = 0
+        var counter: Int = 1
         for event in self.sorted(by: <) {
             if event.serverSequenceNumber != counter {
                 return false
@@ -83,66 +65,29 @@ public struct Greet: Codable, Equatable, Hashable {
 
     /// This is the compatibility of the other user to you.
     /// For example, the other user might be 75% compatible as a friend, and 1% compatibility as a romantic partner.
-    ///
     public var compatitibility: [CompatibilityContext: CompatibilityScore] = [:]
     public var openers: [String] = []
     public var venue: Venue
-    //    public var isMrPractice: Bool = false
-    //    public var thisSettings = Settings(status: .viewed, id: .init())
-    //    /// consider moving to thisSettings.
-    //    /// **BACKEND**Should be given by the updater, so that it is sent to the
-    //    /// recipient in the otherUser.percentThisTravelled property chain.
-    //    /// **CLIENT** provide this information to be sent, ignore it when received.
-    //    public var percentThisTravelled: Double = 0
-    //    /// Needed for updating the travel distance. for updateGreet endpoint.
-    //    /// This is needed to be used for the isNearby calculation.
-    //    public var travelDistanceFromVenueInMeters: Double? = nil
-    //
-    /// The starting distance away from the venue of the other user.
-    //    public var otherUserTravelMinutesAwayFromVenue: Int
-
-    //    /// The starting distance away from the venue of this user.
-    //    public var travelMinutesToVenue: Int
 
     public var initiationMethod: InitiationMethod
 
     /// I presume this user's travel method.   Though it might be the other user's travel method.
     public var travelMethod: TravelMethod
-    //    public var withinRangeOfEachOtherAndMeetPlace: Int? = nil
     public var matchMakingMethodVersion: Double
 
     /// Don't know what this is for...on the lookout.. or what it is measured in..
-    //  public var rangeThreshold: Int = 0
     public var minutesAway: Int
-    //        /// Starting minutes away that this user is.
-    //         estimatedTravelTimeInMinutes: Int,
-    /// Other user starting minutes away that this user is from the venue.
     public var otherMinutesAway: Int
-
-    // public var meetingTime: Date? = nil
-
     public let participantUserIDs: [UUID]
     private(set) public var events: [GreetEvent] = []
 
     public mutating func add(event: GreetEvent) throws {
-        var buffer = self.events
-        buffer.append(event)
-        if buffer.isValid {
-            self.events.append(event)
-        } else {
-            throw GenericError(text: "Events \(self.events) would not be valid after adding this event: \(event)")
-        }
+        events.append(event)
     }
 
     public mutating func replace(element tempID: UUID, with updatedElement: GreetEvent) throws {
         if let index = events.firstIndex(where: { $0.eventID == tempID }) {
-            var buffer = events
-            buffer[index] = updatedElement
-            if buffer.isValid {
-                self.events[index] = updatedElement
-            } else {
-                throw GenericError(text: "replacing the element with the new element would make the events invalid: events: \(events)")
-            }
+            events[index] = updatedElement
         } else {
             throw GenericError(text: "We couldn't find an element with id: \(tempID) and events: \(events)")
         }
@@ -161,35 +106,17 @@ public struct Greet: Codable, Equatable, Hashable {
     // MARK: - Initializer
     public init(
         thisUserID: UUID,
-        /// Alternatable.
         otherUser: NearbyUser,
         greetID: UUID,
         method: Greet.Method = .wave,
-        /// alternatable
         compatitibility: [CompatibilityContext: CompatibilityScore] = [:],
-        /// alternatable optionally.
         openers: [String] = [],
         venue: Venue,
-        //         isMrPractice: Bool = false,
-        /// alternatable
-        //         thisSettings: Settings = Settings(status: .viewed, id: .init()),
-        /// alternatable
-        //         percentThisTravelled: Double = 0,
-        //         travelDistanceFromVenueInMeters: Double? = nil,
-        /// alternatable
-        /// Starting minutes away that this user is.
         minutesAway: Int,
-        //        /// Starting minutes away that this user is.
-        //         estimatedTravelTimeInMinutes: Int,
-        /// Other user starting minutes away that this user is from the venue.
         otherMinutesAway: Int,
-        /// alternatable
         initiationMethod: InitiationMethod,
         travelMethod: TravelMethod,
-        //         withinRangeOfEachOtherAndMeetPlace: Int? = nil,
         matchMakingMethodVersion: Double,
-        // rangeThreshold: Int = 0,
-        //  meetingTime: Date? = nil,
         participantUserIDs: [UUID],
         events: [GreetEvent] = []
     ) throws {
@@ -199,126 +126,19 @@ public struct Greet: Codable, Equatable, Hashable {
         self.compatitibility = compatitibility
         self.openers = openers
         self.venue = venue
-        //         self.isMrPractice = isMrPractice
-        //         self.thisSettings = thisSettings
-        //         self.percentThisTravelled = percentThisTravelled
-        //         self.travelDistanceFromVenueInMeters = travelDistanceFromVenueInMeters
-        // self.otherUserTravelMinutesAwayFromVenue = minutesAway
         self.initiationMethod = initiationMethod
         self.travelMethod = travelMethod
-        //         self.withinRangeOfEachOtherAndMeetPlace = withinRangeOfEachOtherAndMeetPlace
         self.matchMakingMethodVersion = matchMakingMethodVersion
-        // self.travelMinutesToVenue = estimatedTravelTimeInMinutes
-        // self.rangeThreshold = rangeThreshold
-        // self.meetingTime = meetingTime
 
         self.minutesAway = minutesAway
         self.otherMinutesAway = otherMinutesAway
         self.participantUserIDs = participantUserIDs
         self.events = events
-        if !self.events.isValid {
-            throw GenericError(text: "events are not valid.")
-        }
+//        if !self.events.isValid {
+//            throw GenericError(text: "events are not valid.")
+//        }
         self.thisUserID = thisUserID
     }
-    //
-    //    public var meetInXMinutes: Int? {
-    //        guard let travelMinutesToVenue else { return nil }
-    //        guard let otherUserTravelMinutesAwayFromVenue else { return nil }
-    //        return max(
-    //            (travelMinutesToVenue + 5 /*buffer*/ + (validProposals.first ?? 0)),
-    //            (otherUserTravelMinutesAwayFromVenue + 5 /*buffer*/ + (validProposals.first ?? 0))
-    //        )
-    //    }
-    //
-    //    public var agreedTime: Int? {
-    //        guard let otherUserSettings = otherUser.settings else { return nil }
-    //        return thisSettings.agreedTimeProposals.filter({ !otherUserSettings.rejectedTimeProposals.contains($0) && otherUserSettings.agreedTimeProposals.contains($0) }).first
-    //    }
-    //
-    //    public var isWaiting: Bool {
-    //        let proposals = thisSettings.agreedTimeProposals
-    //        guard let rejectedProposals = otherUser.settings?.rejectedTimeProposals else { return false }
-    //        return !proposals.filter { !rejectedProposals.contains($0) }.isEmpty
-    //    }
-    //
-    //    public var viewForProposal: ViewSetting {
-    //        guard let newProposals = otherUser.settings?.agreedTimeProposals.filter({ !thisSettings.rejectedTimeProposals.contains($0) && $0 != 0 }),
-    //            let firstNewProposal = newProposals.first else { return .start }
-    //        return .otherAskedIfCanMeetLater(firstNewProposal)
-    //    }
-    //
-    //    public var withinRange: Bool {
-    //        if let withinRange = withinRangeOfEachOtherAndMeetPlace {
-    //            return withinRange < rangeThreshold
-    //        }
-    //        return false
-    //    }
-    //
-    //    public var otherUserIsEligibleToMeet: Bool {
-    //        if let otherStatus = otherUser.settings?.status {
-    //            return otherStatus != .rejectedOther
-    //                && otherStatus != .exceededRange
-    //        } else {
-    //            return false
-    //        }
-    //    }
-    //
-    //    // MARK - updates
-    //
-    //    public mutating func update(with new: Greet) -> Greet.Update? {
-    //        let rejectedTime = rejectedProposal(from: new)
-    //        venue = new.venue
-    //        otherUser = new.otherUser
-    //        thisSettings.updateSettings(with: otherUser.settings)
-    //        withinRangeOfEachOtherAndMeetPlace = new.withinRangeOfEachOtherAndMeetPlace
-    //
-    //        if thisSettings.status == .enroute && otherUser.settings?.status == .viewed {
-    //            otherUser.settings?.status = .enroute
-    //        }
-    //
-    //        if !validProposals.isEmpty {
-    //            otherUser.settings?.status = .enroute
-    //            thisSettings.status = .enroute
-    //        }
-    //
-    //        return Greet.Update(
-    //            this: thisSettings.status,
-    //            otherUser: otherUser.settings?.status,
-    //            withinRange: withinRange,
-    //            rejectedProposal: rejectedTime,
-    //            viewForProposal: viewForProposal,
-    //            otherUserName: otherUser.personal.name
-    //        )
-    //    }
-    //
-    //    public var validProposals: [Int] {
-    //        thisSettings
-    //            .agreedTimeProposals
-    //            .filter({ otherUser.settings?.agreedTimeProposals.contains($0) == true })
-    //            .filter({ otherUser.settings?.rejectedTimeProposals.contains($0) != true && thisSettings.rejectedTimeProposals.contains($0) != true })
-    //    }
-    //
-    //    // Reject
-    //
-    //    public func rejectedProposal(from new: Greet) -> Int? {
-    //        guard let oldRejectedTimeProposals = otherUser.settings?.rejectedTimeProposals,
-    //              let updatedRejectedTimeProposals =  new.otherUser.settings?.rejectedTimeProposals else {
-    //            return nil
-    //        }
-    //        return updatedRejectedTimeProposals.first { !oldRejectedTimeProposals.contains($0) }
-    //    }
-    //
-    //    public mutating func mrPracticeDidReject() -> Bool? {
-    //        if !isMrPractice {return nil}
-    //#if canImport(Darwin)
-    //return arc4random_uniform(4) == 0
-    //#else
-    //return Int.random(in: 0..<4) == 0
-    //#endif
-    //    }
-
-
 
     public var latestServerSequenceNumber: Int {
         events.last?.serverSequenceNumber ?? 0
@@ -347,17 +167,11 @@ public struct Greet: Codable, Equatable, Hashable {
         self.matchMakingMethodVersion = matchMakingMethodVersion
         self.participantUserIDs = participantUserIDs
         self.events = events
-        if !self.events.isValid {
-            throw GenericError(text: "events are not valid.")
-        }
+//        if !self.events.isValid {
+//            throw GenericError(text: "events are not valid.")
+//        }
         self.initiationMethod = initiationMethod
     }
-
-    //    public var estimatedMeetTime: String {
-    //        // when the second agreed to comes in. then we grab the server date of the second agreed to time.
-    //        // or the later of the two times
-    //        ""
-    //    }
 
     public var otherUserTravelStatusText: String {
         let lastDistanceUpdate: Int = events
