@@ -27,13 +27,18 @@ public struct NearbyUser: Codable, Hashable, Equatable {
     /// If nil, this means the location hasn't been updated.
     public let lastLocationUpdate: Date?
 
+    /// Whether the other user has granted CallKit (VoIP calling) consent.
+    /// When `false`, the call button should be hidden for this user.
+    public var hasGrantedCallKitConsent: Bool
+
     public init(
         id: UUID,
         name: String,
         profileImage: String,
         imageMetaData: ImageMetadata,
         verified: Bool = false,
-        lastLocationUpdate: Date? = nil
+        lastLocationUpdate: Date? = nil,
+        hasGrantedCallKitConsent: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -41,6 +46,7 @@ public struct NearbyUser: Codable, Hashable, Equatable {
         self.verified = verified
         self.imageMetaData = imageMetaData
         self.lastLocationUpdate = lastLocationUpdate
+        self.hasGrantedCallKitConsent = hasGrantedCallKitConsent
     }
 
 //    public var placeholderGreetUser: NearbyUser {
