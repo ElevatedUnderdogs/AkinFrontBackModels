@@ -400,18 +400,15 @@ extension ResetPasswordEndpoint {
 // MARK: - Terms Acceptance Logging Payload
 
 public struct AcceptTermsRequest: Codable, Equatable, Hashable {
-    public let termsVersion: String
     public let acceptedAt: Date
     public let deviceInfo: String?
     public let source: String? // "ios", "android", "web"
 
     public init(
-        termsVersion: String,
         acceptedAt: Date,
         deviceInfo: String?,
         source: String?
     ) {
-        self.termsVersion = termsVersion
         self.acceptedAt = acceptedAt
         self.deviceInfo = deviceInfo
         self.source = source
@@ -1309,6 +1306,26 @@ extension InitiateVoipCallRequest {
     /// Asks the server to send a VoIP push to the other participant
     /// in the greet, triggering their phone to ring.
     public static var initiateVoipCall: Self {
+        .init(method: .post)
+    }
+}
+
+// MARK: - WebRTC signalling relay
+
+/// Endpoint the client uses to relay a single Web Real Time
+/// Communication (WebRTC) signalling message (Session
+/// Description Protocol offer/answer or Interactive
+/// Connectivity Establishment candidate) to the other
+/// participant in the Greet.  The server does no
+/// interpretation — it simply looks up the other user and
+/// forwards the payload over its WebSocket, wrapped as
+/// ``SocketPayload/voipSignal(_:)``.
+public typealias RelayVoipSignalRequest = Request<VoipSignalPayload, StandardPostResponse>
+extension RelayVoipSignalRequest {
+
+    /// Posts a single WebRTC signalling message so the server
+    /// can forward it to the other Greet participant.
+    public static var relayVoipSignal: Self {
         .init(method: .post)
     }
 }
