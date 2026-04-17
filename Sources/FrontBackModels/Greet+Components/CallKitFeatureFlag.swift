@@ -26,7 +26,7 @@ public enum CallKitFeatureFlag {
 
 	/// Enables offering a VoIP call when the other user has not
 	/// viewed the greet screen after the configured delay.
-	public static var isRingToVoipAfterNoResponseEnabled: Bool = false
+	public static var isRingToVoipAfterOtherUserNotViewedEnabled: Bool = false
 
 	/// Enables a VoIP call button while both users are en route
 	/// to the venue, for coordination.
@@ -36,7 +36,7 @@ public enum CallKitFeatureFlag {
 
 	/// Whether any VoIP calling feature is currently active.
 	public static var isAnyVoipCallEnabled: Bool {
-		isCallKitEnabled && (isRingToVoipAfterNoResponseEnabled || isRingToVoipEnrouteEnabled)
+		isCallKitEnabled && (isRingToVoipAfterOtherUserNotViewedEnabled || isRingToVoipEnrouteEnabled)
 	}
 
 	/// Checks whether a specific `CallType` is allowed under the
@@ -49,8 +49,8 @@ public enum CallKitFeatureFlag {
 		switch callType {
 		case .ringToGreet:
 			return isRingToGreetEnabled
-		case .ringToVoipAfterNoResponse:
-			return isRingToVoipAfterNoResponseEnabled
+		case .ringToVoipAfterOtherUserNotViewed:
+			return isRingToVoipAfterOtherUserNotViewedEnabled
 		case .ringToVoipEnroute:
 			return isRingToVoipEnrouteEnabled
 		}

@@ -49,6 +49,20 @@ public struct NearbyUser: Codable, Hashable, Equatable {
         self.hasGrantedCallKitConsent = hasGrantedCallKitConsent
     }
 
+    /// Custom decoder to remain backward-compatible with server payloads that predate
+    /// the `hasGrantedCallKitConsent` field.  Any JSON missing that key decodes to `false`
+    /// rather than throwing `keyNotFound`.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        profileImage = try container.decode(String.self, forKey: .profileImage)
+        imageMetaData = try container.decode(ImageMetadata.self, forKey: .imageMetaData)
+        verified = try container.decodeIfPresent(Bool.self, forKey: .verified) ?? false
+        lastLocationUpdate = try container.decodeIfPresent(Date.self, forKey: .lastLocationUpdate)
+        hasGrantedCallKitConsent = try container.decodeIfPresent(Bool.self, forKey: .hasGrantedCallKitConsent) ?? false
+    }
+
 //    public var placeholderGreetUser: NearbyUser {
 //        NearbyUser(
 //            nearbyUser: self,
