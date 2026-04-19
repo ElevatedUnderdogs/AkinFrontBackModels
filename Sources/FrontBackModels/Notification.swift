@@ -26,9 +26,20 @@ extension Greet {
         case greet(Greet)
         case silentLocationUpdate
 
-        /// A VoIP call notification that carries a callType so the
-        /// client can distinguish ring-to-greet from live VoIP calls.
-        case voipCall(Greet, callType: CallType)
+        // Commented out by Scott Lydon + claude on 4/19/26:
+        // Moved out of `Greet.Notification` into its own top-level
+        // `VoipCallPayload` type.  The `.voipCall` case previously
+        // embedded a full `Greet` (with its unbounded `events` array,
+        // full `NearbyUser`, full `Venue`, `openers`, etc.) which
+        // routinely pushed the VoIP (PushKit) payload past Apple's
+        // 5120 byte ceiling, producing APNs `413 PayloadTooLarge`.
+        // Keeping the incoming-call shape as a distinct top-level
+        // Codable struct prevents any future caller from accidentally
+        // stuffing a full `Greet` into the VoIP pipe again.
+        //
+        // /// A VoIP call notification that carries a callType so the
+        // /// client can distinguish ring-to-greet from live VoIP calls.
+        // case voipCall(Greet, callType: CallType)
 
         public init(localNotificationModel: Greet.Notification.LocalModel) {
             self = .getRating(localNotificationModel)
@@ -39,13 +50,21 @@ extension Greet {
             case getRating
             case greet
             case silentLocationUpdate
-            case voipCall
+            // Commented out by Scott Lydon + claude on 4/19/26:
+            // the `.voipCall` case has been extracted to the top-level
+            // `VoipCallPayload` type.  Discriminator retained here as a
+            // comment for grep-ability during the migration.
+            // case voipCall
         }
 
         private enum CodingKeys: String, CodingKey {
             case caseType
             case associatedValue
-            case callType
+            // Commented out by Scott Lydon + claude on 4/19/26:
+            // The `.callType` coding key was only used by the removed
+            // `.voipCall` case.  Left here as a breadcrumb for anyone
+            // grepping the migration history.
+            // case callType
         }
 
         // Encode
@@ -64,10 +83,11 @@ extension Greet {
             case .silentLocationUpdate:
                 try container.encode(CaseType.silentLocationUpdate, forKey: .caseType)
 
-            case .voipCall(let greet, let callType):
-                try container.encode(CaseType.voipCall, forKey: .caseType)
-                try container.encode(greet, forKey: .associatedValue)
-                try container.encode(callType, forKey: .callType)
+            // Commented out by Scott Lydon + claude on 4/19/26:
+            // case .voipCall(let greet, let callType):
+            //     try container.encode(CaseType.voipCall, forKey: .caseType)
+            //     try container.encode(greet, forKey: .associatedValue)
+            //     try container.encode(callType, forKey: .callType)
             }
         }
 
@@ -88,10 +108,11 @@ extension Greet {
             case .silentLocationUpdate:
                 self = .silentLocationUpdate
 
-            case .voipCall:
-                let greet = try container.decode(Greet.self, forKey: .associatedValue)
-                let callType = try container.decode(CallType.self, forKey: .callType)
-                self = .voipCall(greet, callType: callType)
+            // Commented out by Scott Lydon + claude on 4/19/26:
+            // case .voipCall:
+            //     let greet = try container.decode(Greet.self, forKey: .associatedValue)
+            //     let callType = try container.decode(CallType.self, forKey: .callType)
+            //     self = .voipCall(greet, callType: callType)
             }
         }
     }
