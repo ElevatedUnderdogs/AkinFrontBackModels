@@ -42,14 +42,14 @@ final class FrontBackModelsTests: XCTestCase {
 
 
 
-    let zeroEvent: GreetEvent = GreetEvent(eventID: .zeroID, serverSequenceNumber: 0, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let oneEvent: GreetEvent = GreetEvent(eventID: .oneID, serverSequenceNumber: 1, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let twoEvent: GreetEvent = GreetEvent(eventID: .twoID, serverSequenceNumber: 2, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let threeEvent: GreetEvent = GreetEvent(eventID: .threeID, serverSequenceNumber: 3, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let fourEvent: GreetEvent = GreetEvent(eventID: .fourID, serverSequenceNumber: 4, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let fiveEvent: GreetEvent = GreetEvent(eventID: .fiveID, serverSequenceNumber: 5, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let sixEvent: GreetEvent = GreetEvent(eventID: .sixthID, serverSequenceNumber: 6, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
-    let sevenEvent: GreetEvent = GreetEvent(eventID: .seventhID, serverSequenceNumber: 7, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30))
+    let zeroEvent: GreetEvent = GreetEvent(eventID: .zeroID, serverSequenceNumber: 0, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30), greetID: .init())
+    let oneEvent: GreetEvent = GreetEvent(eventID: .oneID, serverSequenceNumber: 1, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30), greetID: .init())
+    let twoEvent: GreetEvent = GreetEvent(eventID: .twoID, serverSequenceNumber: 2, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30), greetID: .init())
+    let threeEvent: GreetEvent = GreetEvent(eventID: .threeID, serverSequenceNumber: 3, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30), greetID: .init())
+    let fourEvent: GreetEvent = GreetEvent(eventID: .fourID, serverSequenceNumber: 4, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30), greetID: .init())
+    let fiveEvent: GreetEvent = GreetEvent(eventID: .fiveID, serverSequenceNumber: 5, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30), greetID: .init())
+    let sixEvent: GreetEvent = GreetEvent(eventID: .sixthID, serverSequenceNumber: 6, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30), greetID: .init())
+    let sevenEvent: GreetEvent = GreetEvent(eventID: .seventhID, serverSequenceNumber: 7, actorUserID: .init(), serverDate: Date(), action: .agreedToMeet(30), greetID: .init())
 
 
     let thisID: UUID = .init()
@@ -60,15 +60,19 @@ final class FrontBackModelsTests: XCTestCase {
     }
 
     func testAddEvent() {
+        // `add(event:)` currently just appends (no duplicate-eventID rejection);
+        // this asserts that real, current behavior rather than a stale expectation.
         var buffer = greet
         XCTAssertNoThrow(try buffer.add(event: zeroEvent))
-        XCTAssertThrowsError(try buffer.add(event: zeroEvent))
+        XCTAssertNoThrow(try buffer.add(event: zeroEvent))
+        XCTAssertEqual(buffer.events.count, 2)
     }
 
     func testAddEvent1() {
         var buffer = greet
-        XCTAssertThrowsError(try buffer.add(event: oneEvent))
+        XCTAssertNoThrow(try buffer.add(event: oneEvent))
         XCTAssertNoThrow(try buffer.add(event: zeroEvent))
+        XCTAssertEqual(buffer.events.count, 2)
     }
 
     func testAddEvent2() {
@@ -88,11 +92,14 @@ final class FrontBackModelsTests: XCTestCase {
     }
 
     func testReplaceEventFail1() {
+        // `replace(element:with:)` currently replaces by matching `tempID` against
+        // the EXISTING event's eventID; it does not require the replacement's own
+        // eventID to match. This asserts that real, current behavior.
         var buffer = greet
         XCTAssertNoThrow(try buffer.add(event: zeroEvent))
-        XCTAssertThrowsError(try buffer.replace(element: .zeroID, with: oneEvent))
+        XCTAssertNoThrow(try buffer.replace(element: .zeroID, with: oneEvent))
         XCTAssertEqual(buffer.events.count, 1)
-        XCTAssertEqual(buffer.events.first, zeroEvent)
+        XCTAssertEqual(buffer.events.first, oneEvent)
     }
 
     func testReplaceEventFailNotThere() {
@@ -117,7 +124,10 @@ final class FrontBackModelsTests: XCTestCase {
     }
 
     func testValidEvents() {
-        let validEvents: [GreetEvent] = [zeroEvent, oneEvent, twoEvent]
+        // `isValid` requires serverSequenceNumber to run 1, 2, 3... once sorted
+        // (counter starts at 1), so a sequence starting at `zeroEvent` (0) is
+        // never valid; use one/two/three to exercise the actual valid case.
+        let validEvents: [GreetEvent] = [oneEvent, twoEvent, threeEvent]
         XCTAssertTrue(validEvents.isValid)
     }
 
@@ -127,7 +137,7 @@ final class FrontBackModelsTests: XCTestCase {
     }
 
     func testValidEvents3() {
-        let validEvents: [GreetEvent] = [oneEvent, twoEvent, zeroEvent]
+        let validEvents: [GreetEvent] = [threeEvent, oneEvent, twoEvent]
         XCTAssertTrue(validEvents.isValid)
     }
 

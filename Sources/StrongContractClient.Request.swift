@@ -400,19 +400,28 @@ extension ResetPasswordEndpoint {
 // MARK: - Terms Acceptance Logging Payload
 
 public struct AcceptTermsRequest: Codable, Equatable, Hashable {
-    public let acceptedAt: Date
-    public let deviceInfo: String?
-    public let source: String? // "ios", "android", "web"
+	/// Restored as optional so:
+	/// 1. New clients can send the version they accepted to satisfy older deployed
+	///    servers (compiled when this field was required and non-optional).
+	/// 2. Newer servers that no longer require it will accept payloads with or
+	///    without it (Codable.decodeIfPresent semantics for optional properties).
+	/// Author: Scott Lydon + claude
+	public let termsVersion: String?
+	public let acceptedAt: Date
+	public let deviceInfo: String?
+	public let source: String? // "ios", "android", "web"
 
-    public init(
-        acceptedAt: Date,
-        deviceInfo: String?,
-        source: String?
-    ) {
-        self.acceptedAt = acceptedAt
-        self.deviceInfo = deviceInfo
-        self.source = source
-    }
+	public init(
+		termsVersion: String? = nil,
+		acceptedAt: Date,
+		deviceInfo: String?,
+		source: String?
+	) {
+		self.termsVersion = termsVersion
+		self.acceptedAt = acceptedAt
+		self.deviceInfo = deviceInfo
+		self.source = source
+	}
 }
 
 public typealias TermsRequest = Request<Empty, TermsOfService>
