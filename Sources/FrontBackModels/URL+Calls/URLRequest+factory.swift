@@ -23,7 +23,6 @@ extension URLRequest {
             request.httpMethod = "POST"
             return request
         } catch let error {
-            print(error.localizedDescription, "for update schedule")
             return nil
         }
     }
@@ -36,7 +35,6 @@ extension URLRequest {
             request.httpMethod = "POST"
             return request
         } catch let error {
-            print(error.localizedDescription, "for update greet")
             return nil
         }
     }
@@ -49,7 +47,6 @@ extension URLRequest {
             request.httpBody = data
             return request
         } catch let error {
-            print(error.localizedDescription, "for update midGreet settings.")
             return nil
         }
     }
@@ -89,7 +86,6 @@ extension URLRequest {
             request.httpBody = data
             return request
         } catch let error {
-            print(error.localizedDescription, "while updating user location.")
             return nil
         }
     }

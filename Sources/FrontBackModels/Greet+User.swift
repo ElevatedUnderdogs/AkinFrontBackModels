@@ -75,7 +75,6 @@ extension String {
 //    }
 //
 ////    var cloudFlareURL: URL? {
-////        print("final strings: \(cloudFlareImageIds)")
 ////        guard let cloudFlareImageID = cloudFlareImageIds.first else {
 ////            return nil
 ////        }

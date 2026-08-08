@@ -64,9 +64,7 @@ extension URLRequest {
         do {
             let encoder = JSONEncoder()
             httpBody = try encoder.encode(codable)
-            print("Original data size: \(String(describing: httpBody?.count)) bytes")
         } catch {
-            print("Error encoding codable to JSON: \(error)")
             return nil
         }
     }
