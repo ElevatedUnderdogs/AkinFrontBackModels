@@ -1,0 +1,35 @@
+name: Periphery Scan
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  periphery-scan:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Homebrew (macOS)
+      run: |
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >>~/.profile
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+        brew --version
+
+    - name: Install Periphery
+      run: brew install peripheryapp/periphery/periphery
+
+    - name: Run Periphery Scan
+      id: periphery_scan
+      run: periphery scan --format github-actions --strict --relative-results
+
+    - name: Check for unused code
+      run: |
+        if echo "${{ steps.periphery_scan.outputs.stdout }}" | grep -q "Unused"; then
+          echo "Unused code found!"
+          exit 1
+        fi
