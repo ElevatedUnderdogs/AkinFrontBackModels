@@ -904,10 +904,37 @@ public struct NearbyUserResponse: Codable, Hashable, Equatable {
     public let hideStatusAutomatic: Bool
     public let hideStatusManual: Bool
 
-    public init(nearbyMembers: [NearbyUser], hideStatusAutomatic: Bool, hideStatusManual: Bool) {
+    /// The CALLER's own dispatch status: their availability pause, and how many
+    /// freezes and reservations they have left.
+    ///
+    /// It rides along with the list rather than sitting behind its own endpoint
+    /// because every one of these numbers is rendered on the same screen as the
+    /// list, at the same moment, and a second round trip to fill in "2 freezes
+    /// left" would give the user a control that changes its own label a beat
+    /// after it appears.
+    public let selfStatus: NearbySelfStatus
+
+    public init(
+        nearbyMembers: [NearbyUser],
+        hideStatusAutomatic: Bool,
+        hideStatusManual: Bool,
+        selfStatus: NearbySelfStatus = NearbySelfStatus()
+    ) {
         self.nearbyMembers = nearbyMembers
         self.hideStatusAutomatic = hideStatusAutomatic
         self.hideStatusManual = hideStatusManual
+        self.selfStatus = selfStatus
+    }
+
+    /// Decodes a response from a server that predates `selfStatus` to an
+    /// all zeroes status rather than throwing `keyNotFound`, the same
+    /// compatibility move `NearbyUser` makes for its own later fields.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        nearbyMembers = try container.decode([NearbyUser].self, forKey: .nearbyMembers)
+        hideStatusAutomatic = try container.decode(Bool.self, forKey: .hideStatusAutomatic)
+        hideStatusManual = try container.decode(Bool.self, forKey: .hideStatusManual)
+        selfStatus = try container.decodeIfPresent(NearbySelfStatus.self, forKey: .selfStatus) ?? NearbySelfStatus()
     }
 }
 

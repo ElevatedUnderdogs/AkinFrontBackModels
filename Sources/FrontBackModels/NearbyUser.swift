@@ -31,6 +31,20 @@ public struct NearbyUser: Codable, Hashable, Equatable {
     /// When `false`, the call button should be hidden for this user.
     public var hasGrantedCallKitConsent: Bool
 
+    /// Whether this member can be greeted right now, from the REQUESTING
+    /// viewer's perspective, plus the freeze and reservation state attached to
+    /// them.
+    ///
+    /// Kept as one nested value rather than six flat fields so that the socket
+    /// update which refreshes it mid scroll carries exactly the same type the
+    /// list fetch delivered. One shape, one decoder, no chance of the two
+    /// drifting.
+    ///
+    /// Defaults to `.legacyDefault`, which is "greetable, unfrozen, no queue",
+    /// so a response from a server that predates this field decodes to the
+    /// behaviour the app had before the field existed.
+    public var interaction: NearbyInteractionState
+
     public init(
         id: UUID,
         name: String,
@@ -38,7 +52,8 @@ public struct NearbyUser: Codable, Hashable, Equatable {
         imageMetaData: ImageMetadata,
         verified: Bool = false,
         lastLocationUpdate: Date? = nil,
-        hasGrantedCallKitConsent: Bool = false
+        hasGrantedCallKitConsent: Bool = false,
+        interaction: NearbyInteractionState = .legacyDefault
     ) {
         self.id = id
         self.name = name
@@ -47,6 +62,7 @@ public struct NearbyUser: Codable, Hashable, Equatable {
         self.imageMetaData = imageMetaData
         self.lastLocationUpdate = lastLocationUpdate
         self.hasGrantedCallKitConsent = hasGrantedCallKitConsent
+        self.interaction = interaction
     }
 
     /// Custom decoder to remain backward-compatible with server payloads that predate
@@ -61,6 +77,7 @@ public struct NearbyUser: Codable, Hashable, Equatable {
         verified = try container.decodeIfPresent(Bool.self, forKey: .verified) ?? false
         lastLocationUpdate = try container.decodeIfPresent(Date.self, forKey: .lastLocationUpdate)
         hasGrantedCallKitConsent = try container.decodeIfPresent(Bool.self, forKey: .hasGrantedCallKitConsent) ?? false
+        interaction = try container.decodeIfPresent(NearbyInteractionState.self, forKey: .interaction) ?? .legacyDefault
     }
 
 //    public var placeholderGreetUser: NearbyUser {
