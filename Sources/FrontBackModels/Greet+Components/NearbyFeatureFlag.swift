@@ -70,6 +70,30 @@ public enum NearbyFeatureFlag {
     /// either way, only their index differs.
     public static var promotesFrozenMemberToTop: Bool = true
 
+    /// Whether a freeze runs longer while VoiceOver is on.
+    ///
+    /// The round 4 design asks for 60 seconds instead of 30, on the grounds that
+    /// hearing one cell read out and then swiping to its controls as separate
+    /// elements consumes most of a 30 second budget, so the feature is timed for
+    /// a sighted glance rather than for a screen reader user.
+    ///
+    /// A flag rather than a silent choice, because giving one group of users a
+    /// different amount of a rationed resource is a product decision, not an
+    /// implementation detail. Defaults to ON: the argument for it is strong and
+    /// the cost of being wrong is that somebody gets slightly longer to decide.
+    public static var extendsFreezeForVoiceOver: Bool = true
+
+    /// The hold a freeze should run for, given the current settings.
+    ///
+    /// One place decides it, so the countdown, the server request, and the
+    /// depleting ring cannot disagree about how long the freeze is.
+    public static func freezeSeconds(isVoiceOverRunning: Bool) -> Int {
+        guard extendsFreezeForVoiceOver, isVoiceOverRunning else {
+            return NearbyDispatchDefaults.freezeSeconds
+        }
+        return NearbyDispatchDefaults.freezeSecondsWithVoiceOver
+    }
+
     // MARK: - Feature identity
 
     public enum Feature: String, CaseIterable, Sendable {
@@ -116,6 +140,7 @@ public enum NearbyFeatureFlag {
         isColumnLayoutEnabled = true
         isLiveAvailabilityEnabled = true
         promotesFrozenMemberToTop = true
+        extendsFreezeForVoiceOver = true
     }
 }
 
@@ -131,6 +156,10 @@ public enum NearbyDispatchDefaults {
     /// Default freeze hold, in seconds. The product brief says "let's say
     /// thirty seconds as the default".
     public static let freezeSeconds: Int = 30
+
+    /// The hold while VoiceOver is running. See
+    /// ``NearbyFeatureFlag/extendsFreezeForVoiceOver``.
+    public static let freezeSecondsWithVoiceOver: Int = 60
 
     /// Ceiling on a single freeze request, so a client cannot ask for an hour.
     public static let freezeMaximumSeconds: Int = 120
