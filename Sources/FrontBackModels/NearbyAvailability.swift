@@ -187,13 +187,28 @@ public struct NearbySelfStatus: Codable, Hashable, Equatable, Sendable {
     public var outstandingReservations: Int
     public var reservationAllowance: Int
 
+    /// How many people are queued to meet the VIEWER.
+    ///
+    /// The count, never the identities. It is pacing information the member can
+    /// act on (wrap up, or relax because nobody is waiting), while names or
+    /// faces would turn the queue into a leaderboard, invite pre judging people
+    /// before the app has introduced them, and expose reservers who have not
+    /// chosen to be seen.
+    ///
+    /// It exists because the person raising a busy status had no surface
+    /// anywhere telling them whether anyone was waiting on them. The greet
+    /// screen carried the count, and the greet screen is precisely the screen
+    /// they are not on between two coffees.
+    public var peopleWaitingForYou: Int
+
     public init(
         pausedUntil: Date? = nil,
         pauseDefaultSeconds: Int = 3600,
         freezesRemainingToday: Int = 0,
         freezeAllowancePerDay: Int = 0,
         outstandingReservations: Int = 0,
-        reservationAllowance: Int = 0
+        reservationAllowance: Int = 0,
+        peopleWaitingForYou: Int = 0
     ) {
         self.pausedUntil = pausedUntil
         self.pauseDefaultSeconds = pauseDefaultSeconds
@@ -201,6 +216,31 @@ public struct NearbySelfStatus: Codable, Hashable, Equatable, Sendable {
         self.freezeAllowancePerDay = freezeAllowancePerDay
         self.outstandingReservations = outstandingReservations
         self.reservationAllowance = reservationAllowance
+        self.peopleWaitingForYou = peopleWaitingForYou
+    }
+
+    /// Decodes a status from a server that predates `peopleWaitingForYou`
+    /// without throwing, the same compatibility move every other later field in
+    /// this package makes.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        pausedUntil = try container.decodeIfPresent(Date.self, forKey: .pausedUntil)
+        pauseDefaultSeconds = try container.decodeIfPresent(Int.self, forKey: .pauseDefaultSeconds) ?? 3600
+        freezesRemainingToday = try container.decodeIfPresent(Int.self, forKey: .freezesRemainingToday) ?? 0
+        freezeAllowancePerDay = try container.decodeIfPresent(Int.self, forKey: .freezeAllowancePerDay) ?? 0
+        outstandingReservations = try container.decodeIfPresent(Int.self, forKey: .outstandingReservations) ?? 0
+        reservationAllowance = try container.decodeIfPresent(Int.self, forKey: .reservationAllowance) ?? 0
+        peopleWaitingForYou = try container.decodeIfPresent(Int.self, forKey: .peopleWaitingForYou) ?? 0
+    }
+
+    /// The sentence for the count, spelled rather than abbreviated, absent at
+    /// zero. One place, so the busy row and the greet screen cannot disagree.
+    public func waitingSentence() -> String? {
+        switch peopleWaitingForYou {
+        case ..<1: return nil
+        case 1: return "1 person is waiting to meet you"
+        default: return "\(peopleWaitingForYou) people are waiting to meet you"
+        }
     }
 
     /// Whether the viewer's pause stands as of `now`.
