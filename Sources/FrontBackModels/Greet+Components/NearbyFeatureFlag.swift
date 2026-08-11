@@ -51,6 +51,25 @@ public enum NearbyFeatureFlag {
     /// fetch or refresh.
     public static var isLiveAvailabilityEnabled: Bool = true
 
+    /// Whether placing a freeze PROMOTES that member to the top of the list.
+    ///
+    /// The one genuine disagreement between the product owner and the round 4
+    /// design, so it is a switch rather than somebody's silent choice.
+    ///
+    /// `true` (the default) is the owner's own worked example: "perhaps, he
+    /// could jump to the top of the array, and it would scroll to the top. Um,
+    /// that way, everything else could be after Jerry."
+    ///
+    /// `false` is the design's revision, which argues that the one control whose
+    /// purpose is to STOP the list moving must not itself be the biggest source
+    /// of motion, and that promoting reshuffles exactly the people the freezer
+    /// was comparing.
+    ///
+    /// Both behaviours are built and both are correct implementations of the
+    /// pin. Flipping this changes nothing else: the member is held in place
+    /// either way, only their index differs.
+    public static var promotesFrozenMemberToTop: Bool = true
+
     // MARK: - Feature identity
 
     public enum Feature: String, CaseIterable, Sendable {
@@ -96,6 +115,7 @@ public enum NearbyFeatureFlag {
         isChooseForMeEnabled = true
         isColumnLayoutEnabled = true
         isLiveAvailabilityEnabled = true
+        promotesFrozenMemberToTop = true
     }
 }
 
