@@ -725,15 +725,59 @@ final class VenueOutcomeAuthorityTests: XCTestCase {
         }
     }
 
-    /// A withdrawal requires this row to own the state. Without that it is just
-    /// another answer, and the two row case is where that distinction bites.
-    func testAWithdrawalRequiresThisRowToOwnTheState() {
-        for context in allContexts() where context.thisRowOwnsTheState == false {
-            XCTAssertFalse(
-                VenueOutcomeAuthority.decide(context).isWithdrawal,
-                "A row that does not own the state cannot withdraw it"
+    /// A withdrawal is a row taking back its OWN answer, and ownership of the
+    /// venue's state has nothing to do with whether it did.
+    ///
+    /// This test used to assert the opposite, and the assertion was load bearing in
+    /// the wrong direction. Requiring ownership was harmless until the standing
+    /// refusal hold arrived, and then it inverted: a row stripped of ownership by
+    /// the other participant's answer could no longer retract its refusal, so the
+    /// hold pinned the venue at `declined` with no row on record as having refused
+    /// it, for ninety days, decided by which of three taps came second.
+    func testAWithdrawalIsARowTakingBackItsOwnAnswer() {
+        for context in allContexts() {
+            let decision = VenueOutcomeAuthority.decide(context)
+            guard decision.isWithdrawal else { continue }
+
+            XCTAssertEqual(
+                context.reported, .skipped,
+                "Only a skip retracts an answer; everything else states one"
+            )
+            XCTAssertNotNil(
+                context.existing,
+                "There is nothing to take back on a row that never answered"
+            )
+            XCTAssertNotNil(
+                context.displacedByThisRow,
+                "A row that never moved the venue displaced nothing to put back"
             )
         }
+    }
+
+    /// And the case the old assertion made unreachable: a row that has lost
+    /// ownership can still take its own refusal back.
+    func testARowStrippedOfOwnershipCanStillWithdrawItsOwnRefusal() {
+        let decision = VenueOutcomeAuthority.decide(
+            VenueOutcomeContext(
+                reported: .skipped,
+                source: .ratingScreen,
+                existing: .notReceptive,
+                existingSource: .ratingScreen,
+                venueState: .declined,
+                displacedByThisRow: .pitched,
+                // The other person in the greet answered after this row did, which
+                // is what took the state away from it.
+                thisRowOwnsTheState: false,
+                // And what they said was not a refusal, so nothing is left holding
+                // this venue at declined once this one is taken back.
+                anotherRowHoldsARefusal: false
+            )
+        )
+        XCTAssertTrue(decision.isWithdrawal)
+        XCTAssertEqual(
+            decision.nextState, .pitched,
+            "Ninety days for a venue no row is on record as having refused is the defect this prevents"
+        )
     }
 
     /// And a withdrawal restores exactly what this row displaced, never a fixed

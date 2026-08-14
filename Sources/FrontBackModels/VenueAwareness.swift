@@ -1348,14 +1348,23 @@ public struct VenueOutcomeContext: Equatable, Sendable {
     public let thisRowOwnsTheState: Bool
 
     /// Whether some OTHER introduction at this venue still carries a refusal that
-    /// has not been taken back.
+    /// has not been taken back and is still inside the freeze it bought.
     ///
-    /// One greet sends two people to one venue and each of them gets a card, so two
-    /// rows can describe the same thirty seconds at the same counter. Without this
-    /// fact `decide` sees only the row in front of it, and a softer answer from the
-    /// person standing further back lifts the venue out of `.declined`, because the
-    /// table's job is to answer "where does THIS outcome put the venue" and it was
-    /// being asked to answer "where does this venue stand".
+    /// The case it was written for is two people in one greet: each gets a card, so
+    /// two rows can describe the same thirty seconds at the same counter, and
+    /// without this fact `decide` sees only the row in front of it and a softer
+    /// answer from the person standing further back lifts the venue out of
+    /// `.declined`. The table's job is to answer "where does THIS outcome put the
+    /// venue", and it was being asked to answer "where does this venue stand".
+    ///
+    /// It is NOT scoped to the greet, and the wording around it used to say it was,
+    /// which an eighth review pass caught. Venue-wide is the semantics that is
+    /// actually right: a refusal from a different party a fortnight ago is still a
+    /// refusal this venue made, and inside its ninety days it should still hold. So
+    /// the scope stayed and the sentences changed, because the sentences were the
+    /// thing that was false. A reader retracting their own answer used to be told
+    /// somebody on "this same introduction" had refused, when it may have been a
+    /// different customer on a different night.
     public let anotherRowHoldsARefusal: Bool
 
     public init(
@@ -1489,9 +1498,28 @@ public enum VenueOutcomeAuthority {
         }
 
         // 4. A withdrawal of this row's own standing verdict.
+        //
+        // Not conditioned on this row still owning the state. Taking back what you
+        // said is a fact about your own answer, and somebody else having spoken
+        // since does not turn it into something else.
+        //
+        // It used to require ownership, and that was harmless right up until the
+        // standing-refusal hold was added, at which point it inverted. An eighth
+        // review pass walked it: A refuses and owns the state; B, the other person
+        // in the same greet, answers `receptive`, which the hold clamps to
+        // `declined` while B takes ownership; A then taps their chip again to take
+        // the refusal back, and because A no longer owns, it is not a withdrawal at
+        // all. Rule 5 gives `declined` from `declined`, the hold no longer fires
+        // because B's row reads `receptive`, and the venue sits frozen for ninety
+        // days with NO row on record as having refused it. Reorder the same three
+        // taps and it is seven. The client shows a cleared chip and a 200 either
+        // way.
+        //
+        // What a withdrawal restores is still not this row's to decide alone: the
+        // hold below is what stops it lifting somebody else's refusal, and that is
+        // the right place for that question rather than here.
         let isWithdrawal = context.reported == .skipped
             && hasAnswer
-            && context.thisRowOwnsTheState
             && context.displacedByThisRow != nil
 
         if isWithdrawal, let displaced = context.displacedByThisRow {
@@ -1502,9 +1530,9 @@ public enum VenueOutcomeAuthority {
                     claimsTheState: false,
                     isWithdrawal: true,
                     reason: """
-                    This answer has been taken back, and somebody else on this same \
-                    introduction is still on record as having been told no here, so \
-                    the venue stays declined.
+                    This answer has been taken back, and somebody else is still on \
+                    record as having been told no at this venue recently enough for \
+                    it to stand, so the venue stays declined.
                     """
                 )
             }
@@ -1538,9 +1566,9 @@ public enum VenueOutcomeAuthority {
                     || context.thisRowOwnsTheState == false,
                 isWithdrawal: false,
                 reason: """
-                Recorded. Somebody else sent here on this introduction was told no \
-                at the same counter, and one person's warmer read of the same \
-                conversation does not take that back.
+                Recorded. Somebody else was told no at this venue recently enough \
+                that the refusal is still standing, and a warmer read does not take \
+                somebody else's no back.
                 """
             )
         }
