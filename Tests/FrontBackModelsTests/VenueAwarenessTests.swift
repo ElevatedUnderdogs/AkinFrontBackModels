@@ -776,3 +776,52 @@ final class VenueOutcomeAuthorityTests: XCTestCase {
         }
     }
 }
+
+extension VenueOutcomeAuthorityTests {
+
+    /// Taking the word back from another row counts as claiming it, even when the
+    /// state does not move.
+    ///
+    /// The seventh review pass found this. `claimsTheState` was defined as "the
+    /// state moved", the service used it to decide whether to refresh the row's
+    /// record of what it displaced, and ownership was transferred by a separate
+    /// rule. A second identical refusal moves nothing, so it took ownership without
+    /// refreshing the record, and a later withdrawal on that row restored a state
+    /// from an older verdict and cancelled a refusal nobody had taken back.
+    func testAWriteThatMovesNothingStillClaimsTheStateWhenAnotherRowHeldIt() {
+        for context in allContexts() {
+            let decision = VenueOutcomeAuthority.decide(context)
+            guard decision.writesTheAnswer, decision.isWithdrawal == false else { continue }
+
+            // Not on an engaged venue. There the state belongs to the join, which
+            // is not a verdict, so no customer's report claims it and a withdrawal
+            // has nothing there to take back.
+            if context.thisRowOwnsTheState == false, context.venueState != .engaged {
+                XCTAssertTrue(
+                    decision.claimsTheState,
+                    """
+                    A row that writes an answer while another row holds the state \
+                    takes the state, whether or not it moves: \
+                    \(context.reported.rawValue) on a \(context.venueState.rawValue) venue
+                    """
+                )
+            }
+        }
+    }
+
+    /// And a row that already held it, writing something that changes nothing, does
+    /// not need to reclaim it.
+    func testARowThatAlreadyHeldTheStateDoesNotReclaimItForNothing() {
+        for context in allContexts() {
+            let decision = VenueOutcomeAuthority.decide(context)
+            guard decision.writesTheAnswer, decision.isWithdrawal == false else { continue }
+
+            if context.thisRowOwnsTheState, decision.nextState == context.venueState {
+                XCTAssertFalse(
+                    decision.claimsTheState,
+                    "Nothing moved and nothing changed hands, so there is nothing to record"
+                )
+            }
+        }
+    }
+}

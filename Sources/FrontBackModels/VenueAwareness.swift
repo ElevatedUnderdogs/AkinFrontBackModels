@@ -1386,7 +1386,19 @@ public struct VenueOutcomeDecision: Equatable, Sendable {
     /// Where the venue ends up. Equal to the current state when nothing moves.
     public let nextState: VenueAwarenessState
 
-    /// Whether this row's verdict becomes the latest word on that state.
+    /// Whether this row's verdict becomes the latest word on the venue's state.
+    ///
+    /// True whenever the venue moves, and ALSO when it does not move but this row
+    /// was not already the one that spoke last. That second half is the one that
+    /// was missing. Two people in one greet both get a card, and `notReceptive`
+    /// yields `.declined` from anywhere, so the second refusal moves nothing while
+    /// still being the most recent word. A row that takes the word back this way
+    /// has to refresh what it displaced, or it keeps a record of a state from an
+    /// older verdict and a later withdrawal restores the wrong one.
+    ///
+    /// The service reads this for both purposes, which is the point of it being one
+    /// value: ownership and the displaced record are the same decision and drifted
+    /// apart when they were two.
     public let claimsTheState: Bool
 
     /// Whether this report retracts this row's own earlier verdict.
@@ -1484,7 +1496,7 @@ public enum VenueOutcomeAuthority {
         return VenueOutcomeDecision(
             writesTheAnswer: true,
             nextState: next,
-            claimsTheState: next != context.venueState,
+            claimsTheState: next != context.venueState || context.thisRowOwnsTheState == false,
             isWithdrawal: false,
             reason: "Recorded, and the venue's state follows from it."
         )
