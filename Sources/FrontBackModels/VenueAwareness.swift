@@ -1044,3 +1044,106 @@ public enum VenueAudience: String, Codable, Sendable, Equatable, CaseIterable {
         }
     }
 }
+
+// MARK: - The venue side of the scan
+
+/// What the App Clip tells the server when somebody at a venue scans.
+///
+/// Unauthenticated on purpose. The whole point of the venue branch is that a
+/// bartender can see the venue's own number without an account, an install, or a
+/// password, so the only thing identifying this scan is the correlation identifier
+/// the customer's code carried.
+public struct VenueScanReport: Codable, Equatable, Sendable {
+
+    /// The identifier the customer's code carried. Joins this scan to the card that
+    /// produced it.
+    public let clientCorrelationIdentifier: String
+
+    /// The role the link named, as it appeared. Sent raw rather than parsed so the
+    /// server records what was actually scanned when the value is unrecognised.
+    public let roleRawValue: String
+
+    /// Which video the scanner asked for, once they pick. Nil on the first call,
+    /// which is the scan itself.
+    public let audience: VenueAudience?
+
+    public init(
+        clientCorrelationIdentifier: String,
+        roleRawValue: String,
+        audience: VenueAudience? = nil
+    ) {
+        self.clientCorrelationIdentifier = clientCorrelationIdentifier
+        self.roleRawValue = roleRawValue
+        self.audience = audience
+    }
+}
+
+/// What the venue sees, and it is the venue's own numbers.
+public struct VenueScanResponse: Codable, Equatable, Sendable {
+
+    public let venueName: String
+
+    /// This venue's own count for the current month. The first thing the venue
+    /// branch renders, because a venue owner has no reason to read a tagline.
+    public let usersSentToVenueThisMonth: Int
+
+    /// How many people at this venue already have referral codes.
+    public let participatingStaffCount: Int
+
+    /// True when this scan could not be joined to any card. The venue still sees
+    /// their real number; what is missing is which introduction produced the scan.
+    public let isOrphan: Bool
+
+    /// Why it could not be joined. Present exactly when `isOrphan` is true, and
+    /// never the word unknown: an orphan with no reason is a silently dropped row
+    /// wearing a different name.
+    public let orphanReason: String?
+
+    /// The Google Place identifier, so the venue branch can build a code of the
+    /// venue's own without another round trip.
+    public let venueGooglePlaceIdentifier: String?
+
+    public init(
+        venueName: String,
+        usersSentToVenueThisMonth: Int,
+        participatingStaffCount: Int,
+        isOrphan: Bool,
+        orphanReason: String?,
+        venueGooglePlaceIdentifier: String?
+    ) {
+        self.venueName = venueName
+        self.usersSentToVenueThisMonth = usersSentToVenueThisMonth
+        self.participatingStaffCount = participatingStaffCount
+        self.isOrphan = isOrphan
+        self.orphanReason = orphanReason
+        self.venueGooglePlaceIdentifier = venueGooglePlaceIdentifier
+    }
+}
+
+/// The venue generating a code of their own, from inside the clip.
+public struct VenueJoinReport: Codable, Equatable, Sendable {
+
+    public let clientCorrelationIdentifier: String
+
+    /// The name the person at the venue put on their own code.
+    public let referrerName: String
+
+    public init(clientCorrelationIdentifier: String, referrerName: String) {
+        self.clientCorrelationIdentifier = clientCorrelationIdentifier
+        self.referrerName = referrerName
+    }
+}
+
+public struct VenueJoinResponse: Codable, Equatable, Sendable {
+
+    public let venueName: String
+
+    /// The link the venue's own code encodes. Built server side so the venue's code
+    /// and every printed code share one generator.
+    public let referralURLString: String
+
+    public init(venueName: String, referralURLString: String) {
+        self.venueName = venueName
+        self.referralURLString = referralURLString
+    }
+}

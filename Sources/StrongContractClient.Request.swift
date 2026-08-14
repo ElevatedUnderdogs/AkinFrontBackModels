@@ -1398,3 +1398,24 @@ extension VenueIntroductionHistory {
         .init(method: .post)
     }
 }
+
+/// A venue scanning a customer's code.
+///
+/// Unauthenticated, because the venue has no account and the entire value of the
+/// branch is that they do not need one to see their own number.
+public typealias VenueIntroductionScanEndpoint = Request<VenueScanReport, VenueScanResponse>
+extension VenueIntroductionScanEndpoint {
+
+    public static var venueIntroductionScan: Self {
+        .init(method: .post, assertHasAccessToken: false)
+    }
+}
+
+/// A venue generating a referral code of their own, from inside the App Clip.
+public typealias VenueIntroductionJoinEndpoint = Request<VenueJoinReport, VenueJoinResponse>
+extension VenueIntroductionJoinEndpoint {
+
+    public static var venueIntroductionJoin: Self {
+        .init(method: .post, assertHasAccessToken: false)
+    }
+}
