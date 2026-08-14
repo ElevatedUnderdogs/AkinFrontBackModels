@@ -1356,3 +1356,45 @@ extension RelayVoipSignalRequest {
         .init(method: .post)
     }
 }
+
+// MARK: - Venue introduction (VENUE_PARTNERSHIP_GOAL_LOOP.md Phase 3)
+
+/// Asks whether the introduction card may be shown for the venue a greet happened
+/// at, and returns everything the card needs to render honestly when it may.
+///
+/// Keyed on the greet rather than on a venue identifier because the client's
+/// `Venue` carries no id, so only the server can name the venue unambiguously. See
+/// `docs/VENUE_GROUND_TRUTH.md` section 3.1 in the akin repo.
+public typealias VenueIntroductionEligibility = Request<VenueEligibilityRequest, VenueEligibilityResponse>
+extension VenueIntroductionEligibility {
+
+    public static var venueIntroductionEligibility: Self {
+        .init(method: .post)
+    }
+}
+
+/// Records what happened when a customer introduced Map Mates to a venue.
+///
+/// Accepts all five outcomes including `skipped`, because a customer choosing not
+/// to introduce it is an answer about the moment, and because the card was shown
+/// either way, which spends the venue's pitch budget.
+public typealias VenueIntroductionOutcome = Request<VenueOutcomeReport, VenueOutcomeAcknowledgement>
+extension VenueIntroductionOutcome {
+
+    public static var venueIntroductionOutcome: Self {
+        .init(method: .post)
+    }
+}
+
+/// The user's own record of what their introductions produced.
+///
+/// The intrinsic arm of the motivation experiment has no reward, so this view is
+/// its entire mechanism. It has to be real: a user with no introductions sees an
+/// honest empty state rather than a seeded example.
+public typealias VenueIntroductionHistory = Request<Empty, VenueIntroductionHistoryResponse>
+extension VenueIntroductionHistory {
+
+    public static var venueIntroductionHistory: Self {
+        .init(method: .post)
+    }
+}

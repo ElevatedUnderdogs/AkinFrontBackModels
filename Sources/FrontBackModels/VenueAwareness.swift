@@ -1,0 +1,947 @@
+//
+//  VenueAwareness.swift
+//  AkinFrontBackModels
+//
+//  Created for VENUE_PARTNERSHIP_GOAL_LOOP.md Phase 3 on 8/14/26.
+//  Copyright © 2026 ElevatedUnderdogs. All rights reserved.
+//
+
+import Foundation
+
+// MARK: - Awareness state
+
+/// How much a venue already knows about Map Mates.
+///
+/// This lives in the shared models package rather than on the server because the
+/// client renders the suppression reason, and a client that cannot name the state
+/// would have to pattern match on prose.
+///
+/// The states are ordered by how much the venue knows, not by how the app feels
+/// about them. `declined` is a venue that heard the introduction and said no, which
+/// is more knowledge than `unaware`, not less.
+public enum VenueAwarenessState: String, Codable, Sendable, Hashable, CaseIterable {
+
+    /// Nobody has introduced Map Mates to this venue, as far as the server knows.
+    case unaware
+
+    /// At least one customer has been shown the introduction card for this venue.
+    /// The venue may or may not actually have been spoken to: showing the card
+    /// spends the budget either way, because the venue may have been pitched
+    /// regardless of whether anybody reported it.
+    case pitched
+
+    /// The venue knows what Map Mates is. Reached by a customer reporting that the
+    /// staff already knew, or by a receptive conversation that did not end in a join.
+    case aware
+
+    /// The venue is participating: somebody there has generated a referral code.
+    case engaged
+
+    /// The venue heard the introduction and did not want it.
+    case declined
+}
+
+// MARK: - Transitions
+
+/// Whether one awareness state may follow another, and why not when it may not.
+///
+/// Every ordered pair of states is decided here explicitly. The switch has no
+/// `default:` arm, so adding a state to ``VenueAwarenessState`` is a compile error
+/// in this file rather than a silent fall-through to some catch-all behaviour.
+public enum VenueAwarenessTransition {
+
+    /// Why a transition is not allowed, in words a person reading a log can act on.
+    public struct Rejection: Error, Equatable, Sendable, CustomStringConvertible {
+
+        public let from: VenueAwarenessState
+        public let to: VenueAwarenessState
+        public let reason: String
+
+        public init(from: VenueAwarenessState, to: VenueAwarenessState, reason: String) {
+            self.from = from
+            self.to = to
+            self.reason = reason
+        }
+
+        public var description: String {
+            "A venue in \(from.rawValue) cannot move to \(to.rawValue). \(reason)"
+        }
+    }
+
+    /// The verdict for one ordered pair.
+    public enum Verdict: Equatable, Sendable {
+        case allowed
+        case rejected(Rejection)
+
+        public var isAllowed: Bool {
+            switch self {
+            case .allowed: return true
+            case .rejected: return false
+            }
+        }
+    }
+
+    /// Decides one ordered pair. Total over all twenty five pairs.
+    ///
+    /// The regressions are all rejected on the same principle: awareness is
+    /// knowledge the venue now has, and knowledge does not un-happen. A venue that
+    /// has seen the introduction cannot become `unaware` again just because the
+    /// person who showed it left the job.
+    public static func verdict(
+        from: VenueAwarenessState,
+        to: VenueAwarenessState
+    ) -> Verdict {
+        switch (from, to) {
+
+        // From unaware.
+        case (.unaware, .unaware):
+            return .allowed
+        case (.unaware, .pitched):
+            return .allowed
+        case (.unaware, .aware):
+            return .allowed
+        case (.unaware, .engaged):
+            return .allowed
+        case (.unaware, .declined):
+            // Allowed on purpose, even though the ordinary path records the
+            // introduction first and so arrives here from `pitched`. A refusal that
+            // reaches the server without its matching shown-record is still a
+            // refusal, and dropping it would put the venue back in the pool. Losing
+            // a no is far more expensive than an out-of-order write.
+            return .allowed
+
+        // From pitched.
+        case (.pitched, .unaware):
+            return .rejected(
+                Rejection(
+                    from: from,
+                    to: to,
+                    reason: """
+                    The introduction has already been shown to a customer standing in \
+                    this venue. Whether or not anybody reported what happened, the \
+                    venue may have been spoken to, so it is not unaware again.
+                    """
+                )
+            )
+        case (.pitched, .pitched):
+            return .allowed
+        case (.pitched, .aware):
+            return .allowed
+        case (.pitched, .engaged):
+            return .allowed
+        case (.pitched, .declined):
+            return .allowed
+
+        // From aware.
+        case (.aware, .unaware):
+            return .rejected(
+                Rejection(
+                    from: from,
+                    to: to,
+                    reason: """
+                    The venue is on record as knowing what Map Mates is. Forgetting \
+                    that would let the same venue be introduced from scratch on every \
+                    shift.
+                    """
+                )
+            )
+        case (.aware, .pitched):
+            return .allowed
+        case (.aware, .aware):
+            return .allowed
+        case (.aware, .engaged):
+            return .allowed
+        case (.aware, .declined):
+            return .allowed
+
+        // From engaged.
+        case (.engaged, .unaware):
+            return .rejected(
+                Rejection(
+                    from: from,
+                    to: to,
+                    reason: """
+                    Somebody at this venue has generated a referral code. That record \
+                    exists, so the venue cannot be treated as never having heard of \
+                    the app.
+                    """
+                )
+            )
+        case (.engaged, .pitched):
+            return .rejected(
+                Rejection(
+                    from: from,
+                    to: to,
+                    reason: """
+                    A participating venue does not need introducing. Showing the card \
+                    for it would pitch a venue that is already running the thing being \
+                    pitched.
+                    """
+                )
+            )
+        case (.engaged, .aware):
+            return .rejected(
+                Rejection(
+                    from: from,
+                    to: to,
+                    reason: """
+                    Participation is stronger than awareness. Dropping back to aware \
+                    would lose the fact that a code exists, which is the fact the \
+                    venue's own report is built on.
+                    """
+                )
+            )
+        case (.engaged, .engaged):
+            return .allowed
+        case (.engaged, .declined):
+            return .allowed
+
+        // From declined.
+        case (.declined, .unaware):
+            return .rejected(
+                Rejection(
+                    from: from,
+                    to: to,
+                    reason: """
+                    The venue said no. Forgetting that is exactly how a venue gets \
+                    asked again next week by somebody who does not know.
+                    """
+                )
+            )
+        case (.declined, .pitched):
+            return .allowed
+        case (.declined, .aware):
+            // A venue only gets a second introduction once the ninety day freeze has
+            // elapsed, so reaching this pair means somebody there has now said they
+            // know it and are interested. That is a real change of position and the
+            // state should follow it. What stops the venue being asked repeatedly
+            // afterwards is the cooldown policy, not this table.
+            return .allowed
+        case (.declined, .engaged):
+            return .allowed
+        case (.declined, .declined):
+            return .allowed
+        }
+    }
+
+    /// The state a reported outcome produces, given where the venue is now.
+    ///
+    /// The result is always a state the transition table allows from `current`, so
+    /// this function and ``verdict(from:to:)`` cannot disagree.
+    public static func state(
+        after outcome: VenuePitchOutcome,
+        from current: VenueAwarenessState
+    ) -> VenueAwarenessState {
+        switch outcome {
+        case .receptive:
+            // Interested but not signed up. Aware, and on the short freeze.
+            return current == .engaged ? .engaged : .aware
+
+        case .alreadyKnew:
+            return current == .engaged ? .engaged : .aware
+
+        case .notReceptive:
+            return .declined
+
+        case .noChance:
+            // The customer never got to say anything, so the venue learned nothing.
+            // The pitch is still spent, which is why the state stays at pitched
+            // rather than reverting.
+            return current == .unaware ? .pitched : current
+
+        case .skipped:
+            // The customer chose not to introduce it. Same reasoning as noChance:
+            // the card was shown, so the budget is spent, but the venue is no wiser.
+            return current == .unaware ? .pitched : current
+        }
+    }
+}
+
+// MARK: - Outcome
+
+/// What the customer reports happened when they introduced Map Mates to the venue.
+///
+/// `skipped` is a first class outcome rather than an absence, because a customer
+/// choosing not to introduce it is information about the moment, and because the
+/// card was still shown, which still spends the venue's pitch budget.
+public enum VenuePitchOutcome: String, Codable, Sendable, Hashable, CaseIterable {
+
+    /// The staff had not heard of it and were interested.
+    case receptive
+
+    /// The staff already knew about Map Mates.
+    case alreadyKnew
+
+    /// The staff heard it and did not want it.
+    case notReceptive
+
+    /// There was no opening: a queue, a rush, nobody free to talk to.
+    case noChance
+
+    /// The customer dismissed the card without introducing anything.
+    case skipped
+}
+
+// MARK: - Shift buckets
+
+/// A named part of a venue's day, so the morning crew and the evening crew are
+/// tracked as different audiences.
+///
+/// The point is not analytics. It is that four customers meeting at the same bar on
+/// the same evening must not produce four introductions to the same bartender, while
+/// the person opening the next morning has genuinely not heard it.
+public enum VenueShiftBucket: String, Codable, Sendable, Hashable, CaseIterable {
+
+    /// 00:00 to 05:59 local.
+    case overnight
+
+    /// 06:00 to 10:59 local.
+    case morning
+
+    /// 11:00 to 14:59 local.
+    case midday
+
+    /// 15:00 to 17:59 local.
+    case afternoon
+
+    /// 18:00 to 21:59 local.
+    case evening
+
+    /// 22:00 to 23:59 local.
+    case lateNight
+
+    /// The bucket an hour of the local clock falls in.
+    ///
+    /// Total over 0 through 23. Any other value is a programming error rather than a
+    /// venue state, so it throws rather than picking a bucket.
+    public static func forLocalHour(_ hour: Int) throws -> VenueShiftBucket {
+        switch hour {
+        case 0...5: return .overnight
+        case 6...10: return .morning
+        case 11...14: return .midday
+        case 15...17: return .afternoon
+        case 18...21: return .evening
+        case 22...23: return .lateNight
+        default:
+            throw VenueAwarenessError.hourOutsideDay(hour: hour)
+        }
+    }
+
+    /// The bucket a moment falls in, for a venue whose timezone is known.
+    ///
+    /// - Parameters:
+    ///   - date: the moment to bucket.
+    ///   - timeZoneIdentifier: the venue's IANA timezone identifier. Optional
+    ///     because the venue table genuinely has no timezone column today, so a
+    ///     missing one is a state that occurs, not a hypothetical.
+    ///   - venueName: carried into the error so a log line names the venue.
+    public static func forDate(
+        _ date: Date,
+        timeZoneIdentifier: String?,
+        venueName: String
+    ) throws -> VenueShiftBucket {
+        guard let timeZoneIdentifier, timeZoneIdentifier.isEmpty == false else {
+            throw VenueAwarenessError.venueHasNoTimeZone(venueName: venueName)
+        }
+
+        guard let timeZone = TimeZone(identifier: timeZoneIdentifier) else {
+            throw VenueAwarenessError.venueTimeZoneNotRecognised(
+                venueName: venueName,
+                identifier: timeZoneIdentifier
+            )
+        }
+
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        return try forLocalHour(calendar.component(.hour, from: date))
+    }
+}
+
+// MARK: - Cooldown policy
+
+/// Everything the cooldown policy is allowed to look at.
+///
+/// A struct rather than five arguments so that adding an input is a visible change
+/// at every call site, and so the table driven test can name its cases.
+public struct VenuePitchContext: Equatable, Sendable {
+
+    public let state: VenueAwarenessState
+
+    /// The most recently reported outcome for this venue, or nil when the card has
+    /// been shown and nobody has reported anything.
+    public let lastOutcome: VenuePitchOutcome?
+
+    /// How many times the card has been shown for this venue inside the counting
+    /// window, which the caller defines. The server uses thirty days.
+    public let pitchCountInWindow: Int
+
+    /// The bucket the moment being tested falls in.
+    public let shiftBucket: VenueShiftBucket
+
+    /// The bucket the most recent pitch fell in, or nil when there has been none.
+    public let lastPitchShiftBucket: VenueShiftBucket?
+
+    /// When the most recent pitch happened, or nil when there has been none.
+    public let lastPitchAt: Date?
+
+    /// The moment being tested.
+    public let now: Date
+
+    public init(
+        state: VenueAwarenessState,
+        lastOutcome: VenuePitchOutcome?,
+        pitchCountInWindow: Int,
+        shiftBucket: VenueShiftBucket,
+        lastPitchShiftBucket: VenueShiftBucket?,
+        lastPitchAt: Date?,
+        now: Date
+    ) {
+        self.state = state
+        self.lastOutcome = lastOutcome
+        self.pitchCountInWindow = pitchCountInWindow
+        self.shiftBucket = shiftBucket
+        self.lastPitchShiftBucket = lastPitchShiftBucket
+        self.lastPitchAt = lastPitchAt
+        self.now = now
+    }
+}
+
+/// Whether the card may be shown for this venue right now.
+public enum VenuePitchEligibility: Equatable, Sendable {
+
+    case eligible
+
+    /// Suppressed, with a reason a person can read. Every reason in the policy is
+    /// distinct, so a log line identifies which rule fired without a rule id.
+    case suppressed(reason: String)
+
+    public var isEligible: Bool {
+        switch self {
+        case .eligible: return true
+        case .suppressed: return false
+        }
+    }
+
+    public var suppressionReason: String? {
+        switch self {
+        case .eligible: return nil
+        case .suppressed(let reason): return reason
+        }
+    }
+}
+
+/// The cooldown rules, as one pure function.
+///
+/// Aggressive early then decaying, handing off to outcome adaptive freezes, keyed by
+/// shift. Pure so the whole rule set is testable without a database and so the same
+/// verdict can be computed on the client for an explanation string.
+public enum VenueCooldownPolicy {
+
+    // MARK: Freeze lengths
+
+    /// A venue that said no is not asked again for this long.
+    public static let declinedFreeze: TimeInterval = 90 * 24 * 60 * 60
+
+    /// Interested but not signed up. Short, because the next conversation is the
+    /// one that lands.
+    public static let receptiveFreeze: TimeInterval = 7 * 24 * 60 * 60
+
+    /// They already knew. No point repeating it soon, but they are not a no.
+    public static let alreadyKnewFreeze: TimeInterval = 30 * 24 * 60 * 60
+
+    /// Nobody got a chance to say anything. The venue learned nothing, so the freeze
+    /// is short, but it is not zero: the same rush is probably still on.
+    public static let noChanceFreeze: TimeInterval = 24 * 60 * 60
+
+    /// The conservative default. Used when the customer skipped, and when the card
+    /// was shown and nothing at all was reported.
+    public static let conservativeFreeze: TimeInterval = 14 * 24 * 60 * 60
+
+    /// How many introductions a venue nobody has reported on may receive before the
+    /// adaptive rules take over. Aggressive early, in the decisions table's words.
+    public static let earlyPitchAllowance: Int = 2
+
+    // MARK: Evaluation
+
+    public static func evaluate(_ context: VenuePitchContext) -> VenuePitchEligibility {
+
+        // 1. A participating venue is never introduced to the thing it is running.
+        if context.state == .engaged {
+            return .suppressed(
+                reason: """
+                This venue already has Map Mates running, so there is nothing to \
+                introduce.
+                """
+            )
+        }
+
+        // 2. A refusal is honoured for a long time, and the reason says until when.
+        if context.state == .declined {
+            guard let lastPitchAt = context.lastPitchAt else {
+                return .suppressed(
+                    reason: """
+                    This venue is on record as having declined, and no date was \
+                    recorded for the refusal, so the freeze cannot be timed out. It \
+                    stays suppressed until an outcome is recorded that moves it.
+                    """
+                )
+            }
+
+            let freezeEnds = lastPitchAt.addingTimeInterval(declinedFreeze)
+            if context.now < freezeEnds {
+                return .suppressed(
+                    reason: """
+                    This venue said no on \(Self.dayString(lastPitchAt)). It is not \
+                    asked again until \(Self.dayString(freezeEnds)).
+                    """
+                )
+            }
+            return .eligible
+        }
+
+        // 3. One introduction per shift, always. This is the rule that stops four
+        //    customers in one evening from pitching the same bartender four times,
+        //    and it fires whether or not anybody reported an outcome.
+        if let lastPitchShiftBucket = context.lastPitchShiftBucket,
+           lastPitchShiftBucket == context.shiftBucket,
+           let lastPitchAt = context.lastPitchAt,
+           Self.isSameLocalDayWindow(lastPitchAt, context.now) {
+            return .suppressed(
+                reason: """
+                Somebody has already shown this venue the introduction during the \
+                \(context.shiftBucket.rawValue) shift. The next one waits for a \
+                different shift.
+                """
+            )
+        }
+
+        // 4. Nothing reported yet: aggressive early, then the conservative freeze.
+        guard let lastOutcome = context.lastOutcome else {
+            if context.pitchCountInWindow < earlyPitchAllowance {
+                return .eligible
+            }
+
+            guard let lastPitchAt = context.lastPitchAt else {
+                return .suppressed(
+                    reason: """
+                    This venue has reached the early allowance of \
+                    \(earlyPitchAllowance) introductions with nothing reported back, \
+                    and no date was recorded for the most recent one, so the freeze \
+                    cannot be timed out.
+                    """
+                )
+            }
+
+            let freezeEnds = lastPitchAt.addingTimeInterval(conservativeFreeze)
+            if context.now < freezeEnds {
+                return .suppressed(
+                    reason: """
+                    This venue has been shown the introduction \
+                    \(context.pitchCountInWindow) times with nothing reported back, \
+                    so it waits the conservative \
+                    \(Self.dayCount(conservativeFreeze)) days, until \
+                    \(Self.dayString(freezeEnds)).
+                    """
+                )
+            }
+            return .eligible
+        }
+
+        // 5. Outcome adaptive.
+        let freeze: TimeInterval
+        let outcomeSentence: String
+
+        switch lastOutcome {
+        case .receptive:
+            freeze = receptiveFreeze
+            outcomeSentence = "The last person here was interested"
+        case .alreadyKnew:
+            freeze = alreadyKnewFreeze
+            outcomeSentence = "The staff here already knew about Map Mates"
+        case .notReceptive:
+            freeze = declinedFreeze
+            outcomeSentence = "The last person here was not interested"
+        case .noChance:
+            freeze = noChanceFreeze
+            outcomeSentence = "The last customer never got an opening to say anything"
+        case .skipped:
+            freeze = conservativeFreeze
+            outcomeSentence = "The last customer chose not to introduce it"
+        }
+
+        guard let lastPitchAt = context.lastPitchAt else {
+            return .suppressed(
+                reason: """
+                \(outcomeSentence), and no date was recorded for that introduction, \
+                so the \(Self.dayCount(freeze)) day freeze cannot be timed out.
+                """
+            )
+        }
+
+        let freezeEnds = lastPitchAt.addingTimeInterval(freeze)
+        if context.now < freezeEnds {
+            return .suppressed(
+                reason: """
+                \(outcomeSentence), on \(Self.dayString(lastPitchAt)). The next \
+                introduction here is offered from \(Self.dayString(freezeEnds)).
+                """
+            )
+        }
+
+        return .eligible
+    }
+
+    // MARK: Helpers
+
+    /// Whether two moments are close enough that they are the same working shift
+    /// rather than the same named bucket a week apart.
+    ///
+    /// Eighteen hours rather than a calendar day, so an overnight shift that starts
+    /// before midnight and ends after it is one shift, while the same bucket
+    /// tomorrow is a new one.
+    static func isSameLocalDayWindow(_ earlier: Date, _ later: Date) -> Bool {
+        later.timeIntervalSince(earlier) < 18 * 60 * 60
+    }
+
+    static func dayCount(_ interval: TimeInterval) -> Int {
+        Int(interval / (24 * 60 * 60))
+    }
+
+    /// A date rendered for a human reading a suppression reason. Fixed to a stable
+    /// locale and to UTC so the same input produces the same string in a test on any
+    /// machine, which is what makes the reasons assertable.
+    static func dayString(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(identifier: "UTC")
+        formatter.dateFormat = "d MMMM yyyy"
+        return formatter.string(from: date)
+    }
+}
+
+// MARK: - Errors
+
+/// Every way the venue awareness layer can refuse, each with enough context to
+/// diagnose without opening the caller.
+///
+/// One enum rather than five types so a caller can switch exhaustively, with each
+/// case carrying its own payload so no two cases produce the same message.
+public enum VenueAwarenessError: Error, Equatable, Sendable, CustomStringConvertible {
+
+    /// No venue exists for the identifier the caller sent.
+    case unknownVenue(identifier: String)
+
+    /// The venue exists but has no timezone, so its day cannot be divided into
+    /// shifts. Not defaulted to UTC: a closing shift in Los Angeles bucketed as a
+    /// UTC morning merges the evening crew with the next morning's.
+    case venueHasNoTimeZone(venueName: String)
+
+    /// The venue carries a timezone string the system does not recognise.
+    case venueTimeZoneNotRecognised(venueName: String, identifier: String)
+
+    /// The outcome string in the request body is not one of the five outcomes.
+    case malformedOutcome(received: String, accepted: [String])
+
+    /// The correlation identifier names a card that was shown too long ago to be the
+    /// one being reported on, or one that was never recorded.
+    case staleCorrelationIdentifier(identifier: String, ageInSeconds: Int?)
+
+    /// The venue has no pitch budget left in this window.
+    case pitchBudgetExhausted(venueName: String, shiftBucket: VenueShiftBucket, reason: String)
+
+    /// An hour outside 0 through 23 reached the bucketing function.
+    case hourOutsideDay(hour: Int)
+
+    /// The greet named by the request does not exist, so no venue can be resolved.
+    case unknownGreet(identifier: String)
+
+    /// The caller is not one of the two participants in the greet they named.
+    case callerNotInGreet(callerIdentifier: String, greetIdentifier: String)
+
+    public var description: String {
+        switch self {
+        case .unknownVenue(let identifier):
+            return """
+            No venue is stored under the identifier "\(identifier)". Eligibility \
+            cannot be decided for a venue the server does not have, and answering \
+            eligible would introduce Map Mates to a venue no report can ever be \
+            attributed to.
+            """
+
+        case .venueHasNoTimeZone(let venueName):
+            return """
+            The venue "\(venueName)" has no timezone, so its day cannot be divided \
+            into shifts. Bucketing it in UTC instead would merge a closing crew with \
+            the next morning's crew, which is the exact bombardment the shift key \
+            exists to prevent.
+            """
+
+        case .venueTimeZoneNotRecognised(let venueName, let identifier):
+            return """
+            The venue "\(venueName)" carries the timezone identifier "\(identifier)", \
+            which this system does not recognise. A guess would put the venue's \
+            shifts on the wrong clock.
+            """
+
+        case .malformedOutcome(let received, let accepted):
+            return """
+            The outcome "\(received)" is not one this endpoint accepts. The accepted \
+            outcomes are \(accepted.joined(separator: ", ")). An unrecognised outcome \
+            is not recorded as a skip, because a skip is itself a reportable answer.
+            """
+
+        case .staleCorrelationIdentifier(let identifier, let ageInSeconds):
+            let age = ageInSeconds.map { "\($0) seconds old" } ?? "of unknown age"
+            return """
+            The correlation identifier "\(identifier)" is \(age) and does not match a \
+            card this server recorded showing. Recording the outcome against it would \
+            attribute a report to the wrong introduction.
+            """
+
+        case .pitchBudgetExhausted(let venueName, let shiftBucket, let reason):
+            return """
+            The venue "\(venueName)" has no introduction budget left in the \
+            \(shiftBucket.rawValue) shift. \(reason)
+            """
+
+        case .hourOutsideDay(let hour):
+            return """
+            The hour \(hour) is outside 0 through 23, so no shift bucket covers it. \
+            This is a caller mistake rather than a venue state.
+            """
+
+        case .unknownGreet(let identifier):
+            return """
+            No greet is stored under the identifier "\(identifier)". The venue a meet \
+            happened at is resolved through the greet, so without one there is no \
+            venue to decide about.
+            """
+
+        case .callerNotInGreet(let callerIdentifier, let greetIdentifier):
+            return """
+            The user "\(callerIdentifier)" is not a participant in the greet \
+            "\(greetIdentifier)". Only the two people who met may report what \
+            happened at the venue they met at.
+            """
+        }
+    }
+}
+
+// MARK: - Wire types
+
+/// What the client sends to ask whether the introduction card may be shown.
+public struct VenueEligibilityRequest: Codable, Equatable, Sendable {
+
+    /// The greet whose venue is being asked about. The server resolves the venue and
+    /// the two participants from this, so the client never names a venue itself.
+    public let greetIdentifier: UUID
+
+    /// Minted on the device when the card is about to be shown, and carried through
+    /// every later stage of the funnel.
+    public let clientCorrelationIdentifier: String
+
+    public init(greetIdentifier: UUID, clientCorrelationIdentifier: String) {
+        self.greetIdentifier = greetIdentifier
+        self.clientCorrelationIdentifier = clientCorrelationIdentifier
+    }
+}
+
+/// The eligibility answer, plus everything the card needs to render honestly.
+public struct VenueEligibilityResponse: Codable, Equatable, Sendable {
+
+    public let isEligible: Bool
+
+    /// Present exactly when `isEligible` is false.
+    public let suppressionReason: String?
+
+    public let venueName: String
+
+    public let awarenessState: VenueAwarenessState
+
+    public let shiftBucket: VenueShiftBucket
+
+    /// This venue's own referral count for the current month. Zero is a real answer
+    /// and is rendered as one, never padded.
+    public let usersSentToVenueThisMonth: Int
+
+    /// Staff at this venue who already have referral codes, so the customer can tell
+    /// whether the person in front of them needs the introduction at all.
+    public let participatingStaffNames: [String]
+
+    /// Which arm of the motivation experiment this user is in. Stable per user.
+    public let experimentArm: VenueMotivationArm
+
+    public init(
+        isEligible: Bool,
+        suppressionReason: String?,
+        venueName: String,
+        awarenessState: VenueAwarenessState,
+        shiftBucket: VenueShiftBucket,
+        usersSentToVenueThisMonth: Int,
+        participatingStaffNames: [String],
+        experimentArm: VenueMotivationArm
+    ) {
+        self.isEligible = isEligible
+        self.suppressionReason = suppressionReason
+        self.venueName = venueName
+        self.awarenessState = awarenessState
+        self.shiftBucket = shiftBucket
+        self.usersSentToVenueThisMonth = usersSentToVenueThisMonth
+        self.participatingStaffNames = participatingStaffNames
+        self.experimentArm = experimentArm
+    }
+}
+
+/// What the client sends when the customer answers on the card, or later on the
+/// rating screen.
+public struct VenueOutcomeReport: Codable, Equatable, Sendable {
+
+    public let greetIdentifier: UUID
+
+    /// The same identifier the eligibility call carried, so a late report on the
+    /// rating screen lands on the same row the card created rather than opening a
+    /// second one.
+    public let clientCorrelationIdentifier: String
+
+    public let outcome: VenuePitchOutcome
+
+    /// Where the answer came from. Two surfaces can answer, and the reconciliation
+    /// in 5.3 needs to know which one arrived.
+    public let source: Source
+
+    public enum Source: String, Codable, Equatable, Sendable, CaseIterable {
+        case card
+        case ratingScreen
+    }
+
+    public init(
+        greetIdentifier: UUID,
+        clientCorrelationIdentifier: String,
+        outcome: VenuePitchOutcome,
+        source: Source
+    ) {
+        self.greetIdentifier = greetIdentifier
+        self.clientCorrelationIdentifier = clientCorrelationIdentifier
+        self.outcome = outcome
+        self.source = source
+    }
+}
+
+/// What the server says back after recording an outcome.
+public struct VenueOutcomeAcknowledgement: Codable, Equatable, Sendable {
+
+    public let awarenessState: VenueAwarenessState
+
+    /// True when this report changed the stored state. False when it was a duplicate
+    /// of one already recorded for the same correlation identifier, which is how the
+    /// rating screen answer avoids double counting a card answer.
+    public let didChangeState: Bool
+
+    /// How many introductions this venue has now had inside the counting window.
+    /// Returned so a test can assert it incremented exactly once.
+    public let pitchCountInWindow: Int
+
+    public init(
+        awarenessState: VenueAwarenessState,
+        didChangeState: Bool,
+        pitchCountInWindow: Int
+    ) {
+        self.awarenessState = awarenessState
+        self.didChangeState = didChangeState
+        self.pitchCountInWindow = pitchCountInWindow
+    }
+}
+
+// MARK: - Motivation experiment
+
+/// The two arms of the intrinsic versus extrinsic experiment.
+///
+/// Assignment is a pure function of the user id, so it is stable across sessions and
+/// across devices without storing anything, and both arms are reachable.
+public enum VenueMotivationArm: String, Codable, Equatable, Sendable, CaseIterable {
+
+    /// The ask is framed as helping future matches happen at good venues. No reward.
+    case intrinsic
+
+    /// The ask carries a concrete in-app benefit.
+    case extrinsic
+
+    /// Stable assignment from a user identifier.
+    ///
+    /// Uses the low bit of a sum over the uuid's bytes rather than `hashValue`,
+    /// because Swift's string and uuid hashing is seeded per process and would put
+    /// the same user in a different arm on every server restart.
+    public static func forUser(_ userIdentifier: UUID) -> VenueMotivationArm {
+        var total: UInt32 = 0
+        withUnsafeBytes(of: userIdentifier.uuid) { buffer in
+            for byte in buffer {
+                total = total &+ UInt32(byte)
+            }
+        }
+        return total % 2 == 0 ? .intrinsic : .extrinsic
+    }
+}
+
+// MARK: - Transparency surface
+
+/// One introduction this user made, and what it actually produced.
+///
+/// Every field is a fact the server holds. Nothing here is projected, averaged, or
+/// filled in when unknown: an introduction whose venue never scanned reports that
+/// it never scanned.
+public struct VenueIntroductionRecord: Codable, Equatable, Sendable, Identifiable {
+
+    public let id: UUID
+
+    public let venueName: String
+
+    /// When the card was shown to this user.
+    public let shownAt: Date
+
+    /// What the user reported, or nil when they never answered.
+    public let reportedOutcome: VenuePitchOutcome?
+
+    /// Whether somebody at the venue actually scanned the code. This is the metric
+    /// the whole loop is measured on, so it is the one the user sees.
+    public let wasScannedByVenue: Bool
+
+    /// Whether the venue went on to generate a referral code of their own.
+    public let venueJoined: Bool
+
+    public init(
+        id: UUID,
+        venueName: String,
+        shownAt: Date,
+        reportedOutcome: VenuePitchOutcome?,
+        wasScannedByVenue: Bool,
+        venueJoined: Bool
+    ) {
+        self.id = id
+        self.venueName = venueName
+        self.shownAt = shownAt
+        self.reportedOutcome = reportedOutcome
+        self.wasScannedByVenue = venueJoined ? true : wasScannedByVenue
+        self.venueJoined = venueJoined
+    }
+}
+
+/// Everything the transparency surface renders.
+public struct VenueIntroductionHistoryResponse: Codable, Equatable, Sendable {
+
+    public let records: [VenueIntroductionRecord]
+
+    /// How many of this user's introductions a venue actually scanned. Derived from
+    /// `records` so the headline and the list can never disagree.
+    public var scannedCount: Int {
+        records.filter(\.wasScannedByVenue).count
+    }
+
+    /// How many venues went on to join.
+    public var joinedCount: Int {
+        records.filter(\.venueJoined).count
+    }
+
+    public init(records: [VenueIntroductionRecord]) {
+        self.records = records
+    }
+}

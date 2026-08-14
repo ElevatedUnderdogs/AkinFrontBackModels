@@ -1,0 +1,472 @@
+//
+//  VenueAwarenessTests.swift
+//  AkinFrontBackModelsTests
+//
+//  VENUE_PARTNERSHIP_GOAL_LOOP.md items 3.1, 3.2, 3.3, 3.4, and 7.3.
+//
+
+import XCTest
+@testable import AkinFrontBackModels
+
+final class VenueAwarenessTests: XCTestCase {
+
+    // MARK: - 3.1 Transitions are explicit and total
+
+    /// Every ordered pair of states is decided, and each rejection carries its own
+    /// sentence. The point of the test is that nothing falls through a default arm:
+    /// twenty five pairs go in, twenty five verdicts come out, and no two rejections
+    /// say the same thing.
+    func testEveryStatePairIsExplicitlyAllowedOrExplicitlyRejected() {
+        let states = VenueAwarenessState.allCases
+        XCTAssertEqual(states.count, 5)
+
+        var allowedPairs: [(VenueAwarenessState, VenueAwarenessState)] = []
+        var rejectionReasons: [String] = []
+
+        for from in states {
+            for to in states {
+                switch VenueAwarenessTransition.verdict(from: from, to: to) {
+                case .allowed:
+                    allowedPairs.append((from, to))
+                case .rejected(let rejection):
+                    XCTAssertEqual(rejection.from, from)
+                    XCTAssertEqual(rejection.to, to)
+                    XCTAssertFalse(
+                        rejection.reason.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                        "\(from.rawValue) to \(to.rawValue) was rejected with an empty reason"
+                    )
+                    XCTAssertFalse(
+                        rejection.reason.lowercased().contains("unknown"),
+                        "\(from.rawValue) to \(to.rawValue) rejected with an unknown reason"
+                    )
+                    rejectionReasons.append(rejection.reason)
+                }
+            }
+        }
+
+        XCTAssertEqual(
+            allowedPairs.count + rejectionReasons.count,
+            states.count * states.count,
+            "Every one of the 25 ordered pairs must produce a verdict"
+        )
+
+        XCTAssertEqual(
+            Set(rejectionReasons).count,
+            rejectionReasons.count,
+            "Two different rejected transitions share a reason string, so a log line cannot tell them apart"
+        )
+    }
+
+    /// The exact shape of the transition table, so a change to it is a deliberate
+    /// edit to this list rather than an accident.
+    func testTheAllowedTransitionTableIsWhatWeIntended() {
+        let expectedAllowed: Set<String> = [
+            "unaware->unaware", "unaware->pitched", "unaware->aware", "unaware->engaged",
+            "unaware->declined",
+            "pitched->pitched", "pitched->aware", "pitched->engaged", "pitched->declined",
+            "aware->pitched", "aware->aware", "aware->engaged", "aware->declined",
+            "engaged->engaged", "engaged->declined",
+            "declined->pitched", "declined->aware", "declined->engaged", "declined->declined",
+        ]
+
+        var actualAllowed: Set<String> = []
+        for from in VenueAwarenessState.allCases {
+            for to in VenueAwarenessState.allCases where
+                VenueAwarenessTransition.verdict(from: from, to: to).isAllowed {
+                actualAllowed.insert("\(from.rawValue)->\(to.rawValue)")
+            }
+        }
+
+        XCTAssertEqual(actualAllowed, expectedAllowed)
+    }
+
+    /// Awareness is knowledge, and knowledge does not un-happen. Nothing may return
+    /// to `unaware` once it has left.
+    func testNothingEverReturnsToUnaware() {
+        for from in VenueAwarenessState.allCases where from != .unaware {
+            XCTAssertFalse(
+                VenueAwarenessTransition.verdict(from: from, to: .unaware).isAllowed,
+                "\(from.rawValue) must not be able to become unaware again"
+            )
+        }
+    }
+
+    /// The state an outcome produces must itself be a legal transition, so the two
+    /// halves of the model cannot disagree.
+    func testEveryOutcomeProducesALegalTransitionFromEveryState() {
+        for from in VenueAwarenessState.allCases {
+            for outcome in VenuePitchOutcome.allCases {
+                let next = VenueAwarenessTransition.state(after: outcome, from: from)
+                XCTAssertTrue(
+                    VenueAwarenessTransition.verdict(from: from, to: next).isAllowed,
+                    "\(outcome.rawValue) from \(from.rawValue) produced \(next.rawValue), which the table rejects"
+                )
+            }
+        }
+    }
+
+    // MARK: - 3.2 Shift buckets
+
+    /// Total across all twenty four hours, with no hour landing in two buckets and
+    /// none landing in none.
+    func testEveryHourOfTheDayHasExactlyOneBucket() throws {
+        var buckets: [VenueShiftBucket] = []
+        for hour in 0...23 {
+            buckets.append(try VenueShiftBucket.forLocalHour(hour))
+        }
+
+        XCTAssertEqual(buckets.count, 24)
+        XCTAssertEqual(
+            Set(buckets),
+            Set(VenueShiftBucket.allCases),
+            "Some named bucket covers no hour of the day, which means it can never fire"
+        )
+    }
+
+    func testHoursOutsideTheDayThrowRatherThanPickABucket() {
+        for hour in [-1, 24, 99] {
+            XCTAssertThrowsError(try VenueShiftBucket.forLocalHour(hour)) { error in
+                guard case VenueAwarenessError.hourOutsideDay(let reported) = error else {
+                    return XCTFail("Expected hourOutsideDay, got \(error)")
+                }
+                XCTAssertEqual(reported, hour)
+            }
+        }
+    }
+
+    /// Bucketing runs on the venue's clock, not the server's. The same instant is a
+    /// different shift in Los Angeles and in London.
+    func testTheSameInstantBucketsDifferentlyInDifferentVenueTimeZones() throws {
+        // 2026-08-14T02:00:00Z. That is 19:00 the previous evening in Los Angeles
+        // and 03:00 in London.
+        let instant = Date(timeIntervalSince1970: 1_786_672_800)
+
+        let losAngeles = try VenueShiftBucket.forDate(
+            instant,
+            timeZoneIdentifier: "America/Los_Angeles",
+            venueName: "The Corner Bar"
+        )
+        let london = try VenueShiftBucket.forDate(
+            instant,
+            timeZoneIdentifier: "Europe/London",
+            venueName: "The Corner Bar"
+        )
+
+        XCTAssertEqual(losAngeles, .evening)
+        XCTAssertEqual(london, .overnight)
+        XCTAssertNotEqual(losAngeles, london)
+    }
+
+    /// A venue with no timezone throws a named error. It does not quietly bucket in
+    /// UTC, which would merge a closing crew with the next morning's.
+    func testAVenueWithoutATimeZoneThrowsRatherThanDefaultingToUTC() {
+        for missing in [nil, ""] as [String?] {
+            XCTAssertThrowsError(
+                try VenueShiftBucket.forDate(
+                    Date(timeIntervalSince1970: 1_786_672_800),
+                    timeZoneIdentifier: missing,
+                    venueName: "The Corner Bar"
+                )
+            ) { error in
+                guard case VenueAwarenessError.venueHasNoTimeZone(let venueName) = error else {
+                    return XCTFail("Expected venueHasNoTimeZone, got \(error)")
+                }
+                XCTAssertEqual(venueName, "The Corner Bar")
+                XCTAssertTrue(
+                    "\(error)".contains("UTC"),
+                    "The error should say what defaulting to UTC would have cost"
+                )
+            }
+        }
+    }
+
+    func testAnUnrecognisedTimeZoneThrowsRatherThanGuessing() {
+        XCTAssertThrowsError(
+            try VenueShiftBucket.forDate(
+                Date(timeIntervalSince1970: 1_786_672_800),
+                timeZoneIdentifier: "Mars/Olympus_Mons",
+                venueName: "The Corner Bar"
+            )
+        ) { error in
+            guard case VenueAwarenessError.venueTimeZoneNotRecognised(let venueName, let identifier) = error else {
+                return XCTFail("Expected venueTimeZoneNotRecognised, got \(error)")
+            }
+            XCTAssertEqual(venueName, "The Corner Bar")
+            XCTAssertEqual(identifier, "Mars/Olympus_Mons")
+        }
+    }
+
+    // MARK: - 3.3 Cooldown policy, table driven
+
+    private let referenceNow = Date(timeIntervalSince1970: 1_786_672_800)
+
+    private func context(
+        state: VenueAwarenessState,
+        outcome: VenuePitchOutcome?,
+        pitchCount: Int,
+        bucket: VenueShiftBucket = .evening,
+        lastBucket: VenueShiftBucket? = nil,
+        daysSinceLastPitch: Double?
+    ) -> VenuePitchContext {
+        VenuePitchContext(
+            state: state,
+            lastOutcome: outcome,
+            pitchCountInWindow: pitchCount,
+            shiftBucket: bucket,
+            lastPitchShiftBucket: lastBucket,
+            lastPitchAt: daysSinceLastPitch.map {
+                referenceNow.addingTimeInterval(-$0 * 24 * 60 * 60)
+            },
+            now: referenceNow
+        )
+    }
+
+    /// Every state times every outcome times the boundary pitch counts. The
+    /// assertion is not on a specific verdict for each cell, it is that every cell
+    /// produces a decided verdict and that every suppression carries a distinct,
+    /// readable reason. A rule that fires with a borrowed sentence is a rule nobody
+    /// can debug from a log.
+    func testTheWholeCrossProductProducesDecidedVerdictsWithDistinctReasons() {
+        let boundaryPitchCounts = [
+            0,
+            VenueCooldownPolicy.earlyPitchAllowance - 1,
+            VenueCooldownPolicy.earlyPitchAllowance,
+            VenueCooldownPolicy.earlyPitchAllowance + 1,
+        ]
+        let outcomes: [VenuePitchOutcome?] = [nil] + VenuePitchOutcome.allCases.map { $0 }
+
+        var reasonsSeen: Set<String> = []
+        var eligibleCells = 0
+        var suppressedCells = 0
+
+        for state in VenueAwarenessState.allCases {
+            for outcome in outcomes {
+                for pitchCount in boundaryPitchCounts {
+                    for daysSince in [nil, 0.0, 1.5, 8.0, 31.0, 91.0] as [Double?] {
+                        let subject = context(
+                            state: state,
+                            outcome: outcome,
+                            pitchCount: pitchCount,
+                            lastBucket: daysSince == nil ? nil : .morning,
+                            daysSinceLastPitch: daysSince
+                        )
+
+                        switch VenueCooldownPolicy.evaluate(subject) {
+                        case .eligible:
+                            eligibleCells += 1
+
+                        case .suppressed(let reason):
+                            suppressedCells += 1
+                            let trimmed = reason.trimmingCharacters(in: .whitespacesAndNewlines)
+                            XCTAssertFalse(
+                                trimmed.isEmpty,
+                                "\(state.rawValue)/\(outcome?.rawValue ?? "none") suppressed with an empty reason"
+                            )
+                            XCTAssertFalse(
+                                trimmed.lowercased().contains("unknown"),
+                                "A suppression reason must never be unknown: \(trimmed)"
+                            )
+                            XCTAssertGreaterThan(
+                                trimmed.split(separator: " ").count, 6,
+                                "A suppression reason must be a sentence a person can act on: \(trimmed)"
+                            )
+                            reasonsSeen.insert(trimmed)
+                        }
+                    }
+                }
+            }
+        }
+
+        XCTAssertGreaterThan(eligibleCells, 0, "No cell was eligible, so the policy never lets anything through")
+        XCTAssertGreaterThan(suppressedCells, 0)
+        XCTAssertGreaterThanOrEqual(
+            reasonsSeen.count, 5,
+            "Fewer distinct reasons than rules means two rules are indistinguishable in a log"
+        )
+    }
+
+    /// Aggressive early: a venue nobody has reported on gets two introductions
+    /// before the adaptive rules take over, and they must be on different shifts.
+    func testAVenueWithNothingReportedGetsTwoIntroductionsThenTheConservativeFreeze() {
+        let first = context(state: .unaware, outcome: nil, pitchCount: 0, daysSinceLastPitch: nil)
+        XCTAssertTrue(VenueCooldownPolicy.evaluate(first).isEligible)
+
+        let second = context(
+            state: .pitched, outcome: nil, pitchCount: 1,
+            bucket: .morning, lastBucket: .evening, daysSinceLastPitch: 1.0
+        )
+        XCTAssertTrue(
+            VenueCooldownPolicy.evaluate(second).isEligible,
+            "The second introduction is the aggressive-early allowance"
+        )
+
+        let third = context(
+            state: .pitched, outcome: nil, pitchCount: 2,
+            bucket: .midday, lastBucket: .morning, daysSinceLastPitch: 1.0
+        )
+        let thirdVerdict = VenueCooldownPolicy.evaluate(third)
+        XCTAssertFalse(thirdVerdict.isEligible)
+        XCTAssertEqual(
+            thirdVerdict.suppressionReason?.contains("nothing reported back"), true,
+            "Got: \(thirdVerdict.suppressionReason ?? "no reason")"
+        )
+
+        let afterFreeze = context(
+            state: .pitched, outcome: nil, pitchCount: 2,
+            bucket: .midday, lastBucket: .morning, daysSinceLastPitch: 15.0
+        )
+        XCTAssertTrue(
+            VenueCooldownPolicy.evaluate(afterFreeze).isEligible,
+            "The conservative freeze is 14 days, so day 15 is eligible again"
+        )
+    }
+
+    func testAReceptiveOutcomeShortensTheFreezeAndADeclineLengthensIt() {
+        let receptiveInsideFreeze = context(
+            state: .aware, outcome: .receptive, pitchCount: 1,
+            bucket: .morning, lastBucket: .evening, daysSinceLastPitch: 3.0
+        )
+        XCTAssertFalse(VenueCooldownPolicy.evaluate(receptiveInsideFreeze).isEligible)
+
+        let receptiveAfterFreeze = context(
+            state: .aware, outcome: .receptive, pitchCount: 1,
+            bucket: .morning, lastBucket: .evening, daysSinceLastPitch: 8.0
+        )
+        XCTAssertTrue(
+            VenueCooldownPolicy.evaluate(receptiveAfterFreeze).isEligible,
+            "Receptive is a 7 day freeze, so day 8 is open again"
+        )
+
+        let declinedAfterEightDays = context(
+            state: .declined, outcome: .notReceptive, pitchCount: 1,
+            bucket: .morning, lastBucket: .evening, daysSinceLastPitch: 8.0
+        )
+        XCTAssertFalse(
+            VenueCooldownPolicy.evaluate(declinedAfterEightDays).isEligible,
+            "A decline is a 90 day freeze, not a 7 day one"
+        )
+
+        let declinedAfterNinetyOneDays = context(
+            state: .declined, outcome: .notReceptive, pitchCount: 1,
+            bucket: .morning, lastBucket: .evening, daysSinceLastPitch: 91.0
+        )
+        XCTAssertTrue(VenueCooldownPolicy.evaluate(declinedAfterNinetyOneDays).isEligible)
+    }
+
+    func testAnEngagedVenueIsNeverIntroducedToTheThingItIsAlreadyRunning() {
+        for outcome in [nil] + VenuePitchOutcome.allCases.map({ $0 }) {
+            let subject = context(
+                state: .engaged, outcome: outcome, pitchCount: 0, daysSinceLastPitch: 400.0
+            )
+            let verdict = VenueCooldownPolicy.evaluate(subject)
+            XCTAssertFalse(verdict.isEligible)
+            XCTAssertEqual(verdict.suppressionReason?.contains("already has Map Mates"), true)
+        }
+    }
+
+    // MARK: - 3.4 Showing the card spends the budget
+
+    /// The card was shown, nobody reported anything, and the next customer at the
+    /// same venue on the same shift is suppressed. The venue may have been pitched
+    /// whether or not the report arrived.
+    func testShowingTheCardSuppressesTheNextCheckForTheSameVenueAndShift() {
+        let shown = context(state: .unaware, outcome: nil, pitchCount: 0, daysSinceLastPitch: nil)
+        XCTAssertTrue(VenueCooldownPolicy.evaluate(shown).isEligible)
+
+        // Same venue, same shift, four minutes later, no outcome reported.
+        let nextCustomer = VenuePitchContext(
+            state: .pitched,
+            lastOutcome: nil,
+            pitchCountInWindow: 1,
+            shiftBucket: .evening,
+            lastPitchShiftBucket: .evening,
+            lastPitchAt: referenceNow.addingTimeInterval(-240),
+            now: referenceNow
+        )
+
+        let verdict = VenueCooldownPolicy.evaluate(nextCustomer)
+        XCTAssertFalse(
+            verdict.isEligible,
+            "Showing the card must spend the budget even with no outcome reported"
+        )
+        XCTAssertEqual(verdict.suppressionReason?.contains("evening shift"), true)
+    }
+
+    /// A different shift on the same day is a different audience, so it opens again.
+    func testTheNextShiftIsADifferentAudienceAndOpensAgain() {
+        let nextShift = VenuePitchContext(
+            state: .pitched,
+            lastOutcome: nil,
+            pitchCountInWindow: 1,
+            shiftBucket: .morning,
+            lastPitchShiftBucket: .evening,
+            lastPitchAt: referenceNow.addingTimeInterval(-11 * 60 * 60),
+            now: referenceNow
+        )
+        XCTAssertTrue(VenueCooldownPolicy.evaluate(nextShift).isEligible)
+    }
+
+    /// The same named bucket a week later is not the same shift.
+    func testTheSameBucketAWeekLaterIsNotTheSameShift() {
+        let aWeekLater = VenuePitchContext(
+            state: .pitched,
+            lastOutcome: .noChance,
+            pitchCountInWindow: 1,
+            shiftBucket: .evening,
+            lastPitchShiftBucket: .evening,
+            lastPitchAt: referenceNow.addingTimeInterval(-7 * 24 * 60 * 60),
+            now: referenceNow
+        )
+        XCTAssertTrue(
+            VenueCooldownPolicy.evaluate(aWeekLater).isEligible,
+            "noChance is a one day freeze and a week has passed, so this is open"
+        )
+    }
+
+    // MARK: - 7.3 Experiment assignment is stable
+
+    func testMotivationArmIsStableForTheSameUserAndReachesBothArms() {
+        let identifier = UUID(uuidString: "6BA7B810-9DAD-11D1-80B4-00C04FD430C8")!
+        let first = VenueMotivationArm.forUser(identifier)
+        for _ in 0..<50 {
+            XCTAssertEqual(VenueMotivationArm.forUser(identifier), first)
+        }
+
+        var arms: Set<VenueMotivationArm> = []
+        for _ in 0..<400 {
+            arms.insert(VenueMotivationArm.forUser(UUID()))
+        }
+        XCTAssertEqual(arms, Set(VenueMotivationArm.allCases), "Both arms must be reachable")
+    }
+
+    // MARK: - 3.7 Errors are distinct and none of them just say something went wrong
+
+    func testEveryErrorCaseProducesADistinctMessageAndNoneOfThemSayFailed() {
+        let errors: [VenueAwarenessError] = [
+            .unknownVenue(identifier: "venue-1"),
+            .venueHasNoTimeZone(venueName: "The Corner Bar"),
+            .venueTimeZoneNotRecognised(venueName: "The Corner Bar", identifier: "Mars/Olympus_Mons"),
+            .malformedOutcome(received: "maybe", accepted: VenuePitchOutcome.allCases.map(\.rawValue)),
+            .staleCorrelationIdentifier(identifier: "corr-1", ageInSeconds: 90_000),
+            .pitchBudgetExhausted(venueName: "The Corner Bar", shiftBucket: .evening, reason: "Already shown this shift."),
+            .hourOutsideDay(hour: 25),
+            .unknownGreet(identifier: "greet-1"),
+            .callerNotInGreet(callerIdentifier: "user-1", greetIdentifier: "greet-1"),
+        ]
+
+        let messages = errors.map(\.description)
+        XCTAssertEqual(Set(messages).count, messages.count, "Two error cases produce the same message")
+
+        for message in messages {
+            XCTAssertGreaterThan(
+                message.split(separator: " ").count, 12,
+                "An error must carry enough context to diagnose without reading the caller: \(message)"
+            )
+            let words = message.lowercased().split(whereSeparator: { !$0.isLetter }).map(String.init)
+            XCTAssertFalse(
+                words.contains("failed"),
+                "An error message must say what went wrong, not just that something failed: \(message)"
+            )
+        }
+    }
+}
