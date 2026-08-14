@@ -756,6 +756,15 @@ public struct VenueEligibilityResponse: Codable, Equatable, Sendable {
 
     public let venueName: String
 
+    /// The Google Place identifier the venue is stored under, when it has one.
+    ///
+    /// The client needs it to build a scannable link, and it cannot derive it: the
+    /// client's `Venue` carries a name, an address, and coordinates, and no
+    /// identifier at all. Optional because a venue row created before Places
+    /// lookups genuinely has none, and a code built without one still resolves to
+    /// the venue by name on the landing page.
+    public let venueGooglePlaceIdentifier: String?
+
     public let awarenessState: VenueAwarenessState
 
     public let shiftBucket: VenueShiftBucket
@@ -775,6 +784,7 @@ public struct VenueEligibilityResponse: Codable, Equatable, Sendable {
         isEligible: Bool,
         suppressionReason: String?,
         venueName: String,
+        venueGooglePlaceIdentifier: String?,
         awarenessState: VenueAwarenessState,
         shiftBucket: VenueShiftBucket,
         usersSentToVenueThisMonth: Int,
@@ -784,6 +794,7 @@ public struct VenueEligibilityResponse: Codable, Equatable, Sendable {
         self.isEligible = isEligible
         self.suppressionReason = suppressionReason
         self.venueName = venueName
+        self.venueGooglePlaceIdentifier = venueGooglePlaceIdentifier
         self.awarenessState = awarenessState
         self.shiftBucket = shiftBucket
         self.usersSentToVenueThisMonth = usersSentToVenueThisMonth
@@ -943,5 +954,93 @@ public struct VenueIntroductionHistoryResponse: Codable, Equatable, Sendable {
 
     public init(records: [VenueIntroductionRecord]) {
         self.records = records
+    }
+}
+
+
+// MARK: - Who scanned
+
+/// Which experience a scan should open.
+///
+/// Carried in the link rather than guessed from context, because the same printed
+/// path serves a customer arriving and a venue being introduced, and the two want
+/// opposite screens. An unrecognised value is an error rather than a silent fall
+/// through to the customer path: a venue owner shown the consumer tagline learns
+/// nothing about why they were asked to scan.
+public enum VenueScanRole: String, Codable, Sendable, Equatable, CaseIterable {
+
+    /// Somebody who might come to the venue. The behaviour every printed code has
+    /// had until now, and the behaviour of a link that names no role at all.
+    case customer
+
+    /// Somebody who works at or runs the venue.
+    case venue
+
+    /// The query item name this role travels under.
+    public static let queryItemName = "role"
+
+    /// Resolves the role from a raw query value.
+    ///
+    /// - A nil or empty value is `customer`, which keeps every code printed before
+    ///   roles existed working exactly as it did.
+    /// - A recognised value is that role.
+    /// - Anything else throws, because silently treating "owner" or "staff" as a
+    ///   customer would send a venue owner to the consumer screen with no trace of
+    ///   why, and would attribute their scan to the wrong funnel.
+    public static func resolve(rawValue: String?) throws -> VenueScanRole {
+        guard let rawValue, rawValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false else {
+            return .customer
+        }
+
+        let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let role = VenueScanRole(rawValue: trimmed) else {
+            throw VenueScanRoleError.unrecognised(
+                received: trimmed,
+                accepted: VenueScanRole.allCases.map(\.rawValue)
+            )
+        }
+        return role
+    }
+}
+
+public enum VenueScanRoleError: Error, Equatable, Sendable, CustomStringConvertible {
+
+    case unrecognised(received: String, accepted: [String])
+
+    public var description: String {
+        switch self {
+        case .unrecognised(let received, let accepted):
+            return """
+            This code names the role "\(received)", which is not one this app \
+            recognises. The roles it knows are \(accepted.joined(separator: " and ")). \
+            Opening the customer screen instead would show a venue owner the \
+            consumer tagline and record their scan against the wrong funnel, so the \
+            scan is surfaced as an error rather than guessed at.
+            """
+        }
+    }
+}
+
+/// Which video a venue asked for.
+public enum VenueAudience: String, Codable, Sendable, Equatable, CaseIterable {
+
+    /// Counter staff: the short muted cut, read with a line behind the customer.
+    case counterStaff
+
+    /// The owner or manager: cost, effort, return, in that order.
+    case ownerOrManager
+
+    public var videoIdentifier: String {
+        switch self {
+        case .counterStaff: return "A_counter"
+        case .ownerOrManager: return "B_owner"
+        }
+    }
+
+    public var title: String {
+        switch self {
+        case .counterStaff: return "I work here"
+        case .ownerOrManager: return "I own or manage here"
+        }
     }
 }

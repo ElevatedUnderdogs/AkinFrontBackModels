@@ -470,3 +470,50 @@ final class VenueAwarenessTests: XCTestCase {
         }
     }
 }
+
+// MARK: - 6.1 Role routing
+
+final class VenueScanRoleTests: XCTestCase {
+
+    /// A code with no role is a customer code, which is every code printed before
+    /// roles existed.
+    func testAnAbsentOrEmptyRoleIsACustomer() throws {
+        XCTAssertEqual(try VenueScanRole.resolve(rawValue: nil), .customer)
+        XCTAssertEqual(try VenueScanRole.resolve(rawValue: ""), .customer)
+        XCTAssertEqual(try VenueScanRole.resolve(rawValue: "   "), .customer)
+    }
+
+    func testARecognisedRoleResolvesToItself() throws {
+        XCTAssertEqual(try VenueScanRole.resolve(rawValue: "customer"), .customer)
+        XCTAssertEqual(try VenueScanRole.resolve(rawValue: "venue"), .venue)
+        XCTAssertEqual(try VenueScanRole.resolve(rawValue: "  venue  "), .venue)
+    }
+
+    /// The case the goal loop calls out: an unrecognised role must not fall through
+    /// to the customer path.
+    func testAnUnrecognisedRoleThrowsRatherThanFallingThroughToTheCustomerPath() {
+        for received in ["owner", "staff", "VENUE", "manager"] {
+            XCTAssertThrowsError(try VenueScanRole.resolve(rawValue: received)) { error in
+                guard case VenueScanRoleError.unrecognised(let reported, let accepted) = error else {
+                    return XCTFail("Expected unrecognised, got \(error)")
+                }
+                XCTAssertEqual(reported, received)
+                XCTAssertEqual(Set(accepted), ["customer", "venue"])
+                XCTAssertTrue(
+                    "\(error)".contains("customer screen"),
+                    "The error should say what falling through would have cost"
+                )
+            }
+        }
+    }
+
+    func testEveryAudienceNamesADistinctVideoAndTitle() {
+        let identifiers = VenueAudience.allCases.map(\.videoIdentifier)
+        XCTAssertEqual(Set(identifiers).count, identifiers.count)
+        let titles = VenueAudience.allCases.map(\.title)
+        XCTAssertEqual(Set(titles).count, titles.count)
+        for title in titles {
+            XCTAssertFalse(title.isEmpty)
+        }
+    }
+}
