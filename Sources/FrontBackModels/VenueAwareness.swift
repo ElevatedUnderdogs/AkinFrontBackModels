@@ -1522,6 +1522,40 @@ public enum VenueOutcomeAuthority {
             && hasAnswer
             && context.displacedByThisRow != nil
 
+        // A withdrawal by a row that no longer owns the state retracts its own
+        // answer and moves nothing.
+        //
+        // Separating the classification from the restore is the whole of this.
+        // Requiring ownership to COUNT as a withdrawal is what produced the ninety
+        // against seven divergence. Requiring it to RESTORE is correct and was
+        // doing real work: `testAWithdrawalOnOneRowDoesNotCancelTheVenuesRefusalOnAnother`
+        // fails without it, because a customer taking their own answer back would
+        // otherwise put the venue back where THEY had left it, over the top of a
+        // state somebody else set since. What this row displaced is only a fact
+        // about the venue while this row is still the one that moved it.
+        if isWithdrawal, context.thisRowOwnsTheState == false {
+            // Unless a refusal is standing, in which case the state says so
+            // whatever it currently reads. Same rule as everywhere else here.
+            let held = standingRefusalHolds(context, against: context.venueState)
+            return VenueOutcomeDecision(
+                writesTheAnswer: true,
+                nextState: held ? .declined : context.venueState,
+                claimsTheState: false,
+                isWithdrawal: true,
+                reason: held
+                    ? """
+                    This answer has been taken back, and somebody else is still on \
+                    record as having been told no at this venue recently enough for \
+                    it to stand, so the venue stays declined.
+                    """
+                    : """
+                    This answer has been taken back. Somebody else has spoken for \
+                    this venue since, so where it stands is theirs rather than this \
+                    one's to put back.
+                    """
+            )
+        }
+
         if isWithdrawal, let displaced = context.displacedByThisRow {
             if standingRefusalHolds(context, against: displaced) {
                 return VenueOutcomeDecision(

@@ -754,8 +754,23 @@ final class VenueOutcomeAuthorityTests: XCTestCase {
         }
     }
 
-    /// And the case the old assertion made unreachable: a row that has lost
-    /// ownership can still take its own refusal back.
+    /// A row that has lost ownership can still take its own refusal back, and what
+    /// that does to the venue is deliberately NOT this row's to say.
+    ///
+    /// Half of an eighth-pass finding, and the half that is fixed. The retraction
+    /// is recorded, which it was not before: the old rule said a stripped row could
+    /// not withdraw at all, so its `skipped` fell through to the table and the row
+    /// kept reading as a refusal nobody could take back.
+    ///
+    /// The other half is NOT fixed and is recorded rather than hidden. The venue
+    /// stays where the current owner left it, which in the pass's own sequence is
+    /// `declined`, so a venue with no row on record as having refused it can still
+    /// sit frozen until the freeze expires. Putting it back where THIS row left it
+    /// is not the answer: `testAWithdrawalOnOneRowDoesNotCancelTheVenuesRefusalOnAnother`
+    /// is a customer doing exactly that over the top of the venue's own refusal.
+    /// The answer is to recompute from what the owner said, which needs a fact
+    /// `decide` is not given, and adding a third mechanism at this point is how the
+    /// last three defects here were introduced.
     func testARowStrippedOfOwnershipCanStillWithdrawItsOwnRefusal() {
         let decision = VenueOutcomeAuthority.decide(
             VenueOutcomeContext(
@@ -773,10 +788,21 @@ final class VenueOutcomeAuthorityTests: XCTestCase {
                 anotherRowHoldsARefusal: false
             )
         )
-        XCTAssertTrue(decision.isWithdrawal)
+        XCTAssertTrue(
+            decision.isWithdrawal,
+            "The retraction is recorded, which is the half of the finding that is fixed"
+        )
+        XCTAssertTrue(
+            decision.writesTheAnswer,
+            "The row stops reading as a refusal, so nothing later mistakes it for one"
+        )
         XCTAssertEqual(
-            decision.nextState, .pitched,
-            "Ninety days for a venue no row is on record as having refused is the defect this prevents"
+            decision.nextState, .declined,
+            """
+            The residual, asserted so it is visible rather than assumed: the venue \
+            stays where its current owner left it. See this test's doc comment for \
+            why putting it back where THIS row left it is not the fix.
+            """
         )
     }
 
@@ -788,6 +814,18 @@ final class VenueOutcomeAuthorityTests: XCTestCase {
         for context in allContexts() {
             let decision = VenueOutcomeAuthority.decide(context)
             guard decision.isWithdrawal, let displaced = context.displacedByThisRow else { continue }
+
+            // A withdrawal by a row that no longer owns the state retracts the
+            // answer and moves nothing, because what this row displaced stopped
+            // being a fact about the venue the moment somebody else moved it.
+            guard context.thisRowOwnsTheState else {
+                let held = context.anotherRowHoldsARefusal
+                    && context.source != .venueBranch
+                    && context.venueState != .declined
+                    && context.venueState != .engaged
+                XCTAssertEqual(decision.nextState, held ? .declined : context.venueState)
+                continue
+            }
 
             // Unless another row's refusal is still standing, in which case the
             // venue stays declined and this row's displaced record buys nothing.
