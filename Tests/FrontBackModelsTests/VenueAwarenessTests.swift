@@ -748,9 +748,13 @@ final class VenueOutcomeAuthorityTests: XCTestCase {
             // Unless another row's refusal is still standing, in which case the
             // venue stays declined and this row's displaced record buys nothing.
             // Taking your own no back does not take somebody else's back with it.
+            // Not conditioned on the venue's current state, deliberately. That
+            // precondition is what let the eighth review pass find a hole in both
+            // the guard and the property that was supposed to check it.
             let heldByAnotherRefusal = context.anotherRowHoldsARefusal
-                && context.venueState == .declined
                 && context.source != .venueBranch
+                && displaced != .declined
+                && displaced != .engaged
 
             if heldByAnotherRefusal {
                 XCTAssertEqual(decision.nextState, .declined)
@@ -923,22 +927,79 @@ extension VenueOutcomeAuthorityTests {
 
     /// Whatever else it does, holding the state never produces a transition the
     /// table refuses, and never lifts `declined` while another row's refusal stands.
+    /// Note what this does NOT filter on: the venue's current state.
+    ///
+    /// It used to, and that is exactly how the hole got through. The guard in
+    /// `standingRefusalHolds` required `venueState == .declined`, and this property
+    /// required the same thing, so the property could only ever confirm the guard's
+    /// own precondition. An adversarial pass found the route the pair of them
+    /// missed: `recordCardShown` moves a venue from `declined` back to `pitched`
+    /// when the second person's card is authorised, so by the time their softer
+    /// answer arrives the state is `pitched` and neither the guard nor this test
+    /// was looking.
+    ///
+    /// A property that shares a precondition with the code it tests is not a test
+    /// of that precondition.
     func testNoDecisionLeavesDeclinedWhileAnotherRowsRefusalStands() {
         for context in allContexts() {
             guard context.anotherRowHoldsARefusal,
-                  context.venueState == .declined,
                   context.source != .venueBranch
             else { continue }
 
+            // `engaged` is one exemption, and it is rule 2 rather than an oversight:
+            // a venue running its own referral code is not moved by a customer's
+            // report at all, in either direction.
+            if context.venueState == .engaged { continue }
+
             let decision = VenueOutcomeAuthority.decide(context)
+
+            // And a report the rules refuse to write is the other. Rule 1 and the
+            // outranking guard both return the venue's own state untouched, which
+            // is the right answer and is pinned by
+            // `testAReportThatIsNotWrittenMovesNothing`. This property is about
+            // where the state IS being decided by this row.
+            guard decision.writesTheAnswer else { continue }
+
+            // A withdrawal restoring `engaged` is the other exemption, for the same
+            // reason as rule 2: `engaged` is the fact that a code exists, not a
+            // read of a counter, so a customer's refusal holds the venue against a
+            // warmer reading without erasing the code.
+            if decision.nextState == .engaged { continue }
             XCTAssertEqual(
                 decision.nextState, .declined,
                 """
-                \(context.reported.rawValue) from \(context.source.rawValue) left \
-                a declined venue while another row's refusal was still standing
+                \(context.reported.rawValue) from \(context.source.rawValue) on a \
+                \(context.venueState.rawValue) venue left it outside declined while \
+                another row's refusal was still standing
                 """
             )
         }
+    }
+
+    /// The route the state precondition hid, stated as its own case.
+    ///
+    /// Two people in one greet. The first refuses and the venue declines. The
+    /// second person's card is authorised afterwards, which moves the venue back to
+    /// `pitched`, and only then do they report the warmer read. Before the fix the
+    /// guard did not fire, because it was asking about the state rather than about
+    /// the refusal.
+    func testAWarmerAnswerIsHeldEvenWhenTheCardShownMovedTheVenueOffDeclined() {
+        let decision = VenueOutcomeAuthority.decide(
+            VenueOutcomeContext(
+                reported: .receptive,
+                source: .card,
+                existing: nil,
+                existingSource: nil,
+                venueState: .pitched,
+                displacedByThisRow: nil,
+                thisRowOwnsTheState: false,
+                anotherRowHoldsARefusal: true
+            )
+        )
+        XCTAssertEqual(
+            decision.nextState, .declined,
+            "recordCardShown moves declined to pitched, so the state cannot be the precondition"
+        )
     }
 
     /// And a row that already held it, writing something that changes nothing, does

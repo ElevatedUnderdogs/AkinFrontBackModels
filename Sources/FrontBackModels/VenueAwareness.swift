@@ -1579,13 +1579,35 @@ public enum VenueOutcomeAuthority {
     /// The venue's own word through its App Clip is exempt, because a venue saying
     /// for itself that it is interested outranks a customer's read of a counter,
     /// which is rule 1 of the policy above.
+    ///
+    /// This used to require the venue to be `.declined` right now, and that
+    /// precondition ANDed away the very fact it was guarding. An adversarial pass
+    /// found the route: `recordCardShown` moves a venue from `.declined` back to
+    /// `.pitched` whenever a card is authorised, so if the second person's card is
+    /// shown AFTER the first person's refusal, which is an ordinary ordering rather
+    /// than a rare one, the state is `.pitched` when the softer answer arrives and
+    /// the guard does not fire. The venue reaches `.aware`, the freeze runs off the
+    /// warmer answer, and the refusal is lost exactly as before.
+    ///
+    /// The fix is to guard on the fact rather than on the state. A refusal that
+    /// nobody withdrew stands whatever the state currently reads, and the state is
+    /// the thing being corrected, so it cannot also be the precondition. Every
+    /// transition into `.declined` is allowed by the table, from `unaware`,
+    /// `pitched` and `aware` alike, so clamping is always a move the table permits.
+    /// `.engaged` never reaches here: rule 2 returns before it.
     private static func standingRefusalHolds(
         _ context: VenueOutcomeContext,
         against proposed: VenueAwarenessState
     ) -> Bool {
         context.anotherRowHoldsARefusal
             && context.source != .venueBranch
-            && context.venueState == .declined
             && proposed != .declined
+            // `engaged` is not a read of a counter, it is the fact that somebody
+            // there generated a code, and rule 2 already says a venue holding one
+            // is not moved by a customer's report. So a refusal holds a venue at
+            // declined against a warmer READING of the same conversation, and does
+            // not erase a code that exists. Reached when a row whose own verdict
+            // displaced `engaged` withdraws it while another row's refusal stands.
+            && proposed != .engaged
     }
 }
