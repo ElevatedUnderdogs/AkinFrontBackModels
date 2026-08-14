@@ -517,3 +517,82 @@ final class VenueScanRoleTests: XCTestCase {
         }
     }
 }
+
+// MARK: - Version skew
+
+/// An App Clip in the wild is always an older binary than the server it talks to.
+///
+/// The synthesised decoder threw `keyNotFound` the first time a field was added,
+/// and the venue branch answered a real scan with "This code did not resolve. The
+/// data couldn't be read because it is missing", which blames the code in the
+/// customer's hand for a deployment ordering.
+final class VenueWireCompatibilityTests: XCTestCase {
+
+    func testAScanResponseFromAnOlderServerStillDecodes() throws {
+        let older = """
+        {
+          "venueName": "The Corner Bar",
+          "usersSentToVenueThisMonth": 14,
+          "participatingStaffCount": 2,
+          "isOrphan": false
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(VenueScanResponse.self, from: older)
+        XCTAssertEqual(decoded.venueName, "The Corner Bar")
+        XCTAssertEqual(decoded.usersSentToVenueThisMonth, 14)
+        XCTAssertEqual(decoded.participatingStaffNames, [])
+        XCTAssertEqual(decoded.periodDescription, "")
+        XCTAssertFalse(decoded.isOrphan)
+    }
+
+    func testAnEligibilityResponseFromAnOlderServerStillDecodes() throws {
+        let older = """
+        {
+          "isEligible": true,
+          "venueName": "The Corner Bar",
+          "awarenessState": "pitched",
+          "shiftBucket": "evening",
+          "usersSentToVenueThisMonth": 14,
+          "participatingStaffNames": ["Dana"],
+          "experimentArm": "intrinsic"
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(VenueEligibilityResponse.self, from: older)
+        XCTAssertTrue(decoded.isEligible)
+        XCTAssertEqual(decoded.participatingStaffNames, ["Dana"])
+        XCTAssertEqual(decoded.periodDescription, "")
+        XCTAssertNil(decoded.venueGooglePlaceIdentifier)
+    }
+
+    /// The fields that were there on day one are still required. A decoder that
+    /// defaults everything cannot tell a malformed response from an empty one.
+    func testAResponseMissingAFoundingFieldStillThrows() {
+        let broken = """
+        { "usersSentToVenueThisMonth": 14, "participatingStaffCount": 2, "isOrphan": false }
+        """.data(using: .utf8)!
+
+        XCTAssertThrowsError(try JSONDecoder().decode(VenueScanResponse.self, from: broken))
+    }
+
+    /// A newer server sending a field this binary has never heard of is ignored,
+    /// which is the other half of the same problem.
+    func testAResponseFromANewerServerIgnoresWhatItDoesNotKnow() throws {
+        let newer = """
+        {
+          "venueName": "The Corner Bar",
+          "usersSentToVenueThisMonth": 14,
+          "participatingStaffCount": 2,
+          "participatingStaffNames": ["Dana", "Ravi"],
+          "periodDescription": "1 August to 14 August, America/Chicago",
+          "isOrphan": false,
+          "somethingInventedNextYear": { "nested": true }
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(VenueScanResponse.self, from: newer)
+        XCTAssertEqual(decoded.participatingStaffNames, ["Dana", "Ravi"])
+        XCTAssertTrue(decoded.periodDescription.contains("America/Chicago"))
+    }
+}

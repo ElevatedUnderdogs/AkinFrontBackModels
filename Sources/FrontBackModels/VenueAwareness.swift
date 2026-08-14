@@ -806,6 +806,31 @@ public struct VenueEligibilityResponse: Codable, Equatable, Sendable {
         self.participatingStaffNames = participatingStaffNames
         self.experimentArm = experimentArm
     }
+
+    /// Same reason as ``VenueScanResponse``: the app in somebody's pocket is older
+    /// than the server it is talking to, always.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        isEligible = try container.decode(Bool.self, forKey: .isEligible)
+        suppressionReason = try container.decodeIfPresent(String.self, forKey: .suppressionReason)
+        venueName = try container.decode(String.self, forKey: .venueName)
+        venueGooglePlaceIdentifier = try container.decodeIfPresent(
+            String.self, forKey: .venueGooglePlaceIdentifier
+        )
+        awarenessState = try container.decode(VenueAwarenessState.self, forKey: .awarenessState)
+        shiftBucket = try container.decode(VenueShiftBucket.self, forKey: .shiftBucket)
+        usersSentToVenueThisMonth = try container.decode(
+            Int.self, forKey: .usersSentToVenueThisMonth
+        )
+        participatingStaffNames = try container.decode(
+            [String].self, forKey: .participatingStaffNames
+        )
+        experimentArm = try container.decode(VenueMotivationArm.self, forKey: .experimentArm)
+
+        periodDescription = try container.decodeIfPresent(
+            String.self, forKey: .periodDescription
+        ) ?? ""
+    }
 }
 
 /// What the client sends when the customer answers on the card, or later on the
@@ -1139,6 +1164,37 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         self.isOrphan = isOrphan
         self.orphanReason = orphanReason
         self.venueGooglePlaceIdentifier = venueGooglePlaceIdentifier
+    }
+
+    /// Decodes tolerantly, because an App Clip in the wild is always an older
+    /// binary than the server it talks to.
+    ///
+    /// The synthesised decoder threw `keyNotFound` the first time a field was
+    /// added, and the venue branch answered a real scan with "This code did not
+    /// resolve. The data couldn't be read because it is missing", which is a
+    /// sentence that blames the code in the customer's hand for a version skew.
+    /// Every field added after the first release decodes with a default instead.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        venueName = try container.decode(String.self, forKey: .venueName)
+        usersSentToVenueThisMonth = try container.decode(
+            Int.self, forKey: .usersSentToVenueThisMonth
+        )
+        participatingStaffCount = try container.decode(
+            Int.self, forKey: .participatingStaffCount
+        )
+        isOrphan = try container.decode(Bool.self, forKey: .isOrphan)
+        orphanReason = try container.decodeIfPresent(String.self, forKey: .orphanReason)
+        venueGooglePlaceIdentifier = try container.decodeIfPresent(
+            String.self, forKey: .venueGooglePlaceIdentifier
+        )
+
+        participatingStaffNames = try container.decodeIfPresent(
+            [String].self, forKey: .participatingStaffNames
+        ) ?? []
+        periodDescription = try container.decodeIfPresent(
+            String.self, forKey: .periodDescription
+        ) ?? ""
     }
 }
 
