@@ -266,7 +266,14 @@ public enum VenueAwarenessTransition {
 /// card was still shown, which still spends the venue's pitch budget.
 public enum VenuePitchOutcome: String, Codable, Sendable, Hashable, CaseIterable {
 
-    /// The staff had not heard of it and were interested.
+    /// The staff had not heard of it, and did not refuse.
+    ///
+    /// The case name says receptive and the label a person taps says "they had not
+    /// heard of it", which are two different sentences about one answer. The freeze
+    /// is timed on the second: a venue that is new to this and did not say no is a
+    /// venue where the next conversation is the one that lands, so seven days.
+    ///
+    /// It is deliberately not "they were enthusiastic". Nobody taps that honestly.
     case receptive
 
     /// The staff already knew about Map Mates.
@@ -1126,6 +1133,12 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
     /// nothing about who, which is the one thing a per-person report is for.
     public let participatingStaffNames: [String]
 
+    /// What each of them has produced.
+    ///
+    /// Names alone still did not answer the question a per person report exists to
+    /// answer. Empty on a response from a server that predates it.
+    public let participatingStaff: [VenueStaffSummary]
+
     /// Which period the count covers, in words, on the venue's own clock.
     ///
     /// Stated rather than assumed. A number whose window is unstated cannot be
@@ -1151,6 +1164,7 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         usersSentToVenueThisMonth: Int,
         participatingStaffCount: Int,
         participatingStaffNames: [String] = [],
+        participatingStaff: [VenueStaffSummary] = [],
         periodDescription: String = "",
         isOrphan: Bool,
         orphanReason: String?,
@@ -1160,6 +1174,7 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         self.usersSentToVenueThisMonth = usersSentToVenueThisMonth
         self.participatingStaffCount = participatingStaffCount
         self.participatingStaffNames = participatingStaffNames
+        self.participatingStaff = participatingStaff
         self.periodDescription = periodDescription
         self.isOrphan = isOrphan
         self.orphanReason = orphanReason
@@ -1192,9 +1207,28 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         participatingStaffNames = try container.decodeIfPresent(
             [String].self, forKey: .participatingStaffNames
         ) ?? []
+        participatingStaff = try container.decodeIfPresent(
+            [VenueStaffSummary].self, forKey: .participatingStaff
+        ) ?? []
         periodDescription = try container.decodeIfPresent(
             String.self, forKey: .periodDescription
         ) ?? ""
+    }
+}
+
+/// One person at a venue, and what they have produced.
+public struct VenueStaffSummary: Codable, Equatable, Sendable, Identifiable {
+
+    public let employeeName: String
+
+    /// How many people this person has referred to the app.
+    public let referralsCount: Int
+
+    public var id: String { employeeName }
+
+    public init(employeeName: String, referralsCount: Int) {
+        self.employeeName = employeeName
+        self.referralsCount = referralsCount
     }
 }
 
