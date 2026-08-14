@@ -346,6 +346,18 @@ final class VenueAwarenessTests: XCTestCase {
             "A decline is a 90 day freeze, not a 7 day one"
         )
 
+        // This assertion was true of the function and false of the system for the
+        // whole of its life. `VenueIntroductionService.evaluate` read every pitch
+        // through a thirty day counting window, so it could never hand this function
+        // a `lastPitchAt` ninety one days old: by then the row had dropped out of the
+        // query and the policy took its "no date was recorded" branch instead. The
+        // ninety day freeze was permanent in practice, and this test passed
+        // throughout, certifying behaviour no call path could reach.
+        //
+        // The server now reads the most recent pitch without that window.
+        // `VenueIntroductionEndpointTests.testAVenueThatDeclinedNinetyOneDaysAgoIsOfferedAgain`
+        // makes the same assertion through the real endpoint against a real row,
+        // which is the version of it that is about the system. Keep the two together.
         let declinedAfterNinetyOneDays = context(
             state: .declined, outcome: .notReceptive, pitchCount: 1,
             bucket: .morning, lastBucket: .evening, daysSinceLastPitch: 91.0

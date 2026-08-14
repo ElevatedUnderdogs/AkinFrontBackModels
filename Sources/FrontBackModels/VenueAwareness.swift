@@ -1159,6 +1159,20 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
     /// venue's own without another round trip.
     public let venueGooglePlaceIdentifier: String?
 
+    /// The venue's own report page, complete with the key that opens it.
+    ///
+    /// Built by the server rather than assembled on the client from the place
+    /// identifier. A Google Place identifier is a public fact about a business,
+    /// obtainable for any address from Maps, so a report page addressed by that
+    /// alone was an open directory: anybody could walk the identifier space and read
+    /// off which named staff at which businesses take part and how much each of them
+    /// has produced. The link is unguessable now, and the only way to be given one
+    /// is to have scanned a real code at the venue it belongs to.
+    ///
+    /// Nil from a server that predates the change, and from an orphan scan, which
+    /// has no venue to report on.
+    public let venueReportURLString: String?
+
     public init(
         venueName: String,
         usersSentToVenueThisMonth: Int,
@@ -1168,7 +1182,8 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         periodDescription: String = "",
         isOrphan: Bool,
         orphanReason: String?,
-        venueGooglePlaceIdentifier: String?
+        venueGooglePlaceIdentifier: String?,
+        venueReportURLString: String? = nil
     ) {
         self.venueName = venueName
         self.usersSentToVenueThisMonth = usersSentToVenueThisMonth
@@ -1179,6 +1194,7 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         self.isOrphan = isOrphan
         self.orphanReason = orphanReason
         self.venueGooglePlaceIdentifier = venueGooglePlaceIdentifier
+        self.venueReportURLString = venueReportURLString
     }
 
     /// Decodes tolerantly, because an App Clip in the wild is always an older
@@ -1213,6 +1229,9 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         periodDescription = try container.decodeIfPresent(
             String.self, forKey: .periodDescription
         ) ?? ""
+        venueReportURLString = try container.decodeIfPresent(
+            String.self, forKey: .venueReportURLString
+        )
     }
 }
 
