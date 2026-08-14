@@ -1308,3 +1308,185 @@ public struct VenueJoinResponse: Codable, Equatable, Sendable {
         self.referralURLString = referralURLString
     }
 }
+
+// MARK: - Who may move a venue's awareness state
+
+/// Everything the outcome rules need to decide, gathered in one place.
+///
+/// This exists because of where the bugs were. The transition table above is total
+/// and exhaustively tested, and in six adversarial review passes it never produced
+/// a defect. The rules deciding whether to WRITE an answer and where to MOVE the
+/// venue lived as a growing pile of booleans inside a database function, and they
+/// produced a defect in every one of the last three passes, each time in the fix
+/// for the pass before, and three times in a test written to prove the fix.
+///
+/// So they get the same treatment: a pure function over stated facts, decided
+/// exhaustively, testable without a database, and readable as a whole rather than
+/// as a sequence of guards each of which was right about the case its author had in
+/// mind.
+public struct VenueOutcomeContext: Equatable, Sendable {
+
+    /// What is being reported now.
+    public let reported: VenuePitchOutcome
+
+    /// Which surface it came from.
+    public let source: VenueOutcomeSource
+
+    /// What this row already holds, if anything.
+    public let existing: VenuePitchOutcome?
+
+    /// Which surface that existing answer came from.
+    public let existingSource: VenueOutcomeSource?
+
+    /// Where the venue is now.
+    public let venueState: VenueAwarenessState
+
+    /// What this row's own verdict displaced when it moved the venue, if it did.
+    public let displacedByThisRow: VenueAwarenessState?
+
+    /// Whether this row's verdict is the latest word on the venue's state.
+    public let thisRowOwnsTheState: Bool
+
+    public init(
+        reported: VenuePitchOutcome,
+        source: VenueOutcomeSource,
+        existing: VenuePitchOutcome?,
+        existingSource: VenueOutcomeSource?,
+        venueState: VenueAwarenessState,
+        displacedByThisRow: VenueAwarenessState?,
+        thisRowOwnsTheState: Bool
+    ) {
+        self.reported = reported
+        self.source = source
+        self.existing = existing
+        self.existingSource = existingSource
+        self.venueState = venueState
+        self.displacedByThisRow = displacedByThisRow
+        self.thisRowOwnsTheState = thisRowOwnsTheState
+    }
+}
+
+/// Which surface an outcome came from.
+///
+/// A string on the wire and on the row, an enum here, so a comparison cannot be
+/// made against a typo.
+public enum VenueOutcomeSource: String, Codable, CaseIterable, Sendable {
+    case card
+    case ratingScreen
+    /// The venue itself, through the App Clip. Outranks both customer surfaces.
+    case venueBranch
+}
+
+/// What to do with one reported outcome.
+public struct VenueOutcomeDecision: Equatable, Sendable {
+
+    /// Whether the row's answer is replaced.
+    public let writesTheAnswer: Bool
+
+    /// Where the venue ends up. Equal to the current state when nothing moves.
+    public let nextState: VenueAwarenessState
+
+    /// Whether this row's verdict becomes the latest word on that state.
+    public let claimsTheState: Bool
+
+    /// Whether this report retracts this row's own earlier verdict.
+    public let isWithdrawal: Bool
+
+    /// Why, in one sentence, for a log line and for a reader.
+    public let reason: String
+}
+
+public enum VenueOutcomeAuthority {
+
+    /// Decides one report, from stated facts, with no database and no side effects.
+    ///
+    /// The order of these rules is the whole of the policy, so it is written as one
+    /// sequence rather than as separate guards:
+    ///
+    /// 1. The venue's own word outranks both customer surfaces, in both directions.
+    /// 2. A venue that has joined is not moved by a customer's report at all.
+    /// 3. A surface may correct itself; a card may overrule a rating screen.
+    /// 4. A `skipped` that replaces this row's own verdict, while that verdict is
+    ///    still the latest word, is a withdrawal and restores what it displaced.
+    /// 5. Otherwise the transition table decides.
+    public static func decide(_ context: VenueOutcomeContext) -> VenueOutcomeDecision {
+        let hasAnswer = context.existing != nil
+        let venueHasSpoken = context.existingSource == .venueBranch
+
+        // 1. The venue's own refusal is not overwritten by a customer.
+        if venueHasSpoken, context.source != .venueBranch {
+            return VenueOutcomeDecision(
+                writesTheAnswer: false,
+                nextState: context.venueState,
+                claimsTheState: false,
+                isWithdrawal: false,
+                reason: """
+                The venue answered for itself on this introduction, and a customer \
+                reporting how the counter reacted is a guess about somebody else.
+                """
+            )
+        }
+
+        let sameSurface = context.existingSource == context.source
+        let writes = hasAnswer == false || context.source == .card || sameSurface
+
+        guard writes else {
+            return VenueOutcomeDecision(
+                writesTheAnswer: false,
+                nextState: context.venueState,
+                claimsTheState: false,
+                isWithdrawal: false,
+                reason: """
+                This introduction already carries an answer from a surface this one \
+                does not outrank, so it is left as it is.
+                """
+            )
+        }
+
+        // 2. A venue holding a live referral code is not declined by a customer.
+        if context.venueState == .engaged {
+            return VenueOutcomeDecision(
+                writesTheAnswer: true,
+                nextState: .engaged,
+                claimsTheState: false,
+                isWithdrawal: false,
+                reason: """
+                This venue has a code of its own, so what a customer reports is \
+                recorded and does not move it. Asking to be left alone is the \
+                venue's to do, from its own screen.
+                """
+            )
+        }
+
+        // 4. A withdrawal of this row's own standing verdict.
+        let isWithdrawal = context.reported == .skipped
+            && hasAnswer
+            && context.thisRowOwnsTheState
+            && context.displacedByThisRow != nil
+
+        if isWithdrawal, let displaced = context.displacedByThisRow {
+            let allowed = VenueAwarenessTransition
+                .verdict(from: context.venueState, to: displaced)
+                .isAllowed
+            return VenueOutcomeDecision(
+                writesTheAnswer: true,
+                nextState: allowed ? displaced : context.venueState,
+                claimsTheState: false,
+                isWithdrawal: true,
+                reason: allowed
+                    ? "The answer that moved this venue has been taken back, so what it displaced goes back."
+                    : "The answer has been taken back, and the venue has moved on since, so its state stays where it is."
+            )
+        }
+
+        // 5. The table decides.
+        let next = VenueAwarenessTransition.state(after: context.reported, from: context.venueState)
+        return VenueOutcomeDecision(
+            writesTheAnswer: true,
+            nextState: next,
+            claimsTheState: next != context.venueState,
+            isWithdrawal: false,
+            reason: "Recorded, and the venue's state follows from it."
+        )
+    }
+}

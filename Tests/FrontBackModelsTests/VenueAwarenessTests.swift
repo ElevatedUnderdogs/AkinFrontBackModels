@@ -622,3 +622,157 @@ final class VenueWireCompatibilityTests: XCTestCase {
         XCTAssertTrue(decoded.periodDescription.contains("America/Chicago"))
     }
 }
+
+/// The outcome rules, decided exhaustively rather than by example.
+///
+/// The transition table has been exhaustively tested since Phase 3 and has not
+/// produced a defect in six adversarial passes. The outcome rules were a pile of
+/// booleans inside a database function and produced one in each of the last three,
+/// every time in the fix for the pass before. These are the same properties applied
+/// to the same shape of problem: every combination goes in, every combination gets
+/// a verdict, and the invariants are asserted over all of them rather than over the
+/// handful somebody thought of.
+final class VenueOutcomeAuthorityTests: XCTestCase {
+
+    /// Every combination of inputs, which is what "total" means here.
+    private func allContexts() -> [VenueOutcomeContext] {
+        var contexts: [VenueOutcomeContext] = []
+        let states = VenueAwarenessState.allCases
+        let outcomes = VenuePitchOutcome.allCases
+        let sources = VenueOutcomeSource.allCases
+
+        for reported in outcomes {
+            for source in sources {
+                for existing in [nil] + outcomes.map(Optional.some) {
+                    for existingSource in [nil] + sources.map(Optional.some) {
+                        for venueState in states {
+                            for displaced in [nil] + states.map(Optional.some) {
+                                for owns in [true, false] {
+                                    contexts.append(
+                                        VenueOutcomeContext(
+                                            reported: reported,
+                                            source: source,
+                                            existing: existing,
+                                            existingSource: existingSource,
+                                            venueState: venueState,
+                                            displacedByThisRow: displaced,
+                                            thisRowOwnsTheState: owns
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return contexts
+    }
+
+    func testEveryCombinationDecidesAndCarriesAReason() {
+        let contexts = allContexts()
+        XCTAssertEqual(contexts.count, 5 * 3 * 6 * 4 * 5 * 6 * 2)
+
+        for context in contexts {
+            let decision = VenueOutcomeAuthority.decide(context)
+            XCTAssertFalse(
+                decision.reason.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                "A decision with no reason cannot be read off a log line"
+            )
+        }
+    }
+
+    /// The state a decision names is always one the table allows from where the
+    /// venue is. Nothing may produce a move the transition table would refuse.
+    func testNoDecisionProducesATransitionTheTableRefuses() {
+        for context in allContexts() {
+            let decision = VenueOutcomeAuthority.decide(context)
+            XCTAssertTrue(
+                VenueAwarenessTransition
+                    .verdict(from: context.venueState, to: decision.nextState)
+                    .isAllowed,
+                """
+                \(context.reported.rawValue) from \(context.source.rawValue) on a \
+                \(context.venueState.rawValue) venue produced \
+                \(decision.nextState.rawValue), which the table refuses
+                """
+            )
+        }
+    }
+
+    /// A venue that has joined is never moved by a report through this path. Asking
+    /// to be left alone is the venue's own to do, from its own endpoint.
+    func testAVenueThatHasJoinedIsNeverMovedByAReport() {
+        for context in allContexts() where context.venueState == .engaged {
+            let decision = VenueOutcomeAuthority.decide(context)
+            XCTAssertEqual(
+                decision.nextState, .engaged,
+                "A venue holding a live referral code was moved to \(decision.nextState.rawValue)"
+            )
+        }
+    }
+
+    /// The venue's own answer is never overwritten by a customer surface.
+    func testACustomerNeverOverwritesTheVenuesOwnAnswer() {
+        for context in allContexts()
+        where context.existingSource == .venueBranch && context.source != .venueBranch {
+            let decision = VenueOutcomeAuthority.decide(context)
+            XCTAssertFalse(decision.writesTheAnswer)
+            XCTAssertEqual(decision.nextState, context.venueState)
+        }
+    }
+
+    /// A withdrawal requires this row to own the state. Without that it is just
+    /// another answer, and the two row case is where that distinction bites.
+    func testAWithdrawalRequiresThisRowToOwnTheState() {
+        for context in allContexts() where context.thisRowOwnsTheState == false {
+            XCTAssertFalse(
+                VenueOutcomeAuthority.decide(context).isWithdrawal,
+                "A row that does not own the state cannot withdraw it"
+            )
+        }
+    }
+
+    /// And a withdrawal restores exactly what this row displaced, never a fixed
+    /// state, which is what the hardcoded `.pitched` got wrong.
+    func testAWithdrawalRestoresWhatWasDisplacedAndNothingElse() {
+        var sawARestoreThatIsNotPitched = false
+
+        for context in allContexts() {
+            let decision = VenueOutcomeAuthority.decide(context)
+            guard decision.isWithdrawal, let displaced = context.displacedByThisRow else { continue }
+
+            let allowed = VenueAwarenessTransition
+                .verdict(from: context.venueState, to: displaced)
+                .isAllowed
+            XCTAssertEqual(decision.nextState, allowed ? displaced : context.venueState)
+
+            if decision.nextState != .pitched, decision.nextState != context.venueState {
+                sawARestoreThatIsNotPitched = true
+            }
+        }
+
+        XCTAssertTrue(
+            sawARestoreThatIsNotPitched,
+            """
+            Every restore in this suite landed on pitched, which is the value the \
+            defect this replaced also produced, so the suite could not tell the two \
+            apart. That is the exact shape of test the sixth review pass called out.
+            """
+        )
+    }
+
+    /// A decision that does not write the answer does not move the venue either. A
+    /// report the rules refuse to record has no business changing anything.
+    func testAReportThatIsNotWrittenMovesNothing() {
+        for context in allContexts() {
+            let decision = VenueOutcomeAuthority.decide(context)
+            if decision.writesTheAnswer == false {
+                XCTAssertEqual(
+                    decision.nextState, context.venueState,
+                    "A report the rules declined to record still moved the venue"
+                )
+            }
+        }
+    }
+}
