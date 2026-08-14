@@ -968,7 +968,17 @@ public struct VenueIntroductionRecord: Codable, Equatable, Sendable, Identifiabl
         self.venueName = venueName
         self.shownAt = shownAt
         self.reportedOutcome = reportedOutcome
-        self.wasScannedByVenue = venueJoined ? true : wasScannedByVenue
+        // Recorded as given, not inferred from the join.
+        //
+        // This used to read `venueJoined ? true : wasScannedByVenue`, in a type
+        // whose own doc says nothing here is projected or filled in when unknown,
+        // feeding a history screen that tells the customer a scan is somebody at the
+        // venue actually pointing a camera at their screen. In the App Clip a join
+        // is only reachable after a scan, so the two rarely disagreed, but
+        // `POST /venueIntroductionJoin` is unauthenticated and independent of the
+        // scan endpoint, so a join with no scan behind it was reachable and reported
+        // a camera event that had not happened.
+        self.wasScannedByVenue = wasScannedByVenue
         self.venueJoined = venueJoined
     }
 }
