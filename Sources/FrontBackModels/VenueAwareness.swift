@@ -773,6 +773,9 @@ public struct VenueEligibilityResponse: Codable, Equatable, Sendable {
     /// and is rendered as one, never padded.
     public let usersSentToVenueThisMonth: Int
 
+    /// Which period that count covers, in words, on the venue's own clock.
+    public let periodDescription: String
+
     /// Staff at this venue who already have referral codes, so the customer can tell
     /// whether the person in front of them needs the introduction at all.
     public let participatingStaffNames: [String]
@@ -788,6 +791,7 @@ public struct VenueEligibilityResponse: Codable, Equatable, Sendable {
         awarenessState: VenueAwarenessState,
         shiftBucket: VenueShiftBucket,
         usersSentToVenueThisMonth: Int,
+        periodDescription: String = "",
         participatingStaffNames: [String],
         experimentArm: VenueMotivationArm
     ) {
@@ -798,6 +802,7 @@ public struct VenueEligibilityResponse: Codable, Equatable, Sendable {
         self.awarenessState = awarenessState
         self.shiftBucket = shiftBucket
         self.usersSentToVenueThisMonth = usersSentToVenueThisMonth
+        self.periodDescription = periodDescription
         self.participatingStaffNames = participatingStaffNames
         self.experimentArm = experimentArm
     }
@@ -1090,6 +1095,19 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
     /// How many people at this venue already have referral codes.
     public let participatingStaffCount: Int
 
+    /// Who those people are.
+    ///
+    /// A count alone told a regional manager that somebody here participates and
+    /// nothing about who, which is the one thing a per-person report is for.
+    public let participatingStaffNames: [String]
+
+    /// Which period the count covers, in words, on the venue's own clock.
+    ///
+    /// Stated rather than assumed. A number whose window is unstated cannot be
+    /// reconciled against a till, and reconciling against a till is the whole
+    /// argument for showing it.
+    public let periodDescription: String
+
     /// True when this scan could not be joined to any card. The venue still sees
     /// their real number; what is missing is which introduction produced the scan.
     public let isOrphan: Bool
@@ -1107,6 +1125,8 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         venueName: String,
         usersSentToVenueThisMonth: Int,
         participatingStaffCount: Int,
+        participatingStaffNames: [String] = [],
+        periodDescription: String = "",
         isOrphan: Bool,
         orphanReason: String?,
         venueGooglePlaceIdentifier: String?
@@ -1114,6 +1134,8 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         self.venueName = venueName
         self.usersSentToVenueThisMonth = usersSentToVenueThisMonth
         self.participatingStaffCount = participatingStaffCount
+        self.participatingStaffNames = participatingStaffNames
+        self.periodDescription = periodDescription
         self.isOrphan = isOrphan
         self.orphanReason = orphanReason
         self.venueGooglePlaceIdentifier = venueGooglePlaceIdentifier
