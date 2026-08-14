@@ -511,9 +511,23 @@ final class VenueScanRoleTests: XCTestCase {
                 }
                 XCTAssertEqual(reported, received)
                 XCTAssertEqual(Set(accepted), ["customer", "venue"])
+                // What the reader is told, rather than why we chose to fail.
+                //
+                // This used to require the words "customer screen", which came from
+                // a sentence explaining our own design reasoning to whoever was
+                // holding the phone, in our words, including "record their scan
+                // against the wrong funnel". A professionalism scan caught it: none
+                // of that is something a person behind a counter can act on. The
+                // reasoning now lives in the type's doc comment, and the message
+                // says what to do.
+                let message = "\(error)"
                 XCTAssertTrue(
-                    "\(error)".contains("customer screen"),
-                    "The error should say what falling through would have cost"
+                    message.contains("try again") || message.contains("second try"),
+                    "The message has to tell the reader what to do. Got: \(message)"
+                )
+                XCTAssertFalse(
+                    message.lowercased().contains("funnel"),
+                    "Our words, not theirs. Got: \(message)"
                 )
             }
         }

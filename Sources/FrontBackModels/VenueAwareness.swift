@@ -1057,12 +1057,20 @@ public enum VenueScanRoleError: Error, Equatable, Sendable, CustomStringConverti
     public var description: String {
         switch self {
         case .unrecognised(let received, let accepted):
+            // Said to whoever is holding the phone, so it says what to do rather
+            // than why we chose to fail.
+            //
+            // This used to explain our own design reasoning to a venue, in our own
+            // words, including "record their scan against the wrong funnel". Funnel
+            // is not a word anybody behind a counter uses, and none of the reasoning
+            // was something the reader could act on. The reasoning is still worth
+            // keeping, so it lives in this type's doc comment, where the people it
+            // is for will find it.
+            _ = accepted
             return """
-            This code names the role "\(received)", which is not one this app \
-            recognises. The roles it knows are \(accepted.joined(separator: " and ")). \
-            Opening the customer screen instead would show a venue owner the \
-            consumer tagline and record their scan against the wrong funnel, so the \
-            scan is surfaced as an error rather than guessed at.
+            This code did not open properly. Ask whoever showed it to you to bring \
+            it up again, and it should work on the second try. The code named \
+            "\(received)", which this app does not recognise.
             """
         }
     }
