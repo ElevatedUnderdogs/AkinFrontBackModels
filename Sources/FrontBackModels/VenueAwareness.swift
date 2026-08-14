@@ -1347,6 +1347,17 @@ public struct VenueOutcomeContext: Equatable, Sendable {
     /// Whether this row's verdict is the latest word on the venue's state.
     public let thisRowOwnsTheState: Bool
 
+    /// Whether some OTHER introduction at this venue still carries a refusal that
+    /// has not been taken back.
+    ///
+    /// One greet sends two people to one venue and each of them gets a card, so two
+    /// rows can describe the same thirty seconds at the same counter. Without this
+    /// fact `decide` sees only the row in front of it, and a softer answer from the
+    /// person standing further back lifts the venue out of `.declined`, because the
+    /// table's job is to answer "where does THIS outcome put the venue" and it was
+    /// being asked to answer "where does this venue stand".
+    public let anotherRowHoldsARefusal: Bool
+
     public init(
         reported: VenuePitchOutcome,
         source: VenueOutcomeSource,
@@ -1354,7 +1365,8 @@ public struct VenueOutcomeContext: Equatable, Sendable {
         existingSource: VenueOutcomeSource?,
         venueState: VenueAwarenessState,
         displacedByThisRow: VenueAwarenessState?,
-        thisRowOwnsTheState: Bool
+        thisRowOwnsTheState: Bool,
+        anotherRowHoldsARefusal: Bool
     ) {
         self.reported = reported
         self.source = source
@@ -1363,6 +1375,7 @@ public struct VenueOutcomeContext: Equatable, Sendable {
         self.venueState = venueState
         self.displacedByThisRow = displacedByThisRow
         self.thisRowOwnsTheState = thisRowOwnsTheState
+        self.anotherRowHoldsARefusal = anotherRowHoldsARefusal
     }
 }
 
@@ -1421,6 +1434,11 @@ public enum VenueOutcomeAuthority {
     /// 4. A `skipped` that replaces this row's own verdict, while that verdict is
     ///    still the latest word, is a withdrawal and restores what it displaced.
     /// 5. Otherwise the transition table decides.
+    ///
+    /// Rules 4 and 5 are both held back by one further fact: a refusal standing on
+    /// another row at this venue is never lifted by a softer answer from this one.
+    /// See ``standingRefusalHolds(_:against:)`` for why that is a rule about two
+    /// people in one greet rather than a rule about states.
     public static func decide(_ context: VenueOutcomeContext) -> VenueOutcomeDecision {
         let hasAnswer = context.existing != nil
         let venueHasSpoken = context.existingSource == .venueBranch
@@ -1477,6 +1495,19 @@ public enum VenueOutcomeAuthority {
             && context.displacedByThisRow != nil
 
         if isWithdrawal, let displaced = context.displacedByThisRow {
+            if standingRefusalHolds(context, against: displaced) {
+                return VenueOutcomeDecision(
+                    writesTheAnswer: true,
+                    nextState: .declined,
+                    claimsTheState: false,
+                    isWithdrawal: true,
+                    reason: """
+                    This answer has been taken back, and somebody else on this same \
+                    introduction is still on record as having been told no here, so \
+                    the venue stays declined.
+                    """
+                )
+            }
             let allowed = VenueAwarenessTransition
                 .verdict(from: context.venueState, to: displaced)
                 .isAllowed
@@ -1491,8 +1522,29 @@ public enum VenueOutcomeAuthority {
             )
         }
 
-        // 5. The table decides.
+        // 5. The table decides, unless doing so would lift somebody else's refusal.
         let next = VenueAwarenessTransition.state(after: context.reported, from: context.venueState)
+
+        if standingRefusalHolds(context, against: next) {
+            return VenueOutcomeDecision(
+                writesTheAnswer: true,
+                nextState: .declined,
+                // Held, not exempted. Ownership is decided by the one rule it is
+                // decided by everywhere else, so the row still refreshes what it
+                // displaced when it takes the word from another row. Splitting
+                // ownership off into a second rule here is what the seventh review
+                // pass found the last time these were two decisions.
+                claimsTheState: .declined != context.venueState
+                    || context.thisRowOwnsTheState == false,
+                isWithdrawal: false,
+                reason: """
+                Recorded. Somebody else sent here on this introduction was told no \
+                at the same counter, and one person's warmer read of the same \
+                conversation does not take that back.
+                """
+            )
+        }
+
         return VenueOutcomeDecision(
             writesTheAnswer: true,
             nextState: next,
@@ -1500,5 +1552,40 @@ public enum VenueOutcomeAuthority {
             isWithdrawal: false,
             reason: "Recorded, and the venue's state follows from it."
         )
+    }
+
+    /// Whether another row's unwithdrawn refusal has to hold the venue at
+    /// `.declined` rather than let `proposed` through.
+    ///
+    /// One greet sends two people to one venue and both are prompted, which the
+    /// operator's acceptance path requires. So two rows can describe one thirty
+    /// second exchange with one bartender. Person A, at the counter, reports
+    /// `notReceptive`. Person B, three steps back, honestly reports `receptive`
+    /// about the same exchange. `state(after: .receptive, from: .declined)` is
+    /// `.aware`, the transition table allows `(declined, aware)`, and the venue is
+    /// no longer declined. The cooldown's refusal rule keys on the state, so it
+    /// stops firing, and the freeze then runs off whichever of the two cards was
+    /// opened second, which is fourteen days rather than ninety and has nothing to
+    /// do with who was refused. Reverse the order the two answers arrive in and the
+    /// venue stays declined for ninety, so the same two answers produce a thirteen
+    /// fold difference in the freeze depending on arrival order.
+    ///
+    /// The stated principle for the one pair the table decides in this direction is
+    /// that losing a no is far more expensive than an out-of-order write, and this
+    /// is the path that loses one. The answer is still written to the row, so the
+    /// funnel keeps both people's reports and the venue's report page still shows
+    /// what each of them said. Only the state is held.
+    ///
+    /// The venue's own word through its App Clip is exempt, because a venue saying
+    /// for itself that it is interested outranks a customer's read of a counter,
+    /// which is rule 1 of the policy above.
+    private static func standingRefusalHolds(
+        _ context: VenueOutcomeContext,
+        against proposed: VenueAwarenessState
+    ) -> Bool {
+        context.anotherRowHoldsARefusal
+            && context.source != .venueBranch
+            && context.venueState == .declined
+            && proposed != .declined
     }
 }
