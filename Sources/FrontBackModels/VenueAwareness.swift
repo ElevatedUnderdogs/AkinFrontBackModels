@@ -1090,6 +1090,18 @@ public enum VenueAudience: String, Codable, Sendable, Equatable, CaseIterable {
         case .ownerOrManager: return "I own or manage here"
         }
     }
+
+    /// What to call this audience inside a sentence.
+    ///
+    /// ``title`` is the label on a button the venue picks, written in their voice,
+    /// so lowercasing it mid-sentence produced "Playing the i work here version."
+    /// with a bare lowercase i. A sentence needs a noun, not a button.
+    public var described: String {
+        switch self {
+        case .counterStaff: return "counter staff"
+        case .ownerOrManager: return "owner and manager"
+        }
+    }
 }
 
 // MARK: - The venue side of the scan
