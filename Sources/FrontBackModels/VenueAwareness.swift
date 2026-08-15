@@ -1550,6 +1550,49 @@ public enum VenueOutcomeAuthority {
         // replacing the frozen `displacedByThisRow` snapshot with a state computed
         // from the rows as they stand. That design is reviewed in
         // `ADVERSARY_REPORT_VENUE_8_INDEPENDENT.md` and is not this change.
+        // A withdrawal restores only while this row is still the one that moved the
+        // venue. Both ends of this dial are wrong, in different sequences, and this
+        // end is the one that keeps two documented properties rather than one.
+        //
+        // Dropping it loses both of these, each of which has a test that says why:
+        // a scan sets `aware` with `setBy: nil` and a customer's later withdrawal
+        // would restore `pitched` over it, which is
+        // `testAWithdrawalDoesNotEraseAScanThatHappened`, "a customer cannot unsay
+        // that"; and a second row's `alreadyKnew` would be overwritten by the first
+        // row's restore. Both are wrong LABELS with the freeze unchanged.
+        //
+        // Keeping it loses a FREEZE: A refuses, B's warmer answer is clamped to
+        // `declined` and takes the word, A retracts and, not owning, moves nothing,
+        // so the venue holds `declined` with no row on record as having refused it.
+        // Ninety days one way and seven the other, from the same three taps. That
+        // is pinned as a known failing test rather than hidden, because a defect
+        // with a test is a defect somebody can finish.
+        //
+        // No setting is right for both, which is not an argument for either. It is
+        // the argument for computing the state from the rows as they stand instead
+        // of restoring a snapshot taken when one of them was written. That design
+        // is reviewed in `ADVERSARY_REPORT_VENUE_8_INDEPENDENT.md`.
+        if isWithdrawal, context.thisRowOwnsTheState == false {
+            let held = standingRefusalHolds(context, against: context.venueState)
+            return VenueOutcomeDecision(
+                writesTheAnswer: true,
+                nextState: held ? .declined : context.venueState,
+                claimsTheState: false,
+                isWithdrawal: true,
+                reason: held
+                    ? """
+                    This answer has been taken back, and somebody else is still on \
+                    record as having been told no at this venue recently enough for \
+                    it to stand, so the venue stays declined.
+                    """
+                    : """
+                    This answer has been taken back. Somebody else has spoken for \
+                    this venue since, so where it stands is theirs rather than this \
+                    one's to put back.
+                    """
+            )
+        }
+
         if isWithdrawal, let displaced = context.displacedByThisRow {
             if standingRefusalHolds(context, against: displaced) {
                 return VenueOutcomeDecision(
