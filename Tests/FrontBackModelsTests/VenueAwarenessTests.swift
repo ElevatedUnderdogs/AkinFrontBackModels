@@ -623,21 +623,19 @@ final class VenueWireCompatibilityTests: XCTestCase {
     }
 }
 
-/// The outcome rules, decided exhaustively rather than by example.
+/// The write rules, decided exhaustively rather than by example.
 ///
-/// The transition table has been exhaustively tested since Phase 3 and has not
-/// produced a defect in six adversarial passes. The outcome rules were a pile of
-/// booleans inside a database function and produced one in each of the last three,
-/// every time in the fix for the pass before. These are the same properties applied
-/// to the same shape of problem: every combination goes in, every combination gets
-/// a verdict, and the invariants are asserted over all of them rather than over the
-/// handful somebody thought of.
+/// This type used to decide where the venue moved as well, from a snapshot each row
+/// kept of what its own answer displaced. Four consecutive adversarial passes found
+/// a defect in that machinery and three of those defects were introduced by the
+/// previous pass's fix. It is gone: ``VenueAwarenessFold`` computes the state from
+/// the rows, and the only question left here is whether one report replaces what one
+/// row already says.
 final class VenueOutcomeAuthorityTests: XCTestCase {
 
     /// Every combination of inputs, which is what "total" means here.
     private func allContexts() -> [VenueOutcomeContext] {
         var contexts: [VenueOutcomeContext] = []
-        let states = VenueAwarenessState.allCases
         let outcomes = VenuePitchOutcome.allCases
         let sources = VenueOutcomeSource.allCases
 
@@ -645,26 +643,14 @@ final class VenueOutcomeAuthorityTests: XCTestCase {
             for source in sources {
                 for existing in [nil] + outcomes.map(Optional.some) {
                     for existingSource in [nil] + sources.map(Optional.some) {
-                        for venueState in states {
-                            for displaced in [nil] + states.map(Optional.some) {
-                                for owns in [true, false] {
-                                    for othersRefusal in [true, false] {
-                                        contexts.append(
-                                            VenueOutcomeContext(
-                                                reported: reported,
-                                                source: source,
-                                                existing: existing,
-                                                existingSource: existingSource,
-                                                venueState: venueState,
-                                                displacedByThisRow: displaced,
-                                                thisRowOwnsTheState: owns,
-                                                anotherRowHoldsARefusal: othersRefusal
-                                            )
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                        contexts.append(
+                            VenueOutcomeContext(
+                                reported: reported,
+                                source: source,
+                                existing: existing,
+                                existingSource: existingSource
+                            )
+                        )
                     }
                 }
             }
@@ -674,7 +660,7 @@ final class VenueOutcomeAuthorityTests: XCTestCase {
 
     func testEveryCombinationDecidesAndCarriesAReason() {
         let contexts = allContexts()
-        XCTAssertEqual(contexts.count, 5 * 3 * 6 * 4 * 5 * 6 * 2 * 2)
+        XCTAssertEqual(contexts.count, 5 * 3 * 6 * 4)
 
         for context in contexts {
             let decision = VenueOutcomeAuthority.decide(context)
@@ -685,456 +671,280 @@ final class VenueOutcomeAuthorityTests: XCTestCase {
         }
     }
 
-    /// The state a decision names is always one the table allows from where the
-    /// venue is. Nothing may produce a move the transition table would refuse.
-    func testNoDecisionProducesATransitionTheTableRefuses() {
-        for context in allContexts() {
-            let decision = VenueOutcomeAuthority.decide(context)
+    /// A customer never overwrites what the venue said for itself.
+    func testACustomerNeverOverwritesTheVenuesOwnWord() {
+        for context in allContexts() where context.existing != nil
+            && context.existingSource == .venueBranch
+            && context.source != .venueBranch {
+            XCTAssertFalse(
+                VenueOutcomeAuthority.decide(context).writesTheAnswer,
+                """
+                \(context.source.rawValue) overwrote the venue's own \
+                \(context.existing?.rawValue ?? "answer")
+                """
+            )
+        }
+    }
+
+    /// The venue may always correct itself, and so may any surface.
+    func testASurfaceMayAlwaysCorrectItself() {
+        for context in allContexts() where context.existing != nil
+            && context.existingSource == context.source {
             XCTAssertTrue(
-                VenueAwarenessTransition
-                    .verdict(from: context.venueState, to: decision.nextState)
-                    .isAllowed,
-                """
-                \(context.reported.rawValue) from \(context.source.rawValue) on a \
-                \(context.venueState.rawValue) venue produced \
-                \(decision.nextState.rawValue), which the table refuses
-                """
+                VenueOutcomeAuthority.decide(context).writesTheAnswer,
+                "\(context.source.rawValue) could not correct its own answer"
             )
         }
     }
 
-    /// A venue that has joined is never moved by a report through this path. Asking
-    /// to be left alone is the venue's own to do, from its own endpoint.
-    func testAVenueThatHasJoinedIsNeverMovedByAReport() {
-        for context in allContexts() where context.venueState == .engaged {
-            let decision = VenueOutcomeAuthority.decide(context)
-            XCTAssertEqual(
-                decision.nextState, .engaged,
-                "A venue holding a live referral code was moved to \(decision.nextState.rawValue)"
-            )
-        }
+    /// A rating screen answer, given hours later from memory, does not overwrite the
+    /// card answered at the counter. The card overwrites the rating screen.
+    func testTheCardOutranksTheRatingScreen() {
+        let ratingOverCard = VenueOutcomeContext(
+            reported: .receptive,
+            source: .ratingScreen,
+            existing: .notReceptive,
+            existingSource: .card
+        )
+        XCTAssertFalse(VenueOutcomeAuthority.decide(ratingOverCard).writesTheAnswer)
+
+        let cardOverRating = VenueOutcomeContext(
+            reported: .receptive,
+            source: .card,
+            existing: .notReceptive,
+            existingSource: .ratingScreen
+        )
+        XCTAssertTrue(VenueOutcomeAuthority.decide(cardOverRating).writesTheAnswer)
     }
 
-    /// The venue's own answer is never overwritten by a customer surface.
-    func testACustomerNeverOverwritesTheVenuesOwnAnswer() {
-        for context in allContexts()
-        where context.existingSource == .venueBranch && context.source != .venueBranch {
-            let decision = VenueOutcomeAuthority.decide(context)
-            XCTAssertFalse(decision.writesTheAnswer)
-            XCTAssertEqual(decision.nextState, context.venueState)
-        }
-    }
-
-    /// A withdrawal is a row taking back its OWN answer, and ownership of the
-    /// venue's state has nothing to do with whether it did.
-    ///
-    /// This test used to assert the opposite, and the assertion was load bearing in
-    /// the wrong direction. Requiring ownership was harmless until the standing
-    /// refusal hold arrived, and then it inverted: a row stripped of ownership by
-    /// the other participant's answer could no longer retract its refusal, so the
-    /// hold pinned the venue at `declined` with no row on record as having refused
-    /// it, for ninety days, decided by which of three taps came second.
-    func testAWithdrawalIsARowTakingBackItsOwnAnswer() {
-        for context in allContexts() {
-            let decision = VenueOutcomeAuthority.decide(context)
-            guard decision.isWithdrawal else { continue }
-
-            XCTAssertEqual(
-                context.reported, .skipped,
-                "Only a skip retracts an answer; everything else states one"
+    /// A row that has never been answered takes whatever arrives first.
+    func testAnUnansweredRowTakesTheFirstReportFromAnySurface() {
+        for context in allContexts() where context.existing == nil {
+            XCTAssertTrue(
+                VenueOutcomeAuthority.decide(context).writesTheAnswer,
+                "\(context.source.rawValue) could not answer an unanswered introduction"
             )
-            XCTAssertNotNil(
-                context.existing,
-                "There is nothing to take back on a row that never answered"
-            )
-            XCTAssertNotNil(
-                context.displacedByThisRow,
-                "A row that never moved the venue displaced nothing to put back"
-            )
-        }
-    }
-
-    /// A row that has lost ownership can still take its own refusal back, and what
-    /// that does to the venue is deliberately NOT this row's to say.
-    ///
-    /// Half of an eighth-pass finding, and the half that is fixed. The retraction
-    /// is recorded, which it was not before: the old rule said a stripped row could
-    /// not withdraw at all, so its `skipped` fell through to the table and the row
-    /// kept reading as a refusal nobody could take back.
-    ///
-    /// The other half is NOT fixed and is recorded rather than hidden. The venue
-    /// stays where the current owner left it, which in the pass's own sequence is
-    /// `declined`, so a venue with no row on record as having refused it can still
-    /// sit frozen until the freeze expires. Putting it back where THIS row left it
-    /// is not the answer: `testAWithdrawalOnOneRowDoesNotCancelTheVenuesRefusalOnAnother`
-    /// is a customer doing exactly that over the top of the venue's own refusal.
-    /// The answer is to recompute from what the owner said, which needs a fact
-    /// `decide` is not given, and adding a third mechanism at this point is how the
-    /// last three defects here were introduced.
-    func testARowStrippedOfOwnershipCanStillWithdrawItsOwnRefusal() {
-        let decision = VenueOutcomeAuthority.decide(
-            VenueOutcomeContext(
-                reported: .skipped,
-                source: .ratingScreen,
-                existing: .notReceptive,
-                existingSource: .ratingScreen,
-                venueState: .declined,
-                displacedByThisRow: .pitched,
-                // The other person in the greet answered after this row did, which
-                // is what took the state away from it.
-                thisRowOwnsTheState: false,
-                // And what they said was not a refusal, so nothing is left holding
-                // this venue at declined once this one is taken back.
-                anotherRowHoldsARefusal: false
-            )
-        )
-        XCTAssertTrue(
-            decision.isWithdrawal,
-            "The retraction is recorded, which is the half of the finding that is fixed"
-        )
-        XCTAssertTrue(
-            decision.writesTheAnswer,
-            "The row stops reading as a refusal, so nothing later mistakes it for one"
-        )
-        XCTExpectFailure(
-            "Known: no setting of the ownership dial is right for both sequences, see the doc comment"
-        )
-        XCTAssertEqual(
-            decision.nextState, .pitched,
-            """
-            Nothing is left holding this venue at declined, so a venue nobody is on \
-            record as having refused must not carry the ninety day freeze
-            """
-        )
-    }
-
-    /// And a withdrawal restores exactly what this row displaced, never a fixed
-    /// state, which is what the hardcoded `.pitched` got wrong.
-    func testAWithdrawalRestoresWhatWasDisplacedAndNothingElse() {
-        var sawARestoreThatIsNotPitched = false
-
-        for context in allContexts() {
-            let decision = VenueOutcomeAuthority.decide(context)
-            guard decision.isWithdrawal, let displaced = context.displacedByThisRow else { continue }
-
-            // A withdrawal by a row that no longer owns the state retracts the
-            // answer and moves nothing. See `decide`'s own comment for why that end
-            // of the dial, and what it costs.
-            guard context.thisRowOwnsTheState else {
-                let held = context.anotherRowHoldsARefusal
-                    && context.source != .venueBranch
-                    && context.venueState != .declined
-                    && context.venueState != .engaged
-                XCTAssertEqual(decision.nextState, held ? .declined : context.venueState)
-                continue
-            }
-
-
-            // Unless another row's refusal is still standing, in which case the
-            // venue stays declined and this row's displaced record buys nothing.
-            // Taking your own no back does not take somebody else's back with it.
-            // Not conditioned on the venue's current state, deliberately. That
-            // precondition is what let the eighth review pass find a hole in both
-            // the guard and the property that was supposed to check it.
-            let heldByAnotherRefusal = context.anotherRowHoldsARefusal
-                && context.source != .venueBranch
-                && displaced != .declined
-                && displaced != .engaged
-
-            if heldByAnotherRefusal {
-                XCTAssertEqual(decision.nextState, .declined)
-                continue
-            }
-
-            let allowed = VenueAwarenessTransition
-                .verdict(from: context.venueState, to: displaced)
-                .isAllowed
-            XCTAssertEqual(decision.nextState, allowed ? displaced : context.venueState)
-
-            if decision.nextState != .pitched, decision.nextState != context.venueState {
-                sawARestoreThatIsNotPitched = true
-            }
-        }
-
-        XCTAssertTrue(
-            sawARestoreThatIsNotPitched,
-            """
-            Every restore in this suite landed on pitched, which is the value the \
-            defect this replaced also produced, so the suite could not tell the two \
-            apart. That is the exact shape of test the sixth review pass called out.
-            """
-        )
-    }
-
-    /// A decision that does not write the answer does not move the venue either. A
-    /// report the rules refuse to record has no business changing anything.
-    func testAReportThatIsNotWrittenMovesNothing() {
-        for context in allContexts() {
-            let decision = VenueOutcomeAuthority.decide(context)
-            if decision.writesTheAnswer == false {
-                XCTAssertEqual(
-                    decision.nextState, context.venueState,
-                    "A report the rules declined to record still moved the venue"
-                )
-            }
         }
     }
 }
 
-extension VenueOutcomeAuthorityTests {
+/// Where a venue stands, read back from its introductions.
+///
+/// The two sequences at the top are the ones the snapshot design could not get
+/// right in either setting of its ownership gate. They were pinned here as failing
+/// tests asserting the CORRECT answer, so that they would start passing the day the
+/// object was fixed rather than needing to be rewritten. They pass now.
+final class VenueAwarenessFoldTests: XCTestCase {
 
-    /// Taking the word back from another row counts as claiming it, even when the
-    /// state does not move.
-    ///
-    /// The seventh review pass found this. `claimsTheState` was defined as "the
-    /// state moved", the service used it to decide whether to refresh the row's
-    /// record of what it displaced, and ownership was transferred by a separate
-    /// rule. A second identical refusal moves nothing, so it took ownership without
-    /// refreshing the record, and a later withdrawal on that row restored a state
-    /// from an older verdict and cancelled a refusal nobody had taken back.
-    func testAWriteThatMovesNothingStillClaimsTheStateWhenAnotherRowHeldIt() {
-        for context in allContexts() {
-            let decision = VenueOutcomeAuthority.decide(context)
-            guard decision.writesTheAnswer, decision.isWithdrawal == false else { continue }
+    private let now = Date(timeIntervalSince1970: 1_780_000_000)
 
-            // Not on an engaged venue. There the state belongs to the join, which
-            // is not a verdict, so no customer's report claims it and a withdrawal
-            // has nothing there to take back.
-            if context.thisRowOwnsTheState == false, context.venueState != .engaged {
-                XCTAssertTrue(
-                    decision.claimsTheState,
-                    """
-                    A row that writes an answer while another row holds the state \
-                    takes the state, whether or not it moves: \
-                    \(context.reported.rawValue) on a \(context.venueState.rawValue) venue
-                    """
-                )
-            }
-        }
-    }
-
-    /// One person's warmer read of the same counter does not take back the other
-    /// person's refusal.
-    ///
-    /// The eighth review pass found this. One greet sends two people to one venue
-    /// and both are prompted, so two rows can describe one exchange with one
-    /// bartender. A reports `notReceptive` and the venue declines. B, standing
-    /// further back, honestly reports `receptive`, and before this the table took
-    /// the venue to `.aware`, the cooldown's refusal rule stopped firing, and the
-    /// freeze then ran off whichever card was opened second: fourteen days rather
-    /// than ninety, decided by arrival order rather than by who was refused.
-    func testASofterAnswerNeverLiftsAnotherRowsStandingRefusal() {
-        for reported in [VenuePitchOutcome.receptive, .alreadyKnew] {
-            for source in [VenueOutcomeSource.card, .ratingScreen] {
-                let decision = VenueOutcomeAuthority.decide(
-                    VenueOutcomeContext(
-                        reported: reported,
-                        source: source,
-                        existing: nil,
-                        existingSource: nil,
-                        venueState: .declined,
-                        displacedByThisRow: nil,
-                        thisRowOwnsTheState: false,
-                        anotherRowHoldsARefusal: true
-                    )
-                )
-                XCTAssertEqual(
-                    decision.nextState, .declined,
-                    """
-                    \(reported.rawValue) from \(source.rawValue) lifted a refusal \
-                    standing on another row at the same venue
-                    """
-                )
-                XCTAssertTrue(
-                    decision.writesTheAnswer,
-                    "The answer is still recorded on the row, because the funnel and the venue's own report both show it"
-                )
-            }
-        }
-    }
-
-    /// And the same answer with no other refusal standing does move the venue, so
-    /// the rule above is about the other row rather than about the outcome.
-    func testTheSameAnswerMovesTheVenueWhenNoOtherRowRefused() {
-        let decision = VenueOutcomeAuthority.decide(
-            VenueOutcomeContext(
-                reported: .receptive,
-                source: .card,
-                existing: nil,
-                existingSource: nil,
-                venueState: .declined,
-                displacedByThisRow: nil,
-                thisRowOwnsTheState: false,
-                anotherRowHoldsARefusal: false
-            )
+    private func row(
+        _ outcome: VenuePitchOutcome? = nil,
+        source: VenueOutcomeSource? = nil,
+        secondsAgo: TimeInterval = 60,
+        shownSecondsAgo: TimeInterval? = nil,
+        scanned: Bool = false,
+        joined: Bool = false
+    ) -> VenuePitchStanding {
+        VenuePitchStanding(
+            outcome: outcome,
+            source: outcome == nil ? nil : (source ?? .card),
+            outcomeReportedAt: outcome == nil ? nil : now.addingTimeInterval(-secondsAgo),
+            shownAt: now.addingTimeInterval(-(shownSecondsAgo ?? secondsAgo + 60)),
+            venueScannedAt: scanned ? now.addingTimeInterval(-secondsAgo) : nil,
+            venueJoinedAt: joined ? now.addingTimeInterval(-secondsAgo) : nil
         )
-        XCTAssertEqual(decision.nextState, .aware)
     }
 
-    /// The venue speaking for itself is not held back by a customer's refusal,
-    /// because rule 1 is that the venue's own word outranks both customer surfaces.
-    func testTheVenuesOwnWordIsNotHeldBackByACustomersRefusal() {
-        let decision = VenueOutcomeAuthority.decide(
-            VenueOutcomeContext(
-                reported: .receptive,
-                source: .venueBranch,
-                existing: nil,
-                existingSource: nil,
-                venueState: .declined,
-                displacedByThisRow: nil,
-                thisRowOwnsTheState: false,
-                anotherRowHoldsARefusal: true
-            )
-        )
-        XCTAssertEqual(decision.nextState, .aware)
+    private func state(_ rows: [VenuePitchStanding]) -> VenueAwarenessState {
+        VenueAwarenessFold.state(of: rows, now: now)
     }
 
-    /// A withdrawal is held back by the same fact, which is the residue of the
-    /// seventh pass's first finding: A takes their refusal back while B's refusal
-    /// is still standing and unwithdrawn, and the venue may not go back to
-    /// `pitched` on the strength of what A's row displaced.
-    func testAWithdrawalDoesNotLiftAnotherRowsStandingRefusal() {
-        let decision = VenueOutcomeAuthority.decide(
-            VenueOutcomeContext(
-                reported: .skipped,
-                source: .card,
-                existing: .notReceptive,
-                existingSource: .card,
-                venueState: .declined,
-                displacedByThisRow: .pitched,
-                thisRowOwnsTheState: true,
-                anotherRowHoldsARefusal: true
-            )
-        )
-        XCTAssertEqual(decision.nextState, .declined)
-        XCTAssertTrue(decision.isWithdrawal)
-    }
+    // MARK: - The two sequences the snapshot could not answer
 
-    /// The residue of NOT gating the restore on ownership, asserted so it is a
-    /// known cost rather than a surprise.
+    /// Three taps. A refuses, B says it went well, A takes the refusal back.
     ///
-    /// A says `receptive`, so the venue is `aware` and A's row displaced `pitched`.
-    /// B says `alreadyKnew`, which moves nothing but takes the word. A then
-    /// withdraws, and restores `pitched` over the `aware` B is standing behind.
-    ///
-    /// The label is wrong and the freeze is not: on this path the cooldown reads
-    /// the last reported outcome, which is still B's `alreadyKnew`, so the venue
-    /// waits the same month either way. That is why this end of the dial is the one
-    /// to be on. The other end costs ninety days against seven on a venue nobody is
-    /// on record as having refused.
-    ///
-    /// It goes away entirely under the recompute design, because there is no
-    /// snapshot to restore.
-    func testAWithdrawalCanRestoreALabelAnotherRowHasSinceMovedPast() {
-        let decision = VenueOutcomeAuthority.decide(
-            VenueOutcomeContext(
-                reported: .skipped,
-                source: .card,
-                existing: .receptive,
-                existingSource: .card,
-                venueState: .aware,
-                displacedByThisRow: .pitched,
-                thisRowOwnsTheState: false,
-                anotherRowHoldsARefusal: false
-            )
-        )
-        XCTAssertTrue(decision.isWithdrawal)
+    /// The venue used to hold ninety days with nobody on record as having refused
+    /// it, and the same three answers in the other order gave seven.
+    func testARetractedRefusalDoesNotLeaveTheVenueFrozenBehindIt() {
+        let aWithdrew = row(.skipped, secondsAgo: 10)
+        let bWasWarm = row(.receptive, secondsAgo: 30)
+
+        XCTAssertEqual(state([aWithdrew, bWasWarm]), .aware)
         XCTAssertEqual(
-            decision.nextState, .aware,
-            "The label another row moved to is kept, which is this end of the dial working"
+            state([bWasWarm, aWithdrew]), .aware,
+            "The same three taps in the other order gave a different answer"
         )
     }
 
-    /// Whatever else it does, holding the state never produces a transition the
-    /// table refuses, and never lifts `declined` while another row's refusal stands.
-    /// Note what this does NOT filter on: the venue's current state.
+    /// Four taps. Both people refuse, both retract.
     ///
-    /// It used to, and that is exactly how the hole got through. The guard in
-    /// `standingRefusalHolds` required `venueState == .declined`, and this property
-    /// required the same thing, so the property could only ever confirm the guard's
-    /// own precondition. An adversarial pass found the route the pair of them
-    /// missed: `recordCardShown` moves a venue from `declined` back to `pitched`
-    /// when the second person's card is authorised, so by the time their softer
-    /// answer arrives the state is `pitched` and neither the guard nor this test
-    /// was looking.
+    /// The venue used to be frozen with both rows reading `skipped`.
+    func testBothPeopleRefusingAndBothRetractingLeavesNoRefusalStanding() {
+        let both = [row(.skipped, secondsAgo: 5), row(.skipped, secondsAgo: 10)]
+        XCTAssertEqual(state(both), .pitched)
+        XCTAssertEqual(state(both.reversed()), .pitched)
+    }
+
+    // MARK: - The terms, in order
+
+    func testNoIntroductionsMeansTheVenueHasNeverHeardOfIt() {
+        XCTAssertEqual(state([]), .unaware)
+    }
+
+    func testACardShownAndNothingSaidIsPitched() {
+        XCTAssertEqual(state([row()]), .pitched)
+    }
+
+    func testAnAnswerThatImpliesNothingLeavesTheVenuePitched() {
+        XCTAssertEqual(state([row(.noChance), row(.skipped)]), .pitched)
+    }
+
+    func testAStandingRefusalDeclinesTheVenue() {
+        XCTAssertEqual(state([row(.notReceptive), row(.receptive)]), .declined)
+    }
+
+    /// A refusal holds for exactly the freeze it bought, and not a day longer.
     ///
-    /// A property that shares a precondition with the code it tests is not a test
-    /// of that precondition.
-    func testNoDecisionLeavesDeclinedWhileAnotherRowsRefusalStands() {
-        for context in allContexts() {
-            guard context.anotherRowHoldsARefusal,
-                  context.source != .venueBranch
-            else { continue }
+    /// If the term that reads the most recent implying answer also mapped
+    /// `notReceptive`, an aged out refusal would be excluded by the refusal term and
+    /// readmitted by that one, and the ninety days would never end.
+    func testARefusalStopsHoldingOnceItsFreezeHasRunOut() {
+        let aged = VenueCooldownPolicy.declinedFreeze + 60
+        XCTAssertEqual(state([row(.notReceptive, secondsAgo: aged)]), .pitched)
+        XCTAssertEqual(
+            state([row(.notReceptive, secondsAgo: aged), row(.receptive, secondsAgo: 30)]),
+            .aware
+        )
+    }
 
-            // `engaged` is one exemption, and it is rule 2 rather than an oversight:
-            // a venue running its own referral code is not moved by a customer's
-            // report at all, in either direction.
-            if context.venueState == .engaged { continue }
+    func testACodeMakesTheVenueEngaged() {
+        XCTAssertEqual(state([row(.receptive), row(joined: true)]), .engaged)
+    }
 
-            let decision = VenueOutcomeAuthority.decide(context)
+    /// A customer's refusal does not revoke a code that exists.
+    func testACustomersRefusalDoesNotUnmakeACode() {
+        XCTAssertEqual(state([row(joined: true), row(.notReceptive)]), .engaged)
+    }
 
-            // And a report the rules refuse to write is the other. Rule 1 and the
-            // outranking guard both return the venue's own state untouched, which
-            // is the right answer and is pinned by
-            // `testAReportThatIsNotWrittenMovesNothing`. This property is about
-            // where the state IS being decided by this row.
-            guard decision.writesTheAnswer else { continue }
+    /// The venue asking to be left alone outranks a code it made earlier.
+    func testTheVenuesOwnRefusalOutranksItsOwnCode() {
+        XCTAssertEqual(
+            state([row(secondsAgo: 600, joined: true), row(.notReceptive, source: .venueBranch)]),
+            .declined
+        )
+    }
 
-            // A withdrawal restoring `engaged` is the other exemption, for the same
-            // reason as rule 2: `engaged` is the fact that a code exists, not a
-            // read of a counter, so a customer's refusal holds the venue against a
-            // warmer reading without erasing the code.
-            if decision.nextState == .engaged { continue }
+    /// A scan is the venue's own action, so it needs no reported outcome.
+    func testAScanMakesTheVenueAwareWithNothingReported() {
+        XCTAssertEqual(state([row(scanned: true)]), .aware)
+    }
+
+    /// The venue's own word outranks a customer's, whichever came first.
+    func testTheVenuesOwnWordOutranksACustomersLaterOne() {
+        let venueSaidSo = row(.alreadyKnew, source: .venueBranch, secondsAgo: 600)
+        let customerSaidNothingUseful = row(.skipped, secondsAgo: 10)
+        XCTAssertEqual(state([venueSaidSo, customerSaidNothingUseful]), .aware)
+    }
+
+    // MARK: - Properties, over every small combination rather than examples
+
+    /// Every set of rows this can be handed, up to three of them, drawn from a set
+    /// of standings wide enough to include each term.
+    private func allSmallSets() -> [[VenuePitchStanding]] {
+        let choices: [VenuePitchStanding] = [
+            row(),
+            row(.skipped),
+            row(.noChance),
+            row(.receptive),
+            row(.alreadyKnew, source: .venueBranch),
+            row(.notReceptive),
+            row(.notReceptive, source: .venueBranch),
+            row(.notReceptive, secondsAgo: VenueCooldownPolicy.declinedFreeze + 60),
+            row(scanned: true),
+            row(joined: true),
+        ]
+        var sets: [[VenuePitchStanding]] = [[]]
+        for first in choices {
+            sets.append([first])
+            for second in choices {
+                sets.append([first, second])
+                for third in choices {
+                    sets.append([first, second, third])
+                }
+            }
+        }
+        return sets
+    }
+
+    /// The answer does not depend on the order the answers arrived in.
+    ///
+    /// This is the property the snapshot design could not hold, and it is the reason
+    /// the fold takes a set of rows rather than one row and a stored state.
+    func testTheStateDoesNotDependOnTheOrderOfTheRows() {
+        for rows in allSmallSets() where rows.count <= 3 {
+            let forwards = state(rows)
+            let backwards = state(rows.reversed())
             XCTAssertEqual(
-                decision.nextState, .declined,
+                forwards, backwards,
+                "\(rows.count) rows folded to \(forwards.rawValue) one way and \(backwards.rawValue) the other"
+            )
+        }
+    }
+
+    /// Adding an introduction never takes a venue out of `engaged`, unless the venue
+    /// itself is the one refusing.
+    ///
+    /// This is what makes the three transitions out of `engaged` that the table
+    /// rejects unreachable: a code cannot be revoked by a customer.
+    func testEngagementIsMonotoneAgainstCustomers() {
+        let joined = row(secondsAgo: 600, joined: true)
+        for rows in allSmallSets() where rows.count <= 2 {
+            let customerRows = rows.filter { $0.source != .venueBranch }
+            XCTAssertEqual(
+                state([joined] + customerRows), .engaged,
+                "A customer's report moved a venue that holds a code"
+            )
+        }
+    }
+
+    /// Every state the fold produces is one the transition table allows from the
+    /// state the same rows produced before the newest one was added.
+    func testEveryStepIsATransitionTheTableAllows() {
+        let joined = row(secondsAgo: 600, joined: true)
+        for rows in allSmallSets() where rows.isEmpty == false && rows.count <= 3 {
+            let before = state(Array(rows.dropLast()))
+            let after = state(rows)
+            XCTAssertTrue(
+                VenueAwarenessTransition.verdict(from: before, to: after).isAllowed,
                 """
-                \(context.reported.rawValue) from \(context.source.rawValue) on a \
-                \(context.venueState.rawValue) venue left it outside declined while \
-                another row's refusal was still standing
+                \(rows.count) rows moved the venue from \(before.rawValue) to \
+                \(after.rawValue), which the table refuses
+                """
+            )
+        }
+        // And the same, starting from a venue that already holds a code.
+        for rows in allSmallSets() where rows.isEmpty == false && rows.count <= 2 {
+            let before = state([joined] + Array(rows.dropLast()))
+            let after = state([joined] + rows)
+            XCTAssertTrue(
+                VenueAwarenessTransition.verdict(from: before, to: after).isAllowed,
+                """
+                a venue holding a code moved from \(before.rawValue) to \
+                \(after.rawValue), which the table refuses
                 """
             )
         }
     }
 
-    /// The route the state precondition hid, stated as its own case.
-    ///
-    /// Two people in one greet. The first refuses and the venue declines. The
-    /// second person's card is authorised afterwards, which moves the venue back to
-    /// `pitched`, and only then do they report the warmer read. Before the fix the
-    /// guard did not fire, because it was asking about the state rather than about
-    /// the refusal.
-    func testAWarmerAnswerIsHeldEvenWhenTheCardShownMovedTheVenueOffDeclined() {
-        let decision = VenueOutcomeAuthority.decide(
-            VenueOutcomeContext(
-                reported: .receptive,
-                source: .card,
-                existing: nil,
-                existingSource: nil,
-                venueState: .pitched,
-                displacedByThisRow: nil,
-                thisRowOwnsTheState: false,
-                anotherRowHoldsARefusal: true
+    /// A venue that has had any introduction at all is never read as never having
+    /// heard of it.
+    func testAVenueWithAnyIntroductionIsNeverUnaware() {
+        for rows in allSmallSets() where rows.isEmpty == false {
+            XCTAssertNotEqual(
+                state(rows), .unaware,
+                "A venue that has been shown the card cannot be unaware"
             )
-        )
-        XCTAssertEqual(
-            decision.nextState, .declined,
-            "recordCardShown moves declined to pitched, so the state cannot be the precondition"
-        )
-    }
-
-    /// And a row that already held it, writing something that changes nothing, does
-    /// not need to reclaim it.
-    func testARowThatAlreadyHeldTheStateDoesNotReclaimItForNothing() {
-        for context in allContexts() {
-            let decision = VenueOutcomeAuthority.decide(context)
-            guard decision.writesTheAnswer, decision.isWithdrawal == false else { continue }
-
-            if context.thisRowOwnsTheState, decision.nextState == context.venueState {
-                XCTAssertFalse(
-                    decision.claimsTheState,
-                    "Nothing moved and nothing changed hands, so there is nothing to record"
-                )
-            }
         }
     }
 }

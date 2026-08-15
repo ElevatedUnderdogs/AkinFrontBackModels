@@ -1309,21 +1309,186 @@ public struct VenueJoinResponse: Codable, Equatable, Sendable {
     }
 }
 
-// MARK: - Who may move a venue's awareness state
+// MARK: - Where a venue stands
 
-/// Everything the outcome rules need to decide, gathered in one place.
+/// One introduction at a venue, reduced to the facts that decide where the venue
+/// stands.
 ///
-/// This exists because of where the bugs were. The transition table above is total
-/// and exhaustively tested, and in six adversarial review passes it never produced
-/// a defect. The rules deciding whether to WRITE an answer and where to MOVE the
-/// venue lived as a growing pile of booleans inside a database function, and they
-/// produced a defect in every one of the last three passes, each time in the fix
-/// for the pass before, and three times in a test written to prove the fix.
+/// Deliberately not `VenuePitch` itself. The fold below is exhaustively tested over
+/// combinations of these fields, which is only enumerable while the type is small,
+/// and that property is what caught three of the four regressions the machinery
+/// this replaces produced.
+public struct VenuePitchStanding: Equatable, Sendable {
+
+    /// What this row currently says, if anything. A withdrawal writes `skipped`
+    /// over the row's own answer, so a retracted refusal stops reading
+    /// `notReceptive` the moment it is taken back, and needs no separate flag.
+    public let outcome: VenuePitchOutcome?
+
+    /// Which surface said it.
+    public let source: VenueOutcomeSource?
+
+    /// When it was said. Absent while the row carries no answer.
+    public let outcomeReportedAt: Date?
+
+    /// When the card was shown. Always present, and the tiebreak when two answers
+    /// carry the same reporting instant.
+    public let shownAt: Date
+
+    /// When somebody at the venue scanned the code, if they did.
+    public let venueScannedAt: Date?
+
+    /// When somebody at the venue generated a code of their own, if they did.
+    public let venueJoinedAt: Date?
+
+    public init(
+        outcome: VenuePitchOutcome?,
+        source: VenueOutcomeSource?,
+        outcomeReportedAt: Date?,
+        shownAt: Date,
+        venueScannedAt: Date?,
+        venueJoinedAt: Date?
+    ) {
+        self.outcome = outcome
+        self.source = source
+        self.outcomeReportedAt = outcomeReportedAt
+        self.shownAt = shownAt
+        self.venueScannedAt = venueScannedAt
+        self.venueJoinedAt = venueJoinedAt
+    }
+
+    /// When this row last said anything, for ordering.
+    var spokeAt: Date {
+        outcomeReportedAt ?? shownAt
+    }
+}
+
+/// Where a venue stands, computed from its introductions as they stand now.
 ///
-/// So they get the same treatment: a pure function over stated facts, decided
-/// exhaustively, testable without a database, and readable as a whole rather than
-/// as a sequence of guards each of which was right about the case its author had in
-/// mind.
+/// This replaces a snapshot. Each row used to record the state it displaced when
+/// its answer moved the venue, and a withdrawal put that snapshot back. The
+/// snapshot is taken at write time and the correct answer depends on what every
+/// row carries NOW, so every attempt to make it behave was another guard on top of
+/// a value that was already stale. Four consecutive adversarial passes found a
+/// defect in it and three of those defects were introduced by the previous pass's
+/// fix, which is a stronger argument about the design than any one of the defects.
+///
+/// Two sequences it could not get right, both of which this fold answers the same
+/// way whichever order the taps arrive in:
+///
+/// - Three taps. A refuses, B says it went well, A takes the refusal back. The old
+///   object left the venue frozen for ninety days with nobody on record as having
+///   refused it, and the same three answers in the other order gave seven.
+/// - Four taps. Both people refuse, both retract, and the venue was frozen with
+///   both rows reading `skipped`.
+///
+/// The order of the terms is the whole of the policy:
+///
+/// 1. The venue's own standing refusal. Its word outranks a code it made earlier,
+///    because asking to be left alone is a later and more specific instruction than
+///    having once joined.
+/// 2. A code exists. Engagement is monotone against customers: a code cannot be
+///    revoked from a customer's report, which is what makes the three transitions
+///    out of `engaged` that the table rejects unreachable.
+/// 3. Any standing refusal, which by here is a customer's.
+/// 4. The most recent word that implies a state, the venue's own ranked above a
+///    customer's.
+/// 5. Shown, and nothing said since.
+public enum VenueAwarenessFold {
+
+    /// What one row implies about the venue, if anything.
+    ///
+    /// `notReceptive` implies nothing HERE, deliberately. Terms one and three own
+    /// refusals, and both bound them by the freeze the refusal bought. If this term
+    /// also mapped `notReceptive` to `declined`, a refusal that had aged out would
+    /// be excluded by the earlier term and readmitted by this one, and the ninety
+    /// days would never end.
+    ///
+    /// `noChance` implies nothing by design: the customer never got to say
+    /// anything, so the venue learned nothing. `skipped` is the same. Both still
+    /// spend the venue's pitch budget, which is a fact about the row rather than
+    /// about the venue's state, and term five is what carries it.
+    static func implication(of row: VenuePitchStanding) -> (state: VenueAwarenessState, at: Date, isVenuesOwnWord: Bool)? {
+        // A scan is the venue's own action rather than a customer's report of it,
+        // so it needs no outcome to count and no new column to record it.
+        if let scannedAt = row.venueScannedAt {
+            return (.aware, scannedAt, true)
+        }
+        switch row.outcome {
+        case .receptive, .alreadyKnew:
+            return (.aware, row.spokeAt, row.source == .venueBranch)
+        case .notReceptive, .noChance, .skipped, .none:
+            return nil
+        }
+    }
+
+    /// Whether this row carries a refusal that nobody took back and that is still
+    /// inside the freeze it bought.
+    static func holdsAStandingRefusal(
+        _ row: VenuePitchStanding,
+        now: Date,
+        freeze: TimeInterval
+    ) -> Bool {
+        guard row.outcome == .notReceptive else { return false }
+        return row.spokeAt >= now.addingTimeInterval(-freeze)
+    }
+
+    /// Where the venue stands, given every introduction it has had.
+    public static func state(
+        of rows: [VenuePitchStanding],
+        now: Date,
+        declinedFreeze: TimeInterval = VenueCooldownPolicy.declinedFreeze
+    ) -> VenueAwarenessState {
+        guard rows.isEmpty == false else { return .unaware }
+
+        let standingRefusals = rows.filter {
+            holdsAStandingRefusal($0, now: now, freeze: declinedFreeze)
+        }
+
+        // 1. The venue's own no, which outranks a code it made earlier.
+        if standingRefusals.contains(where: { $0.source == .venueBranch }) {
+            return .declined
+        }
+
+        // 2. A code exists.
+        if rows.contains(where: { $0.venueJoinedAt != nil }) {
+            return .engaged
+        }
+
+        // 3. Somebody there was told no, and said so through a customer.
+        if standingRefusals.isEmpty == false {
+            return .declined
+        }
+
+        // 4. The most recent word that implies anything, the venue's own first.
+        let implications = rows.compactMap(implication(of:))
+        if let latest = implications.max(by: { left, right in
+            if left.isVenuesOwnWord != right.isVenuesOwnWord {
+                return right.isVenuesOwnWord
+            }
+            return left.at < right.at
+        }) {
+            return latest.state
+        }
+
+        // 5. Shown, and nothing said.
+        return .pitched
+    }
+}
+
+// MARK: - Whether one report is written at all
+
+/// Everything the write rules need to decide, gathered in one place.
+///
+/// This used to decide where the venue moved as well, from a snapshot each row kept
+/// of what its own answer displaced. It no longer does: ``VenueAwarenessFold``
+/// computes the venue's state from every row as it stands, so the only question
+/// left here is whether THIS report replaces what THIS row already says.
+///
+/// What that deletes is the point. There is no displaced snapshot, no record of
+/// which row owns the state, no fact about whether another row holds a refusal, and
+/// no separate notion of a withdrawal: taking an answer back writes `skipped` over
+/// it like any other answer, and the fold reads the rows again.
 public struct VenueOutcomeContext: Equatable, Sendable {
 
     /// What is being reported now.
@@ -1338,53 +1503,16 @@ public struct VenueOutcomeContext: Equatable, Sendable {
     /// Which surface that existing answer came from.
     public let existingSource: VenueOutcomeSource?
 
-    /// Where the venue is now.
-    public let venueState: VenueAwarenessState
-
-    /// What this row's own verdict displaced when it moved the venue, if it did.
-    public let displacedByThisRow: VenueAwarenessState?
-
-    /// Whether this row's verdict is the latest word on the venue's state.
-    public let thisRowOwnsTheState: Bool
-
-    /// Whether some OTHER introduction at this venue still carries a refusal that
-    /// has not been taken back and is still inside the freeze it bought.
-    ///
-    /// The case it was written for is two people in one greet: each gets a card, so
-    /// two rows can describe the same thirty seconds at the same counter, and
-    /// without this fact `decide` sees only the row in front of it and a softer
-    /// answer from the person standing further back lifts the venue out of
-    /// `.declined`. The table's job is to answer "where does THIS outcome put the
-    /// venue", and it was being asked to answer "where does this venue stand".
-    ///
-    /// It is NOT scoped to the greet, and the wording around it used to say it was,
-    /// which an eighth review pass caught. Venue-wide is the semantics that is
-    /// actually right: a refusal from a different party a fortnight ago is still a
-    /// refusal this venue made, and inside its ninety days it should still hold. So
-    /// the scope stayed and the sentences changed, because the sentences were the
-    /// thing that was false. A reader retracting their own answer used to be told
-    /// somebody on "this same introduction" had refused, when it may have been a
-    /// different customer on a different night.
-    public let anotherRowHoldsARefusal: Bool
-
     public init(
         reported: VenuePitchOutcome,
         source: VenueOutcomeSource,
         existing: VenuePitchOutcome?,
-        existingSource: VenueOutcomeSource?,
-        venueState: VenueAwarenessState,
-        displacedByThisRow: VenueAwarenessState?,
-        thisRowOwnsTheState: Bool,
-        anotherRowHoldsARefusal: Bool
+        existingSource: VenueOutcomeSource?
     ) {
         self.reported = reported
         self.source = source
         self.existing = existing
         self.existingSource = existingSource
-        self.venueState = venueState
-        self.displacedByThisRow = displacedByThisRow
-        self.thisRowOwnsTheState = thisRowOwnsTheState
-        self.anotherRowHoldsARefusal = anotherRowHoldsARefusal
     }
 }
 
@@ -1405,27 +1533,6 @@ public struct VenueOutcomeDecision: Equatable, Sendable {
     /// Whether the row's answer is replaced.
     public let writesTheAnswer: Bool
 
-    /// Where the venue ends up. Equal to the current state when nothing moves.
-    public let nextState: VenueAwarenessState
-
-    /// Whether this row's verdict becomes the latest word on the venue's state.
-    ///
-    /// True whenever the venue moves, and ALSO when it does not move but this row
-    /// was not already the one that spoke last. That second half is the one that
-    /// was missing. Two people in one greet both get a card, and `notReceptive`
-    /// yields `.declined` from anywhere, so the second refusal moves nothing while
-    /// still being the most recent word. A row that takes the word back this way
-    /// has to refresh what it displaced, or it keeps a record of a state from an
-    /// older verdict and a later withdrawal restores the wrong one.
-    ///
-    /// The service reads this for both purposes, which is the point of it being one
-    /// value: ownership and the displaced record are the same decision and drifted
-    /// apart when they were two.
-    public let claimsTheState: Bool
-
-    /// Whether this report retracts this row's own earlier verdict.
-    public let isWithdrawal: Bool
-
     /// Why, in one sentence, for a log line and for a reader.
     public let reason: String
 }
@@ -1434,31 +1541,25 @@ public enum VenueOutcomeAuthority {
 
     /// Decides one report, from stated facts, with no database and no side effects.
     ///
-    /// The order of these rules is the whole of the policy, so it is written as one
-    /// sequence rather than as separate guards:
+    /// Three rules, in this order:
     ///
-    /// 1. The venue's own word outranks both customer surfaces, in both directions.
-    /// 2. A venue that has joined is not moved by a customer's report at all.
-    /// 3. A surface may correct itself; a card may overrule a rating screen.
-    /// 4. A `skipped` that replaces this row's own verdict, while that verdict is
-    ///    still the latest word, is a withdrawal and restores what it displaced.
-    /// 5. Otherwise the transition table decides.
-    ///
-    /// Rules 4 and 5 are both held back by one further fact: a refusal standing on
-    /// another row at this venue is never lifted by a softer answer from this one.
-    /// See ``standingRefusalHolds(_:against:)`` for why that is a rule about two
-    /// people in one greet rather than a rule about states.
+    /// 1. The venue's own word is not overwritten by a customer's guess about it.
+    /// 2. A surface may correct itself.
+    /// 3. A card outranks a rating screen, because the card is answered at the
+    ///    counter and the rating screen is answered from memory hours later.
     public static func decide(_ context: VenueOutcomeContext) -> VenueOutcomeDecision {
-        let hasAnswer = context.existing != nil
-        let venueHasSpoken = context.existingSource == .venueBranch
+        guard let existing = context.existing else {
+            return VenueOutcomeDecision(
+                writesTheAnswer: true,
+                reason: "Nothing was reported for this introduction before, so this is what it says."
+            )
+        }
+        _ = existing
 
-        // 1. The venue's own refusal is not overwritten by a customer.
-        if venueHasSpoken, context.source != .venueBranch {
+        // 1. The venue answered for itself.
+        if context.existingSource == .venueBranch, context.source != .venueBranch {
             return VenueOutcomeDecision(
                 writesTheAnswer: false,
-                nextState: context.venueState,
-                claimsTheState: false,
-                isWithdrawal: false,
                 reason: """
                 The venue answered for itself on this introduction, and a customer \
                 reporting how the counter reacted is a guess about somebody else.
@@ -1466,15 +1567,18 @@ public enum VenueOutcomeAuthority {
             )
         }
 
+        // 2 and 3. A surface corrects itself, and a card outranks a rating screen.
+        //
+        // The self-correction clause is what makes a withdrawal work from the
+        // rating screen. The chip there is only ever offered when the card went
+        // unanswered, so the first tap writes with `ratingScreen` and taking it
+        // back is necessarily the second report from that same surface. Without
+        // this the withdrawal was a no-op that answered 200, and the customer
+        // watched an answer they had retracted go on buying the venue a freeze.
         let sameSurface = context.existingSource == context.source
-        let writes = hasAnswer == false || context.source == .card || sameSurface
-
-        guard writes else {
+        guard context.source == .card || sameSurface else {
             return VenueOutcomeDecision(
                 writesTheAnswer: false,
-                nextState: context.venueState,
-                claimsTheState: false,
-                isWithdrawal: false,
                 reason: """
                 This introduction already carries an answer from a surface this one \
                 does not outrank, so it is left as it is.
@@ -1482,231 +1586,9 @@ public enum VenueOutcomeAuthority {
             )
         }
 
-        // 2. A venue holding a live referral code is not declined by a customer.
-        if context.venueState == .engaged {
-            return VenueOutcomeDecision(
-                writesTheAnswer: true,
-                nextState: .engaged,
-                claimsTheState: false,
-                isWithdrawal: false,
-                reason: """
-                This venue has a code of its own, so what a customer reports is \
-                recorded and does not move it. Asking to be left alone is the \
-                venue's to do, from its own screen.
-                """
-            )
-        }
-
-        // 4. A withdrawal of this row's own standing verdict.
-        //
-        // Not conditioned on this row still owning the state. Taking back what you
-        // said is a fact about your own answer, and somebody else having spoken
-        // since does not turn it into something else.
-        //
-        // It used to require ownership, and that was harmless right up until the
-        // standing-refusal hold was added, at which point it inverted. An eighth
-        // review pass walked it: A refuses and owns the state; B, the other person
-        // in the same greet, answers `receptive`, which the hold clamps to
-        // `declined` while B takes ownership; A then taps their chip again to take
-        // the refusal back, and because A no longer owns, it is not a withdrawal at
-        // all. Rule 5 gives `declined` from `declined`, the hold no longer fires
-        // because B's row reads `receptive`, and the venue sits frozen for ninety
-        // days with NO row on record as having refused it. Reorder the same three
-        // taps and it is seven. The client shows a cleared chip and a 200 either
-        // way.
-        //
-        // What a withdrawal restores is still not this row's to decide alone: the
-        // hold below is what stops it lifting somebody else's refusal, and that is
-        // the right place for that question rather than here.
-        let isWithdrawal = context.reported == .skipped
-            && hasAnswer
-            && context.displacedByThisRow != nil
-
-        // Ownership does not gate the restore either, and the reasoning is worth
-        // keeping because this clause has now been argued in both directions.
-        //
-        // It was added back after `testAWithdrawalOnOneRowDoesNotCancelTheVenuesRefusalOnAnother`
-        // failed without it. That test's fixture did not model the product: it
-        // created a row with no outcome and handed ownership to it, while
-        // `VenueScanHandlers.venueIntroductionDecline` writes `notReceptive` on the
-        // row and passes `setBy: nil`. Written the product's way, the standing
-        // refusal hold below catches that withdrawal with no ownership check at
-        // all, so the clause was never what protected that case.
-        //
-        // With ownership, the first finding this file was fixed for comes back: A
-        // refuses, B's warmer answer is clamped to `declined` and takes ownership,
-        // A retracts and, not owning, moves nothing, so the venue holds `declined`
-        // with no refusal on record. Ninety days. Reverse the same three taps and
-        // it is seven.
-        //
-        // Without it there is a residue, and it is the smaller one: A `receptive`
-        // then B `alreadyKnew` then A withdrawing restores `pitched` over the
-        // `aware` B is standing behind. The stored label is wrong and the freeze is
-        // not, because the cooldown reads the last reported outcome rather than the
-        // state on that path. A wrong label costs a reader; a wrong freeze costs a
-        // venue three months or gives one away.
-        //
-        // Neither setting is right for both sequences, which is the argument for
-        // replacing the frozen `displacedByThisRow` snapshot with a state computed
-        // from the rows as they stand. That design is reviewed in
-        // `ADVERSARY_REPORT_VENUE_8_INDEPENDENT.md` and is not this change.
-        // A withdrawal restores only while this row is still the one that moved the
-        // venue. Both ends of this dial are wrong, in different sequences, and this
-        // end is the one that keeps two documented properties rather than one.
-        //
-        // Dropping it loses both of these, each of which has a test that says why:
-        // a scan sets `aware` with `setBy: nil` and a customer's later withdrawal
-        // would restore `pitched` over it, which is
-        // `testAWithdrawalDoesNotEraseAScanThatHappened`, "a customer cannot unsay
-        // that"; and a second row's `alreadyKnew` would be overwritten by the first
-        // row's restore. Both are wrong LABELS with the freeze unchanged.
-        //
-        // Keeping it loses a FREEZE: A refuses, B's warmer answer is clamped to
-        // `declined` and takes the word, A retracts and, not owning, moves nothing,
-        // so the venue holds `declined` with no row on record as having refused it.
-        // Ninety days one way and seven the other, from the same three taps. That
-        // is pinned as a known failing test rather than hidden, because a defect
-        // with a test is a defect somebody can finish.
-        //
-        // No setting is right for both, which is not an argument for either. It is
-        // the argument for computing the state from the rows as they stand instead
-        // of restoring a snapshot taken when one of them was written. That design
-        // is reviewed in `ADVERSARY_REPORT_VENUE_8_INDEPENDENT.md`.
-        if isWithdrawal, context.thisRowOwnsTheState == false {
-            let held = standingRefusalHolds(context, against: context.venueState)
-            return VenueOutcomeDecision(
-                writesTheAnswer: true,
-                nextState: held ? .declined : context.venueState,
-                claimsTheState: false,
-                isWithdrawal: true,
-                reason: held
-                    ? """
-                    This answer has been taken back, and somebody else is still on \
-                    record as having been told no at this venue recently enough for \
-                    it to stand, so the venue stays declined.
-                    """
-                    : """
-                    This answer has been taken back. Somebody else has spoken for \
-                    this venue since, so where it stands is theirs rather than this \
-                    one's to put back.
-                    """
-            )
-        }
-
-        if isWithdrawal, let displaced = context.displacedByThisRow {
-            if standingRefusalHolds(context, against: displaced) {
-                return VenueOutcomeDecision(
-                    writesTheAnswer: true,
-                    nextState: .declined,
-                    claimsTheState: false,
-                    isWithdrawal: true,
-                    reason: """
-                    This answer has been taken back, and somebody else is still on \
-                    record as having been told no at this venue recently enough for \
-                    it to stand, so the venue stays declined.
-                    """
-                )
-            }
-            let allowed = VenueAwarenessTransition
-                .verdict(from: context.venueState, to: displaced)
-                .isAllowed
-            return VenueOutcomeDecision(
-                writesTheAnswer: true,
-                nextState: allowed ? displaced : context.venueState,
-                claimsTheState: false,
-                isWithdrawal: true,
-                reason: allowed
-                    ? "The answer that moved this venue has been taken back, so what it displaced goes back."
-                    : "The answer has been taken back, and the venue has moved on since, so its state stays where it is."
-            )
-        }
-
-        // 5. The table decides, unless doing so would lift somebody else's refusal.
-        let next = VenueAwarenessTransition.state(after: context.reported, from: context.venueState)
-
-        if standingRefusalHolds(context, against: next) {
-            return VenueOutcomeDecision(
-                writesTheAnswer: true,
-                nextState: .declined,
-                // Held, not exempted. Ownership is decided by the one rule it is
-                // decided by everywhere else, so the row still refreshes what it
-                // displaced when it takes the word from another row. Splitting
-                // ownership off into a second rule here is what the seventh review
-                // pass found the last time these were two decisions.
-                claimsTheState: .declined != context.venueState
-                    || context.thisRowOwnsTheState == false,
-                isWithdrawal: false,
-                reason: """
-                Recorded. Somebody else was told no at this venue recently enough \
-                that the refusal is still standing, and a warmer read does not take \
-                somebody else's no back.
-                """
-            )
-        }
-
         return VenueOutcomeDecision(
             writesTheAnswer: true,
-            nextState: next,
-            claimsTheState: next != context.venueState || context.thisRowOwnsTheState == false,
-            isWithdrawal: false,
-            reason: "Recorded, and the venue's state follows from it."
+            reason: "Recorded, and where the venue stands is read back from every introduction it has had."
         )
-    }
-
-    /// Whether another row's unwithdrawn refusal has to hold the venue at
-    /// `.declined` rather than let `proposed` through.
-    ///
-    /// One greet sends two people to one venue and both are prompted, which the
-    /// operator's acceptance path requires. So two rows can describe one thirty
-    /// second exchange with one bartender. Person A, at the counter, reports
-    /// `notReceptive`. Person B, three steps back, honestly reports `receptive`
-    /// about the same exchange. `state(after: .receptive, from: .declined)` is
-    /// `.aware`, the transition table allows `(declined, aware)`, and the venue is
-    /// no longer declined. The cooldown's refusal rule keys on the state, so it
-    /// stops firing, and the freeze then runs off whichever of the two cards was
-    /// opened second, which is fourteen days rather than ninety and has nothing to
-    /// do with who was refused. Reverse the order the two answers arrive in and the
-    /// venue stays declined for ninety, so the same two answers produce a thirteen
-    /// fold difference in the freeze depending on arrival order.
-    ///
-    /// The stated principle for the one pair the table decides in this direction is
-    /// that losing a no is far more expensive than an out-of-order write, and this
-    /// is the path that loses one. The answer is still written to the row, so the
-    /// funnel keeps both people's reports and the venue's report page still shows
-    /// what each of them said. Only the state is held.
-    ///
-    /// The venue's own word through its App Clip is exempt, because a venue saying
-    /// for itself that it is interested outranks a customer's read of a counter,
-    /// which is rule 1 of the policy above.
-    ///
-    /// This used to require the venue to be `.declined` right now, and that
-    /// precondition ANDed away the very fact it was guarding. An adversarial pass
-    /// found the route: `recordCardShown` moves a venue from `.declined` back to
-    /// `.pitched` whenever a card is authorised, so if the second person's card is
-    /// shown AFTER the first person's refusal, which is an ordinary ordering rather
-    /// than a rare one, the state is `.pitched` when the softer answer arrives and
-    /// the guard does not fire. The venue reaches `.aware`, the freeze runs off the
-    /// warmer answer, and the refusal is lost exactly as before.
-    ///
-    /// The fix is to guard on the fact rather than on the state. A refusal that
-    /// nobody withdrew stands whatever the state currently reads, and the state is
-    /// the thing being corrected, so it cannot also be the precondition. Every
-    /// transition into `.declined` is allowed by the table, from `unaware`,
-    /// `pitched` and `aware` alike, so clamping is always a move the table permits.
-    /// `.engaged` never reaches here: rule 2 returns before it.
-    private static func standingRefusalHolds(
-        _ context: VenueOutcomeContext,
-        against proposed: VenueAwarenessState
-    ) -> Bool {
-        context.anotherRowHoldsARefusal
-            && context.source != .venueBranch
-            && proposed != .declined
-            // `engaged` is not a read of a counter, it is the fact that somebody
-            // there generated a code, and rule 2 already says a venue holding one
-            // is not moved by a customer's report. So a refusal holds a venue at
-            // declined against a warmer READING of the same conversation, and does
-            // not erase a code that exists. Reached when a row whose own verdict
-            // displaced `engaged` withdraws it while another row's refusal stands.
-            && proposed != .engaged
     }
 }
