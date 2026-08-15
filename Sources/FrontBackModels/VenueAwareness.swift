@@ -1522,40 +1522,34 @@ public enum VenueOutcomeAuthority {
             && hasAnswer
             && context.displacedByThisRow != nil
 
-        // A withdrawal by a row that no longer owns the state retracts its own
-        // answer and moves nothing.
+        // Ownership does not gate the restore either, and the reasoning is worth
+        // keeping because this clause has now been argued in both directions.
         //
-        // Separating the classification from the restore is the whole of this.
-        // Requiring ownership to COUNT as a withdrawal is what produced the ninety
-        // against seven divergence. Requiring it to RESTORE is correct and was
-        // doing real work: `testAWithdrawalOnOneRowDoesNotCancelTheVenuesRefusalOnAnother`
-        // fails without it, because a customer taking their own answer back would
-        // otherwise put the venue back where THEY had left it, over the top of a
-        // state somebody else set since. What this row displaced is only a fact
-        // about the venue while this row is still the one that moved it.
-        if isWithdrawal, context.thisRowOwnsTheState == false {
-            // Unless a refusal is standing, in which case the state says so
-            // whatever it currently reads. Same rule as everywhere else here.
-            let held = standingRefusalHolds(context, against: context.venueState)
-            return VenueOutcomeDecision(
-                writesTheAnswer: true,
-                nextState: held ? .declined : context.venueState,
-                claimsTheState: false,
-                isWithdrawal: true,
-                reason: held
-                    ? """
-                    This answer has been taken back, and somebody else is still on \
-                    record as having been told no at this venue recently enough for \
-                    it to stand, so the venue stays declined.
-                    """
-                    : """
-                    This answer has been taken back. Somebody else has spoken for \
-                    this venue since, so where it stands is theirs rather than this \
-                    one's to put back.
-                    """
-            )
-        }
-
+        // It was added back after `testAWithdrawalOnOneRowDoesNotCancelTheVenuesRefusalOnAnother`
+        // failed without it. That test's fixture did not model the product: it
+        // created a row with no outcome and handed ownership to it, while
+        // `VenueScanHandlers.venueIntroductionDecline` writes `notReceptive` on the
+        // row and passes `setBy: nil`. Written the product's way, the standing
+        // refusal hold below catches that withdrawal with no ownership check at
+        // all, so the clause was never what protected that case.
+        //
+        // With ownership, the first finding this file was fixed for comes back: A
+        // refuses, B's warmer answer is clamped to `declined` and takes ownership,
+        // A retracts and, not owning, moves nothing, so the venue holds `declined`
+        // with no refusal on record. Ninety days. Reverse the same three taps and
+        // it is seven.
+        //
+        // Without it there is a residue, and it is the smaller one: A `receptive`
+        // then B `alreadyKnew` then A withdrawing restores `pitched` over the
+        // `aware` B is standing behind. The stored label is wrong and the freeze is
+        // not, because the cooldown reads the last reported outcome rather than the
+        // state on that path. A wrong label costs a reader; a wrong freeze costs a
+        // venue three months or gives one away.
+        //
+        // Neither setting is right for both sequences, which is the argument for
+        // replacing the frozen `displacedByThisRow` snapshot with a state computed
+        // from the rows as they stand. That design is reviewed in
+        // `ADVERSARY_REPORT_VENUE_8_INDEPENDENT.md` and is not this change.
         if isWithdrawal, let displaced = context.displacedByThisRow {
             if standingRefusalHolds(context, against: displaced) {
                 return VenueOutcomeDecision(

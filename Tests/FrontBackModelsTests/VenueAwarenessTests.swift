@@ -797,11 +797,10 @@ final class VenueOutcomeAuthorityTests: XCTestCase {
             "The row stops reading as a refusal, so nothing later mistakes it for one"
         )
         XCTAssertEqual(
-            decision.nextState, .declined,
+            decision.nextState, .pitched,
             """
-            The residual, asserted so it is visible rather than assumed: the venue \
-            stays where its current owner left it. See this test's doc comment for \
-            why putting it back where THIS row left it is not the fix.
+            Nothing is left holding this venue at declined, so a venue nobody is on \
+            record as having refused must not carry the ninety day freeze
             """
         )
     }
@@ -815,17 +814,6 @@ final class VenueOutcomeAuthorityTests: XCTestCase {
             let decision = VenueOutcomeAuthority.decide(context)
             guard decision.isWithdrawal, let displaced = context.displacedByThisRow else { continue }
 
-            // A withdrawal by a row that no longer owns the state retracts the
-            // answer and moves nothing, because what this row displaced stopped
-            // being a fact about the venue the moment somebody else moved it.
-            guard context.thisRowOwnsTheState else {
-                let held = context.anotherRowHoldsARefusal
-                    && context.source != .venueBranch
-                    && context.venueState != .declined
-                    && context.venueState != .engaged
-                XCTAssertEqual(decision.nextState, held ? .declined : context.venueState)
-                continue
-            }
 
             // Unless another row's refusal is still standing, in which case the
             // venue stays declined and this row's displaced record buys nothing.
@@ -1005,6 +993,41 @@ extension VenueOutcomeAuthorityTests {
         )
         XCTAssertEqual(decision.nextState, .declined)
         XCTAssertTrue(decision.isWithdrawal)
+    }
+
+    /// The residue of NOT gating the restore on ownership, asserted so it is a
+    /// known cost rather than a surprise.
+    ///
+    /// A says `receptive`, so the venue is `aware` and A's row displaced `pitched`.
+    /// B says `alreadyKnew`, which moves nothing but takes the word. A then
+    /// withdraws, and restores `pitched` over the `aware` B is standing behind.
+    ///
+    /// The label is wrong and the freeze is not: on this path the cooldown reads
+    /// the last reported outcome, which is still B's `alreadyKnew`, so the venue
+    /// waits the same month either way. That is why this end of the dial is the one
+    /// to be on. The other end costs ninety days against seven on a venue nobody is
+    /// on record as having refused.
+    ///
+    /// It goes away entirely under the recompute design, because there is no
+    /// snapshot to restore.
+    func testAWithdrawalCanRestoreALabelAnotherRowHasSinceMovedPast() {
+        let decision = VenueOutcomeAuthority.decide(
+            VenueOutcomeContext(
+                reported: .skipped,
+                source: .card,
+                existing: .receptive,
+                existingSource: .card,
+                venueState: .aware,
+                displacedByThisRow: .pitched,
+                thisRowOwnsTheState: false,
+                anotherRowHoldsARefusal: false
+            )
+        )
+        XCTAssertTrue(decision.isWithdrawal)
+        XCTAssertEqual(
+            decision.nextState, .pitched,
+            "Known and accepted: the stored label goes back, and the freeze does not follow it"
+        )
     }
 
     /// Whatever else it does, holding the state never produces a transition the
