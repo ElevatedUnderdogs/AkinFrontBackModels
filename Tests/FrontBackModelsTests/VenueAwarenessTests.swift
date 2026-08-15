@@ -975,3 +975,70 @@ final class VenueAwarenessFoldTests: XCTestCase {
         }
     }
 }
+
+/// The freeze a refusal buys, timed from the refusal.
+///
+/// Found by an adversarial pass reading the source. The declined branch used to
+/// time its ninety days from the last pitch, and every lookup that produces that
+/// value excludes the greet being asked about, because a greet's own two rows
+/// must not suppress each other. Two sequences fell out of that and both are here.
+final class VenueRefusalFreezeTests: XCTestCase {
+
+    private let now = Date(timeIntervalSince1970: 1_780_000_000)
+
+    private func context(lastPitchAt: Date?, lastRefusalAt: Date?) -> VenuePitchContext {
+        VenuePitchContext(
+            state: .declined,
+            lastOutcome: .notReceptive,
+            pitchCountInWindow: 1,
+            shiftBucket: .evening,
+            lastPitchShiftBucket: .morning,
+            lastPitchAt: lastPitchAt,
+            lastRefusalAt: lastRefusalAt,
+            now: now
+        )
+    }
+
+    /// The other person in the same meet, minutes later. Their own greet's rows
+    /// are excluded from `lastPitchAt`, so there was nothing left to time from.
+    func testTheOtherPersonInTheSameMeetIsNotAskedMinutesAfterARefusal() {
+        let verdict = VenueCooldownPolicy.evaluate(
+            context(lastPitchAt: nil, lastRefusalAt: now.addingTimeInterval(-120))
+        )
+        XCTAssertFalse(verdict.isEligible)
+        XCTAssertEqual(
+            verdict.isEligible, false,
+            "A refusal two minutes old is the newest fact about this venue"
+        )
+    }
+
+    /// A venue whose last OTHER introduction was three months ago, refused today.
+    func testAnOldPitchElsewhereDoesNotAgeOutARefusalMadeToday() {
+        let verdict = VenueCooldownPolicy.evaluate(
+            context(
+                lastPitchAt: now.addingTimeInterval(-VenueCooldownPolicy.declinedFreeze - 86_400),
+                lastRefusalAt: now.addingTimeInterval(-3600)
+            )
+        )
+        XCTAssertFalse(verdict.isEligible)
+    }
+
+    /// And the freeze still ends, on the refusal's own clock.
+    func testARefusalPastItsNinetyDaysStopsSuppressing() {
+        let verdict = VenueCooldownPolicy.evaluate(
+            context(
+                lastPitchAt: now.addingTimeInterval(-3600),
+                lastRefusalAt: now.addingTimeInterval(-VenueCooldownPolicy.declinedFreeze - 86_400)
+            )
+        )
+        XCTAssertTrue(verdict.isEligible)
+    }
+
+    /// With no refusal recorded, the old behaviour stands rather than throwing the
+    /// venue open: a state of `declined` with no date at all stays suppressed.
+    func testNoRefusalDateAndNoPitchDateStaysSuppressed() {
+        XCTAssertFalse(
+            VenueCooldownPolicy.evaluate(context(lastPitchAt: nil, lastRefusalAt: nil)).isEligible
+        )
+    }
+}

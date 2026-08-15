@@ -391,6 +391,18 @@ public struct VenuePitchContext: Equatable, Sendable {
     /// When the most recent pitch happened, or nil when there has been none.
     public let lastPitchAt: Date?
 
+    /// When this venue was most recently told no, over every introduction it has
+    /// had, or nil when nobody has refused it.
+    ///
+    /// Separate from `lastPitchAt`, and the separation is the point. The declined
+    /// branch used to time the ninety days from the last pitch, and every lookup
+    /// feeding that value excludes the greet being asked about, because a greet's
+    /// own two rows must not suppress each other. So the second person in the same
+    /// meet was handed an eligible verdict minutes after the first was told no,
+    /// and a venue whose last OTHER introduction was three months ago was eligible
+    /// on the day it refused. An adversarial pass walked both sequences.
+    public let lastRefusalAt: Date?
+
     /// The moment being tested.
     public let now: Date
 
@@ -401,6 +413,7 @@ public struct VenuePitchContext: Equatable, Sendable {
         shiftBucket: VenueShiftBucket,
         lastPitchShiftBucket: VenueShiftBucket?,
         lastPitchAt: Date?,
+        lastRefusalAt: Date? = nil,
         now: Date
     ) {
         self.state = state
@@ -409,6 +422,7 @@ public struct VenuePitchContext: Equatable, Sendable {
         self.shiftBucket = shiftBucket
         self.lastPitchShiftBucket = lastPitchShiftBucket
         self.lastPitchAt = lastPitchAt
+        self.lastRefusalAt = lastRefusalAt
         self.now = now
     }
 }
@@ -483,8 +497,20 @@ public enum VenueCooldownPolicy {
         }
 
         // 2. A refusal is honoured for a long time, and the reason says until when.
+        //
+        // Timed from the refusal, not from the last pitch.
+        //
+        // It used to be `lastPitchAt`, and every lookup that produces that value
+        // excludes the greet being asked about, because a greet's own two rows
+        // must not suppress each other. So a refusal was defeated within minutes
+        // by the other person in the same meet, who was handed an eligible verdict
+        // and asked to walk up to the same counter; and a venue whose last other
+        // introduction happened to be ninety days ago was eligible on the day it
+        // said no. An adversarial pass walked both. `lastRefusalAt` is over every
+        // introduction the venue has had, this greet included, because a refusal
+        // is a fact about the venue rather than about one card.
         if context.state == .declined {
-            guard let lastPitchAt = context.lastPitchAt else {
+            guard let refusedAt = context.lastRefusalAt ?? context.lastPitchAt else {
                 return .suppressed(
                     reason: """
                     This venue is on record as having declined, and no date was \
@@ -494,11 +520,11 @@ public enum VenueCooldownPolicy {
                 )
             }
 
-            let freezeEnds = lastPitchAt.addingTimeInterval(declinedFreeze)
+            let freezeEnds = refusedAt.addingTimeInterval(declinedFreeze)
             if context.now < freezeEnds {
                 return .suppressed(
                     reason: """
-                    This venue said no on \(Self.dayString(lastPitchAt)). It is not \
+                    This venue said no on \(Self.dayString(refusedAt)). It is not \
                     asked again until \(Self.dayString(freezeEnds)).
                     """
                 )
