@@ -1424,13 +1424,23 @@ public enum VenueAwarenessFold {
 
     /// Whether this row carries a refusal that nobody took back and that is still
     /// inside the freeze it bought.
+    ///
+    /// Timed from `shownAt` rather than from when the answer was reported, because
+    /// that is the clock ``VenueCooldownPolicy`` times the same ninety days on. Two
+    /// clocks for one freeze is a venue that the cooldown will offer again while
+    /// this still reads it as declined, or the other way round, and which of the two
+    /// a reader gets would depend on how long the customer took to answer.
+    ///
+    /// Ordering, in term four, uses the reporting instant instead. That is a
+    /// different question: which of two answers is the venue's latest word, rather
+    /// than how long ago the introduction it belongs to happened.
     static func holdsAStandingRefusal(
         _ row: VenuePitchStanding,
         now: Date,
         freeze: TimeInterval
     ) -> Bool {
         guard row.outcome == .notReceptive else { return false }
-        return row.spokeAt >= now.addingTimeInterval(-freeze)
+        return row.shownAt >= now.addingTimeInterval(-freeze)
     }
 
     /// Where the venue stands, given every introduction it has had.
@@ -1445,14 +1455,30 @@ public enum VenueAwarenessFold {
             holdsAStandingRefusal($0, now: now, freeze: declinedFreeze)
         }
 
-        // 1. The venue's own no, which outranks a code it made earlier.
-        if standingRefusals.contains(where: { $0.source == .venueBranch }) {
-            return .declined
-        }
+        // 1 and 2. The venue's own two acts, in the order it made them.
+        //
+        // A venue that asked to be left alone after making a code is declined: the
+        // later instruction is the one it gave. A venue that made a code after
+        // refusing has changed its mind in the other direction, and dragging it back
+        // to declined would freeze somebody who is now running the thing.
+        //
+        // Ordering rather than ranking, because the same two facts in the two orders
+        // are two different stories, and a rank can only tell one of them.
+        let venuesOwnRefusal = standingRefusals
+            .filter { $0.source == .venueBranch }
+            .map(\.spokeAt)
+            .max()
+        let joinedAt = rows.compactMap(\.venueJoinedAt).max()
 
-        // 2. A code exists.
-        if rows.contains(where: { $0.venueJoinedAt != nil }) {
+        switch (venuesOwnRefusal, joinedAt) {
+        case (.some(let refused), .some(let joined)):
+            return refused >= joined ? .declined : .engaged
+        case (.some, .none):
+            return .declined
+        case (.none, .some):
             return .engaged
+        case (.none, .none):
+            break
         }
 
         // 3. Somebody there was told no, and said so through a customer.

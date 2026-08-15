@@ -827,11 +827,38 @@ final class VenueAwarenessFoldTests: XCTestCase {
         XCTAssertEqual(state([row(joined: true), row(.notReceptive)]), .engaged)
     }
 
-    /// The venue asking to be left alone outranks a code it made earlier.
-    func testTheVenuesOwnRefusalOutranksItsOwnCode() {
+    /// The venue asking to be left alone after making a code is declined.
+    func testTheVenuesOwnRefusalAfterItsCodeDeclinesIt() {
         XCTAssertEqual(
             state([row(secondsAgo: 600, joined: true), row(.notReceptive, source: .venueBranch)]),
             .declined
+        )
+    }
+
+    /// And a venue that made a code after refusing has changed its mind the other
+    /// way, so it is not dragged back to declined.
+    func testAVenueThatJoinsAfterRefusingIsEngaged() {
+        XCTAssertEqual(
+            state([row(.notReceptive, source: .venueBranch, secondsAgo: 600), row(secondsAgo: 10, joined: true)]),
+            .engaged
+        )
+    }
+
+    /// A refusal is timed from the introduction it belongs to, on the same clock the
+    /// cooldown times its ninety days on.
+    func testARefusalAgesOnTheSameClockTheCooldownUses() {
+        let stale = VenueCooldownPolicy.declinedFreeze + 86_400
+        let answeredJustNow = VenuePitchStanding(
+            outcome: .notReceptive,
+            source: .card,
+            outcomeReportedAt: now,
+            shownAt: now.addingTimeInterval(-stale),
+            venueScannedAt: nil,
+            venueJoinedAt: nil
+        )
+        XCTAssertEqual(
+            state([answeredJustNow]), .pitched,
+            "The introduction is a hundred days old, so the freeze it bought has run out"
         )
     }
 
