@@ -1042,3 +1042,47 @@ final class VenueRefusalFreezeTests: XCTestCase {
         )
     }
 }
+
+extension VenueAwarenessFoldTests {
+
+    /// The venue's own no is aged from when the venue said it, not from when the
+    /// card it arrived on was shown.
+    ///
+    /// The App Clip is reached by scanning a code with no age bound, so a venue
+    /// tapping "we are not interested" on a code printed three months ago was told
+    /// nobody would be shown this again for ninety days, and the refusal was
+    /// dropped on the spot for being older than the card. An adversarial pass
+    /// constructed it.
+    func testTheVenuesOwnRefusalIsAgedFromWhenTheVenueSaidIt() {
+        let old = VenueCooldownPolicy.declinedFreeze + 86_400
+        let refusedToday = VenuePitchStanding(
+            outcome: .notReceptive,
+            source: .venueBranch,
+            outcomeReportedAt: now.addingTimeInterval(-3600),
+            shownAt: now.addingTimeInterval(-old),
+            venueScannedAt: now.addingTimeInterval(-3600),
+            venueJoinedAt: nil
+        )
+        XCTAssertEqual(
+            VenueAwarenessFold.state(of: [refusedToday], now: now), .declined,
+            "The venue said no an hour ago on a code printed three months ago"
+        )
+    }
+
+    /// And a customer's report is still aged from the exchange it describes, which
+    /// is the clock the cooldown uses.
+    func testACustomersRefusalIsStillAgedFromTheIntroduction() {
+        let old = VenueCooldownPolicy.declinedFreeze + 86_400
+        let staleCustomerReport = VenuePitchStanding(
+            outcome: .notReceptive,
+            source: .card,
+            outcomeReportedAt: now.addingTimeInterval(-3600),
+            shownAt: now.addingTimeInterval(-old),
+            venueScannedAt: nil,
+            venueJoinedAt: nil
+        )
+        XCTAssertEqual(
+            VenueAwarenessFold.state(of: [staleCustomerReport], now: now), .pitched
+        )
+    }
+}

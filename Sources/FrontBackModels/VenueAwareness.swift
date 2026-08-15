@@ -1466,7 +1466,20 @@ public enum VenueAwarenessFold {
         freeze: TimeInterval
     ) -> Bool {
         guard row.outcome == .notReceptive else { return false }
-        return row.shownAt >= now.addingTimeInterval(-freeze)
+        // The venue's own no is aged from when the venue said it.
+        //
+        // A customer's report is aged from `shownAt`, which is when the exchange
+        // at the counter happened and the clock the cooldown times the same ninety
+        // days on. The venue's own refusal comes from the App Clip, which is
+        // reached by scanning a code that has no age bound at all, so a venue
+        // tapping "we are not interested" on a code printed three months ago was
+        // told "nobody will be shown this for your venue again for ninety days"
+        // and the refusal was dropped on the spot for being older than the card it
+        // arrived on. An adversarial pass constructed it. The venue's word is the
+        // one thing in this system that should never be discarded for arriving
+        // late.
+        let spokeAt = row.source == .venueBranch ? row.spokeAt : row.shownAt
+        return spokeAt >= now.addingTimeInterval(-freeze)
     }
 
     /// Where the venue stands, given every introduction it has had.
