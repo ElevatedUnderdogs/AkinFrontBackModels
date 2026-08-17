@@ -264,17 +264,6 @@ public enum VenueAwarenessTransition {
 /// `skipped` is a first class outcome rather than an absence, because a customer
 /// choosing not to introduce it is information about the moment, and because the
 /// card was still shown, which still spends the venue's pitch budget.
-/// The name this type used to carry.
-///
-/// Renamed by `VENUE_ASK_REWRITE_GOAL_LOOP.md` item 3.2, which requires that no
-/// production symbol in the venue introduction feature calls the errand a pitch.
-/// The decisions table of both loops says the same thing in prose: the reader asks
-/// whether somebody is familiar with the program, and never walks up to pitch.
-///
-/// The alias is kept so the server, which stores these on a `VenuePitch` row and
-/// in a `venue_pitches` table, keeps compiling without a schema change. The raw
-/// values are untouched by the rename, so nothing persisted moves.
-public typealias VenuePitchOutcome = VenueAskOutcome
 
 public enum VenueAskOutcome: String, Codable, Sendable, Hashable, CaseIterable {
 
@@ -300,6 +289,19 @@ public enum VenueAskOutcome: String, Codable, Sendable, Hashable, CaseIterable {
     /// The customer dismissed the card without introducing anything.
     case skipped
 }
+
+/// The name this type used to carry.
+///
+/// Renamed by `VENUE_ASK_REWRITE_GOAL_LOOP.md` item 3.2, which requires that no
+/// production symbol in the venue introduction feature calls the errand a pitch.
+/// The decisions table of both loops says the same thing in prose: the reader asks
+/// whether somebody is familiar with the program, and never walks up to pitch.
+///
+/// The alias is kept so the server, which stores these on a `VenuePitch` row and
+/// in a `venue_pitches` table, keeps compiling without a schema change. The raw
+/// values are untouched by the rename, so nothing persisted moves.
+public typealias VenuePitchOutcome = VenueAskOutcome
+
 
 // MARK: - Shift buckets
 
