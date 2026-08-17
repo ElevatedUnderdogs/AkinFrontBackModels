@@ -264,7 +264,6 @@ public enum VenueAwarenessTransition {
 /// `skipped` is a first class outcome rather than an absence, because a customer
 /// choosing not to introduce it is information about the moment, and because the
 /// card was still shown, which still spends the venue's pitch budget.
-
 public enum VenueAskOutcome: String, Codable, Sendable, Hashable, CaseIterable {
 
     /// The staff had not heard of it, and did not refuse.

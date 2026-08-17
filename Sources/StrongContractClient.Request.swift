@@ -833,7 +833,7 @@ public typealias GetBlockedUsersRequest = Request<Int, [GreetedUser]>
 extension GetBlockedUsersRequest {
     /// Returns a list of users that are blocked by this user.
     public static var getBlockedUsers: Self {
-        .init(method: .post) //  in mobile apps for paginated queries with input.
+        .init(method: .post) // POST, so the page number travels in the body.
     }
 }
 
@@ -842,7 +842,7 @@ public typealias GetGreetedUsersRequest = Request<Int, [ClientGreetingSettings]>
 extension GetGreetedUsersRequest {
     /// Returns a list of users that are blocked by this user.
     public static var getGreetedUsers: Self {
-        .init(method: .post) //  in mobile apps for paginated queries with input.
+        .init(method: .post) // POST, so the page number travels in the body.
     }
 }
 
@@ -944,21 +944,22 @@ extension NearbyUsersRequest {
 
 public typealias MakeChoiceRequest = Request<AnswerChoice, StandardPostResponse>
 extension MakeChoiceRequest {
-    /**
-     **Deprecates**:
-     ```
-     public static func make(
-         my: Question.Response.Selections.MyTheir.Choice?,
-         their: Question.Response.Selections.MyTheir.Choice?,
-         forResponseID: UUID,
-         forQuestionID: UUID,
-         forContext: Context
-     )
-     ```
-        This is intended for adding choices. For example, there might be a question: "Do you smoke cigarettes?"
-        If someone smokes but they want to quit and meet people that don't smoke, they might choose the option: "Yes"
-        And for the other person, they might choose "No" because they want to meet people that don't smoke.
-     */
+    /// Adds a choice to a question, for both sides of a pairing.
+    ///
+    /// **Deprecates**:
+    /// ```
+    /// public static func make(
+    ///     my: Question.Response.Selections.MyTheir.Choice?,
+    ///     their: Question.Response.Selections.MyTheir.Choice?,
+    ///     forResponseID: UUID,
+    ///     forQuestionID: UUID,
+    ///     forContext: Context
+    /// )
+    /// ```
+    ///
+    /// The two sides can differ. For "Do you smoke cigarettes?", somebody who smokes
+    /// but wants to quit might answer "Yes" for themselves and "No" for the person
+    /// they want to meet.
     public static var makeChoice: Self {
         .init(method: .post)
     }
