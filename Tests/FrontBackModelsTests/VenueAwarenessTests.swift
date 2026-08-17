@@ -180,7 +180,7 @@ final class VenueAwarenessTests: XCTestCase {
         }
     }
 
-    func testAnUnrecognisedTimeZoneThrowsRatherThanGuessing() {
+    func testAnUnrecognizedTimeZoneThrowsRatherThanGuessing() {
         XCTAssertThrowsError(
             try VenueShiftBucket.forDate(
                 Date(timeIntervalSince1970: 1_786_672_800),
@@ -188,8 +188,8 @@ final class VenueAwarenessTests: XCTestCase {
                 venueName: "The Corner Bar"
             )
         ) { error in
-            guard case VenueAwarenessError.venueTimeZoneNotRecognised(let venueName, let identifier) = error else {
-                return XCTFail("Expected venueTimeZoneNotRecognised, got \(error)")
+            guard case VenueAwarenessError.venueTimeZoneNotRecognized(let venueName, let identifier) = error else {
+                return XCTFail("Expected venueTimeZoneNotRecognized, got \(error)")
             }
             XCTAssertEqual(venueName, "The Corner Bar")
             XCTAssertEqual(identifier, "Mars/Olympus_Mons")
@@ -457,7 +457,7 @@ final class VenueAwarenessTests: XCTestCase {
         let errors: [VenueAwarenessError] = [
             .unknownVenue(identifier: "venue-1"),
             .venueHasNoTimeZone(venueName: "The Corner Bar"),
-            .venueTimeZoneNotRecognised(venueName: "The Corner Bar", identifier: "Mars/Olympus_Mons"),
+            .venueTimeZoneNotRecognized(venueName: "The Corner Bar", identifier: "Mars/Olympus_Mons"),
             .malformedOutcome(received: "maybe", accepted: VenueAskOutcome.allCases.map(\.rawValue)),
             .staleCorrelationIdentifier(identifier: "corr-1", ageInSeconds: 90_000),
             .pitchBudgetExhausted(venueName: "The Corner Bar", shiftBucket: .evening, reason: "Already shown this shift."),
@@ -495,19 +495,19 @@ final class VenueScanRoleTests: XCTestCase {
         XCTAssertEqual(try VenueScanRole.resolve(rawValue: "   "), .customer)
     }
 
-    func testARecognisedRoleResolvesToItself() throws {
+    func testARecognizedRoleResolvesToItself() throws {
         XCTAssertEqual(try VenueScanRole.resolve(rawValue: "customer"), .customer)
         XCTAssertEqual(try VenueScanRole.resolve(rawValue: "venue"), .venue)
         XCTAssertEqual(try VenueScanRole.resolve(rawValue: "  venue  "), .venue)
     }
 
-    /// The case the goal loop calls out: an unrecognised role must not fall through
+    /// The case the goal loop calls out: an unrecognized role must not fall through
     /// to the customer path.
-    func testAnUnrecognisedRoleThrowsRatherThanFallingThroughToTheCustomerPath() {
+    func testAnUnrecognizedRoleThrowsRatherThanFallingThroughToTheCustomerPath() {
         for received in ["owner", "staff", "VENUE", "manager"] {
             XCTAssertThrowsError(try VenueScanRole.resolve(rawValue: received)) { error in
-                guard case VenueScanRoleError.unrecognised(let reported, let accepted) = error else {
-                    return XCTFail("Expected unrecognised, got \(error)")
+                guard case VenueScanRoleError.unrecognized(let reported, let accepted) = error else {
+                    return XCTFail("Expected unrecognized, got \(error)")
                 }
                 XCTAssertEqual(reported, received)
                 XCTAssertEqual(Set(accepted), ["customer", "venue"])

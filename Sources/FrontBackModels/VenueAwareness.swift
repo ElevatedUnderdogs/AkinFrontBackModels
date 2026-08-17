@@ -53,8 +53,13 @@ public enum VenueAwarenessTransition {
     /// Why a transition is not allowed, in words a person reading a log can act on.
     public struct Rejection: Error, Equatable, Sendable, CustomStringConvertible {
 
+        /// The state the venue was in when the transition was attempted.
         public let from: VenueAwarenessState
+
+        /// The state the transition tried to reach.
         public let to: VenueAwarenessState
+
+        /// Why the pair is not allowed, in words a person reading a log can act on.
         public let reason: String
 
         public init(from: VenueAwarenessState, to: VenueAwarenessState, reason: String) {
@@ -63,6 +68,7 @@ public enum VenueAwarenessTransition {
             self.reason = reason
         }
 
+        /// The rejection said in one line, for a log a person has to read.
         public var description: String {
             "A venue in \(from.rawValue) cannot move to \(to.rawValue). \(reason)"
         }
@@ -73,6 +79,7 @@ public enum VenueAwarenessTransition {
         case allowed
         case rejected(Rejection)
 
+        /// Whether the transition may proceed, for callers that only need the answer.
         public var isAllowed: Bool {
             switch self {
             case .allowed: return true
@@ -364,7 +371,7 @@ public enum VenueShiftBucket: String, Codable, Sendable, Hashable, CaseIterable 
         }
 
         guard let timeZone = TimeZone(identifier: timeZoneIdentifier) else {
-            throw VenueAwarenessError.venueTimeZoneNotRecognised(
+            throw VenueAwarenessError.venueTimeZoneNotRecognized(
                 venueName: venueName,
                 identifier: timeZoneIdentifier
             )
@@ -384,6 +391,7 @@ public enum VenueShiftBucket: String, Codable, Sendable, Hashable, CaseIterable 
 /// at every call site, and so the table driven test can name its cases.
 public struct VenuePitchContext: Equatable, Sendable {
 
+    /// What the venue's awareness was when this pitch was considered.
     public let state: VenueAwarenessState
 
     /// The most recently reported outcome for this venue, or nil when the card has
@@ -395,6 +403,7 @@ public struct VenuePitchContext: Equatable, Sendable {
     public let pitchCountInWindow: Int
 
     /// The bucket the moment being tested falls in.
+    /// Which part of the venue's day this falls in, in the venue's own timezone.
     public let shiftBucket: VenueShiftBucket
 
     /// The bucket the most recent pitch fell in, or nil when there has been none.
@@ -448,6 +457,7 @@ public enum VenuePitchEligibility: Equatable, Sendable {
     /// distinct, so a log line identifies which rule fired without a rule id.
     case suppressed(reason: String)
 
+    /// Whether the card may be shown, for callers that only need the answer.
     public var isEligible: Bool {
         switch self {
         case .eligible: return true
@@ -455,6 +465,7 @@ public enum VenuePitchEligibility: Equatable, Sendable {
         }
     }
 
+    /// Which rule stopped it, or nil when nothing did.
     public var suppressionReason: String? {
         switch self {
         case .eligible: return nil
@@ -682,7 +693,7 @@ public enum VenueAwarenessError: Error, Equatable, Sendable, CustomStringConvert
     case venueHasNoTimeZone(venueName: String)
 
     /// The venue carries a timezone string the system does not recognise.
-    case venueTimeZoneNotRecognised(venueName: String, identifier: String)
+    case venueTimeZoneNotRecognized(venueName: String, identifier: String)
 
     /// The outcome string in the request body is not one of the five outcomes.
     case malformedOutcome(received: String, accepted: [String])
@@ -703,6 +714,7 @@ public enum VenueAwarenessError: Error, Equatable, Sendable, CustomStringConvert
     /// The caller is not one of the two participants in the greet they named.
     case callerNotInGreet(callerIdentifier: String, greetIdentifier: String)
 
+    /// The failure said in one line, naming the venue and the value that broke it.
     public var description: String {
         switch self {
         case .unknownVenue(let identifier):
@@ -721,7 +733,7 @@ public enum VenueAwarenessError: Error, Equatable, Sendable, CustomStringConvert
             exists to prevent.
             """
 
-        case .venueTimeZoneNotRecognised(let venueName, let identifier):
+        case .venueTimeZoneNotRecognized(let venueName, let identifier):
             return """
             The venue "\(venueName)" carries the timezone identifier "\(identifier)", \
             which this system does not recognise. A guess would put the venue's \
@@ -731,7 +743,7 @@ public enum VenueAwarenessError: Error, Equatable, Sendable, CustomStringConvert
         case .malformedOutcome(let received, let accepted):
             return """
             The outcome "\(received)" is not one this endpoint accepts. The accepted \
-            outcomes are \(accepted.joined(separator: ", ")). An unrecognised outcome \
+            outcomes are \(accepted.joined(separator: ", ")). An unrecognized outcome \
             is not recorded as a skip, because a skip is itself a reportable answer.
             """
 
@@ -779,10 +791,12 @@ public struct VenueEligibilityRequest: Codable, Equatable, Sendable {
 
     /// The greet whose venue is being asked about. The server resolves the venue and
     /// the two participants from this, so the client never names a venue itself.
+    /// The greet this introduction belongs to, which scopes who may report it.
     public let greetIdentifier: UUID
 
     /// Minted on the device when the card is about to be shown, and carried through
     /// every later stage of the funnel.
+    /// Ties this join back to the card that produced the code.
     public let clientCorrelationIdentifier: String
 
     public init(greetIdentifier: UUID, clientCorrelationIdentifier: String) {
@@ -840,11 +854,13 @@ public struct VenueScanStateResponse: Codable, Equatable, Sendable {
 /// The eligibility answer, plus everything the card needs to render honestly.
 public struct VenueEligibilityResponse: Codable, Equatable, Sendable {
 
+    /// Whether the client should show the card at all.
     public let isEligible: Bool
 
     /// Present exactly when `isEligible` is false.
     public let suppressionReason: String?
 
+    /// The venue as the customer would name it, for the card's own sentence.
     public let venueName: String
 
     /// The Google Place identifier the venue is stored under, when it has one.
@@ -856,8 +872,10 @@ public struct VenueEligibilityResponse: Codable, Equatable, Sendable {
     /// the venue by name on the landing page.
     public let venueGooglePlaceIdentifier: String?
 
+    /// What the server believes about this venue, so the client can log a refusal.
     public let awarenessState: VenueAwarenessState
 
+    /// Which part of the venue's day this falls in, in the venue's own timezone.
     public let shiftBucket: VenueShiftBucket
 
     /// This venue's own referral count for the current month. Zero is a real answer
@@ -928,6 +946,7 @@ public struct VenueEligibilityResponse: Codable, Equatable, Sendable {
 /// rating screen.
 public struct VenueOutcomeReport: Codable, Equatable, Sendable {
 
+    /// The greet this introduction belongs to, which scopes who may report it.
     public let greetIdentifier: UUID
 
     /// The same identifier the eligibility call carried, so a late report on the
@@ -935,12 +954,14 @@ public struct VenueOutcomeReport: Codable, Equatable, Sendable {
     /// second one.
     public let clientCorrelationIdentifier: String
 
+    /// What the customer says happened.
     public let outcome: VenueAskOutcome
 
     /// Where the answer came from. Two surfaces can answer, and the reconciliation
     /// in 5.3 needs to know which one arrived.
     public let source: Source
 
+    /// Which surface filed the report, so a later one can outrank an earlier.
     public enum Source: String, Codable, Equatable, Sendable, CaseIterable {
         case card
         case ratingScreen
@@ -962,6 +983,7 @@ public struct VenueOutcomeReport: Codable, Equatable, Sendable {
 /// What the server says back after recording an outcome.
 public struct VenueOutcomeAcknowledgement: Codable, Equatable, Sendable {
 
+    /// The venue's state after the report was applied.
     public let awarenessState: VenueAwarenessState
 
     /// True when this report changed the stored state. False when it was a duplicate
@@ -1023,8 +1045,10 @@ public enum VenueMotivationArm: String, Codable, Equatable, Sendable, CaseIterab
 /// it never scanned.
 public struct VenueIntroductionRecord: Codable, Equatable, Sendable, Identifiable {
 
+    /// The introduction's own identifier, stable across reads.
     public let id: UUID
 
+    /// The venue as the customer would name it.
     public let venueName: String
 
     /// When the card was shown to this user.
@@ -1070,6 +1094,7 @@ public struct VenueIntroductionRecord: Codable, Equatable, Sendable, Identifiabl
 /// Everything the transparency surface renders.
 public struct VenueIntroductionHistoryResponse: Codable, Equatable, Sendable {
 
+    /// Every introduction this customer has made, newest first.
     public let records: [VenueIntroductionRecord]
 
     /// How many of this user's introductions a venue actually scanned. Derived from
@@ -1094,7 +1119,7 @@ public struct VenueIntroductionHistoryResponse: Codable, Equatable, Sendable {
 ///
 /// Carried in the link rather than guessed from context, because the same printed
 /// path serves a customer arriving and a venue being introduced, and the two want
-/// opposite screens. An unrecognised value is an error rather than a silent fall
+/// opposite screens. An unrecognized value is an error rather than a silent fall
 /// through to the customer path: a venue owner shown the consumer tagline learns
 /// nothing about why they were asked to scan.
 public enum VenueScanRole: String, Codable, Sendable, Equatable, CaseIterable {
@@ -1113,7 +1138,7 @@ public enum VenueScanRole: String, Codable, Sendable, Equatable, CaseIterable {
     ///
     /// - A nil or empty value is `customer`, which keeps every code printed before
     ///   roles existed working exactly as it did.
-    /// - A recognised value is that role.
+    /// - A recognized value is that role.
     /// - Anything else throws, because silently treating "owner" or "staff" as a
     ///   customer would send a venue owner to the consumer screen with no trace of
     ///   why, and would attribute their scan to the wrong funnel.
@@ -1124,7 +1149,7 @@ public enum VenueScanRole: String, Codable, Sendable, Equatable, CaseIterable {
 
         let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let role = VenueScanRole(rawValue: trimmed) else {
-            throw VenueScanRoleError.unrecognised(
+            throw VenueScanRoleError.unrecognized(
                 received: trimmed,
                 accepted: VenueScanRole.allCases.map(\.rawValue)
             )
@@ -1133,13 +1158,15 @@ public enum VenueScanRole: String, Codable, Sendable, Equatable, CaseIterable {
     }
 }
 
+/// What went wrong reading the `role` parameter off a scanned link.
 public enum VenueScanRoleError: Error, Equatable, Sendable, CustomStringConvertible {
 
-    case unrecognised(received: String, accepted: [String])
+    case unrecognized(received: String, accepted: [String])
 
+    /// The failure said in one line, naming what was received and what is accepted.
     public var description: String {
         switch self {
-        case .unrecognised(let received, let accepted):
+        case .unrecognized(let received, let accepted):
             // Said to whoever is holding the phone, so it says what to do rather
             // than why we chose to fail.
             //
@@ -1168,6 +1195,7 @@ public enum VenueAudience: String, Codable, Sendable, Equatable, CaseIterable {
     /// The owner or manager: cost, effort, return, in that order.
     case ownerOrManager
 
+    /// The film this audience is shown, named as the asset is named.
     public var videoIdentifier: String {
         switch self {
         case .counterStaff: return "A_counter"
@@ -1175,6 +1203,7 @@ public enum VenueAudience: String, Codable, Sendable, Equatable, CaseIterable {
         }
     }
 
+    /// The audience as it appears in a heading.
     public var title: String {
         switch self {
         case .counterStaff: return "I work here"
@@ -1210,7 +1239,7 @@ public struct VenueScanReport: Codable, Equatable, Sendable {
     public let clientCorrelationIdentifier: String
 
     /// The role the link named, as it appeared. Sent raw rather than parsed so the
-    /// server records what was actually scanned when the value is unrecognised.
+    /// server records what was actually scanned when the value is unrecognized.
     public let roleRawValue: String
 
     /// Which video the scanner asked for, once they pick. Nil on the first call,
@@ -1231,6 +1260,7 @@ public struct VenueScanReport: Codable, Equatable, Sendable {
 /// What the venue sees, and it is the venue's own numbers.
 public struct VenueScanResponse: Codable, Equatable, Sendable {
 
+    /// The venue the scanned code belongs to.
     public let venueName: String
 
     /// This venue's own count for the current month. The first thing the venue
@@ -1351,11 +1381,13 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
 /// One person at a venue, and what they have produced.
 public struct VenueStaffSummary: Codable, Equatable, Sendable, Identifiable {
 
+    /// The staff member's name, as the venue's own report shows it.
     public let employeeName: String
 
     /// How many people this person has referred to the app.
     public let referralsCount: Int
 
+    /// Identity for list rendering. Names are unique within one venue's report.
     public var id: String { employeeName }
 
     public init(employeeName: String, referralsCount: Int) {
@@ -1367,6 +1399,7 @@ public struct VenueStaffSummary: Codable, Equatable, Sendable, Identifiable {
 /// The venue generating a code of their own, from inside the clip.
 public struct VenueJoinReport: Codable, Equatable, Sendable {
 
+    /// Ties this join back to the card that produced the code.
     public let clientCorrelationIdentifier: String
 
     /// The name the person at the venue put on their own code.
@@ -1378,8 +1411,10 @@ public struct VenueJoinReport: Codable, Equatable, Sendable {
     }
 }
 
+/// What the server says after a venue joins through a scanned code.
 public struct VenueJoinResponse: Codable, Equatable, Sendable {
 
+    /// The venue the join was recorded against.
     public let venueName: String
 
     /// The link the venue's own code encodes. Built server side so the venue's code
@@ -1660,6 +1695,7 @@ public struct VenueOutcomeDecision: Equatable, Sendable {
     public let reason: String
 }
 
+/// Decides which of two outcome reports about one introduction wins.
 public enum VenueOutcomeAuthority {
 
     /// Decides one report, from stated facts, with no database and no side effects.
