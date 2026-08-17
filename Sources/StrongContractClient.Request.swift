@@ -402,7 +402,7 @@ extension ResetPasswordEndpoint {
 public struct AcceptTermsRequest: Codable, Equatable, Hashable {
     public let acceptedAt: Date
     public let deviceInfo: String?
-    public let source: String? // "ios", "android", "web"
+    public let source: String?  // "ios", "android", "web"
 
     public init(
         acceptedAt: Date,
