@@ -302,7 +302,6 @@ public enum VenueAskOutcome: String, Codable, Sendable, Hashable, CaseIterable {
 /// values are untouched by the rename, so nothing persisted moves.
 public typealias VenuePitchOutcome = VenueAskOutcome
 
-
 // MARK: - Shift buckets
 
 /// A named part of a venue's day, so the morning crew and the evening crew are
@@ -1008,8 +1007,8 @@ public enum VenueMotivationArm: String, Codable, Equatable, Sendable, CaseIterab
     public static func forUser(_ userIdentifier: UUID) -> VenueMotivationArm {
         var total: UInt32 = 0
         withUnsafeBytes(of: userIdentifier.uuid) { buffer in
-            for byte in buffer {
-                total = total &+ UInt32(byte)
+            total = buffer.reduce(into: UInt32(0)) { running, byte in
+                running = running &+ UInt32(byte)
             }
         }
         return total % 2 == 0 ? .intrinsic : .extrinsic
@@ -1089,7 +1088,6 @@ public struct VenueIntroductionHistoryResponse: Codable, Equatable, Sendable {
         self.records = records
     }
 }
-
 
 // MARK: - Who scanned
 
@@ -1587,12 +1585,13 @@ public enum VenueAwarenessFold {
 
         // 4. The most recent word that implies anything, the venue's own first.
         let implications = rows.compactMap(implication(of:))
-        if let latest = implications.max(by: { left, right in
+        let latestImplication = implications.max { left, right in
             if left.isVenuesOwnWord != right.isVenuesOwnWord {
                 return right.isVenuesOwnWord
             }
             return left.at < right.at
-        }) {
+        }
+        if let latest = latestImplication {
             return latest.state
         }
 

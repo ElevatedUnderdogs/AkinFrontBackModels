@@ -113,7 +113,6 @@ public struct VenueImpactSummary: Hashable, Codable, Equatable {
     }
 }
 
-
 /// Wraps any request payload so that it always includes a `GreetActionEvent`.
 /// - Parameters:
 ///   - oldPayload: The previous payload you were already sending for this endpoint (unchanged type).
@@ -142,7 +141,6 @@ public struct PayloadWithEvent<Payload: Codable>: Codable {
         self.event = event
     }
 }
-
 
 public struct ImpactEmployeeSummary: Identifiable, Hashable, Codable, Equatable {
 
@@ -231,7 +229,6 @@ public struct PlaceSuggestion: Identifiable, Hashable, Sendable, Codable, Equata
     }
 }
 
-
 public struct NearbyEmptyStateResponse: Codable, Hashable, Equatable {
 
     // MARK: Clout
@@ -286,7 +283,6 @@ extension NearbyEmptyStateEndpoint {
         .init(method: .get)
     }
 }
-
 
 public struct NearbyEmptyStateSubmitPayload: Codable, Hashable, Equatable {
 
@@ -360,8 +356,6 @@ extension ForgotPasswordEndpoint {
         .init(method: .post)
     }
 }
-
-
 
 public typealias NewPasswordEndpoint = Request<String, StandardPostResponse>
 
@@ -514,9 +508,6 @@ public struct ContextCompatibilityStruct: Codable {
     }
 }
 
-
-
-
 public typealias ForceGreetRequest = Request<ForceGreetPayload, StandardPostResponse>
 extension ForceGreetRequest {
 
@@ -524,7 +515,6 @@ extension ForceGreetRequest {
         .init(method: .post)
     }
 }
-
 
 public typealias ManualGreetRequest = Request<GreetID, ManualGreetResponse>
 extension ManualGreetRequest {
@@ -757,7 +747,6 @@ extension PasscodeAuthenticationRequest {
         .init(method: .post)
     }
 }
-
 
 public typealias ChangeEmailRequest = Request<EmailChange, StandardPostResponse>
 extension ChangeEmailRequest {
@@ -1002,8 +991,6 @@ public struct GetQuestionsRequestPayload: Codable {
     }
 }
 
-
-
 public typealias GetQuestionsRequest = Request<GetQuestionsRequestPayload, [Question]>
 extension GetQuestionsRequest {
     /// Gets questions for the matchmaking questionnaire.
@@ -1244,7 +1231,6 @@ extension UpdateUserLocationRequest {
         .init(method: .put)
     }
 }
-
 
 public typealias SilentPushLocationUpdatesRequest = Request<ShouldEnableSilentPushNoticeUpdates, StandardPostResponse>
 extension SilentPushLocationUpdatesRequest {
