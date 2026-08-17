@@ -832,8 +832,6 @@ public struct VenueScanStateResponse: Codable, Equatable, Sendable {
     /// log of a support case says when.
     public let venueScannedAt: Date?
 
-    public var hasBeenScanned: Bool { venueScannedAt != nil }
-
     public init(venueScannedAt: Date?) {
         self.venueScannedAt = venueScannedAt
     }
