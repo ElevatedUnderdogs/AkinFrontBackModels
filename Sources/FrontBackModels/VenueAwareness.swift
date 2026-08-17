@@ -229,7 +229,7 @@ public enum VenueAwarenessTransition {
     /// The result is always a state the transition table allows from `current`, so
     /// this function and ``verdict(from:to:)`` cannot disagree.
     public static func state(
-        after outcome: VenuePitchOutcome,
+        after outcome: VenueAskOutcome,
         from current: VenueAwarenessState
     ) -> VenueAwarenessState {
         switch outcome {
@@ -264,7 +264,19 @@ public enum VenueAwarenessTransition {
 /// `skipped` is a first class outcome rather than an absence, because a customer
 /// choosing not to introduce it is information about the moment, and because the
 /// card was still shown, which still spends the venue's pitch budget.
-public enum VenuePitchOutcome: String, Codable, Sendable, Hashable, CaseIterable {
+/// The name this type used to carry.
+///
+/// Renamed by `VENUE_ASK_REWRITE_GOAL_LOOP.md` item 3.2, which requires that no
+/// production symbol in the venue introduction feature calls the errand a pitch.
+/// The decisions table of both loops says the same thing in prose: the reader asks
+/// whether somebody is familiar with the program, and never walks up to pitch.
+///
+/// The alias is kept so the server, which stores these on a `VenuePitch` row and
+/// in a `venue_pitches` table, keeps compiling without a schema change. The raw
+/// values are untouched by the rename, so nothing persisted moves.
+public typealias VenuePitchOutcome = VenueAskOutcome
+
+public enum VenueAskOutcome: String, Codable, Sendable, Hashable, CaseIterable {
 
     /// The staff had not heard of it, and did not refuse.
     ///
@@ -376,7 +388,7 @@ public struct VenuePitchContext: Equatable, Sendable {
 
     /// The most recently reported outcome for this venue, or nil when the card has
     /// been shown and nobody has reported anything.
-    public let lastOutcome: VenuePitchOutcome?
+    public let lastOutcome: VenueAskOutcome?
 
     /// How many times the card has been shown for this venue inside the counting
     /// window, which the caller defines. The server uses thirty days.
@@ -408,7 +420,7 @@ public struct VenuePitchContext: Equatable, Sendable {
 
     public init(
         state: VenueAwarenessState,
-        lastOutcome: VenuePitchOutcome?,
+        lastOutcome: VenueAskOutcome?,
         pitchCountInWindow: Int,
         shiftBucket: VenueShiftBucket,
         lastPitchShiftBucket: VenueShiftBucket?,
@@ -877,7 +889,7 @@ public struct VenueOutcomeReport: Codable, Equatable, Sendable {
     /// second one.
     public let clientCorrelationIdentifier: String
 
-    public let outcome: VenuePitchOutcome
+    public let outcome: VenueAskOutcome
 
     /// Where the answer came from. Two surfaces can answer, and the reconciliation
     /// in 5.3 needs to know which one arrived.
@@ -891,7 +903,7 @@ public struct VenueOutcomeReport: Codable, Equatable, Sendable {
     public init(
         greetIdentifier: UUID,
         clientCorrelationIdentifier: String,
-        outcome: VenuePitchOutcome,
+        outcome: VenueAskOutcome,
         source: Source
     ) {
         self.greetIdentifier = greetIdentifier
@@ -973,7 +985,7 @@ public struct VenueIntroductionRecord: Codable, Equatable, Sendable, Identifiabl
     public let shownAt: Date
 
     /// What the user reported, or nil when they never answered.
-    public let reportedOutcome: VenuePitchOutcome?
+    public let reportedOutcome: VenueAskOutcome?
 
     /// Whether somebody at the venue actually scanned the code. This is the metric
     /// the whole loop is measured on, so it is the one the user sees.
@@ -986,7 +998,7 @@ public struct VenueIntroductionRecord: Codable, Equatable, Sendable, Identifiabl
         id: UUID,
         venueName: String,
         shownAt: Date,
-        reportedOutcome: VenuePitchOutcome?,
+        reportedOutcome: VenueAskOutcome?,
         wasScannedByVenue: Bool,
         venueJoined: Bool
     ) {
@@ -1349,7 +1361,7 @@ public struct VenuePitchStanding: Equatable, Sendable {
     /// What this row currently says, if anything. A withdrawal writes `skipped`
     /// over the row's own answer, so a retracted refusal stops reading
     /// `notReceptive` the moment it is taken back, and needs no separate flag.
-    public let outcome: VenuePitchOutcome?
+    public let outcome: VenueAskOutcome?
 
     /// Which surface said it.
     public let source: VenueOutcomeSource?
@@ -1368,7 +1380,7 @@ public struct VenuePitchStanding: Equatable, Sendable {
     public let venueJoinedAt: Date?
 
     public init(
-        outcome: VenuePitchOutcome?,
+        outcome: VenueAskOutcome?,
         source: VenueOutcomeSource?,
         outcomeReportedAt: Date?,
         shownAt: Date,
@@ -1557,21 +1569,21 @@ public enum VenueAwarenessFold {
 public struct VenueOutcomeContext: Equatable, Sendable {
 
     /// What is being reported now.
-    public let reported: VenuePitchOutcome
+    public let reported: VenueAskOutcome
 
     /// Which surface it came from.
     public let source: VenueOutcomeSource
 
     /// What this row already holds, if anything.
-    public let existing: VenuePitchOutcome?
+    public let existing: VenueAskOutcome?
 
     /// Which surface that existing answer came from.
     public let existingSource: VenueOutcomeSource?
 
     public init(
-        reported: VenuePitchOutcome,
+        reported: VenueAskOutcome,
         source: VenueOutcomeSource,
-        existing: VenuePitchOutcome?,
+        existing: VenueAskOutcome?,
         existingSource: VenueOutcomeSource?
     ) {
         self.reported = reported

@@ -95,7 +95,7 @@ final class VenueAwarenessTests: XCTestCase {
     /// halves of the model cannot disagree.
     func testEveryOutcomeProducesALegalTransitionFromEveryState() {
         for from in VenueAwarenessState.allCases {
-            for outcome in VenuePitchOutcome.allCases {
+            for outcome in VenueAskOutcome.allCases {
                 let next = VenueAwarenessTransition.state(after: outcome, from: from)
                 XCTAssertTrue(
                     VenueAwarenessTransition.verdict(from: from, to: next).isAllowed,
@@ -202,7 +202,7 @@ final class VenueAwarenessTests: XCTestCase {
 
     private func context(
         state: VenueAwarenessState,
-        outcome: VenuePitchOutcome?,
+        outcome: VenueAskOutcome?,
         pitchCount: Int,
         bucket: VenueShiftBucket = .evening,
         lastBucket: VenueShiftBucket? = nil,
@@ -233,7 +233,7 @@ final class VenueAwarenessTests: XCTestCase {
             VenueCooldownPolicy.earlyPitchAllowance,
             VenueCooldownPolicy.earlyPitchAllowance + 1,
         ]
-        let outcomes: [VenuePitchOutcome?] = [nil] + VenuePitchOutcome.allCases.map { $0 }
+        let outcomes: [VenueAskOutcome?] = [nil] + VenueAskOutcome.allCases.map { $0 }
 
         var reasonsSeen: Set<String> = []
         var eligibleCells = 0
@@ -366,7 +366,7 @@ final class VenueAwarenessTests: XCTestCase {
     }
 
     func testAnEngagedVenueIsNeverIntroducedToTheThingItIsAlreadyRunning() {
-        for outcome in [nil] + VenuePitchOutcome.allCases.map({ $0 }) {
+        for outcome in [nil] + VenueAskOutcome.allCases.map({ $0 }) {
             let subject = context(
                 state: .engaged, outcome: outcome, pitchCount: 0, daysSinceLastPitch: 400.0
             )
@@ -458,7 +458,7 @@ final class VenueAwarenessTests: XCTestCase {
             .unknownVenue(identifier: "venue-1"),
             .venueHasNoTimeZone(venueName: "The Corner Bar"),
             .venueTimeZoneNotRecognised(venueName: "The Corner Bar", identifier: "Mars/Olympus_Mons"),
-            .malformedOutcome(received: "maybe", accepted: VenuePitchOutcome.allCases.map(\.rawValue)),
+            .malformedOutcome(received: "maybe", accepted: VenueAskOutcome.allCases.map(\.rawValue)),
             .staleCorrelationIdentifier(identifier: "corr-1", ageInSeconds: 90_000),
             .pitchBudgetExhausted(venueName: "The Corner Bar", shiftBucket: .evening, reason: "Already shown this shift."),
             .hourOutsideDay(hour: 25),
@@ -636,7 +636,7 @@ final class VenueOutcomeAuthorityTests: XCTestCase {
     /// Every combination of inputs, which is what "total" means here.
     private func allContexts() -> [VenueOutcomeContext] {
         var contexts: [VenueOutcomeContext] = []
-        let outcomes = VenuePitchOutcome.allCases
+        let outcomes = VenueAskOutcome.allCases
         let sources = VenueOutcomeSource.allCases
 
         for reported in outcomes {
@@ -739,7 +739,7 @@ final class VenueAwarenessFoldTests: XCTestCase {
     private let now = Date(timeIntervalSince1970: 1_780_000_000)
 
     private func row(
-        _ outcome: VenuePitchOutcome? = nil,
+        _ outcome: VenueAskOutcome? = nil,
         source: VenueOutcomeSource? = nil,
         secondsAgo: TimeInterval = 60,
         shownSecondsAgo: TimeInterval? = nil,
