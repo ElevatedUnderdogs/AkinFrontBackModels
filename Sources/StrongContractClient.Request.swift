@@ -1386,6 +1386,21 @@ extension VenueIntroductionOutcome {
     }
 }
 
+/// Whether the venue has scanned the code a card is currently showing.
+///
+/// Polled by the card while the merged ask and code screen is on display, so that
+/// the outcome step arrives on a real scan without the reader tapping anything.
+/// Poll rather than push: push would need an APNs credential, a device token
+/// registry this feature has no other use for, and a delivery guarantee nobody
+/// needs for a signal that is only interesting while a screen is open.
+public typealias VenueIntroductionScanState = Request<VenueScanStateRequest, VenueScanStateResponse>
+extension VenueIntroductionScanState {
+
+    public static var venueIntroductionScanState: Self {
+        .init(method: .post)
+    }
+}
+
 /// The user's own record of what their introductions produced.
 ///
 /// The intrinsic arm of the motivation experiment has no reward, so this view is

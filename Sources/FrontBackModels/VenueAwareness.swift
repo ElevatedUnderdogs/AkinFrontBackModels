@@ -791,6 +791,54 @@ public struct VenueEligibilityRequest: Codable, Equatable, Sendable {
     }
 }
 
+/// Asks whether the venue has scanned the code this card is showing.
+///
+/// Added by `VENUE_ASK_REWRITE_GOAL_LOOP.md` Phase 7, which exists because the
+/// answer to "does the card advance on its own when the venue scans" was no. The
+/// scan itself was already recorded: `VenueScanHandlers.venueIntroductionScan`
+/// writes `venueScannedAt` on the pitch it finds by correlation identifier. What
+/// did not exist was any way for the device holding the code to ask.
+///
+/// Keyed on the correlation identifier rather than the greet, because that is what
+/// the scan is joined on and because one greet can carry only one card but the
+/// identifier is what makes the join exact.
+public struct VenueScanStateRequest: Codable, Equatable, Sendable {
+
+    /// The same identifier the card minted before its eligibility call and encoded
+    /// into the scannable link.
+    public let clientCorrelationIdentifier: String
+
+    /// The greet the card belongs to, so the server can check the caller is one of
+    /// the two people who met rather than anybody holding an identifier.
+    public let greetIdentifier: UUID
+
+    public init(clientCorrelationIdentifier: String, greetIdentifier: UUID) {
+        self.clientCorrelationIdentifier = clientCorrelationIdentifier
+        self.greetIdentifier = greetIdentifier
+    }
+}
+
+/// Whether a scan has landed, and nothing else.
+///
+/// Deliberately narrow. The card asks this on a timer while it is on screen, so
+/// every field here is a field polled repeatedly; anything the card does not act on
+/// is bandwidth spent for nothing and a surface for a future leak.
+public struct VenueScanStateResponse: Codable, Equatable, Sendable {
+
+    /// When the venue scanned, or nil if nobody has.
+    ///
+    /// A date rather than a flag, so the client can tell a scan that has just landed
+    /// from one it already knew about without keeping its own bookkeeping, and so a
+    /// log of a support case says when.
+    public let venueScannedAt: Date?
+
+    public var hasBeenScanned: Bool { venueScannedAt != nil }
+
+    public init(venueScannedAt: Date?) {
+        self.venueScannedAt = venueScannedAt
+    }
+}
+
 /// The eligibility answer, plus everything the card needs to render honestly.
 public struct VenueEligibilityResponse: Codable, Equatable, Sendable {
 
