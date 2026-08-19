@@ -69,6 +69,20 @@ final class ExpansionContractTests: XCTestCase {
         }
     }
 
+    // 1.11: a member-created context is first-class; the closed enum is gone but romance/social and
+    // the bare-string Codable wire format survive.
+    func testContextAcceptsMemberCreatedRawValues() throws {
+        XCTAssertNotNil(Context(id: UUID(), rawValue: "climbing partners"))
+        XCTAssertEqual(Context.Case.romance.rawValue, "romance")
+        XCTAssertEqual(Context.Case.social.rawValue, "social")
+        XCTAssertEqual(Context.Case.allCases, [.romance, .social])
+        // wire format unchanged: a Case encodes as a bare string, not an object
+        let data = try JSONEncoder().encode(Context.Case.social)
+        XCTAssertEqual(String(decoding: data, as: UTF8.self), "\"social\"")
+        let back = try JSONDecoder().decode(Context.Case.self, from: Data("\"climbing partners\"".utf8))
+        XCTAssertEqual(back.rawValue, "climbing partners")
+    }
+
     // 1.10: a MarketAnswer cannot be built below the k-anonymity floor.
     func testMarketAnswerHonoursKAnonymityFloor() {
         XCTAssertNil(MarketAnswer(value: 1, cohortSize: KAnonymityFloor - 1, noiseScale: 0.1))

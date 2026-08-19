@@ -275,9 +275,15 @@ final class QuestionManagementBatch5Tests: XCTestCase {
         XCTAssertEqual(context?.rawValue, "romance")
     }
 
-    func testContextFailableInitWithInvalidRawValue() {
-        XCTAssertNil(Context(id: .init(), rawValue: "not-a-case"))
-        XCTAssertNil(Context(id: .init(), rawValue: ""))
+    // Item 1.11 opened Context to member-created values: a raw value that was not a built-in case is
+    // now a first-class context, not nil. The type accepts any string; name moderation is a separate,
+    // higher layer (swath C), not this initializer's job.
+    func testContextInitAcceptsMemberCreatedRawValue() {
+        let created = Context(id: .init(), rawValue: "not-a-case")
+        XCTAssertNotNil(created)
+        XCTAssertEqual(created?.case, Context.Case(rawValue: "not-a-case"))
+        XCTAssertEqual(created?.rawValue, "not-a-case")
+        XCTAssertNotNil(Context(id: .init(), rawValue: ""))
     }
 
     func testContextEquatableAndHashable() {
