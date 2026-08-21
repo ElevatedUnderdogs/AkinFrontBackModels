@@ -57,6 +57,19 @@ public struct MatchmakingProfile: Codable, Hashable, Sendable, Identifiable {
     }
 }
 
+/// Whether a profile answer describes the member or the partner they are looking for.
+///
+/// Mirrors `Question.Response.Selections.MyTheir`, because a profile answer has to be able to sit
+/// exactly where a member's own answer sits. Compatibility is computed by comparing what one member
+/// wants (`their`) against what the other IS (`my`), so a profile that could not say which of the
+/// two it meant would be unusable by the matcher no matter how well it was stored.
+public enum ProfileSelectionSide: String, Codable, CaseIterable, Hashable, Sendable {
+    /// Describes the member.
+    case my
+    /// Describes the partner the member is looking for.
+    case their
+}
+
 /// One question's answer inside one profile.
 ///
 /// Separate from the member's raw selection rather than replacing it. Item 7.5 requires that no
@@ -67,6 +80,15 @@ public struct ProfileSelection: Codable, Hashable, Sendable {
     public let profileId: UUID
     /// The question being answered.
     public let questionId: UUID
+    /// The specific response being chosen.
+    ///
+    /// Carried as well as the question because compatibility is computed per RESPONSE: one
+    /// question has several responses and a member picks among them. A selection that named only
+    /// its question could be stored and shown but could never be scored, which would make profiles
+    /// cosmetic.
+    public let responseId: UUID
+    /// Whether this answer describes the member or the partner they want.
+    public let side: ProfileSelectionSide
     /// The answer, in the same vocabulary the member's raw selections use.
     public let selection: String
     /// How much this profile cares about this question, when it differs from the member's own
@@ -81,11 +103,22 @@ public struct ProfileSelection: Codable, Hashable, Sendable {
     /// - Parameters:
     ///   - profileId: the profile this belongs to.
     ///   - questionId: the question answered.
+    ///   - responseId: the response chosen.
+    ///   - side: whether it describes the member or the partner they want.
     ///   - selection: the answer.
     ///   - importance: an override, or nil to use the member's own rating.
-    public init(profileId: UUID, questionId: UUID, selection: String, importance: Double? = nil) {
+    public init(
+        profileId: UUID,
+        questionId: UUID,
+        responseId: UUID,
+        side: ProfileSelectionSide,
+        selection: String,
+        importance: Double? = nil
+    ) {
         self.profileId = profileId
         self.questionId = questionId
+        self.responseId = responseId
+        self.side = side
         self.selection = selection
         self.importance = importance
     }

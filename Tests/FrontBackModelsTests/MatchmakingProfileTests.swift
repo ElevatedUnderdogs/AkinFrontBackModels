@@ -47,11 +47,12 @@ final class MatchmakingProfileTests: XCTestCase {
 
     func testASelectionSurvivesTheSnakeCaseRoundTrip() throws {
         let subject = ProfileSelection(
-            profileId: UUID(), questionId: UUID(), selection: "yes", importance: 7
+            profileId: UUID(), questionId: UUID(), responseId: UUID(),
+            side: .their, selection: "YES", importance: 7
         )
         let data = try wireEncoder().encode(subject)
         let json = try XCTUnwrap(String(data: data, encoding: .utf8))
-        for key in ["profile_id", "question_id"] {
+        for key in ["profile_id", "question_id", "response_id", "side"] {
             XCTAssertTrue(json.contains("\"\(key)\""), "expected \(key) in \(json)")
         }
         XCTAssertEqual(try wireDecoder().decode(ProfileSelection.self, from: data), subject)
@@ -63,7 +64,9 @@ final class MatchmakingProfileTests: XCTestCase {
     /// makes duplication the cheapest way to build a profile, so most selections carry no
     /// override and the absent case is the common one, not the edge one.
     func testAnAbsentImportanceOverrideIsAbsentOnTheWire() throws {
-        let subject = ProfileSelection(profileId: UUID(), questionId: UUID(), selection: "no")
+        let subject = ProfileSelection(
+            profileId: UUID(), questionId: UUID(), responseId: UUID(), side: .my, selection: "NO"
+        )
         let data = try wireEncoder().encode(subject)
         XCTAssertFalse(
             try XCTUnwrap(String(data: data, encoding: .utf8)).contains("importance"),
