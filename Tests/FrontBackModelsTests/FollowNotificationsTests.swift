@@ -95,3 +95,56 @@ final class FollowNotificationsTests: XCTestCase {
         }
     }
 }
+
+// Swath N3 (item 6.3). The compatibility claim the optional makes is worth a test rather than a
+// comment: a client that predates the field must still be able to post a question.
+final class QuestionAuthorVisibilityContractTests: XCTestCase {
+
+    func testAQuestionWithoutTheFieldStillDecodes() throws {
+        // The legacy payload is produced by encoding a real Question and deleting the one key,
+        // rather than by hand written JSON. Hand written JSON gets the shape of the other fields
+        // wrong (`requirementsFor` is keyed by Context, so it encodes as an array, not an object)
+        // and then the test fails for a reason that has nothing to do with what it is checking.
+        let question = Question(
+            text: "posted by a client that predates the field",
+            id: UUID(),
+            creatorID: UUID(),
+            originalContext: Context(id: UUID(), case: .social),
+            defaultCompatibilityRule: .weighted,
+            assessment: ModerationAssessment(entries: []),
+            authorVisibility: .attributed
+        )
+        var object = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: try JSONEncoder().encode(question)) as? [String: Any]
+        )
+        XCTAssertNotNil(object["authorVisibility"], "the key must be there before it is removed")
+        object.removeValue(forKey: "authorVisibility")
+
+        let decoded = try JSONDecoder().decode(
+            Question.self, from: try JSONSerialization.data(withJSONObject: object)
+        )
+        XCTAssertNil(
+            decoded.authorVisibility,
+            "absent must mean the creator did not choose, not a decode failure"
+        )
+        XCTAssertEqual(decoded.id, question.id, "the rest of the payload must survive untouched")
+    }
+
+    func testAQuestionCarryingTheFieldRoundTrips() throws {
+        for visibility in AuthorVisibility.allCases {
+            let question = Question(
+                text: "a question at \(visibility.rawValue)",
+                id: UUID(),
+                creatorID: UUID(),
+                originalContext: Context(id: UUID(), case: .social),
+                defaultCompatibilityRule: .weighted,
+                assessment: ModerationAssessment(entries: []),
+                authorVisibility: visibility
+            )
+            let decoded = try JSONDecoder().decode(
+                Question.self, from: try JSONEncoder().encode(question)
+            )
+            XCTAssertEqual(decoded.authorVisibility, visibility)
+        }
+    }
+}

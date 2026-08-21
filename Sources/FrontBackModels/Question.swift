@@ -43,6 +43,15 @@ public struct Question: Codable, Equatable, Hashable {
     public var originalContext: Context
     public var assessment: ModerationAssessment
 
+    /// Who, if anyone, the creator wants this question attributed to (swath N3, item 6.3).
+    ///
+    /// Optional, and that is about compatibility rather than about meaning. Swift's synthesized
+    /// `init(from:)` does not consult a property's default value, so a non optional field here
+    /// would make every already-shipped client, which sends no such key, fail to post a question
+    /// at all. Absent means the creator did not choose, and the server stores `silent`, which is
+    /// what every question in the system already meant.
+    public var authorVisibility: AuthorVisibility?
+
     // MARK - computed properties
 
     public func hash(into hasher: inout Hasher) {
@@ -64,7 +73,8 @@ public struct Question: Codable, Equatable, Hashable {
         contextPopularity: [ContextRawValue : PopularityScore] = [:],
         originalContext: Context,
         defaultCompatibilityRule: CompatibilityRule,
-        assessment: ModerationAssessment
+        assessment: ModerationAssessment,
+        authorVisibility: AuthorVisibility? = nil
     ) {
         self.requirementsFor = requirementsFor
         self.text = text
@@ -76,6 +86,7 @@ public struct Question: Codable, Equatable, Hashable {
         self.originalContext = originalContext
         self.defaultCompatibilityRule = defaultCompatibilityRule
         self.assessment = assessment
+        self.authorVisibility = authorVisibility
     }
 
     func isDeepEqual(to other: Question) -> Bool {
