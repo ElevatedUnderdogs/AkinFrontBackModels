@@ -41,7 +41,18 @@ public enum AuthorVisibility: String, Codable, CaseIterable, Hashable, Sendable 
         case .attributed:
             return "People answering will see that you wrote this question."
         case .unattributedAnnounced:
-            return "People will see that a member wrote this question, but not which member."
+            // Says BOTH halves, because the first half alone is false.
+            //
+            // This used to read "People will see that a member wrote this question, but not which
+            // member", which is true of the public view and untrue of the notification: this value
+            // names the author to that member's own followers, by name, which is the whole
+            // distinction between it and `silent`. A member choosing it read a sentence promising
+            // nobody would learn it was them, and then their followers learned it was them. Found
+            // while judging a UX review of the picker that shows this string.
+            return """
+            People will see that a member wrote this question, but not which member. \
+            The people who follow you will be told it was you.
+            """
         case .silent:
             return "People will not be told that anyone wrote this question."
         }

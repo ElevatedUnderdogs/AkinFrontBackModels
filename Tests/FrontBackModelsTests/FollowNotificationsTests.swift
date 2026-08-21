@@ -182,3 +182,42 @@ final class UndisclosedAuthorContractTests: XCTestCase {
         XCTAssertEqual(try JSONDecoder().decode(Question.self, from: data).creatorID, creator)
     }
 }
+
+// Swath N3. The visibility copy has to describe BOTH audiences, because the two values that look
+// alike from outside differ entirely from a follower's position.
+final class AuthorVisibilityCopyTests: XCTestCase {
+
+    /// `unattributedAnnounced` must not promise anonymity it does not provide.
+    ///
+    /// It withholds the author from the PUBLIC view and names them to that member's own followers.
+    /// A description mentioning only the first half is not incomplete, it is false in the direction
+    /// that harms the member who chose it.
+    func testTheAnnouncedDescriptionSaysFollowersAreTold() {
+        let copy = AuthorVisibility.unattributedAnnounced.descriptionForUser
+        XCTAssertTrue(copy.contains("not which member"), copy)
+        XCTAssertTrue(
+            copy.lowercased().contains("follow"),
+            "the description must say followers are told who wrote it: \(copy)"
+        )
+    }
+
+    /// `silent` promises nothing is said, and nothing is.
+    func testTheSilentDescriptionPromisesNoAnnouncement() {
+        let copy = AuthorVisibility.silent.descriptionForUser
+        XCTAssertTrue(copy.lowercased().contains("not be told"), copy)
+        XCTAssertFalse(
+            copy.lowercased().contains("follow"),
+            "silent tells followers nothing, so its description must not mention them: \(copy)"
+        )
+    }
+
+    /// Every value says something, and no two say the same thing.
+    func testEveryValueHasItsOwnDistinctCopy() {
+        let descriptions = AuthorVisibility.allCases.map(\.descriptionForUser)
+        XCTAssertEqual(Set(descriptions).count, AuthorVisibility.allCases.count)
+        for value in AuthorVisibility.allCases {
+            XCTAssertFalse(value.displayName.isEmpty, "\(value) has no display name")
+            XCTAssertFalse(value.descriptionForUser.isEmpty, "\(value) has no description")
+        }
+    }
+}
