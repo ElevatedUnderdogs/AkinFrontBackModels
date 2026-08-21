@@ -32,7 +32,13 @@ public struct Question: Codable, Equatable, Hashable {
     public var text: String
     public var responses: [Response] = [] // Codable
     public var id: UUID
-    public var creatorID: UUID
+    /// The member who wrote it, present only when they are disclosed (swath N3 item 6.5).
+    ///
+    /// Optional because authorship is a decision, not a fact the server always publishes. A
+    /// question at `unattributedAnnounced` or `silent` carries no author here, and the type is what
+    /// makes that expressible: while this was non optional, every serializer had to invent a value
+    /// for the undisclosed case, and the value they invented was the real one.
+    public var creatorID: UUID?
     public var defaultCompatibilityRule: CompatibilityRule
 
     /// Keep in mind the instances of these models in this package are customized for each user.
@@ -68,7 +74,7 @@ public struct Question: Codable, Equatable, Hashable {
         text: String,
         responses: [Response] = [],
         id: UUID,
-        creatorID: UUID,
+        creatorID: UUID?,
         importanceFor: [ContextRawValue : Importance] = [:],
         contextPopularity: [ContextRawValue : PopularityScore] = [:],
         originalContext: Context,

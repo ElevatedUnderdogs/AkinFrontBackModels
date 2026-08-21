@@ -148,3 +148,37 @@ final class QuestionAuthorVisibilityContractTests: XCTestCase {
         }
     }
 }
+
+// Swath N3 item 6.5. The contract half of the disclosure rule: the type must be able to say
+// "no author", or every serializer has to invent a value for the undisclosed case.
+final class UndisclosedAuthorContractTests: XCTestCase {
+
+    private func question(creator: UUID?) -> Question {
+        Question(
+            text: "a question \(UUID())",
+            id: UUID(),
+            creatorID: creator,
+            originalContext: Context(id: UUID(), case: .social),
+            defaultCompatibilityRule: .weighted,
+            assessment: ModerationAssessment(entries: [])
+        )
+    }
+
+    func testAQuestionWithNoDisclosedAuthorOmitsTheKeyEntirely() throws {
+        let data = try JSONEncoder().encode(question(creator: nil))
+        let json = try XCTUnwrap(String(data: data, encoding: .utf8))
+        // Absent, not null and not an empty string. Item 6.6 asks for "no author field at all,
+        // not an empty one", and a client distinguishing null from absent is a client that has
+        // been handed a distinction it should never have needed.
+        XCTAssertFalse(json.contains("creatorID"), "an undisclosed author must not appear: \(json)")
+        let decoded = try JSONDecoder().decode(Question.self, from: data)
+        XCTAssertNil(decoded.creatorID)
+    }
+
+    func testAQuestionWithADisclosedAuthorCarriesIt() throws {
+        let creator = UUID()
+        let data = try JSONEncoder().encode(question(creator: creator))
+        XCTAssertTrue(try XCTUnwrap(String(data: data, encoding: .utf8)).contains(creator.uuidString))
+        XCTAssertEqual(try JSONDecoder().decode(Question.self, from: data).creatorID, creator)
+    }
+}

@@ -89,9 +89,16 @@ public struct FollowNotificationPayload: Codable, Hashable, Sendable {
     public let questionnaireId: UUID?
     /// The member who wrote it, subject to their author visibility.
     ///
-    /// Optional because a question written under `.silent` or `.unattributedAnnounced` must not
-    /// disclose an author here. A notification is exactly the surface where an author who chose
-    /// not to be named would otherwise be named anyway.
+    /// Optional because not every notification is about an author. A questionnaire you follow
+    /// gaining a question is news about the set, not about who wrote it, and those carry no author
+    /// at all.
+    ///
+    /// When the notification IS about an author, both announcing values name them, including
+    /// `.unattributedAnnounced`. That reads backwards until you notice the two audiences are
+    /// different: a follower already chose to follow this member, and withholding the name from
+    /// them would leave a notification whose only reason for existing cannot be stated.
+    /// `.unattributedAnnounced` withholds the name from everyone who did NOT follow them, which is
+    /// the public question view, not this. `.silent` produces no notification in the first place.
     public let authorId: UUID?
 
     /// Memberwise initializer.
