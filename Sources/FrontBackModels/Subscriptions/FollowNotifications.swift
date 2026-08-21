@@ -71,40 +71,47 @@ public enum NotificationReason: String, Codable, CaseIterable, Sendable {
 }
 
 /// What the client renders when a followed thing gains a question.
+///
+/// The identifier properties end `Id`, not `ID`, and that is load bearing rather than a style
+/// choice. This app installs `.convertToSnakeCase` and `.convertFromSnakeCase` process wide in
+/// `configure.swift`, and Foundation's conversion is not its own inverse when a name ends in an
+/// acronym: the encoder writes `question_id` and the decoder reads it back as `questionId`, so a
+/// property spelled with the capitalised acronym encodes fine and then fails to decode. Spelling
+/// the property the way the round trip lands is the whole fix.
 public struct FollowNotificationPayload: Codable, Hashable, Sendable {
     /// Why this arrived.
     public let reason: NotificationReason
     /// The question that was added.
-    public let questionID: UUID
+    public let questionId: UUID
     /// The question's text, so the notification can say something rather than "new activity".
     public let questionText: String
     /// The questionnaire the question joined, when the reason is a followed questionnaire.
-    public let questionnaireID: UUID?
+    public let questionnaireId: UUID?
     /// The member who wrote it, subject to their author visibility.
     ///
     /// Optional because a question written under `.silent` or `.unattributedAnnounced` must not
     /// disclose an author here. A notification is exactly the surface where an author who chose
     /// not to be named would otherwise be named anyway.
-    public let authorID: UUID?
+    public let authorId: UUID?
 
     /// Memberwise initializer.
     /// - Parameters:
     ///   - reason: why the notification was sent.
-    ///   - questionID: the question that was added.
+    ///   - questionId: the question that was added.
     ///   - questionText: the question's text.
-    ///   - questionnaireID: the questionnaire joined, when applicable.
-    ///   - authorID: the author, only when their visibility permits naming them.
+    ///   - questionnaireId: the questionnaire joined, when applicable.
+    ///   - authorId: the author, only when their visibility permits naming them.
     public init(
         reason: NotificationReason,
-        questionID: UUID,
+        questionId: UUID,
         questionText: String,
-        questionnaireID: UUID?,
-        authorID: UUID?
+        questionnaireId: UUID?,
+        authorId: UUID?
     ) {
         self.reason = reason
-        self.questionID = questionID
+        self.questionId = questionId
         self.questionText = questionText
-        self.questionnaireID = questionnaireID
-        self.authorID = authorID
+        self.questionnaireId = questionnaireId
+        self.authorId = authorId
     }
 }

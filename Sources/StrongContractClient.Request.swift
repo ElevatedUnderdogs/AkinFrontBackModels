@@ -541,6 +541,20 @@ extension LogoutRequest {
     }
 }
 
+public typealias DeleteAccountRequest = Request<AccountDeletionRequest, AccountDeletionResult>
+extension DeleteAccountRequest {
+
+    /// Erases the signed-in account and everything it owns.
+    ///
+    /// Required by App Store Review Guideline 5.1.1(v), which asks for an
+    /// account deletion route that starts and finishes inside the app. It is a
+    /// POST because the body carries the typed confirmation, and it is
+    /// authenticated because the only account anyone may delete here is their own.
+    public static var deleteAccount: Self {
+        .init(method: .post)
+    }
+}
+
 public enum ModerationContentType: String, Codable {
     case question
     case response
