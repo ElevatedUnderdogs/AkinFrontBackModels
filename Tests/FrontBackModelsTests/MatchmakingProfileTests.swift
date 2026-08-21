@@ -95,3 +95,34 @@ final class MatchmakingProfileTests: XCTestCase {
         }
     }
 }
+
+// Swath N3 finding B1. A response can say it has no disclosed author.
+final class UndisclosedResponseAuthorTests: XCTestCase {
+
+    private func response(creator: UUID?) -> Question.Response {
+        Question.Response(
+            text: "an answer",
+            timeStamp: Date(timeIntervalSince1970: 1_770_000_000),
+            id: UUID(),
+            creator: creator,
+            questionID: UUID(),
+            originalContextID: UUID(),
+            assessment: ModerationAssessment(entries: [])
+        )
+    }
+
+    func testAnUndisclosedResponseAuthorIsAbsentRatherThanInvented() throws {
+        let data = try JSONEncoder().encode(response(creator: nil))
+        let json = try XCTUnwrap(String(data: data, encoding: .utf8))
+        XCTAssertFalse(json.contains("\"creator\""), "an undisclosed author must not appear: \(json)")
+        XCTAssertNil(try JSONDecoder().decode(Question.Response.self, from: data).creator)
+    }
+
+    func testADisclosedResponseAuthorSurvives() throws {
+        let creator = UUID()
+        let decoded = try JSONDecoder().decode(
+            Question.Response.self, from: try JSONEncoder().encode(response(creator: creator))
+        )
+        XCTAssertEqual(decoded.creator, creator)
+    }
+}
