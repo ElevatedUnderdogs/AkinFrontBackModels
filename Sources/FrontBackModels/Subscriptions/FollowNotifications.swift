@@ -55,69 +55,163 @@ public enum NotificationReason: String, Codable, CaseIterable, Sendable {
     case questionAddedToFollowedQuestionnaire
     /// A member you follow wrote a question.
     case questionAddedByFollowedMember
+    /// A member you follow assembled a questionnaire.
+    case questionnaireAddedByFollowedMember
+    /// A member you follow answered something.
+    case responseAddedByFollowedMember
 
     /// One sentence, addressed to the member, explaining why they are being told.
     ///
     /// Lives in the contract rather than in each client so the three platforms cannot drift into
     /// three different explanations of the same event.
+    ///
+    /// None of these sentences names the author, and that is deliberate rather than incidental.
+    /// GOAL_LOOP13 R21.12 forbids naming a creator whose visibility is `.unattributedAnnounced` or
+    /// `.silent`, on every surface including this one, and a sentence that names the member only
+    /// sometimes is a sentence each caller has to remember to redact. Saying "someone you follow"
+    /// in all cases means the redaction cannot be forgotten, because there is nothing to forget.
     public var explanation: String {
         switch self {
         case .questionAddedToFollowedQuestionnaire:
             return "A questionnaire you follow has a new question."
         case .questionAddedByFollowedMember:
             return "Someone you follow wrote a new question."
+        case .questionnaireAddedByFollowedMember:
+            return "Someone you follow made a new questionnaire."
+        case .responseAddedByFollowedMember:
+            return "Someone you follow added a new response."
+        }
+    }
+
+    /// The content kind this reason is about.
+    ///
+    /// Exhaustive and `default`-less, so a fifth reason cannot compile until it says what kind of
+    /// content it concerns.
+    public var contentKind: AuthoredContentKind {
+        switch self {
+        case .questionAddedToFollowedQuestionnaire: return .question
+        case .questionAddedByFollowedMember: return .question
+        case .questionnaireAddedByFollowedMember: return .questionnaire
+        case .responseAddedByFollowedMember: return .response
+        }
+    }
+
+    /// Whether this reason is news about a person rather than about a set.
+    ///
+    /// A questionnaire gaining a question is news about the questionnaire and names nobody. The
+    /// other three exist only because a particular member acted, which is what makes them subject
+    /// to the author visibility rules.
+    public var isAboutTheAuthor: Bool {
+        switch self {
+        case .questionAddedToFollowedQuestionnaire: return false
+        case .questionAddedByFollowedMember: return true
+        case .questionnaireAddedByFollowedMember: return true
+        case .responseAddedByFollowedMember: return true
         }
     }
 }
 
-/// What the client renders when a followed thing gains a question.
+/// The thing a notification is about.
+///
+/// A sum type rather than four optional fields on the payload. With optionals, a payload naming
+/// nothing at all is representable, and every consumer has to re-derive which of the four it is
+/// holding by testing which fields happen to be populated. R21.10 requires that an empty subject be
+/// unrepresentable, and the way to make a state unrepresentable is to give it no case.
+///
+/// Every case carries an id and the text to show, because a notification that cannot say what it is
+/// about is a notification that reads "new activity", which is the thing this type exists to avoid.
+public enum NotificationSubject: Codable, Hashable, Sendable {
+
+    /// A question, and its text.
+    case question(id: UUID, text: String)
+
+    /// A response, and its text.
+    case response(id: UUID, text: String)
+
+    /// A questionnaire, and its title.
+    case questionnaire(id: UUID, title: String)
+
+    /// The subject's id, without unwrapping the case.
+    public var id: UUID {
+        switch self {
+        case .question(let id, _): return id
+        case .response(let id, _): return id
+        case .questionnaire(let id, _): return id
+        }
+    }
+
+    /// The text to show for the subject, without unwrapping the case.
+    public var text: String {
+        switch self {
+        case .question(_, let text): return text
+        case .response(_, let text): return text
+        case .questionnaire(_, let title): return title
+        }
+    }
+
+    /// Which kind of content this is, so a caller can match it against a reason's `contentKind`.
+    public var kind: AuthoredContentKind {
+        switch self {
+        case .question: return .question
+        case .response: return .response
+        case .questionnaire: return .questionnaire
+        }
+    }
+}
+
+/// What the client renders when a followed thing gains content.
 ///
 /// The identifier properties end `Id`, not `ID`, and that is load bearing rather than a style
 /// choice. This app installs `.convertToSnakeCase` and `.convertFromSnakeCase` process wide in
 /// `configure.swift`, and Foundation's conversion is not its own inverse when a name ends in an
 /// acronym: the encoder writes `question_id` and the decoder reads it back as `questionId`, so a
 /// property spelled with the capitalised acronym encodes fine and then fails to decode. Spelling
-/// the property the way the round trip lands is the whole fix.
+/// the property the way the round trip lands is the whole fix, and GOAL_LOOP13 R22.1 turns the
+/// rule into a check rather than a comment.
 public struct FollowNotificationPayload: Codable, Hashable, Sendable {
+
     /// Why this arrived.
     public let reason: NotificationReason
-    /// The question that was added.
-    public let questionId: UUID
-    /// The question's text, so the notification can say something rather than "new activity".
-    public let questionText: String
-    /// The questionnaire the question joined, when the reason is a followed questionnaire.
+
+    /// What it is about. Never absent, by construction.
+    public let subject: NotificationSubject
+
+    /// The questionnaire involved, when the reason is a followed questionnaire.
     public let questionnaireId: UUID?
-    /// The member who wrote it, subject to their author visibility.
+
+    /// The member who wrote it, and ONLY when their visibility permits naming them.
     ///
-    /// Optional because not every notification is about an author. A questionnaire you follow
-    /// gaining a question is news about the set, not about who wrote it, and those carry no author
-    /// at all.
+    /// Optional for two different reasons, and both matter.
     ///
-    /// When the notification IS about an author, both announcing values name them, including
-    /// `.unattributedAnnounced`. That reads backwards until you notice the two audiences are
-    /// different: a follower already chose to follow this member, and withholding the name from
-    /// them would leave a notification whose only reason for existing cannot be stated.
-    /// `.unattributedAnnounced` withholds the name from everyone who did NOT follow them, which is
-    /// the public question view, not this. `.silent` produces no notification in the first place.
+    /// First, not every notification is about an author: a questionnaire you follow gaining a
+    /// question is news about the set, so those carry no author at all.
+    ///
+    /// Second, and this is the reason that changed: GOAL_LOOP13 R21.12 requires that content
+    /// created under `.unattributedAnnounced` or `.silent` leave the server carrying no author id,
+    /// even to a recipient who follows that member. This field previously documented the opposite
+    /// for `.unattributedAnnounced`, on the reasoning that a follower already knows who they
+    /// follow. The loop rejects that reasoning: the follower knowing WHO they follow is not the
+    /// same as being told THIS item was written by them, and with a small following the second
+    /// fact identifies the author of a specific piece of content. So `.attributed` is now the only
+    /// value that ever populates this field.
+    ///
+    /// The redaction is enforced on the server before the payload is built, never in the client.
     public let authorId: UUID?
 
     /// Memberwise initializer.
     /// - Parameters:
     ///   - reason: why the notification was sent.
-    ///   - questionId: the question that was added.
-    ///   - questionText: the question's text.
-    ///   - questionnaireId: the questionnaire joined, when applicable.
+    ///   - subject: the content the notification is about.
+    ///   - questionnaireId: the questionnaire involved, when applicable.
     ///   - authorId: the author, only when their visibility permits naming them.
     public init(
         reason: NotificationReason,
-        questionId: UUID,
-        questionText: String,
+        subject: NotificationSubject,
         questionnaireId: UUID?,
         authorId: UUID?
     ) {
         self.reason = reason
-        self.questionId = questionId
-        self.questionText = questionText
+        self.subject = subject
         self.questionnaireId = questionnaireId
         self.authorId = authorId
     }

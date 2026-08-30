@@ -23,15 +23,13 @@ final class FollowNotificationsTests: XCTestCase {
     func testPayloadSurvivesTheSnakeCaseRoundTrip() throws {
         let payload = FollowNotificationPayload(
             reason: .questionAddedToFollowedQuestionnaire,
-            questionId: UUID(),
-            questionText: "what does the round trip prove",
+            subject: .question(id: UUID(), text: "what does the round trip prove"),
             questionnaireId: UUID(),
             authorId: UUID()
         )
         let data = try wireEncoder().encode(payload)
         let json = try XCTUnwrap(String(data: data, encoding: .utf8))
         // The keys the client will actually see.
-        XCTAssertTrue(json.contains("\"question_id\""), json)
         XCTAssertTrue(json.contains("\"questionnaire_id\""), json)
         XCTAssertTrue(json.contains("\"author_id\""), json)
         let decoded = try wireDecoder().decode(FollowNotificationPayload.self, from: data)
@@ -42,8 +40,7 @@ final class FollowNotificationsTests: XCTestCase {
         // The `.silent` and `.unattributedAnnounced` shape: no author disclosed.
         let payload = FollowNotificationPayload(
             reason: .questionAddedByFollowedMember,
-            questionId: UUID(),
-            questionText: "written by someone who chose not to be named",
+            subject: .question(id: UUID(), text: "written by someone who chose not to be named"),
             questionnaireId: nil,
             authorId: nil
         )
@@ -92,6 +89,79 @@ final class FollowNotificationsTests: XCTestCase {
     func testEveryReasonCarriesAnExplanation() {
         for reason in NotificationReason.allCases {
             XCTAssertFalse(reason.explanation.isEmpty, "\(reason) has no explanation")
+        }
+    }
+
+    // MARK: - GOAL_LOOP13 R21.9 and R21.10
+
+    /// The four notifiable events from the R21 spec, each round tripping with the right subject.
+    ///
+    /// The payload could previously express only a question, because `questionId` and
+    /// `questionText` were non-optional and there was nowhere to put a response or a questionnaire.
+    func testEveryReasonRoundTripsCarryingItsOwnSubject() throws {
+        let cases: [(NotificationReason, NotificationSubject)] = [
+            (.questionAddedToFollowedQuestionnaire, .question(id: UUID(), text: "a question joining a set")),
+            (.questionAddedByFollowedMember, .question(id: UUID(), text: "a question by a followed member")),
+            (.questionnaireAddedByFollowedMember, .questionnaire(id: UUID(), title: "a new questionnaire")),
+            (.responseAddedByFollowedMember, .response(id: UUID(), text: "a response by a followed member")),
+        ]
+        XCTAssertEqual(cases.count, NotificationReason.allCases.count, "a reason has no round trip case")
+
+        for (reason, subject) in cases {
+            let payload = FollowNotificationPayload(
+                reason: reason,
+                subject: subject,
+                questionnaireId: reason == .questionAddedToFollowedQuestionnaire ? UUID() : nil,
+                authorId: nil
+            )
+            let decoded = try wireDecoder().decode(
+                FollowNotificationPayload.self, from: try wireEncoder().encode(payload)
+            )
+            XCTAssertEqual(decoded, payload, "\(reason) did not survive the wire")
+            XCTAssertEqual(decoded.subject.id, subject.id)
+            XCTAssertEqual(decoded.subject.text, subject.text)
+            XCTAssertEqual(decoded.subject.kind, reason.contentKind, "\(reason) disagrees with its subject kind")
+        }
+    }
+
+    /// A subject always names something. There is no case that names nothing, so a payload naming
+    /// nothing cannot be constructed, which is what R21.10 asks for.
+    func testASubjectAlwaysNamesSomething() {
+        let subjects: [NotificationSubject] = [
+            .question(id: UUID(), text: "q"),
+            .response(id: UUID(), text: "r"),
+            .questionnaire(id: UUID(), title: "t"),
+        ]
+        for subject in subjects {
+            XCTAssertFalse(subject.text.isEmpty)
+            XCTAssertNotNil(subject.kind)
+        }
+        // Every content kind is reachable as a subject, so no kind is inexpressible.
+        XCTAssertEqual(Set(subjects.map(\.kind)), Set(AuthoredContentKind.allCases))
+    }
+
+    /// Only one reason is news about a set rather than about a person.
+    func testOnlyTheQuestionnaireReasonIsNotAboutTheAuthor() {
+        for reason in NotificationReason.allCases {
+            XCTAssertEqual(
+                reason.isAboutTheAuthor,
+                reason != .questionAddedToFollowedQuestionnaire,
+                "\(reason) classified the wrong way"
+            )
+        }
+    }
+
+    /// R21.12, at the level of the contract: no reason's own copy names a member.
+    ///
+    /// The fan-out is where redaction is enforced, but a reason whose sentence embedded a name
+    /// would put the leak somewhere the fan-out never looks.
+    func testNoReasonExplanationNamesAMember() {
+        for reason in NotificationReason.allCases {
+            XCTAssertFalse(reason.explanation.contains("%@"), "\(reason) interpolates a name")
+            XCTAssertTrue(
+                reason.explanation.contains("Someone you follow") || !reason.isAboutTheAuthor,
+                "\(reason) is about an author but does not say it anonymously: \(reason.explanation)"
+            )
         }
     }
 }
@@ -183,41 +253,68 @@ final class UndisclosedAuthorContractTests: XCTestCase {
     }
 }
 
-// Swath N3. The visibility copy has to describe BOTH audiences, because the two values that look
-// alike from outside differ entirely from a follower's position.
+// Swath N3, revised by GOAL_LOOP13 R21.12.
+//
+// This class used to assert the OPPOSITE of what it asserts now, and the reversal is deliberate.
+// The old contract held that `unattributedAnnounced` withheld the author from the public view and
+// named them to that member's own followers, on the reasoning that a follower already chose to
+// follow them. R21.12 rejects that: knowing WHO you follow is not the same as being told THIS item
+// was written by them, and with a small following the second fact identifies the author of a
+// specific piece of content.
+//
+// So the fan-out no longer discloses for either hiding state, and the copy moved with the
+// behaviour. The old test is not deleted quietly; it is inverted here, so anyone reading the
+// history sees a promise withdrawn rather than a test that went missing.
+//
+// See docs/GOAL_LOOP13_R21_ATTRIBUTION_SPEC.md section 3 in the akin repository.
 final class AuthorVisibilityCopyTests: XCTestCase {
 
-    /// `unattributedAnnounced` must not promise anonymity it does not provide.
-    ///
-    /// It withholds the author from the PUBLIC view and names them to that member's own followers.
-    /// A description mentioning only the first half is not incomplete, it is false in the direction
-    /// that harms the member who chose it.
-    func testTheAnnouncedDescriptionSaysFollowersAreTold() {
-        let copy = AuthorVisibility.unattributedAnnounced.descriptionForUser
-        XCTAssertTrue(copy.contains("not which member"), copy)
-        XCTAssertTrue(
-            copy.lowercased().contains("follow"),
-            "the description must say followers are told who wrote it: \(copy)"
-        )
+    /// `unattributedAnnounced` announces authorship without naming anybody, to anybody.
+    func testTheAnnouncedDescriptionPromisesNobodyIsTold() {
+        for kind in AuthoredContentKind.allCases {
+            let copy = AuthorVisibility.unattributedAnnounced.descriptionForUser(for: kind)
+            XCTAssertTrue(copy.contains("not which member"), copy)
+            XCTAssertTrue(
+                copy.contains("Nobody is told it was you"),
+                "the description must say the author is not disclosed: \(copy)"
+            )
+            XCTAssertFalse(
+                copy.lowercased().contains("will be told it was you"),
+                "the withdrawn promise that followers are told survives: \(copy)"
+            )
+        }
     }
 
     /// `silent` promises nothing is said, and nothing is.
     func testTheSilentDescriptionPromisesNoAnnouncement() {
-        let copy = AuthorVisibility.silent.descriptionForUser
-        XCTAssertTrue(copy.lowercased().contains("not be told"), copy)
-        XCTAssertFalse(
-            copy.lowercased().contains("follow"),
-            "silent tells followers nothing, so its description must not mention them: \(copy)"
-        )
+        for kind in AuthoredContentKind.allCases {
+            let copy = AuthorVisibility.silent.descriptionForUser(for: kind)
+            XCTAssertTrue(copy.lowercased().contains("not be told"), copy)
+            XCTAssertFalse(
+                copy.lowercased().contains("follow"),
+                "silent tells followers nothing, so its description must not mention them: \(copy)"
+            )
+        }
     }
 
-    /// Every value says something, and no two say the same thing.
+    /// Every value says something, and no two say the same thing, for every content kind.
+    ///
+    /// The distinctness check is what stops the two hiding states from collapsing into one
+    /// sentence now that neither of them names anybody.
     func testEveryValueHasItsOwnDistinctCopy() {
-        let descriptions = AuthorVisibility.allCases.map(\.descriptionForUser)
-        XCTAssertEqual(Set(descriptions).count, AuthorVisibility.allCases.count)
-        for value in AuthorVisibility.allCases {
-            XCTAssertFalse(value.displayName.isEmpty, "\(value) has no display name")
-            XCTAssertFalse(value.descriptionForUser.isEmpty, "\(value) has no description")
+        for kind in AuthoredContentKind.allCases {
+            let descriptions = AuthorVisibility.allCases.map { $0.descriptionForUser(for: kind) }
+            XCTAssertEqual(
+                Set(descriptions).count, AuthorVisibility.allCases.count,
+                "two visibilities read identically for \(kind)"
+            )
+            for value in AuthorVisibility.allCases {
+                XCTAssertFalse(value.displayName.isEmpty, "\(value) has no display name")
+                XCTAssertFalse(
+                    value.descriptionForUser(for: kind).isEmpty,
+                    "\(value) has no description for \(kind)"
+                )
+            }
         }
     }
 }
