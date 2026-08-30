@@ -1210,7 +1210,26 @@ extension UpdateScheduleRequest {
 
 public struct LocationPayload: Codable, Hashable, Equatable {
     public var coordinates: Coordinates
-    public var cityName: String
+
+    /// The place name for `coordinates`, when one could be resolved.
+    ///
+    /// Optional because it genuinely may not be known, and because requiring it
+    /// caused a real defect. The iOS client resolves this with a reverse geocode,
+    /// and that lookup is network backed and rate limited, so it fails routinely
+    /// and transiently. While this was a non-optional `String`, the client could
+    /// not send the coordinates at all without it, so the whole location update
+    /// was gated on a COSMETIC lookup succeeding. When it failed, the user's
+    /// latitude and longitude were never uploaded, their row kept NULL
+    /// coordinates, and `nearbyUsers` filters those out, so two people standing
+    /// in the same place were invisible to each other and no server was at fault.
+    ///
+    /// Both ends already tolerated absence before this change: the server model is
+    /// `@Field(key: .cityName) var cityName: String?` and the column is nullable.
+    /// The wire type was the only thing insisting on a value.
+    ///
+    /// Widening is backward compatible in both directions. An older client still
+    /// sends a string, and a missing key decodes to nil rather than throwing.
+    public var cityName: String?
     public let timeZoneIdentifier: String
     public let localeIdentifier: String
     public let regionCode: String
@@ -1220,7 +1239,7 @@ public struct LocationPayload: Codable, Hashable, Equatable {
 
     public init(
         coordinates: Coordinates,
-        cityName: String,
+        cityName: String?,
         timeZoneIdentifier: String,
         localeIdentifier: String,
         regionCode: String,
