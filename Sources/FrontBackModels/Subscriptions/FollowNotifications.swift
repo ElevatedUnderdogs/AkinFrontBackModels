@@ -111,6 +111,54 @@ public enum NotificationReason: String, Codable, CaseIterable, Sendable {
     }
 }
 
+/// An author id that has already been through the disclosure decision.
+///
+/// GOAL_LOOP13 R22.3. The redaction rule, that content created under `.unattributedAnnounced`
+/// or `.silent` must never leave the server carrying an author id, was previously enforced by
+/// each fan-out site remembering to check. A rule held in place by memory is one that a sixth
+/// call site breaks, silently, in the direction nobody notices, because a payload that names
+/// someone looks exactly as correct as one that does not.
+///
+/// This type removes the option. Its only initializer takes the content's visibility alongside
+/// the author, and yields nothing for the two hiding states, so a site that forgets to redact
+/// cannot construct the value it needs in order to name anybody. `FollowNotificationPayload`
+/// accepts this rather than a bare `UUID?`, which means the check is not something a caller
+/// performs, it is something the type performs on the caller's behalf.
+///
+/// Not `Codable`, deliberately. It is a gate, not a wire type; what crosses the wire is the
+/// `UUID?` it yields.
+public struct DisclosedAuthor: Hashable, Sendable {
+
+    /// The id, present only when the author chose to be named.
+    public let id: UUID?
+
+    /// Decide, once, whether this author may be named.
+    ///
+    /// - Parameters:
+    ///   - author: who wrote the content.
+    ///   - visibility: what they chose.
+    public init(author: UUID, visibility: AuthorVisibility) {
+        switch visibility {
+        case .attributed:
+            self.id = author
+        // Both hiding states yield nothing, and they are listed separately rather than folded
+        // into a `default` so that a fourth visibility cannot inherit "disclose" by accident.
+        case .unattributedAnnounced:
+            self.id = nil
+        case .silent:
+            self.id = nil
+        }
+    }
+
+    /// The absence of an author, for notifications that are not about a person at all.
+    ///
+    /// A questionnaire gaining a question is news about the set. It names nobody by
+    /// construction, so there is no visibility to consult and nothing to redact.
+    public static let none = DisclosedAuthor()
+
+    private init() { self.id = nil }
+}
+
 /// The thing a notification is about.
 ///
 /// A sum type rather than four optional fields on the payload. With optionals, a payload naming
@@ -195,7 +243,9 @@ public struct FollowNotificationPayload: Codable, Hashable, Sendable {
     /// fact identifies the author of a specific piece of content. So `.attributed` is now the only
     /// value that ever populates this field.
     ///
-    /// The redaction is enforced on the server before the payload is built, never in the client.
+    /// The redaction is enforced on the server before the payload is built, never in the client,
+    /// and since R22.3 it is enforced by the type rather than by the caller: this field can only
+    /// be populated from a ``DisclosedAuthor``, whose initializer takes the visibility.
     public let authorId: UUID?
 
     /// Memberwise initializer.
@@ -203,16 +253,18 @@ public struct FollowNotificationPayload: Codable, Hashable, Sendable {
     ///   - reason: why the notification was sent.
     ///   - subject: the content the notification is about.
     ///   - questionnaireId: the questionnaire involved, when applicable.
-    ///   - authorId: the author, only when their visibility permits naming them.
+    ///   - author: the author, already through the disclosure decision. Build it with
+    ///     `DisclosedAuthor(author:visibility:)`, or use `.none` for a notification about a set
+    ///     rather than a person.
     public init(
         reason: NotificationReason,
         subject: NotificationSubject,
         questionnaireId: UUID?,
-        authorId: UUID?
+        author: DisclosedAuthor
     ) {
         self.reason = reason
         self.subject = subject
         self.questionnaireId = questionnaireId
-        self.authorId = authorId
+        self.authorId = author.id
     }
 }

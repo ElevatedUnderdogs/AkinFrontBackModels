@@ -25,7 +25,7 @@ final class FollowNotificationsTests: XCTestCase {
             reason: .questionAddedToFollowedQuestionnaire,
             subject: .question(id: UUID(), text: "what does the round trip prove"),
             questionnaireId: UUID(),
-            authorId: UUID()
+            author: DisclosedAuthor(author: UUID(), visibility: .attributed)
         )
         let data = try wireEncoder().encode(payload)
         let json = try XCTUnwrap(String(data: data, encoding: .utf8))
@@ -42,7 +42,7 @@ final class FollowNotificationsTests: XCTestCase {
             reason: .questionAddedByFollowedMember,
             subject: .question(id: UUID(), text: "written by someone who chose not to be named"),
             questionnaireId: nil,
-            authorId: nil
+            author: .none
         )
         let decoded = try wireDecoder().decode(
             FollowNotificationPayload.self, from: try wireEncoder().encode(payload)
@@ -112,7 +112,7 @@ final class FollowNotificationsTests: XCTestCase {
                 reason: reason,
                 subject: subject,
                 questionnaireId: reason == .questionAddedToFollowedQuestionnaire ? UUID() : nil,
-                authorId: nil
+                author: .none
             )
             let decoded = try wireDecoder().decode(
                 FollowNotificationPayload.self, from: try wireEncoder().encode(payload)
@@ -316,5 +316,108 @@ final class AuthorVisibilityCopyTests: XCTestCase {
                 )
             }
         }
+    }
+}
+
+
+// MARK: - GOAL_LOOP13 R22.3 and R22.4
+
+/// The redaction rule, enforced by the type instead of remembered by each caller.
+///
+/// Before this, every fan-out site decided for itself whether to attach an author id, and a site
+/// that forgot produced a payload that looked exactly as correct as one that did not. These tests
+/// hold the property that makes forgetting impossible: the only way to populate `authorId` is
+/// through `DisclosedAuthor`, whose initializer requires the visibility.
+final class DisclosedAuthorTests: XCTestCase {
+
+    /// Only `.attributed` yields an id. The other two yield nothing, for every content kind.
+    func testOnlyAttributedDiscloses() {
+        let author = UUID()
+        XCTAssertEqual(DisclosedAuthor(author: author, visibility: .attributed).id, author)
+        XCTAssertNil(DisclosedAuthor(author: author, visibility: .unattributedAnnounced).id)
+        XCTAssertNil(DisclosedAuthor(author: author, visibility: .silent).id)
+    }
+
+    /// Exactly one of the three visibilities discloses, so a fourth cannot inherit "disclose".
+    func testExactlyOneVisibilityDiscloses() {
+        let author = UUID()
+        let disclosing = AuthorVisibility.allCases.filter {
+            DisclosedAuthor(author: author, visibility: $0).id != nil
+        }
+        XCTAssertEqual(disclosing, [.attributed])
+    }
+
+    /// A payload built from a hiding visibility carries no author id on the wire.
+    ///
+    /// Asserted on the encoded JSON, not on the property, because the property being nil is only
+    /// half the claim: what matters is that nothing identifying leaves the process.
+    func testAHiddenAuthorIsAbsentFromTheEncodedPayload() throws {
+        let author = UUID()
+        for visibility in [AuthorVisibility.unattributedAnnounced, .silent] {
+            let payload = FollowNotificationPayload(
+                reason: .questionAddedByFollowedMember,
+                subject: .question(id: UUID(), text: "who wrote this"),
+                questionnaireId: nil,
+                author: DisclosedAuthor(author: author, visibility: visibility)
+            )
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            let json = try XCTUnwrap(String(data: try encoder.encode(payload), encoding: .utf8))
+            XCTAssertFalse(
+                json.contains(author.uuidString),
+                "\(visibility) leaked the author id into the payload: \(json)"
+            )
+            XCTAssertNil(payload.authorId)
+        }
+    }
+
+    /// The attributed case still works, so the guard is not simply refusing everything.
+    ///
+    /// A redaction test suite that only ever asserts absence passes just as well against a type
+    /// that discloses nothing at all, which would be a different bug wearing this one's clothes.
+    func testAnAttributedAuthorIsStillCarried() throws {
+        let author = UUID()
+        let payload = FollowNotificationPayload(
+            reason: .questionAddedByFollowedMember,
+            subject: .question(id: UUID(), text: "who wrote this"),
+            questionnaireId: nil,
+            author: DisclosedAuthor(author: author, visibility: .attributed)
+        )
+        XCTAssertEqual(payload.authorId, author)
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        let json = try XCTUnwrap(String(data: try encoder.encode(payload), encoding: .utf8))
+        XCTAssertTrue(json.contains(author.uuidString))
+    }
+
+    /// A notification about a set carries no author at all, without consulting a visibility.
+    func testASetNotificationHasNoAuthorToRedact() {
+        XCTAssertNil(DisclosedAuthor.none.id)
+    }
+
+    /// R22.4, in the form this repository can actually enforce.
+    ///
+    /// The item asks for a fresh-context agent to try writing a plausible endpoint that leaks a
+    /// silent author, and for the attempt to fail to compile. The compile half is real and is
+    /// stated here as a property rather than prose: `FollowNotificationPayload` has exactly one
+    /// initializer, it takes `DisclosedAuthor`, and `DisclosedAuthor` has exactly one public
+    /// initializer that takes a visibility. There is no expression that produces a populated
+    /// `authorId` without naming a visibility, so the leak is not reachable by forgetting; it is
+    /// reachable only by writing `.attributed` deliberately, which is a decision rather than an
+    /// omission.
+    ///
+    /// What this test can hold is the property that makes that true. The adversarial attempt
+    /// itself is recorded in the loop notes, because a test cannot fail to compile on purpose.
+    func testTheOnlyRouteToAnAuthorIdRequiresAVisibility() {
+        let author = UUID()
+        // Every construction path available to a caller, exhaustively.
+        let everyRoute: [DisclosedAuthor] = AuthorVisibility.allCases.map {
+            DisclosedAuthor(author: author, visibility: $0)
+        } + [.none]
+        let disclosing = everyRoute.filter { $0.id != nil }
+        XCTAssertEqual(
+            disclosing.count, 1,
+            "exactly one of the four construction routes may disclose, found \(disclosing.count)"
+        )
     }
 }
