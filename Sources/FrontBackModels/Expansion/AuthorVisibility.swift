@@ -204,3 +204,63 @@ public enum AuthorVisibility: String, Codable, CaseIterable, Hashable, Sendable 
         }
     }
 }
+
+// MARK: - Validating an inbound value
+
+extension AuthorVisibility {
+
+    /// Why an inbound visibility value was refused, with the accepted set named.
+    ///
+    /// A distinct error type rather than a bare string so the server can turn it into a 400 with
+    /// the message intact, and the client can show the same sentence, without either of them
+    /// spelling out the accepted set a second time and drifting from it.
+    public struct UnknownValue: Error, CustomStringConvertible, Sendable {
+
+        /// What arrived.
+        public let received: String
+
+        public init(received: String) {
+            self.received = received
+        }
+
+        /// Generated from the cases, never a literal list. A literal is how a fourth value ships
+        /// with a message that names three.
+        public var accepted: [String] { AuthorVisibility.allCases.map(\.rawValue) }
+
+        public var description: String {
+            """
+            \(received.isEmpty ? "An empty string" : "\"\(received)\"") is not a known author \
+            visibility. Accepted values are \(accepted.map { "\"\($0)\"" }.joined(separator: " and ")).
+            """
+        }
+    }
+
+    /// The visibility for a value that arrived from a CLIENT, refusing anything unknown.
+    ///
+    /// Deliberately not what `init(from:)` does, and the difference is the whole point.
+    ///
+    /// Decoding a value read out of the DATABASE has to tolerate the retired raw values, because
+    /// rows still hold them and the alternative is a read that fails on history. That decode fails
+    /// closed, mapping anything it does not recognise to `anonymized`, so a value nobody can
+    /// interpret never resolves to "show this person's name".
+    ///
+    /// Applying the same tolerance to an inbound REQUEST is a different thing wearing the same
+    /// clothes. A client that sends a typo, or an older build that sends a value this release
+    /// retired, gets 200 and a member's content silently switched to anonymous. That is not a safe
+    /// default; it is the member's setting being changed to something they did not choose, with no
+    /// error to notice. Measured before this existed: `PUT .../authorVisibility` with
+    /// `"banana"` returned 200 and stored `anonymized`.
+    ///
+    /// So: history is tolerated on the way out of the database, and refused on the way in from a
+    /// client. Failing closed protects a read. It cannot stand in for validating a write.
+    ///
+    /// - Parameter rawValue: exactly what the client sent.
+    /// - Returns: the matching case.
+    /// - Throws: ``UnknownValue`` naming what arrived and what is accepted.
+    public static func requireKnown(_ rawValue: String) throws -> AuthorVisibility {
+        guard let known = AuthorVisibility(rawValue: rawValue) else {
+            throw UnknownValue(received: rawValue)
+        }
+        return known
+    }
+}
