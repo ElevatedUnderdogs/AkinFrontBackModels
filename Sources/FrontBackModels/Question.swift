@@ -58,6 +58,15 @@ public struct Question: Codable, Equatable, Hashable {
     /// what every question in the system already meant.
     public var authorVisibility: AuthorVisibility?
 
+    /// Who wrote it, ready to draw, present only when they are disclosed
+    /// (GOAL_LOOP14 F1.2).
+    ///
+    /// `creatorID` above answers "may this author be named". This answers "what
+    /// is their name", which a client cannot derive from a UUID without a round
+    /// trip per row. Both are gated by the same decision, so the invariant is
+    /// that this is nil whenever `creatorID` is nil.
+    public var author: AuthorSummary?
+
     // MARK - computed properties
 
     public func hash(into hasher: inout Hasher) {
@@ -80,7 +89,8 @@ public struct Question: Codable, Equatable, Hashable {
         originalContext: Context,
         defaultCompatibilityRule: CompatibilityRule,
         assessment: ModerationAssessment,
-        authorVisibility: AuthorVisibility? = nil
+        authorVisibility: AuthorVisibility? = nil,
+        author: AuthorSummary? = nil
     ) {
         self.requirementsFor = requirementsFor
         self.text = text
@@ -93,6 +103,7 @@ public struct Question: Codable, Equatable, Hashable {
         self.defaultCompatibilityRule = defaultCompatibilityRule
         self.assessment = assessment
         self.authorVisibility = authorVisibility
+        self.author = author
     }
 
     func isDeepEqual(to other: Question) -> Bool {

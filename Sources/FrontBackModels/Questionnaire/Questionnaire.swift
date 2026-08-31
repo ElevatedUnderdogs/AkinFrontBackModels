@@ -41,6 +41,16 @@ public struct Questionnaire: Codable, Hashable, Sendable {
     /// system, and is carried here so a respondent's view can be rendered without a second lookup.
     public let authorVisibility: AuthorVisibility
 
+    /// Who wrote it, ready to draw, present only when they are disclosed
+    /// (GOAL_LOOP14 F1.2).
+    ///
+    /// `creatorID` above is not optional here, unlike on `Question`, because a
+    /// questionnaire always has a creator even when nobody may be told who. So
+    /// on this type the disclosure decision is carried entirely by this field
+    /// being present or absent, and `creatorID` must not be treated as evidence
+    /// that the author may be named.
+    public let author: AuthorSummary?
+
     /// Memberwise initializer.
     /// - Parameters:
     ///   - id: the questionnaire's own identifier.
@@ -50,6 +60,7 @@ public struct Questionnaire: Codable, Hashable, Sendable {
     ///   - createdAt: when it was published.
     ///   - questionIDs: references to existing questions, in the author's order.
     ///   - authorVisibility: whether and how the author is disclosed.
+    ///   - author: the drawable author, present only when disclosed.
     public init(
         id: UUID,
         title: String,
@@ -57,7 +68,8 @@ public struct Questionnaire: Codable, Hashable, Sendable {
         contextID: UUID,
         createdAt: Date,
         questionIDs: [UUID],
-        authorVisibility: AuthorVisibility
+        authorVisibility: AuthorVisibility,
+        author: AuthorSummary? = nil
     ) {
         self.id = id
         self.title = title
@@ -66,6 +78,7 @@ public struct Questionnaire: Codable, Hashable, Sendable {
         self.createdAt = createdAt
         self.questionIDs = questionIDs
         self.authorVisibility = authorVisibility
+        self.author = author
     }
 }
 

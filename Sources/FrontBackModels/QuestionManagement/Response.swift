@@ -44,6 +44,15 @@ extension Question {
 
         public var assessment: ModerationAssessment
 
+        /// Who wrote it, ready to draw, present only when they are disclosed
+        /// (GOAL_LOOP14 F1.2).
+        ///
+        /// `creator` above answers "may this author be named". This answers
+        /// "what is their name". The invariant is that this is nil whenever
+        /// `creator` is nil: a name without the id that authorised it would be
+        /// a disclosure nobody gated.
+        public var author: AuthorSummary?
+
         /// This initializer isn't synthesized when Codable is conformed to.
         public init(
             text: String,
@@ -55,7 +64,8 @@ extension Question {
             theirChoices: [ContextRawValue : Selections.MyTheir.Choice] = [:],
             popularity: [ContextRawValue : PopularityScore] = [:],
             originalContextID: UUID,
-            assessment: ModerationAssessment
+            assessment: ModerationAssessment,
+            author: AuthorSummary? = nil
         ) {
             self.text = text
             self.timeStamp = timeStamp
@@ -67,6 +77,7 @@ extension Question {
             self.popularity = popularity
             self.originalContextID = originalContextID
             self.assessment = assessment
+            self.author = author
         }
 
         /// Performs a full field-by-field comparison of all properties.
