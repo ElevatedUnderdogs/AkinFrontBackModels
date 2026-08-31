@@ -269,31 +269,42 @@ final class UndisclosedAuthorContractTests: XCTestCase {
 // See docs/GOAL_LOOP13_R21_ATTRIBUTION_SPEC.md section 3 in the akin repository.
 final class AuthorVisibilityCopyTests: XCTestCase {
 
-    /// `unattributedAnnounced` announces authorship without naming anybody, to anybody.
-    func testTheAnnouncedDescriptionPromisesNobodyIsTold() {
+    /// GOAL_LOOP14 F5.3. The switch explanation names BOTH consequences, for every content kind.
+    ///
+    /// The two retired values are the reason this assertion is worded as two separate `contains`
+    /// checks rather than one. `unattributedAnnounced` spent most of its life promising the first
+    /// half while breaking the second, and a member who reads only the first half is being misled
+    /// in the direction that harms them.
+    func testTheSwitchExplanationNamesBothConsequences() {
         for kind in AuthoredContentKind.allCases {
-            let copy = AuthorVisibility.unattributedAnnounced.descriptionForUser(for: kind)
-            XCTAssertTrue(copy.contains("not which member"), copy)
+            let copy = AuthorVisibility.switchExplanation(for: kind).lowercased()
             XCTAssertTrue(
-                copy.contains("Nobody is told it was you"),
-                "the description must say the author is not disclosed: \(copy)"
+                copy.contains("creator"),
+                "the explanation must say we will not show you as the creator, for \(kind): \(copy)"
             )
-            XCTAssertFalse(
-                copy.lowercased().contains("will be told it was you"),
-                "the withdrawn promise that followers are told survives: \(copy)"
+            XCTAssertTrue(
+                copy.contains("follow"),
+                "the explanation must say people cannot follow you from it, for \(kind): \(copy)"
             )
+            XCTAssertTrue(
+                copy.contains("questions") && copy.contains("responses"),
+                "the explanation must name what following would have told them about: \(copy)"
+            )
+            XCTAssertTrue(copy.contains(kind.noun), "the sentence must name the content: \(copy)")
         }
     }
 
-    /// `silent` promises nothing is said, and nothing is.
-    func testTheSilentDescriptionPromisesNoAnnouncement() {
+    /// The label names the thing being turned ON, not the state being left behind.
+    func testTheSwitchLabelIsAnonymizeMe() {
+        XCTAssertEqual(AuthorVisibility.switchLabel, "Anonymize me")
+    }
+
+    /// `attributed` states the opposite consequence, in the same sentence as the control.
+    func testTheAttributedDescriptionSaysTheNameIsShownAndCanBeFollowed() {
         for kind in AuthoredContentKind.allCases {
-            let copy = AuthorVisibility.silent.descriptionForUser(for: kind)
-            XCTAssertTrue(copy.lowercased().contains("not be told"), copy)
-            XCTAssertFalse(
-                copy.lowercased().contains("follow"),
-                "silent tells followers nothing, so its description must not mention them: \(copy)"
-            )
+            let copy = AuthorVisibility.attributed.descriptionForUser(for: kind).lowercased()
+            XCTAssertTrue(copy.contains("wrote this"), copy)
+            XCTAssertTrue(copy.contains("follow"), "the consequence travels with the control: \(copy)")
         }
     }
 
@@ -330,15 +341,14 @@ final class AuthorVisibilityCopyTests: XCTestCase {
 /// through `DisclosedAuthor`, whose initializer requires the visibility.
 final class DisclosedAuthorTests: XCTestCase {
 
-    /// Only `.attributed` yields an id. The other two yield nothing, for every content kind.
+    /// Only `.attributed` yields an id. `.anonymized` yields nothing, for every content kind.
     func testOnlyAttributedDiscloses() {
         let author = UUID()
         XCTAssertEqual(DisclosedAuthor(author: author, visibility: .attributed).id, author)
-        XCTAssertNil(DisclosedAuthor(author: author, visibility: .unattributedAnnounced).id)
-        XCTAssertNil(DisclosedAuthor(author: author, visibility: .silent).id)
+        XCTAssertNil(DisclosedAuthor(author: author, visibility: .anonymized).id)
     }
 
-    /// Exactly one of the three visibilities discloses, so a fourth cannot inherit "disclose".
+    /// Exactly one of the two visibilities discloses, so a third cannot inherit "disclose".
     func testExactlyOneVisibilityDiscloses() {
         let author = UUID()
         let disclosing = AuthorVisibility.allCases.filter {
@@ -353,7 +363,7 @@ final class DisclosedAuthorTests: XCTestCase {
     /// half the claim: what matters is that nothing identifying leaves the process.
     func testAHiddenAuthorIsAbsentFromTheEncodedPayload() throws {
         let author = UUID()
-        for visibility in [AuthorVisibility.unattributedAnnounced, .silent] {
+        for visibility in [AuthorVisibility.anonymized] {
             let payload = FollowNotificationPayload(
                 reason: .questionAddedByFollowedMember,
                 subject: .question(id: UUID(), text: "who wrote this"),

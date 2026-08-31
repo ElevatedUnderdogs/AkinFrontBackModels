@@ -20,46 +20,66 @@ final class AuthorVisibilityContentKindTests: XCTestCase {
         }
     }
 
-    /// The sentence names the content it is describing, and never a different one.
+    /// The sentence names the content it is describing, and never a different one, AS ITS SUBJECT.
     ///
     /// This is the test that would have caught the original defect: with the noun hardcoded, the
     /// response and questionnaire cells both said "question".
-    func testCopyNamesItsOwnContentKindAndNoOther() {
+    ///
+    /// GOAL_LOOP14 narrowed the check from "the other noun appears nowhere in the sentence" to
+    /// "the other noun is not the subject". The blanket form started failing on copy that is
+    /// correct: the anonymized explanation ends by naming what following the member would have
+    /// told the reader about, which is that member's other questions and responses, whatever the
+    /// content in hand happens to be. That trailing clause is deliberate, it is the half of the
+    /// consequence the retired middle option omitted, and the user's own wording for this switch
+    /// names both nouns.
+    ///
+    /// What the original defect actually looked like was the SUBJECT being wrong: a questionnaire
+    /// cell reading "this question". So the assertion is now made against the subject phrase,
+    /// which is the thing that was broken, rather than against the whole sentence, which catches
+    /// correct copy as collateral.
+    func testCopySubjectNamesItsOwnContentKindAndNoOther() {
         for visibility in AuthorVisibility.allCases {
             for kind in AuthoredContentKind.allCases {
                 let copy = visibility.descriptionForUser(for: kind)
                 XCTAssertTrue(
-                    copy.contains(kind.noun),
-                    "\(visibility) x \(kind) never names a \(kind.noun): \(copy)"
+                    copy.contains("this \(kind.noun)"),
+                    "\(visibility) x \(kind) never makes a \(kind.noun) its subject: \(copy)"
                 )
                 for other in AuthoredContentKind.allCases where other != kind {
-                    // "question" is a substring of nothing else here, and "questionnaire" contains
-                    // "question", so the containment check only runs in the direction that is safe.
+                    // "questionnaire" contains "question", so "this question" is a substring of
+                    // "this questionnaire". The containment check only runs in the safe direction.
                     guard !other.noun.contains(kind.noun), !kind.noun.contains(other.noun) else { continue }
                     XCTAssertFalse(
-                        copy.contains(other.noun),
-                        "\(visibility) x \(kind) leaked the noun \(other.noun): \(copy)"
+                        copy.contains("this \(other.noun)"),
+                        "\(visibility) x \(kind) makes a \(other.noun) its subject: \(copy)"
                     )
                 }
             }
         }
     }
 
-    /// R21.12 redaction, asserted at the level of the promise made to the member.
+
+    /// GOAL_LOOP14 F5. The anonymized description must not promise disclosure, in either
+    /// direction, for any content kind.
     ///
-    /// `unattributedAnnounced` must no longer tell a member that their followers will learn it was
-    /// them, because the fan-out no longer tells them. A sentence promising disclosure while the
-    /// system withholds it is the same defect as the reverse, just in the safer direction.
-    func testUnattributedAnnouncedDoesNotPromiseFollowersAreTold() {
+    /// This assertion replaces the R21.12 one it grew out of. R21.12 stopped the fan-out naming
+    /// the author to followers for `unattributedAnnounced`, which is what left that value
+    /// behaviourally identical to `silent` and made the middle option removable. The promise being
+    /// checked is the same promise; it now belongs to the single anonymized state.
+    func testAnonymizedDoesNotPromiseAnyDisclosure() {
         for kind in AuthoredContentKind.allCases {
-            let copy = AuthorVisibility.unattributedAnnounced.descriptionForUser(for: kind)
+            let copy = AuthorVisibility.anonymized.descriptionForUser(for: kind)
             XCTAssertTrue(
-                copy.contains("Nobody is told it was you"),
-                "the redaction promise is missing for \(kind): \(copy)"
+                copy.lowercased().contains("not"),
+                "the description must state what will not happen for \(kind): \(copy)"
             )
             XCTAssertFalse(
                 copy.lowercased().contains("will be told it was you"),
                 "the withdrawn disclosure promise survives for \(kind): \(copy)"
+            )
+            XCTAssertTrue(
+                copy.contains(kind.noun),
+                "the sentence must name the content it applies to for \(kind): \(copy)"
             )
         }
     }

@@ -1,10 +1,21 @@
 import Foundation
 
-// Swath N3 contract (item 6.1): how the author of a piece of content is shown, if at all.
+// GOAL_LOOP14 item F5. This was a three-case enum: `attributed`,
+// `unattributedAnnounced`, `silent`. The middle case is retired.
 //
-// Every question today is anonymous, so `silent` is the default and existing rows keep exactly the
-// meaning they already had. Adding a case with a different default would change what was already
-// published on behalf of people who never chose it.
+// It was already dead in behaviour before it was retired in type. GOAL_LOOP13
+// R21.12 stopped a notification arising from `unattributedAnnounced` content
+// from carrying an author id or naming the creator, even to a follower who had
+// chosen to follow them. That was the last thing separating it from `silent`.
+// After R21.12 the two values disclose the author to nobody, on any surface,
+// and differ only in what the surface CLAIMS: one says a member wrote this, the
+// other says nothing. A member was being asked to reason about a distinction
+// that changed nothing they could observe.
+//
+// What replaces it is one switch, "Anonymize me", off by default. The contract,
+// the migration mapping for every legacy value, and why an unknown value
+// decodes closed rather than open, are in
+// `akin/docs/GOAL_LOOP14_AUTHORSHIP_CONTRACT.md`.
 
 /// The kind of authored content a visibility choice is being described for.
 ///
@@ -33,66 +44,163 @@ public enum AuthoredContentKind: String, Codable, CaseIterable, Hashable, Sendab
         case .questionnaire: return "questionnaire"
         }
     }
+
+    /// The plural noun, for copy that talks about a member's other content.
+    public var pluralNoun: String {
+        switch self {
+        case .question: return "questions"
+        case .response: return "responses"
+        case .questionnaire: return "questionnaires"
+        }
+    }
 }
 
-/// Whether, and how, the author of a piece of content is disclosed.
+/// Whether the author of a piece of content is disclosed.
 ///
-/// The display strings live here rather than in each client so the picker reads identically on iOS,
+/// Two states, because the member is making one decision: put my name on this, or do not. The
+/// display strings live here rather than in each client so the switch reads identically on iOS,
 /// on Android, and on the web. A client that writes its own copy is a client that can drift from
 /// what the server means by the stored value.
 public enum AuthorVisibility: String, Codable, CaseIterable, Hashable, Sendable {
-    /// The author is named. Answers can be traced to a person who chose to be named.
+
+    /// The author is named on the content and can be followed from it. This is the default: the
+    /// switch is off, and the ordinary case is that people see who wrote what they are reading.
     case attributed
 
-    /// Somebody wrote this and said so, without saying who. The content is announced as authored,
-    /// which is a different claim from anonymity, and the author is not identified.
-    case unattributedAnnounced
+    /// The author is not named anywhere, and cannot be followed from this content. No notification
+    /// arising from it names them either, which after R21.12 is already true of both values this
+    /// case absorbs.
+    case anonymized
 
-    /// Nothing is said about authorship at all. This is the default and the historical behaviour of
-    /// every question that existed before this field.
-    case silent
+    // MARK: - Legacy storage
 
-    /// The short label a picker shows. Sentence case, because it sits in a list rather than a title.
+    /// Raw values written before this type became two-state.
     ///
-    /// Deliberately free of any content noun: the same three labels read correctly above a question,
-    /// a response, or a questionnaire, so there is nothing here to keep in sync.
-    public var displayName: String {
-        switch self {
-        case .attributed: return "Show my name"
-        case .unattributedAnnounced: return "Say someone wrote it"
-        case .silent: return "Say nothing"
+    /// These are not cases. Nothing can select one, store one, or switch over one. They exist so
+    /// that a row written by an older build decodes to a defined answer instead of throwing, which
+    /// turns a stale row into a slightly stale label rather than a 500.
+    public enum Legacy {
+
+        /// Nothing was said about authorship, and the author could not be followed from the
+        /// content. That is what ``AuthorVisibility/anonymized`` means.
+        public static let silent = "silent"
+
+        /// The surface claimed a member wrote it, without saying which member. After R21.12 it
+        /// disclosed the author to nobody, including followers, so it and ``silent`` had become
+        /// the same thing behind two labels.
+        public static let unattributedAnnounced = "unattributedAnnounced"
+
+        /// Every raw value this type has ever written, current cases included.
+        ///
+        /// The database CHECK constraint has to admit all of these until the GOAL_LOOP14 backfill
+        /// has run and been proven revertible, because a constraint narrower than the data is a
+        /// failed write, not a clean migration.
+        public static let allStoredRawValues: [String] = [
+            AuthorVisibility.attributed.rawValue,
+            AuthorVisibility.anonymized.rawValue,
+            silent,
+            unattributedAnnounced
+        ]
+
+        /// The documented mapping from any stored value to a current case.
+        ///
+        /// - Parameter rawValue: whatever the storage holds.
+        /// - Returns: the case that value means today.
+        public static func visibility(forStored rawValue: String) -> AuthorVisibility {
+            if let known = AuthorVisibility(knownRawValue: rawValue) {
+                return known
+            }
+            // An unrecognised value is one this build does not understand. The two possible
+            // guesses are not symmetric: guessing `attributed` publishes a name the value might
+            // have been withholding, which the member cannot take back from anyone who saw it.
+            // Guessing `anonymized` withholds a name it might have published, which is visible,
+            // reportable and fixable. Fail closed.
+            return .anonymized
         }
     }
 
-    /// One sentence, addressed to the member, describing what other people will see.
+    /// The plain lookup, without the unknown-value fallback.
     ///
-    /// Written in the second person on purpose: the member is choosing what happens to them, and a
-    /// description in the third person reads as documentation of a system rather than a choice.
+    /// Separated out so ``Legacy/visibility(forStored:)`` can ask "is this a value I recognise?"
+    /// without recursing through its own default.
+    private init?(knownRawValue rawValue: String) {
+        switch rawValue {
+        case AuthorVisibility.attributed.rawValue: self = .attributed
+        case AuthorVisibility.anonymized.rawValue: self = .anonymized
+        case Legacy.silent, Legacy.unattributedAnnounced: self = .anonymized
+        default: return nil
+        }
+    }
+
+    /// Decoding routes every stored value through the documented mapping, so a row written by any
+    /// past build decodes rather than throwing.
+    public init(from decoder: Decoder) throws {
+        let rawValue = try decoder.singleValueContainer().decode(String.self)
+        self = Legacy.visibility(forStored: rawValue)
+    }
+
+    /// The state the switch is in when a member has expressed no preference.
+    ///
+    /// Off, meaning ``attributed``. Named rather than left implicit at each call site, so "what is
+    /// the default" has exactly one answer to change.
+    public static let `default`: AuthorVisibility = .attributed
+
+    // MARK: - The switch
+
+    /// The switch's label. The member is turning anonymity ON, so the label names the thing being
+    /// turned on rather than the state being left behind.
+    public static let switchLabel: String = "Anonymize me"
+
+    /// Whether the switch is on for this value.
+    public var isAnonymized: Bool { self == .anonymized }
+
+    /// The value the switch produces.
+    ///
+    /// The single conversion from switch state to stored value, so authorship cannot come to mean
+    /// two different things depending on which sheet the member used.
+    ///
+    /// - Parameter isAnonymized: whether the member turned the switch on.
+    public static func from(isAnonymized: Bool) -> AuthorVisibility {
+        isAnonymized ? .anonymized : .attributed
+    }
+
+    /// The explanation shown beside the switch, in the second person because the member is
+    /// choosing what happens to them.
+    ///
+    /// Names both consequences. The first half alone is the sentence the retired middle option
+    /// shipped for most of its life, and it was not the whole truth; a control whose consequence is
+    /// not stated beside the control is how a member ends up surprised by their own choice.
+    ///
+    /// - Parameter kind: the content the choice applies to, which supplies the nouns.
+    /// - Returns: the sentence to show beneath the switch.
+    public static func switchExplanation(for kind: AuthoredContentKind) -> String {
+        """
+        We will not show you as the creator of this \(kind.noun), and people will not be able to \
+        follow you from it to find out when you create other questions and responses.
+        """
+    }
+
+    /// One sentence describing what other people will see, for each state.
     ///
     /// - Parameter kind: the content the choice applies to, which supplies the noun.
     /// - Returns: the sentence to show beneath the choice.
     public func descriptionForUser(for kind: AuthoredContentKind) -> String {
         switch self {
         case .attributed:
-            return "People answering will see that you wrote this \(kind.noun)."
-        case .unattributedAnnounced:
-            // Says BOTH halves, because the first half alone is incomplete.
-            //
-            // The second half used to read "The people who follow you will be told it was you",
-            // which was true of the notification fan-out as it was then built. GOAL_LOOP13 R21.12
-            // reverses that: a notification about content created under this value must not carry
-            // an author id and must not name the creator, even to a follower who already chose to
-            // follow them. The sentence moves with the behaviour, in the safer direction. Leaving
-            // the old promise in place would have made this the one string in the app that tells a
-            // member their name WILL be disclosed when it no longer is.
-            //
-            // Recorded in docs/GOAL_LOOP13_R21_ATTRIBUTION_SPEC.md, section 3.
-            return """
-            People will see that a member wrote this \(kind.noun), but not which member. \
-            Nobody is told it was you.
-            """
-        case .silent:
-            return "People will not be told that anyone wrote this \(kind.noun)."
+            return "People will see that you wrote this \(kind.noun), and can follow you from it."
+        case .anonymized:
+            return AuthorVisibility.switchExplanation(for: kind)
+        }
+    }
+
+    /// The short label, kept because call sites outside the switch still read it.
+    ///
+    /// Deliberately free of any content noun: the same labels read correctly above a question, a
+    /// response, or a questionnaire, so there is nothing here to keep in sync.
+    public var displayName: String {
+        switch self {
+        case .attributed: return "Show my name"
+        case .anonymized: return AuthorVisibility.switchLabel
         }
     }
 }

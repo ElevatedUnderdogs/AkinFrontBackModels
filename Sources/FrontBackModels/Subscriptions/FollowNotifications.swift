@@ -141,13 +141,11 @@ public struct DisclosedAuthor: Hashable, Sendable {
         switch visibility {
         case .attributed:
             self.id = author
-        // Both hiding states yield nothing, and they are listed separately rather than folded
-        // into a `default` so that a fourth visibility cannot inherit "disclose" by accident.
-        case .unattributedAnnounced:
-            self.id = nil
-        case .silent:
+        case .anonymized:
             self.id = nil
         }
+        // Exhaustive and without a `default`, so a third visibility added later cannot inherit
+        // "disclose" by accident: it stops the build here and has to say what it means.
     }
 
     /// The absence of an author, for notifications that are not about a person at all.
