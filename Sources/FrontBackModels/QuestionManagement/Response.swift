@@ -44,6 +44,19 @@ extension Question {
 
         public var assessment: ModerationAssessment
 
+        /// Whether this response's author is disclosed (GOAL_LOOP14 F7.3).
+        ///
+        /// A response's author is not the question's author, so it needs its own answer. Before
+        /// this field there was none, and the read path could only name the author to themselves,
+        /// which meant a member who WANTED their name on a response could not have it.
+        ///
+        /// Optional for the same compatibility reason as `Question.authorVisibility`: Swift's
+        /// synthesized `init(from:)` does not consult a property's default, so a non optional
+        /// field here would make every already-shipped client, which sends no such key, fail to
+        /// post a response at all. Absent means the member did not choose, and the server stores
+        /// its own default.
+        public var authorVisibility: AuthorVisibility?
+
         /// Who wrote it, ready to draw, present only when they are disclosed
         /// (GOAL_LOOP14 F1.2).
         ///
@@ -65,6 +78,7 @@ extension Question {
             popularity: [ContextRawValue : PopularityScore] = [:],
             originalContextID: UUID,
             assessment: ModerationAssessment,
+            authorVisibility: AuthorVisibility? = nil,
             author: AuthorSummary? = nil
         ) {
             self.text = text
@@ -77,6 +91,7 @@ extension Question {
             self.popularity = popularity
             self.originalContextID = originalContextID
             self.assessment = assessment
+            self.authorVisibility = authorVisibility
             self.author = author
         }
 

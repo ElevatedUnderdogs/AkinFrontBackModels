@@ -144,6 +144,50 @@ final class AuthorSummaryContractTests: XCTestCase {
         XCTAssertNil(decoded.creatorID)
     }
 
+    // MARK: - F7.3, a response carries its own choice
+
+    /// The value the member picked has to survive the trip to the server, or the switch on the
+    /// composer is decoration.
+    func testAResponseRoundTripsItsOwnAuthorVisibility() throws {
+        for visibility in AuthorVisibility.allCases {
+            let sent = Question.Response(
+                text: "a response",
+                timeStamp: Date(),
+                id: UUID(),
+                creator: nil,
+                questionID: UUID(),
+                originalContextID: UUID(),
+                assessment: ModerationAssessment(entries: []),
+                authorVisibility: visibility
+            )
+            let decoded = try JSONDecoder().decode(
+                Question.Response.self, from: try JSONEncoder().encode(sent)
+            )
+            XCTAssertEqual(decoded.authorVisibility, visibility)
+        }
+    }
+
+    /// A response from a client that predates the field still decodes, and says the member made
+    /// no choice rather than inventing one for them.
+    func testAResponseWithoutTheVisibilityFieldStillDecodes() throws {
+        let json = """
+            {
+              "text": "a response",
+              "timeStamp": 0,
+              "id": "\(UUID().uuidString)",
+              "questionID": "\(UUID().uuidString)",
+              "originalContextID": "\(UUID().uuidString)",
+              "assessment": {"entries": []},
+              "myChoice": {}, "theirChoices": {}, "popularity": {}
+            }
+            """
+        let decoded = try JSONDecoder().decode(Question.Response.self, from: Data(json.utf8))
+        XCTAssertNil(
+            decoded.authorVisibility,
+            "absent must mean the member did not choose, not a default chosen on their behalf"
+        )
+    }
+
     // MARK: - A chip never renders as a broken control
 
     /// F1.8's contract at the model level: a member with no name still reads as
