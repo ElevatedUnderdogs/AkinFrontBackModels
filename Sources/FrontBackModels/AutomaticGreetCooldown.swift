@@ -76,8 +76,9 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
     /// One of the two has hidden themselves from the nearby list.
     case hiddenFromNearby(isScanner: Bool)
 
-    /// One has blocked the other, in either direction. Not a cooldown and never expires on a
-    /// timer, which is why it carries no date.
+    /// One has blocked the other, in either direction.
+    ///
+    /// Not a cooldown and never expires on a timer, which is why it carries no date.
     case blocked
 
     /// The other member cannot receive anything right now: no live socket and no usable push
@@ -162,12 +163,19 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
         }
     }
 
-    /// A date a member can read, in their own locale, with no time of day on it.
+    /// A date a member can read, with no time of day on it.
     ///
     /// The time is dropped deliberately: these sentences are about when a member may be introduced
     /// again, and a minute is a precision the rule does not have. `dateStyle: .medium` gives
     /// "13 Oct 2026" in English rather than "10/13/26", which cannot be misread as a day and month
     /// the other way round.
+    ///
+    /// NOT in the member's own locale, and the doc comment used to claim it was. These sentences
+    /// are built where `memberFacingReason` is read, and the server reads it: `AutomaticGreetStatus`
+    /// carries the finished string, so the formatter runs in the SERVER's locale and time zone.
+    /// The claim is dropped rather than the behaviour changed, because the type already sends
+    /// `clearsAt` alongside the sentence and a client that wants the member's own formatting has
+    /// the date to do it with.
     private static func readable(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
@@ -189,8 +197,17 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
             // UFC-007 and UX-SL-006.
             return "You two were introduced recently. We can introduce you again after "
                 + "\(Self.readable(until))."
-        case .memberCapReached(_, let cap, _):
-            return "You have had \(cap) automatic introductions today, which is as many as we send."
+        case .memberCapReached(let count, let cap, let until):
+            // COUNT, not the cap, and not "today".
+            //
+            // It printed the cap, so a member who received five when the cap is three was told
+            // they had three, and `count` was bound to `_` and read nowhere in the file. And
+            // "today" is a claim about the window, which `AUTOMATIC_GREET_MEMBER_CAP_WINDOW_SECONDS`
+            // makes server tunable, so the sentence became false the first time anybody set it to
+            // anything but a day. The moment it clears is carried by the case, so it is said
+            // instead of guessed at.
+            return "You have had \(count) automatic introductions, which is as many as we send "
+                + "(\(cap)). We can introduce you to somebody again after \(Self.readable(until))."
         case .alreadyInAGreet(let isScanner):
             return isScanner
                 ? "You are in the middle of meeting somebody."
@@ -238,12 +255,22 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
 
 // MARK: - Whether an automatic greet may be created
 
+/// The whole answer the policy gives: create the greet, or do not and say which rule stopped it.
+///
+/// Two cases rather than a Bool and an optional reason, because the two states a Bool allows that
+/// this does not, eligible WITH a reason and ineligible WITHOUT one, are both nonsense and both
+/// representable in the Bool version.
 public enum AutomaticGreetEligibility: Equatable, Sendable {
 
+    /// Nothing stops it. The caller creates the greet.
     case eligible
 
+    /// One rule stopped it, and it is the FIRST one `evaluate` reached rather than the only one
+    /// that applies: the order is the order a member should be told about, so being blocked is
+    /// reported as blocked and not as a cooldown that happens also to be running.
     case suppressed(AutomaticGreetSuppression)
 
+    /// True when the greet may be created. The rule, when there is one, is `suppression`.
     public var isEligible: Bool {
         switch self {
         case .eligible: return true
@@ -251,6 +278,7 @@ public enum AutomaticGreetEligibility: Equatable, Sendable {
         }
     }
 
+    /// The rule that stopped it, or nil when nothing did.
     public var suppression: AutomaticGreetSuppression? {
         switch self {
         case .eligible: return nil
@@ -304,9 +332,21 @@ public struct AutomaticGreetContext: Equatable, Sendable {
         public let automaticGreetsEnabled: Bool
         public let isHiddenFromNearby: Bool
         public let isEmailVerified: Bool
+        /// Whether a notification could actually reach them: at least one device or PushKit
+        /// token. An introduction nobody can be told about is not an introduction.
         public let isReachable: Bool
+
+        /// Whether a MODERATOR has confirmed a flag against their profile. A flag another member
+        /// raised and nobody has looked at does not count, which is why the name says confirmed.
         public let hasConfirmedModerationFlag: Bool
+
+        /// The moment their own busy pause lapses, or nil when they are not paused. Set for both
+        /// members when a greet ends, so somebody who has just agreed to meet is not offered a
+        /// second meetup on the walk over.
         public let busyUntil: Date?
+
+        /// Whether the moment falls inside the hours they said they are open to meeting. Their
+        /// stated availability, not their observed activity: the app does not infer this.
         public let isWithinStatedAvailability: Bool
 
         /// How many automatic greets this member has received inside the cap's window, from
@@ -419,6 +459,12 @@ public struct AutomaticGreetContext: Equatable, Sendable {
 
 // MARK: - The rules
 
+/// Every rule about whether the app may introduce two members WITHOUT being asked.
+///
+/// A namespace of pure functions over `AutomaticGreetContext`: it reads no database, no clock and
+/// no environment, which is what lets the server, a client and a test each ask the same question
+/// and get the same answer. Every duration below is a first guess and every one of them is tunable
+/// on the server without an app release, which `AutomaticGreetTuning` does.
 public enum AutomaticGreetCooldownPolicy {
 
     // MARK: Durations
@@ -452,6 +498,8 @@ public enum AutomaticGreetCooldownPolicy {
     /// How many automatic greets one member may receive in the window, from anybody.
     public static let defaultMemberCap: Int = 3
 
+    /// The window the cap is counted over. A cap without a window is not a rule, and the two are
+    /// separate constants because the server tunes them separately.
     public static let defaultMemberCapWindow: TimeInterval = 24 * 60 * 60
 
     /// The rules that are about ONE member, with no second member involved.
@@ -598,22 +646,53 @@ public enum AutomaticGreetCooldownPolicy {
             ))
         }
 
-        // 7. The pair timer, last, and with the LONGER of the two members' chosen cooldowns.
+        // 7. The pair timer, last.
+        //
         //    Item S-C11: a cooldown is a member saying leave me alone for this long, and the other
-        //    member's shorter setting must not override it.
+        //    member's shorter setting must not override it. So the LONGER of the two chosen values
+        //    wins, and a member who has chosen nothing follows the server's default.
+        //
+        //    What a choice replaces is the DEFAULT, and only the default. This read
+        //    `chosen ?? cooldown(for:default:)`, which let a choice replace the outcome's own
+        //    length too: a member who DECLINED an introduction is owed thirty days by
+        //    `declinedCooldown`, and could be introduced to the person they declined one hour
+        //    later because the other member had picked one hour. A decline is a refusal and the
+        //    control is labelled "How long we wait before introducing you to the same person
+        //    again", not "how long a refusal lasts". So the outcome's length is a FLOOR that a
+        //    choice may lengthen and may not shorten.
+        //
+        //    `.met` never reaches this line: step 5 above returns first, with a sentence a member
+        //    would recognise.
         if let last = context.lastAutomaticGreetAt {
-            let chosen = [
+            let chosen: TimeInterval? = [
                 context.scanner.chosenCooldownSeconds,
                 context.candidate.chosenCooldownSeconds,
             ].compactMap { $0 }.max()
-            let length = chosen ?? cooldown(
-                for: context.lastAutomaticGreetOutcome,
-                default: context.defaultCooldown
-            )
+            // `.unknown` is not a floor. It is the case that HAS no outcome specific length, so
+            // `cooldown(for:default:)` answers the default for it, and the default is precisely
+            // what a member's choice replaces: the control says "The default is 1 day, and Use the
+            // default in the list puts you back on it", so a member who picks one hour means one
+            // hour. Treating it as a floor would make every choice shorter than the default do
+            // nothing, silently.
+            let outcomeFloor: TimeInterval = context.lastAutomaticGreetOutcome == .unknown
+                ? 0
+                : cooldown(for: context.lastAutomaticGreetOutcome, default: context.defaultCooldown)
+            let length = max(chosen ?? context.defaultCooldown, outcomeFloor)
             let until = last.addingTimeInterval(length)
             if context.now < until {
                 return .suppressed(.pairCooldown(until: until))
             }
+        }
+
+        // 8. A place to meet, last, because it is the only input a caller may not know yet.
+        //
+        // The field was on the context and read by nothing, so a caller who passed `false` was
+        // told the pair were eligible. The one caller today passes `true` with a comment saying it
+        // cannot know: the venue is chosen inside `triggerGreetForMultiple` after a live Places
+        // call, and the rule is enforced there with this same reason. Honoured here so the next
+        // caller, who may know, is obeyed rather than ignored.
+        if !context.hasVenueBetweenThem {
+            return .suppressed(.noVenueBetweenThem)
         }
 
         return .eligible

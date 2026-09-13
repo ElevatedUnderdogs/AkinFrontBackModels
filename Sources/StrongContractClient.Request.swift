@@ -1498,14 +1498,23 @@ extension GetAutomaticGreetCooldownRequest {
 public struct AutomaticGreetStatusPayload: Codable, Hashable, Equatable {
 
     /// The member being asked about.
-    public let otherUserID: UUID
+    ///
+    /// Spelled `Id` and not `ID`. `IdentifierSpellingGuardTests` caught this type as the
+    /// forty fourth offender against a pinned count of forty three: the server installs
+    /// `.convertToSnakeCase` and `.convertFromSnakeCase` on the shared coders, and Foundation's
+    /// conversion is not its own inverse for a trailing acronym, so `otherUserID` encodes to
+    /// `other_user_id` and decodes back as `otherUserId`, a property that does not exist. The
+    /// forty three types on the grandfathered list keep the old spelling because renaming them
+    /// would change a wire key the deployed server already answers. This one is new in
+    /// GOAL_LOOP20 and nothing has shipped against it, so it is spelled correctly instead.
+    public let otherUserId: UUID
 
     /// Debug only, and refused unless the server allows debug routes. Nil is the ordinary member
     /// facing call, which changes nothing and only reports.
     public let debugAction: AutomaticGreetDebugAction?
 
-    public init(otherUserID: UUID, debugAction: AutomaticGreetDebugAction? = nil) {
-        self.otherUserID = otherUserID
+    public init(otherUserId: UUID, debugAction: AutomaticGreetDebugAction? = nil) {
+        self.otherUserId = otherUserId
         self.debugAction = debugAction
     }
 }

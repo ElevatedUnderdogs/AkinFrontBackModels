@@ -86,9 +86,20 @@ final class AutomaticGreetCooldownTests: XCTestCase {
         )
     }
 
+    /// Asserts WHICH RULE fired, and optionally when it clears.
+    ///
+    /// The second parameter is named `sameRuleAs` and not `expected` because only the rule is
+    /// compared: the associated values on the case a caller builds are ignored. That was true
+    /// before and it read as though it were not, so several call sites carried a plausible looking
+    /// date that nothing checked, one of them a `until: now` on a cap that clears a whole window
+    /// after a greet made a minute ago, under a comment saying the date was part of the verdict.
+    ///
+    /// The date is part of the verdict, and where it matters a caller passes `clearsAt:` and it IS
+    /// compared. Where it does not, the parameter name now says the case is there to name the rule.
     private func assertSuppressed(
         _ result: AutomaticGreetEligibility,
-        _ expected: AutomaticGreetSuppression,
+        sameRuleAs expected: AutomaticGreetSuppression,
+        clearsAt: Date? = nil,
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
@@ -104,6 +115,45 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             reason.ruleName,
             expected.ruleName,
             "The wrong rule fired. A member would be told: \(reason.memberFacingReason)",
+            file: file,
+            line: line
+        )
+        if let clearsAt {
+            XCTAssertEqual(
+                reason.clearsAt,
+                clearsAt,
+                "\(reason.ruleName) fired but clears at \(String(describing: reason.clearsAt)), "
+                    + "so a member would be told the wrong day.",
+                file: file,
+                line: line
+            )
+        }
+    }
+
+    /// A release: the condition suppresses, and flipping ONLY that condition releases.
+    ///
+    /// Both halves, in one test, because the second half alone proves nothing. Thirteen release
+    /// tests in this file used to be the second half alone, and every one of them evaluated a
+    /// context identical to `context()`, so they re asserted the baseline that
+    /// `testAQualifyingPairIsEligible` already covers and would have stayed green with the rule
+    /// they name deleted. Written as a pair, a release test fails if the rule stops firing and
+    /// fails if it stops clearing, which is what a paired release test is for.
+    private func assertReleased(
+        from suppressed: AutomaticGreetContext,
+        by released: AutomaticGreetContext,
+        rule: AutomaticGreetSuppression,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        assertSuppressed(
+            AutomaticGreetCooldownPolicy.evaluate(suppressed),
+            sameRuleAs: rule,
+            file: file,
+            line: line
+        )
+        XCTAssertTrue(
+            AutomaticGreetCooldownPolicy.evaluate(released).isEligible,
+            "\(rule.ruleName) still suppresses after the one thing it is about was changed.",
             file: file,
             line: line
         )
@@ -126,15 +176,15 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             AutomaticGreetCooldownPolicy.evaluate(
                 context(scanner: member(automaticGreetsEnabled: false))
             ),
-            .automaticGreetsOff(isScanner: true)
+            sameRuleAs: .automaticGreetsOff(isScanner: true)
         )
     }
 
     func testReleasedWhenTheScannerTurnsAutomaticGreetsBackOn() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(scanner: member(automaticGreetsEnabled: true))
-            ).isEligible
+        assertReleased(
+            from: context(scanner: member(automaticGreetsEnabled: false)),
+            by: context(scanner: member(automaticGreetsEnabled: true)),
+            rule: .automaticGreetsOff(isScanner: true)
         )
     }
 
@@ -143,43 +193,45 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             AutomaticGreetCooldownPolicy.evaluate(
                 context(candidate: member(automaticGreetsEnabled: false))
             ),
-            .automaticGreetsOff(isScanner: false)
+            sameRuleAs: .automaticGreetsOff(isScanner: false)
         )
     }
 
     func testReleasedWhenTheCandidateTurnsAutomaticGreetsBackOn() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(candidate: member(automaticGreetsEnabled: true))
-            ).isEligible
+        assertReleased(
+            from: context(candidate: member(automaticGreetsEnabled: false)),
+            by: context(candidate: member(automaticGreetsEnabled: true)),
+            rule: .automaticGreetsOff(isScanner: false)
         )
     }
 
     func testSuppressedWhenEitherMemberHasBlockedTheOther() {
         assertSuppressed(
             AutomaticGreetCooldownPolicy.evaluate(context(isBlockedEitherWay: true)),
-            .blocked
+            sameRuleAs: .blocked
         )
     }
 
     func testReleasedWhenTheBlockIsRemoved() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(context(isBlockedEitherWay: false)).isEligible
+        assertReleased(
+            from: context(isBlockedEitherWay: true),
+            by: context(isBlockedEitherWay: false),
+            rule: .blocked
         )
     }
 
     func testSuppressedWhenTheScannerIsHiddenFromNearby() {
         assertSuppressed(
             AutomaticGreetCooldownPolicy.evaluate(context(scanner: member(isHiddenFromNearby: true))),
-            .hiddenFromNearby(isScanner: true)
+            sameRuleAs: .hiddenFromNearby(isScanner: true)
         )
     }
 
     func testReleasedWhenTheScannerStopsHiding() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(scanner: member(isHiddenFromNearby: false))
-            ).isEligible
+        assertReleased(
+            from: context(scanner: member(isHiddenFromNearby: true)),
+            by: context(scanner: member(isHiddenFromNearby: false)),
+            rule: .hiddenFromNearby(isScanner: true)
         )
     }
 
@@ -188,15 +240,15 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             AutomaticGreetCooldownPolicy.evaluate(
                 context(candidate: member(isHiddenFromNearby: true))
             ),
-            .hiddenFromNearby(isScanner: false)
+            sameRuleAs: .hiddenFromNearby(isScanner: false)
         )
     }
 
     func testReleasedWhenTheCandidateStopsHiding() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(candidate: member(isHiddenFromNearby: false))
-            ).isEligible
+        assertReleased(
+            from: context(candidate: member(isHiddenFromNearby: true)),
+            by: context(candidate: member(isHiddenFromNearby: false)),
+            rule: .hiddenFromNearby(isScanner: false)
         )
     }
 
@@ -205,30 +257,30 @@ final class AutomaticGreetCooldownTests: XCTestCase {
     func testSuppressedWhenTheScannerIsUnverified() {
         assertSuppressed(
             AutomaticGreetCooldownPolicy.evaluate(context(scanner: member(isEmailVerified: false))),
-            .unverified(isScanner: true)
+            sameRuleAs: .unverified(isScanner: true)
         )
     }
 
     func testReleasedWhenTheScannerVerifies() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(scanner: member(isEmailVerified: true))
-            ).isEligible
+        assertReleased(
+            from: context(scanner: member(isEmailVerified: false)),
+            by: context(scanner: member(isEmailVerified: true)),
+            rule: .unverified(isScanner: true)
         )
     }
 
     func testSuppressedWhenTheCandidateIsUnverified() {
         assertSuppressed(
             AutomaticGreetCooldownPolicy.evaluate(context(candidate: member(isEmailVerified: false))),
-            .unverified(isScanner: false)
+            sameRuleAs: .unverified(isScanner: false)
         )
     }
 
     func testReleasedWhenTheCandidateVerifies() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(candidate: member(isEmailVerified: true))
-            ).isEligible
+        assertReleased(
+            from: context(candidate: member(isEmailVerified: false)),
+            by: context(candidate: member(isEmailVerified: true)),
+            rule: .unverified(isScanner: false)
         )
     }
 
@@ -237,15 +289,15 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             AutomaticGreetCooldownPolicy.evaluate(
                 context(candidate: member(hasConfirmedModerationFlag: true))
             ),
-            .moderationFlagged
+            sameRuleAs: .moderationFlagged
         )
     }
 
     func testReleasedWhenTheModerationFlagIsCleared() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(candidate: member(hasConfirmedModerationFlag: false))
-            ).isEligible
+        assertReleased(
+            from: context(candidate: member(hasConfirmedModerationFlag: true)),
+            by: context(candidate: member(hasConfirmedModerationFlag: false)),
+            rule: .moderationFlagged
         )
     }
 
@@ -254,13 +306,15 @@ final class AutomaticGreetCooldownTests: XCTestCase {
     func testSuppressedWhenTheScannerIsAlreadyInAGreet() {
         assertSuppressed(
             AutomaticGreetCooldownPolicy.evaluate(context(scannerIsInAGreet: true)),
-            .alreadyInAGreet(isScanner: true)
+            sameRuleAs: .alreadyInAGreet(isScanner: true)
         )
     }
 
     func testReleasedWhenTheScannersGreetEnds() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(context(scannerIsInAGreet: false)).isEligible
+        assertReleased(
+            from: context(scannerIsInAGreet: true),
+            by: context(scannerIsInAGreet: false),
+            rule: .alreadyInAGreet(isScanner: true)
         )
     }
 
@@ -271,13 +325,15 @@ final class AutomaticGreetCooldownTests: XCTestCase {
     func testSuppressedWhenTheCandidateIsAlreadyInAGreet() {
         assertSuppressed(
             AutomaticGreetCooldownPolicy.evaluate(context(candidateIsInAGreet: true)),
-            .alreadyInAGreet(isScanner: false)
+            sameRuleAs: .alreadyInAGreet(isScanner: false)
         )
     }
 
     func testReleasedWhenTheCandidatesGreetEnds() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(context(candidateIsInAGreet: false)).isEligible
+        assertReleased(
+            from: context(candidateIsInAGreet: true),
+            by: context(candidateIsInAGreet: false),
+            rule: .alreadyInAGreet(isScanner: false)
         )
     }
 
@@ -286,16 +342,15 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             AutomaticGreetCooldownPolicy.evaluate(
                 context(scanner: member(busyUntil: now.addingTimeInterval(600)))
             ),
-            .busy(isScanner: true, until: now.addingTimeInterval(600))
+            sameRuleAs: .busy(isScanner: true, until: now.addingTimeInterval(600))
         )
     }
 
     func testReleasedWhenTheScannersBusyTimeEnds() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(scanner: member(busyUntil: now.addingTimeInterval(-1)))
-            ).isEligible,
-            "A busy time that ended one second ago is still suppressing."
+        assertReleased(
+            from: context(scanner: member(busyUntil: now.addingTimeInterval(600))),
+            by: context(scanner: member(busyUntil: now.addingTimeInterval(-1))),
+            rule: .busy(isScanner: true, until: now)
         )
     }
 
@@ -304,30 +359,30 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             AutomaticGreetCooldownPolicy.evaluate(
                 context(candidate: member(busyUntil: now.addingTimeInterval(600)))
             ),
-            .busy(isScanner: false, until: now.addingTimeInterval(600))
+            sameRuleAs: .busy(isScanner: false, until: now.addingTimeInterval(600))
         )
     }
 
     func testReleasedWhenTheCandidatesBusyTimeEnds() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(candidate: member(busyUntil: now.addingTimeInterval(-1)))
-            ).isEligible
+        assertReleased(
+            from: context(candidate: member(busyUntil: now.addingTimeInterval(600))),
+            by: context(candidate: member(busyUntil: now.addingTimeInterval(-1))),
+            rule: .busy(isScanner: false, until: now)
         )
     }
 
     func testSuppressedWhenTheCandidateIsUnreachable() {
         assertSuppressed(
             AutomaticGreetCooldownPolicy.evaluate(context(candidate: member(isReachable: false))),
-            .unreachable
+            sameRuleAs: .unreachable
         )
     }
 
     func testReleasedWhenTheCandidateBecomesReachable() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(candidate: member(isReachable: true))
-            ).isEligible
+        assertReleased(
+            from: context(candidate: member(isReachable: false)),
+            by: context(candidate: member(isReachable: true)),
+            rule: .unreachable
         )
     }
 
@@ -336,15 +391,15 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             AutomaticGreetCooldownPolicy.evaluate(
                 context(candidateFrozenUntil: now.addingTimeInterval(120))
             ),
-            .frozenByAnotherMember(until: now.addingTimeInterval(120))
+            sameRuleAs: .frozenByAnotherMember(until: now.addingTimeInterval(120))
         )
     }
 
     func testReleasedWhenTheFreezeLapses() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(candidateFrozenUntil: now.addingTimeInterval(-1))
-            ).isEligible
+        assertReleased(
+            from: context(candidateFrozenUntil: now.addingTimeInterval(600)),
+            by: context(candidateFrozenUntil: now.addingTimeInterval(-1)),
+            rule: .frozenByAnotherMember(until: now)
         )
     }
 
@@ -353,15 +408,15 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             AutomaticGreetCooldownPolicy.evaluate(
                 context(scanner: member(isWithinStatedAvailability: false))
             ),
-            .outsideStatedAvailability(isScanner: true)
+            sameRuleAs: .outsideStatedAvailability(isScanner: true)
         )
     }
 
     func testReleasedInsideTheScannersStatedAvailability() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(scanner: member(isWithinStatedAvailability: true))
-            ).isEligible
+        assertReleased(
+            from: context(scanner: member(isWithinStatedAvailability: false)),
+            by: context(scanner: member(isWithinStatedAvailability: true)),
+            rule: .outsideStatedAvailability(isScanner: true)
         )
     }
 
@@ -370,15 +425,15 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             AutomaticGreetCooldownPolicy.evaluate(
                 context(candidate: member(isWithinStatedAvailability: false))
             ),
-            .outsideStatedAvailability(isScanner: false)
+            sameRuleAs: .outsideStatedAvailability(isScanner: false)
         )
     }
 
     func testReleasedInsideTheCandidatesStatedAvailability() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(candidate: member(isWithinStatedAvailability: true))
-            ).isEligible
+        assertReleased(
+            from: context(candidate: member(isWithinStatedAvailability: false)),
+            by: context(candidate: member(isWithinStatedAvailability: true)),
+            rule: .outsideStatedAvailability(isScanner: false)
         )
     }
 
@@ -387,15 +442,15 @@ final class AutomaticGreetCooldownTests: XCTestCase {
     func testSuppressedWhileThisPairHasAPendingUnansweredGreet() {
         assertSuppressed(
             AutomaticGreetCooldownPolicy.evaluate(context(hasPendingUnansweredGreet: true)),
-            .pendingGreetUnanswered
+            sameRuleAs: .pendingGreetUnanswered
         )
     }
 
     func testReleasedOnceThePendingGreetIsAnswered() {
-        XCTAssertTrue(
-            AutomaticGreetCooldownPolicy.evaluate(
-                context(hasPendingUnansweredGreet: false)
-            ).isEligible
+        assertReleased(
+            from: context(hasPendingUnansweredGreet: true),
+            by: context(hasPendingUnansweredGreet: false),
+            rule: .pendingGreetUnanswered
         )
     }
 
@@ -407,10 +462,12 @@ final class AutomaticGreetCooldownTests: XCTestCase {
                     lastAutomaticGreetOutcome: .met
                 )
             ),
-            // The date is part of the verdict now: the rule clears ninety days after the greet
-            // they met on, and a member asking why is owed the moment rather than a shrug.
-            .alreadyMet(until: now.addingTimeInterval(-60 * 60)
-                .addingTimeInterval(AutomaticGreetCooldownPolicy.metCooldown))
+            sameRuleAs: .alreadyMet(until: now),
+            // The date is part of the verdict, and this is where it is checked: the rule clears
+            // ninety days after the greet they met on, and a member asking why is owed the moment
+            // rather than a shrug. The comment used to sit above a value the helper ignored.
+            clearsAt: now.addingTimeInterval(-60 * 60)
+                .addingTimeInterval(AutomaticGreetCooldownPolicy.metCooldown)
         )
     }
 
@@ -441,11 +498,16 @@ final class AutomaticGreetCooldownTests: XCTestCase {
                     scannerOldestGreetInWindowAt: now.addingTimeInterval(-60)
                 )
             ),
-            .memberCapReached(
+            sameRuleAs: .memberCapReached(
                 count: AutomaticGreetCooldownPolicy.defaultMemberCap,
                 cap: AutomaticGreetCooldownPolicy.defaultMemberCap,
                 until: now
-            )
+            ),
+            // The cap clears one window after the OLDEST greet in it, not one window from now, and
+            // this is the test that says so. The `until: now` above is a placeholder the helper
+            // ignores by design; this line is the assertion.
+            clearsAt: now.addingTimeInterval(-60)
+                .addingTimeInterval(AutomaticGreetCooldownPolicy.defaultMemberCapWindow)
         )
     }
 
@@ -470,7 +532,7 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             AutomaticGreetCooldownPolicy.evaluate(
                 context(lastAutomaticGreetAt: now.addingTimeInterval(-60 * 60))
             ),
-            .pairCooldown(until: now)
+            sameRuleAs: .pairCooldown(until: now)
         )
     }
 
@@ -512,7 +574,7 @@ final class AutomaticGreetCooldownTests: XCTestCase {
                     lastAutomaticGreetOutcome: .declined
                 )
             ),
-            .pairCooldown(until: now)
+            sameRuleAs: .pairCooldown(until: now)
         )
     }
 
@@ -527,12 +589,10 @@ final class AutomaticGreetCooldownTests: XCTestCase {
                 lastAutomaticGreetAt: now.addingTimeInterval(-elapsed)
             )
         )
-        assertSuppressed(result, .pairCooldown(until: now))
-        XCTAssertEqual(
-            result.suppression?.clearsAt,
-            now.addingTimeInterval(-elapsed).addingTimeInterval(6 * 60 * 60),
-            "The shorter of the two settings won, so one member's choice overrode the other's "
-                + "request to be left alone for longer."
+        assertSuppressed(
+            result,
+            sameRuleAs: .pairCooldown(until: now),
+            clearsAt: now.addingTimeInterval(-elapsed).addingTimeInterval(6 * 60 * 60)
         )
     }
 

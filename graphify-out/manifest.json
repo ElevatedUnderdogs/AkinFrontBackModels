@@ -1,0 +1,702 @@
+{
+  "Package.swift": {
+    "mtime": 1786962718.195942,
+    "ast_hash": "bc726b6f75cd634939d6ebaab87b7415",
+    "semantic_hash": ""
+  },
+  "Sources/ActionStringConvertible.swift": {
+    "mtime": 1786697017.3170464,
+    "ast_hash": "7a418d5e8ac504fdb5a6ed2facb47ab2",
+    "semantic_hash": ""
+  },
+  "Sources/CompatibilityRule.swift": {
+    "mtime": 1786697017.3171518,
+    "ast_hash": "486d5635972b043214ef618d719aff91",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/AccountDeletion.swift": {
+    "mtime": 1787298706.796143,
+    "ast_hash": "0bd14b135c37d49fdaddc625fb812af6",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/AccountDeletionError.swift": {
+    "mtime": 1787298706.796187,
+    "ast_hash": "c27609f3bc6184c7c973fc7d7cd89d47",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/AutomaticGreetCooldown.swift": {
+    "mtime": 1789310327.4132268,
+    "ast_hash": "c8f6b7e5991d7ef6cc60aeac350b4118",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Expansion/Advertising.swift": {
+    "mtime": 1787153774.5868294,
+    "ast_hash": "f6d194553e1d2b58a3b929d1d3f357c5",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Expansion/AuthorSummary.swift": {
+    "mtime": 1788179029.1055982,
+    "ast_hash": "2114a5574cc4029b95d8287047f15f70",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Expansion/AuthorVisibility.swift": {
+    "mtime": 1788187854.6963682,
+    "ast_hash": "5e2f97288e6fb960708edd1eea470b2a",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Expansion/MarketData.swift": {
+    "mtime": 1787153774.5890086,
+    "ast_hash": "f76202079ea47ca2da892c1b6a9a4a2c",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Expansion/MatchingAlgorithmChoice.swift": {
+    "mtime": 1787153741.4195108,
+    "ast_hash": "c099e019502b8853130e24f5aa9f0da7",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Expansion/QuestionRequirement.swift": {
+    "mtime": 1788173723.6359594,
+    "ast_hash": "455366a1988f3d7d4c77145702c57289",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Expansion/SemanticSimilarity.swift": {
+    "mtime": 1787153741.4167244,
+    "ast_hash": "ca0e7089787294ad48eecbd6b1199901",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Expansion/SubscriptionEntitlement.swift": {
+    "mtime": 1787153741.424627,
+    "ast_hash": "fdd95f370c5f1eb08dd1c9d31e79958e",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Expansion/VenuePreference.swift": {
+    "mtime": 1787153774.584329,
+    "ast_hash": "728a9d27256eb94b5a0227e474cfbe48",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Flagging/ModerationAssessment.swift": {
+    "mtime": 1786697017.3173769,
+    "ast_hash": "1b9b69f8cd3ec2ed2e314f349ec504b8",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Flagging/ModerationTreatment.swift": {
+    "mtime": 1786697017.317488,
+    "ast_hash": "2c1d2986e194090d33edf6459c900db2",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Flagging/ReportFlag.swift": {
+    "mtime": 1786697017.3177724,
+    "ast_hash": "ef9122621063c5964922aacd85708dea",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Flagging/RiskLevel.swift": {
+    "mtime": 1786697017.3178792,
+    "ast_hash": "0d1a375c322ef87f05c870dd0677e70a",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/FloatingPoint.swift": {
+    "mtime": 1786697017.317973,
+    "ast_hash": "5ad8f25f7e83689aa5a94ac77c5fa0f9",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/AddedAResponse.swift": {
+    "mtime": 1786697017.3181174,
+    "ast_hash": "7afb13ff67d80cc693c55d0943c4a38c",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/AkinCommon+User.swift": {
+    "mtime": 1786697017.3182125,
+    "ast_hash": "4a346172a396f2dffbd489fa7caf8447",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/AlertContents.swift": {
+    "mtime": 1786697017.3183045,
+    "ast_hash": "85a6abd10c4db41c655b18eaf7b75434",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/Array.swift": {
+    "mtime": 1786697017.3183875,
+    "ast_hash": "9cb35d594a4d22f47960d4f5c7080819",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/Bool.swift": {
+    "mtime": 1786697017.3184764,
+    "ast_hash": "a2a8483a56f5288d14a52dda310aa637",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/BuildSource.swift": {
+    "mtime": 1786697017.3185668,
+    "ast_hash": "2031cccd82587652c510446c48a11b98",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/CallKitFeatureFlag.swift": {
+    "mtime": 1786697017.3186567,
+    "ast_hash": "b35bc2e186e1262fa57d00442c80e67b",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/CallType.swift": {
+    "mtime": 1786697017.3187659,
+    "ast_hash": "25261710441be6941d31505c5f27c173",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/Collection.swift": {
+    "mtime": 1786697017.3188534,
+    "ast_hash": "2b0e5d545c75e6ccf5782fe6ad7093b4",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/ContextPreferences.swift": {
+    "mtime": 1786697017.3189347,
+    "ast_hash": "6f6a437732e40eda59006f3ee6b48840",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/Data.swift": {
+    "mtime": 1786697017.3190236,
+    "ast_hash": "447e1367e98651f115f88bfcd9131d89",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/Date.swift": {
+    "mtime": 1786697017.319106,
+    "ast_hash": "ebb0b25692bfbed5eef8fd3f061e077f",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/Dictionary-String-Any.swift": {
+    "mtime": 1786697017.3191955,
+    "ast_hash": "f4ea9311a8b2cab9424bf23c78f0f8c0",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/ExitReason.swift": {
+    "mtime": 1786697017.3192885,
+    "ast_hash": "296a6ab3aa3d0c22b286d9904a1e67ff",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/GreetCellNames.swift": {
+    "mtime": 1786697017.3193736,
+    "ast_hash": "4af24d7d704d59813b2c94201f3ba900",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/GreetLogEvent.swift": {
+    "mtime": 1786697017.3195238,
+    "ast_hash": "4aaaf1b1a9f35974169e355fc40ca3cd",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/GreetUpdate.Message.swift": {
+    "mtime": 1786697017.3196154,
+    "ast_hash": "ea3b6ccc2f159720e9915433686091ea",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/GreetUpdate.Status.swift": {
+    "mtime": 1786697017.3197374,
+    "ast_hash": "3ecc43e8ec8a02f8f9fb9380447648b3",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/GreetUpdate.swift": {
+    "mtime": 1786697017.3200233,
+    "ast_hash": "4dcef87dacc7160e5b537b55b6bbef31",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/Int.swift": {
+    "mtime": 1786697017.3201144,
+    "ast_hash": "a6608d9d28e7c7473714651467a95a65",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/MeetingEvent.swift": {
+    "mtime": 1786697017.3202064,
+    "ast_hash": "aa4f9ab26840c0c266781a7f409cf3ad",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/Method.swift": {
+    "mtime": 1786697017.3203053,
+    "ast_hash": "d7cca3d0196835f7a111178bb9ca843c",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/MidGreetSettings.swift": {
+    "mtime": 1786697017.320432,
+    "ast_hash": "95f9b6b37ee8eb9021536a047cd1343b",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/MyTheir.swift": {
+    "mtime": 1786697017.3205273,
+    "ast_hash": "1b90c28e8cb871c0431c7c4d70e311e5",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/NearbyFeatureFlag.swift": {
+    "mtime": 1786697017.320793,
+    "ast_hash": "fc287cc02e4785f1bcfe0e2b78331dab",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/PrivateDetails.swift": {
+    "mtime": 1786697017.320889,
+    "ast_hash": "6d832e2ca4f484c8a4ecfd352e966c4f",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/Requirement.swift": {
+    "mtime": 1786697017.3209918,
+    "ast_hash": "2c9946378899cb080514f4959bca5e63",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/SaveQuestionError.swift": {
+    "mtime": 1786697017.321081,
+    "ast_hash": "e9691c31fddbaedfc4d6192d74f2a04d",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/Selections.swift": {
+    "mtime": 1786697017.321167,
+    "ast_hash": "cdbecdfdf0d68d4e99285c52a4e23dc3",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/Settings.swift": {
+    "mtime": 1786697017.3212686,
+    "ast_hash": "52f4137079515d464af5d3c47b8d3c7e",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/SocketEnvelope.swift": {
+    "mtime": 1786697017.321367,
+    "ast_hash": "5e7cd1823ef0779a8006553fffd79a89",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/TimeInterval.swift": {
+    "mtime": 1786697017.3214633,
+    "ast_hash": "e03b9962315aef623733b95151a81be6",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/TravelMethod.swift": {
+    "mtime": 1786697017.3215513,
+    "ast_hash": "5cb838554e5098f9e6f045e27e8b8c6b",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/TypeAlternator.swift": {
+    "mtime": 1786697017.3217757,
+    "ast_hash": "d102bc0466c46092d68094a79d92b4a9",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/Venue.swift": {
+    "mtime": 1786697017.3218672,
+    "ast_hash": "ffd47192ad19b0ca10948bfaccba8928",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/ViewSetting.swift": {
+    "mtime": 1786697017.321967,
+    "ast_hash": "ff92eb5c6499be586bb5c5a2127d4ca4",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/VoipSignal.swift": {
+    "mtime": 1786697017.3222275,
+    "ast_hash": "0d5b23bf83554894c9eb1fae0be35749",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+Components/YelpBusinesses.swift": {
+    "mtime": 1786697017.3223135,
+    "ast_hash": "4c1e5bfa041d205a867a07d9453e11e9",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+LocationCoordinate.swift": {
+    "mtime": 1786697017.3224094,
+    "ast_hash": "bd14c8c61327a9984482a62f6e72176b",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet+User.swift": {
+    "mtime": 1786697017.3225074,
+    "ast_hash": "e85cb787d2f54748299c9dc5244c3288",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Greet.swift": {
+    "mtime": 1786697017.3229358,
+    "ast_hash": "791b98226f95645ea2d01bd441beb493",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/HideStatus.swift": {
+    "mtime": 1786697017.323024,
+    "ast_hash": "9ae32c315ac2cae836d3f44d2876f879",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/HookProbe.swift": {
+    "mtime": 1789310557.9035442,
+    "ast_hash": "3daaecc76b93223526e4bef88b183829",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/IceServer/IceServer.swift": {
+    "mtime": 1786697017.323162,
+    "ast_hash": "dee12d576b73253d027543b7fe3661b5",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/IceServer/IceServersRequest.swift": {
+    "mtime": 1786697017.3232522,
+    "ast_hash": "7fa9388d44cc6b38c42ee0d56f783e84",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/IceServer/IceServersResponse.swift": {
+    "mtime": 1786697017.3233356,
+    "ast_hash": "765b21434e3f52bfbe8745402bd2173e",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Location.swift": {
+    "mtime": 1786697017.3234203,
+    "ast_hash": "68e315004e54889e9fbd6da7cd1f2a7b",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/LocationNotificationModel.swift": {
+    "mtime": 1786697017.323507,
+    "ast_hash": "a7bf780cd675946b37e948e2adc8b1b1",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Matchmaking/MatchmakingProfile.swift": {
+    "mtime": 1787310783.025917,
+    "ast_hash": "13c1b4d95b93772335b5253825fddf08",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/NearbyAvailability.swift": {
+    "mtime": 1786697017.3236248,
+    "ast_hash": "06d6e4336bf31630bc64d59cb8635439",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/NearbyUser.swift": {
+    "mtime": 1786697017.3237178,
+    "ast_hash": "dba77c30f1e1ecff522cc9f3c198114f",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Notification.swift": {
+    "mtime": 1786697017.3238747,
+    "ast_hash": "9d7d8a360e8129b29ae3fa0d34f3f665",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Question.swift": {
+    "mtime": 1788179045.2234414,
+    "ast_hash": "bea5b5f76eef8bfd8636bff56a32bb2b",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/QuestionManagement/Choice.swift": {
+    "mtime": 1786697017.3241286,
+    "ast_hash": "5d76042236b9db74fa049a4a359501b0",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/QuestionManagement/ClientContext.swift": {
+    "mtime": 1786697017.3242393,
+    "ast_hash": "5073fcb1142bd43b915b0970cf4113e9",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/QuestionManagement/Context.swift": {
+    "mtime": 1787154303.3777695,
+    "ast_hash": "8f8dbb18880c9b91776dcd585b3f9cd4",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/QuestionManagement/Creator.swift": {
+    "mtime": 1786697017.3244107,
+    "ast_hash": "75f004ed04c31986fb84d29a8fdc99a1",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/QuestionManagement/Importance.swift": {
+    "mtime": 1786697017.324497,
+    "ast_hash": "b7019a4f9620bb9666cae2ada6a793d2",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/QuestionManagement/InteractionStyle.swift": {
+    "mtime": 1786697017.3245792,
+    "ast_hash": "bf1b65e0aa001d0f3ec0679f803097d4",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/QuestionManagement/Response.swift": {
+    "mtime": 1788181751.7083466,
+    "ast_hash": "6a2b3435bfaaa304e2777bac0f81c7a8",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Questionnaire/Questionnaire.swift": {
+    "mtime": 1788179082.2960956,
+    "ast_hash": "af8c838b3a7d6f7c493807c7e3f231f1",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/ServerEnvironment.swift": {
+    "mtime": 1787138830.4679277,
+    "ast_hash": "ef135a90fa8f20aeb65c6787b0a80ec2",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/SignUp.swift": {
+    "mtime": 1786697017.324899,
+    "ast_hash": "ee8e44317d4b727ecb6ea179144c0191",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/Subscriptions/FollowNotifications.swift": {
+    "mtime": 1788173802.9910715,
+    "ast_hash": "24c3f9814eaa0f19a9b16d546455a2bc",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/TutorialModels/Week.Day.Hour.AMPM.swift": {
+    "mtime": 1786697017.3250382,
+    "ast_hash": "9191c6b9743afca8acafad031d3f1929",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/TutorialModels/Week.Day.Hour.swift": {
+    "mtime": 1786697017.3251302,
+    "ast_hash": "7411ab8489f27c892d1d055573930602",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/TutorialModels/Week.Day.swift": {
+    "mtime": 1786697017.3252137,
+    "ast_hash": "2b3d54ce0308dbf0401cbed8ced700c2",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/TutorialModels/Week.swift": {
+    "mtime": 1786697017.3253016,
+    "ast_hash": "e1e06b56eccc43617d4a2db619259e73",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/AppConfig.swift": {
+    "mtime": 1786697017.3254344,
+    "ast_hash": "c4a55ae0c6dc7aba2637cf1a88a6de33",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/ConfirmationStatus.swift": {
+    "mtime": 1786697017.3255255,
+    "ast_hash": "9f3aa2c6d327c9502671cf6ea06cc0a3",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/Double.swift": {
+    "mtime": 1786697017.3256154,
+    "ast_hash": "05f1d9b778d93ff040b11b42c272f21c",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/EnvConfig.swift": {
+    "mtime": 1786697017.3256981,
+    "ast_hash": "7d7df5b8071d11775681153339559bb2",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/HTTPMethod.swift": {
+    "mtime": 1786697017.3257825,
+    "ast_hash": "2753aa0641eb3a12c7d94996cb87aae6",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/NSMutableURLRequest.swift": {
+    "mtime": 1786697017.325865,
+    "ast_hash": "dcf4d2ac8d689d2b509ed0cdc5d61606",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/QueryItemName.swift": {
+    "mtime": 1786697017.3259494,
+    "ast_hash": "2dcb291eb02e6860d759744fc2508312",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/SaveAttemptServerResponse.swift": {
+    "mtime": 1786697017.326032,
+    "ast_hash": "b67932e819d44427db53718fc86b75be",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/String.swift": {
+    "mtime": 1786697017.326192,
+    "ast_hash": "28f6050cfdc492fda7e0b33a7bb782b0",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/URL.swift": {
+    "mtime": 1787138873.706276,
+    "ast_hash": "c1c13748639bebb88d107413a767f2b8",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/URLComponents.swift": {
+    "mtime": 1786697017.3263557,
+    "ast_hash": "254705982c4489408094e10daf027803",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/URLQueryItem.swift": {
+    "mtime": 1786697017.326591,
+    "ast_hash": "73bce8dee06f94f4a6fb0872a8aa3ea5",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/URLRequest+factory.swift": {
+    "mtime": 1786697017.326719,
+    "ast_hash": "4583b87f35a2897218512c72b148817c",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/URLRequest.swift": {
+    "mtime": 1786697017.3271055,
+    "ast_hash": "ac80238098340248fc3c65caf6e2f863",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/URLResponse.swift": {
+    "mtime": 1786697017.327194,
+    "ast_hash": "edd7dbf412a7a1cf36eef883c8f56371",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/URL+Calls/uuid.swift": {
+    "mtime": 1786697017.3272758,
+    "ast_hash": "65909ff75a977182ecb0f81d275bcf2a",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/UserImage.swift": {
+    "mtime": 1786697017.327353,
+    "ast_hash": "118f1604c4f9fe085868bfd8c8dfcbb2",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/VenueAwareness.swift": {
+    "mtime": 1786993684.4348683,
+    "ast_hash": "cd4fc34a53a3c8cf6efe47c69dbae56a",
+    "semantic_hash": ""
+  },
+  "Sources/FrontBackModels/VoipCallPayload.swift": {
+    "mtime": 1786697017.327609,
+    "ast_hash": "7ab4af21ffb8f269d22c7e497c5e085d",
+    "semantic_hash": ""
+  },
+  "Sources/GreetSubProtocols.swift": {
+    "mtime": 1786697017.3276927,
+    "ast_hash": "4c773adb271ad316471194723d794d75",
+    "semantic_hash": ""
+  },
+  "Sources/LanguageCodes.swift": {
+    "mtime": 1786697017.3278282,
+    "ast_hash": "c6577625efe2533321b42eb117cc0335",
+    "semantic_hash": ""
+  },
+  "Sources/NearbyDispatchRequests.swift": {
+    "mtime": 1786697017.327936,
+    "ast_hash": "96cf872abba1a046b8b3106e0e06a173",
+    "semantic_hash": ""
+  },
+  "Sources/NearbyUserMessage.swift": {
+    "mtime": 1786697017.3280146,
+    "ast_hash": "6ea2a613578862a9ec8f2e89120a2234",
+    "semantic_hash": ""
+  },
+  "Sources/RequestStructs.swift": {
+    "mtime": 1786697017.328279,
+    "ast_hash": "515e72265fde8b0032d01e2105df5f7b",
+    "semantic_hash": ""
+  },
+  "Sources/ResponseStructs.swift": {
+    "mtime": 1786697017.3286593,
+    "ast_hash": "fb2c46d35590067bf23597b2fa1f2972",
+    "semantic_hash": ""
+  },
+  "Sources/StrongContractClient.Request.swift": {
+    "mtime": 1789299648.8035333,
+    "ast_hash": "975689540f93d3318a36d754b8c19eaf",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/AuthorSummaryContractTests.swift": {
+    "mtime": 1788181791.6622372,
+    "ast_hash": "0aae9c2a4dde1f12e17ab38d65ed7a7e",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/AuthorVisibilityContentKindTests.swift": {
+    "mtime": 1788173936.3975182,
+    "ast_hash": "7ad762587ab40d571a29a91924961030",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/AuthorVisibilityTwoStateTests.swift": {
+    "mtime": 1788173973.7192981,
+    "ast_hash": "651997eb6b32c83be52f084ed9eb0679",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/AutomaticGreetCooldownTests.swift": {
+    "mtime": 1789309068.9140947,
+    "ast_hash": "871a6d54513fca36fb6cb60c40a4f9f6",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/Coverage100PctBatchTests.swift": {
+    "mtime": 1786697017.32908,
+    "ast_hash": "ff80c92c3a8805ef83f46e01bc0fa241",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/ExpansionContractTests.swift": {
+    "mtime": 1787154320.4506636,
+    "ast_hash": "a0b78e1dc2334e01bf859a4d5d624039",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/FollowNotificationsTests.swift": {
+    "mtime": 1788173895.8961139,
+    "ast_hash": "912399eb39f6a2dc004c135469ad5834",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/FrontBackModelsTests.swift": {
+    "mtime": 1786697017.3292308,
+    "ast_hash": "14fb06ee16cce6d667d79fdd2172f428",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/GoalLoop14InboundVisibilityTests.swift": {
+    "mtime": 1788187884.0788293,
+    "ast_hash": "f48e5fd9c6783a20dba509c20b07b1ac",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/GreetComponentsBatch1Tests.swift": {
+    "mtime": 1786697017.3293705,
+    "ast_hash": "033167dcb3fc0f01c1c5cf5ea7dfdfc8",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/GreetComponentsBatch2Tests.swift": {
+    "mtime": 1786697017.3294992,
+    "ast_hash": "46e202ddf95c2699d7361d9ceff438c0",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/GreetComponentsBatch3Tests.swift": {
+    "mtime": 1786697017.3296363,
+    "ast_hash": "fc60bfbeaddbbfbb7f383d6fa47236d8",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/GreetNotification.swift": {
+    "mtime": 1786697017.329751,
+    "ast_hash": "fd5804d855ddf075ada5b7228b453216",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/IdentifierSpellingGuardTests.swift": {
+    "mtime": 1788173723.6371543,
+    "ast_hash": "c2cb11111504cd2d0204f3dc3c005db9",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/MatchmakingProfileTests.swift": {
+    "mtime": 1787312704.4412892,
+    "ast_hash": "7fec8b7990f334583e8a145aba4477c6",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/QuestionManagementBatch5Tests.swift": {
+    "mtime": 1787154377.6147609,
+    "ast_hash": "7704f99024628120bd6bacaf47144a0f",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/TopLevelModelsBatch7Tests.swift": {
+    "mtime": 1786697017.3300714,
+    "ast_hash": "5777d0825793fddb58dd1cb3e96e2941",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/TutorialAndGreetBatch6Tests.swift": {
+    "mtime": 1786697017.3302057,
+    "ast_hash": "17c48deaea74f45fa803effcac36deb3",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/URLCallsBatch4Tests.swift": {
+    "mtime": 1786697017.3303614,
+    "ast_hash": "d72747c7614467da4ec65e977b43b476",
+    "semantic_hash": ""
+  },
+  "Tests/FrontBackModelsTests/VenueAwarenessTests.swift": {
+    "mtime": 1786993600.265457,
+    "ast_hash": "aba79cb8557789a44eb12d706216d56d",
+    "semantic_hash": ""
+  },
+  "scripts/hooks/post-commit": {
+    "mtime": 1789310547.5727758,
+    "ast_hash": "36b4d013e111a98f1990bdd355a18e80",
+    "semantic_hash": ""
+  },
+  "scripts/hooks/pre-commit": {
+    "mtime": 1789310553.5073442,
+    "ast_hash": "d793e02a67b870c8d47564462fc7ecc0",
+    "semantic_hash": ""
+  },
+  "scripts/hooks/pre-commit-literals": {
+    "mtime": 1789310547.5687518,
+    "ast_hash": "c4fc9328bbb34af479ecca6017e2689e",
+    "semantic_hash": ""
+  },
+  "AFBM_COVERAGE_GOAL.md": {
+    "mtime": 1786697017.3162787,
+    "ast_hash": "5ce9004a39bf09e15f7c1ad64ec5536b",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1786968546.592116,
+    "ast_hash": "ab74da74dbb3e32e1a91d6c05bb0b28d",
+    "semantic_hash": ""
+  },
+  "STATIC_ANALYSIS_BUGS_2026-06-24.md": {
+    "mtime": 1786697017.3168676,
+    "ast_hash": "e4b6a55334cb96c4d5842c383aff3e63",
+    "semantic_hash": ""
+  }
+}
