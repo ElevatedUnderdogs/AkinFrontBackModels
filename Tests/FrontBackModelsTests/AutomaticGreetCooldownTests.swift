@@ -407,7 +407,10 @@ final class AutomaticGreetCooldownTests: XCTestCase {
                     lastAutomaticGreetOutcome: .met
                 )
             ),
-            .alreadyMet
+            // The date is part of the verdict now: the rule clears ninety days after the greet
+            // they met on, and a member asking why is owed the moment rather than a shrug.
+            .alreadyMet(until: now.addingTimeInterval(-60 * 60)
+                .addingTimeInterval(AutomaticGreetCooldownPolicy.metCooldown))
         )
     }
 
@@ -554,7 +557,7 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             .alreadyInAGreet(isScanner: true),
             .alreadyInAGreet(isScanner: false),
             .pendingGreetUnanswered,
-            .alreadyMet,
+            .alreadyMet(until: now),
             .busy(isScanner: true, until: now),
             .automaticGreetsOff(isScanner: true),
             .hiddenFromNearby(isScanner: false),
@@ -594,7 +597,7 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             .memberCapReached(count: 3, cap: 3, until: now),
             .alreadyInAGreet(isScanner: true),
             .pendingGreetUnanswered,
-            .alreadyMet,
+            .alreadyMet(until: now),
             .busy(isScanner: true, until: now),
             .automaticGreetsOff(isScanner: true),
             .hiddenFromNearby(isScanner: true),

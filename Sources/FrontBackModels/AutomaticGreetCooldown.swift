@@ -9,8 +9,8 @@
 //
 //  Scott, 2026-09-13: automatic greets need a default cool down and a way to set it manually,
 //  because two compatible members standing near each other would otherwise be greeted over and
-//  over. The same reasoning covers every other moment an automatic greet makes no sense, starting
-//  with either member already being in one.
+//  over, which is a hassle. The same reasoning covers every other moment an automatic greet
+//  makes no sense, starting with either member already being in one.
 //
 //  WHY THIS LIVES IN THE SHARED MODELS PACKAGE and not on the server. The same reason
 //  `VenueCooldownPolicy` gives in `VenueAwareness.swift`: the client renders the suppression
@@ -55,8 +55,13 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
     /// This pair already has an automatic greet nobody has answered.
     case pendingGreetUnanswered
 
-    /// This pair has already confirmed that they met.
-    case alreadyMet
+    /// This pair has already confirmed that they met, and until when that holds.
+    ///
+    /// GOAL_LOOP20 Phase S-I, row SW-SL-016. It used to carry nothing and report `clearsAt` nil,
+    /// which said "somebody has to act" about a rule that is in fact a ninety day timer: `evaluate`
+    /// only reaches it while `now` is inside `metCooldown` of the last greet. A member asking why
+    /// got "you two have already met" and no date, for a state that does clear on its own.
+    case alreadyMet(until: Date?)
 
     /// One of the two raised their own busy pause and it has not lapsed.
     case busy(isScanner: Bool, until: Date?)
@@ -103,12 +108,12 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
     public var clearsAt: Date? {
         switch self {
         case .pairCooldown(let until): return until
+        case .alreadyMet(let until): return until
         case .memberCapReached(_, _, let until): return until
         case .busy(_, let until): return until
         case .frozenByAnotherMember(let until): return until
         case .alreadyInAGreet,
              .pendingGreetUnanswered,
-             .alreadyMet,
              .automaticGreetsOff,
              .hiddenFromNearby,
              .blocked,
@@ -146,6 +151,19 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
         }
     }
 
+    /// A date a member can read, in their own locale, with no time of day on it.
+    ///
+    /// The time is dropped deliberately: these sentences are about when a member may be introduced
+    /// again, and a minute is a precision the rule does not have. `dateStyle: .medium` gives
+    /// "13 Oct 2026" in English rather than "10/13/26", which cannot be misread as a day and month
+    /// the other way round.
+    private static func readable(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+
     /// One sentence a member would recognise, for item S-C14's surface.
     ///
     /// Written in the second person and about the member who is ASKING, which is why several cases
@@ -154,8 +172,12 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
     /// sentence. No dash punctuation anywhere, per the project's copy rule.
     public var memberFacingReason: String {
         switch self {
-        case .pairCooldown:
-            return "You two were introduced recently. We wait a while before doing it again."
+        case .pairCooldown(let until):
+            // The DATE, not "a while". The model holds it, the scan logs it, and a member told
+            // "we wait a while" cannot tell a day from a month. GOAL_LOOP20 Phase S-I, rows
+            // UFC-007 and UX-SL-006.
+            return "You two were introduced recently. We can introduce you again after "
+                + "\(Self.readable(until))."
         case .memberCapReached(_, let cap, _):
             return "You have had \(cap) automatic introductions today, which is as many as we send."
         case .alreadyInAGreet(let isScanner):
@@ -164,10 +186,14 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
                 : "They are already meeting somebody else."
         case .pendingGreetUnanswered:
             return "We already introduced you and nobody has answered yet."
-        case .alreadyMet:
-            return "You two have already met."
+        case .alreadyMet(let until):
+            guard let until else { return "You two have already met." }
+            return "You two have already met. We can introduce you again after "
+                + "\(Self.readable(until))."
         case .busy(let isScanner, _):
-            return isScanner ? "You said you are busy right now." : "They said they are busy right now."
+            return isScanner
+                ? "You said you are busy right now."
+                : "They said they are busy right now."
         case .automaticGreetsOff(let isScanner):
             return isScanner
                 ? "Auto greets is off, so we are not introducing you to anybody."
@@ -542,7 +568,7 @@ public enum AutomaticGreetCooldownPolicy {
             // what they would say about somebody they had a drink with.
             if let last = context.lastAutomaticGreetAt,
                context.now < last.addingTimeInterval(metCooldown) {
-                return .suppressed(.alreadyMet)
+                return .suppressed(.alreadyMet(until: last.addingTimeInterval(metCooldown)))
             }
         }
 
@@ -636,7 +662,8 @@ public enum AutomaticGreetCooldownChoice: String, Codable, Sendable, Hashable, C
     /// one should not silently be told they are on the default.
     public static func matching(seconds: TimeInterval?) -> AutomaticGreetCooldownChoice {
         guard let seconds else { return .useDefault }
-        let candidates = allCases.compactMap { choice -> (AutomaticGreetCooldownChoice, TimeInterval)? in
+        let candidates = allCases.compactMap {
+            choice -> (AutomaticGreetCooldownChoice, TimeInterval)? in
             guard let value = choice.seconds else { return nil }
             return (choice, abs(value - seconds))
         }
