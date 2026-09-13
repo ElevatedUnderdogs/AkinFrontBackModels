@@ -88,3 +88,6 @@ fastlane/test_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
+
+# graphify writes its knowledge graph here on every commit. A build artifact, not source.
+graphify-out/
