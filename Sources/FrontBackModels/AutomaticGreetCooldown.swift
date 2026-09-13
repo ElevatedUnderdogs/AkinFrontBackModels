@@ -548,3 +548,99 @@ public enum AutomaticGreetCooldownPolicy {
         return .eligible
     }
 }
+
+// MARK: - The member facing choice
+
+/// The cooldown lengths a member may pick from, as named choices rather than a number.
+///
+/// GOAL_LOOP20 item S-C9. Named because the control has to SHOW the current value, STATE the
+/// default, and let the member return to the default without guessing which option that was, and
+/// all three of those are impossible with a bare number: a member who has chosen 86400 cannot tell
+/// whether that is the default or a value they set.
+///
+/// The set covers a much shorter option and a much longer one either side of the default, which is
+/// what the item asks for, and stops there. A slider would let a member pick 71 minutes, which is
+/// a decision nobody wants to make about a thing they will set once.
+public enum AutomaticGreetCooldownChoice: String, Codable, Sendable, Hashable, CaseIterable {
+
+    /// Whatever the server says, which is `AutomaticGreetCooldownPolicy.defaultPairCooldown` unless
+    /// it has been tuned. This is the value a member returns to, and it is a CASE rather than the
+    /// absence of one so that "back to the default" is something they can tap.
+    case useDefault
+
+    case oneHour
+    case sixHours
+    case oneDay
+    case oneWeek
+    case oneMonth
+
+    /// The length in seconds, or nil for `useDefault`, which has no length of its own.
+    public var seconds: TimeInterval? {
+        switch self {
+        case .useDefault: return nil
+        case .oneHour: return 60 * 60
+        case .sixHours: return 6 * 60 * 60
+        case .oneDay: return 24 * 60 * 60
+        case .oneWeek: return 7 * 24 * 60 * 60
+        case .oneMonth: return 30 * 24 * 60 * 60
+        }
+    }
+
+    /// What the row says. No dash punctuation, per the project's copy rule.
+    public var title: String {
+        switch self {
+        case .useDefault: return "Use the default"
+        case .oneHour: return "1 hour"
+        case .sixHours: return "6 hours"
+        case .oneDay: return "1 day"
+        case .oneWeek: return "1 week"
+        case .oneMonth: return "1 month"
+        }
+    }
+
+    /// The choice that matches a stored number of seconds, or `useDefault` when there is none.
+    ///
+    /// A stored value that matches no choice resolves to the nearest one rather than to
+    /// `useDefault`, because a member who set six hours on an older build and then opens a newer
+    /// one should not silently be told they are on the default.
+    public static func matching(seconds: TimeInterval?) -> AutomaticGreetCooldownChoice {
+        guard let seconds else { return .useDefault }
+        let candidates = allCases.compactMap { choice -> (AutomaticGreetCooldownChoice, TimeInterval)? in
+            guard let value = choice.seconds else { return nil }
+            return (choice, abs(value - seconds))
+        }
+        return candidates.min { $0.1 < $1.1 }?.0 ?? .useDefault
+    }
+}
+
+/// What the server holds for this member, and what the default currently is.
+///
+/// The default is sent DOWN rather than compiled into the row, because item S-C12 makes it tunable
+/// without an app release, and a row that printed a compiled number while the server used another
+/// would be lying to the member about the thing they are being asked to change.
+public struct AutomaticGreetCooldownSettings: Codable, Hashable, Equatable, Sendable {
+
+    /// The member's own choice, or nil when they have made none.
+    public let chosenSeconds: TimeInterval?
+
+    /// What `useDefault` currently means, in seconds.
+    public let defaultSeconds: TimeInterval
+
+    public init(chosenSeconds: TimeInterval?, defaultSeconds: TimeInterval) {
+        self.chosenSeconds = chosenSeconds
+        self.defaultSeconds = defaultSeconds
+    }
+
+    public var choice: AutomaticGreetCooldownChoice {
+        AutomaticGreetCooldownChoice.matching(seconds: chosenSeconds)
+    }
+
+    /// The default expressed as the choice a member would recognise, for the row's "the default is"
+    /// line. Falls back to naming the raw hours when a tuned value matches no named choice.
+    public var defaultTitle: String {
+        let nearest = AutomaticGreetCooldownChoice.matching(seconds: defaultSeconds)
+        if nearest.seconds == defaultSeconds { return nearest.title }
+        let hours = Int((defaultSeconds / 3600).rounded())
+        return hours == 1 ? "1 hour" : "\(hours) hours"
+    }
+}
