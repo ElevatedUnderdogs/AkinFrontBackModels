@@ -499,6 +499,7 @@ final class AutomaticGreetCooldownTests: XCTestCase {
                 )
             ),
             sameRuleAs: .memberCapReached(
+                isScanner: true,
                 count: AutomaticGreetCooldownPolicy.defaultMemberCap,
                 cap: AutomaticGreetCooldownPolicy.defaultMemberCap,
                 until: now
@@ -511,7 +512,11 @@ final class AutomaticGreetCooldownTests: XCTestCase {
         )
     }
 
-    func testReleasedWhenTheCapWindowRollsOver() {
+    /// Renamed in Phase S-G. It was called `testReleasedWhenTheCapWindowRollsOver` and nothing
+    /// rolled over: the body sets the count one BELOW the cap, which is the off by one, and the
+    /// failure message said so while the name promised something else. The rollover is the test
+    /// underneath, which this one did not cover.
+    func testOneUnderTheCapIsStillAllowed() {
         XCTAssertTrue(
             AutomaticGreetCooldownPolicy.evaluate(
                 context(
@@ -522,6 +527,43 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             ).isEligible,
             "One under the cap is refused, so the cap is off by one and a member gets one fewer "
                 + "introduction than the number they were told."
+        )
+    }
+
+    /// The rollover, which is what the name above used to claim, and where it actually happens.
+    ///
+    /// The policy does NOT apply the window itself. It compares `automaticGreetsInWindow` against
+    /// the cap, and the window is applied where that count is made, by the caller's query. So a
+    /// rollover reaches the policy as a COUNT that has dropped, which is what this asserts, and
+    /// the first attempt at this test asserted it as a timestamp that had moved and failed
+    /// correctly.
+    ///
+    /// What the timestamp IS for is the sentence: the cap clears one window after the OLDEST greet
+    /// inside it, not one window from now, and that is checked on the suppressed half.
+    func testTheCapReleasesWhenAGreetFallsOutOfTheWindow() {
+        let cap = AutomaticGreetCooldownPolicy.defaultMemberCap
+        let window = AutomaticGreetCooldownPolicy.defaultMemberCapWindow
+        let oldest = now.addingTimeInterval(-(window - 60))
+
+        assertSuppressed(
+            AutomaticGreetCooldownPolicy.evaluate(
+                context(
+                    scanner: member(automaticGreetsInWindow: cap),
+                    scannerOldestGreetInWindowAt: oldest
+                )
+            ),
+            sameRuleAs: .memberCapReached(isScanner: true, count: cap, cap: cap, until: now),
+            clearsAt: oldest.addingTimeInterval(window)
+        )
+        XCTAssertTrue(
+            AutomaticGreetCooldownPolicy.evaluate(
+                context(
+                    scanner: member(automaticGreetsInWindow: cap - 1),
+                    scannerOldestGreetInWindowAt: oldest
+                )
+            ).isEligible,
+            "A greet fell out of the window and the member is still capped, so the cap never "
+                + "releases and a member gets three introductions for the life of the account."
         )
     }
 
@@ -613,7 +655,7 @@ final class AutomaticGreetCooldownTests: XCTestCase {
     func testEverySuppressionNamesItselfAndSaysWhetherItClears() {
         let all: [AutomaticGreetSuppression] = [
             .pairCooldown(until: now),
-            .memberCapReached(count: 3, cap: 3, until: now),
+            .memberCapReached(isScanner: true, count: 3, cap: 3, until: now),
             .alreadyInAGreet(isScanner: true),
             .alreadyInAGreet(isScanner: false),
             .pendingGreetUnanswered,
@@ -654,7 +696,7 @@ final class AutomaticGreetCooldownTests: XCTestCase {
     func testEveryRuleHasADistinctName() {
         let oneOfEach: [AutomaticGreetSuppression] = [
             .pairCooldown(until: now),
-            .memberCapReached(count: 3, cap: 3, until: now),
+            .memberCapReached(isScanner: true, count: 3, cap: 3, until: now),
             .alreadyInAGreet(isScanner: true),
             .pendingGreetUnanswered,
             .alreadyMet(until: now),
@@ -724,19 +766,78 @@ extension AutomaticGreetCooldownTests {
         )
         XCTAssertEqual(
             result?.ruleName,
-            AutomaticGreetSuppression.memberCapReached(count: 3, cap: 3, until: now).ruleName
+            AutomaticGreetSuppression.memberCapReached(isScanner: true, count: 3, cap: 3, until: now).ruleName
         )
     }
 
     /// The member level question and the pair question are different questions, and the answers
     /// must not be confused: a pair cooldown says nothing about whether this member is being
     /// introduced to anybody at all.
+    /// The claim this used to make could not be expressed the way it was written.
+    ///
+    /// It called `memberLevelSuppression(for: member(), now: now)` and asserted nil, which is byte
+    /// for byte the same call as `testAMemberWithNothingWrongIsGivenNoReason` above: no pair
+    /// cooldown was set up, and `memberLevelSuppression` takes no pair facts, so its subject was
+    /// not in the test at all. Written properly it takes both policies on one fixture and asserts
+    /// they disagree, which is the whole point: the pair is on a timer and the MEMBER is fine.
     func testAPairCooldownIsNotAMemberLevelReason() {
+        let scanner = member()
+        let onACooldown = context(
+            scanner: scanner,
+            lastAutomaticGreetAt: now.addingTimeInterval(-60)
+        )
+        assertSuppressed(
+            AutomaticGreetCooldownPolicy.evaluate(onACooldown),
+            sameRuleAs: .pairCooldown(until: now)
+        )
         XCTAssertNil(
-            AutomaticGreetCooldownPolicy.memberLevelSuppression(for: member(), now: now),
-            "A member whose only problem is one pair's cooldown was told they are not being "
-                + "introduced at all, which is false and would send them to turn a switch that is "
-                + "already on."
+            AutomaticGreetCooldownPolicy.memberLevelSuppression(for: scanner, now: now),
+            "The pair is on a cooldown and the member was told they are not being introduced at "
+                + "all, which is false and would send them to turn on a switch that is already on."
+        )
+    }
+
+    /// GOAL_LOOP20 Phase S-G. The cap applies to the CANDIDATE too.
+    ///
+    /// It was checked on the scanner alone, defended by a comment saying the cap protects the
+    /// member being interrupted. An automatic greet is created for the pair and notifies both, so
+    /// without this a member who had taken their three for the day could still be introduced any
+    /// number of times by other people walking past them, which is the crowded room this rule is
+    /// named for.
+    func testTheCandidateAtTheirCapIsNotIntroducedEither() {
+        let cap = AutomaticGreetCooldownPolicy.defaultMemberCap
+        assertSuppressed(
+            AutomaticGreetCooldownPolicy.evaluate(
+                context(candidate: member(automaticGreetsInWindow: cap))
+            ),
+            sameRuleAs: .memberCapReached(isScanner: false, count: cap, cap: cap, until: now)
+        )
+    }
+
+    /// And the scanner is told first, because a member is owed the reason they can act on.
+    func testWhenBothAreAtTheirCapTheScannerIsTheOneNamed() {
+        let cap = AutomaticGreetCooldownPolicy.defaultMemberCap
+        let result = AutomaticGreetCooldownPolicy.evaluate(
+            context(
+                scanner: member(automaticGreetsInWindow: cap),
+                candidate: member(automaticGreetsInWindow: cap)
+            )
+        )
+        guard case .suppressed(.memberCapReached(let isScanner, _, _, _)) = result else {
+            XCTFail("The cap did not fire at all when both members were at it.")
+            return
+        }
+        XCTAssertTrue(isScanner, "The candidate's cap was reported to a member who cannot act on it.")
+    }
+
+    /// The candidate's sentence says as little as the rest of the family about somebody else.
+    func testTheCandidatesCapDoesNotCountTheirIntroductions() {
+        let sentence = AutomaticGreetSuppression
+            .memberCapReached(isScanner: false, count: 7, cap: 3, until: now)
+            .memberFacingReason
+        XCTAssertFalse(
+            sentence.contains("7"),
+            "The asker was told how many introductions the OTHER member has had: \(sentence)"
         )
     }
 }

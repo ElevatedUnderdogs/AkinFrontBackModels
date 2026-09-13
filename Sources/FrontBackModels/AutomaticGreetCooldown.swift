@@ -47,7 +47,15 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
 
     /// This member has already had as many automatic greets as the cap allows in the window,
     /// from anybody. The crowded room rule.
-    case memberCapReached(count: Int, cap: Int, until: Date)
+    ///
+    /// `isScanner` because it applies to BOTH members, as of GOAL_LOOP20 Phase S-G. It was checked
+    /// on the scanner only, defended by a comment saying the cap protects the member being
+    /// interrupted and the scanner is the one being interrupted. An automatic greet interrupts
+    /// both: it is created for the pair and `triggerGreetForMultiple` notifies the candidate as
+    /// much as the scanner, which is why the candidate is checked for reachability at all. So a
+    /// member who had taken their three for the day could still be introduced any number of times
+    /// by other people walking past them, which is the crowded room this rule is named for.
+    case memberCapReached(isScanner: Bool, count: Int, cap: Int, until: Date)
 
     /// One of the two is already inside an active greet.
     case alreadyInAGreet(isScanner: Bool)
@@ -119,7 +127,7 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
         switch self {
         case .pairCooldown(let until): return until
         case .alreadyMet(let until): return until
-        case .memberCapReached(_, _, let until): return until
+        case .memberCapReached(_, _, _, let until): return until
         case .busy(_, let until): return until
         case .frozenByAnotherMember(let until): return until
         case .alreadyInAGreet,
@@ -197,7 +205,14 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
             // UFC-007 and UX-SL-006.
             return "You two were introduced recently. We can introduce you again after "
                 + "\(Self.readable(until))."
-        case .memberCapReached(let count, let cap, let until):
+        case .memberCapReached(let isScanner, let count, let cap, let until):
+            guard isScanner else {
+                // About the OTHER member, so it says as little as the rest of that family does.
+                // `AutomaticGreetGate.redactedForTheAsker` collapses it further before it leaves
+                // the server; this is the sentence the log keeps.
+                return "The person we would introduce you to has had as many introductions as we "
+                    + "send for now."
+            }
             // COUNT, not the cap, and not "today".
             //
             // It printed the cap, so a member who received five when the cap is three was told
@@ -380,6 +395,26 @@ public struct AutomaticGreetContext: Equatable, Sendable {
             self.automaticGreetsInWindow = automaticGreetsInWindow
             self.chosenCooldownSeconds = chosenCooldownSeconds
         }
+
+        /// The same member with their automatic greet count filled in.
+        ///
+        /// A `Member` is built from a user record and a count needs a database, so the two are
+        /// separate steps and this is the second one. GOAL_LOOP20 Phase S-G: it exists for both
+        /// members now, where the count used to be gathered for the scanner alone.
+        public func withVolume(_ count: Int) -> Member {
+            Member(
+                id: id,
+                automaticGreetsEnabled: automaticGreetsEnabled,
+                isHiddenFromNearby: isHiddenFromNearby,
+                isEmailVerified: isEmailVerified,
+                isReachable: isReachable,
+                hasConfirmedModerationFlag: hasConfirmedModerationFlag,
+                busyUntil: busyUntil,
+                isWithinStatedAvailability: isWithinStatedAvailability,
+                automaticGreetsInWindow: count,
+                chosenCooldownSeconds: chosenCooldownSeconds
+            )
+        }
     }
 
     public let scanner: Member
@@ -404,6 +439,11 @@ public struct AutomaticGreetContext: Equatable, Sendable {
     /// When the OLDEST automatic greet inside the cap's window was created for the scanner, or
     /// nil when there are none. The cap clears one window after that one, not one window from now.
     public let scannerOldestGreetInWindowAt: Date?
+
+    /// The same for the CANDIDATE, so their cap clears one window after their own oldest greet
+    /// rather than one window from now. Nil when they have none, or when a caller does not gather
+    /// it, in which case the cap still fires and the date it reports is `now` plus a window.
+    public let candidateOldestGreetInWindowAt: Date?
 
     /// When a freeze another member holds on the candidate lapses, or nil when there is none.
     public let candidateFrozenUntil: Date?
@@ -432,6 +472,7 @@ public struct AutomaticGreetContext: Equatable, Sendable {
         lastAutomaticGreetOutcome: AutomaticGreetOutcome,
         hasPendingUnansweredGreet: Bool,
         scannerOldestGreetInWindowAt: Date?,
+        candidateOldestGreetInWindowAt: Date? = nil,
         candidateFrozenUntil: Date?,
         hasVenueBetweenThem: Bool,
         now: Date,
@@ -448,6 +489,7 @@ public struct AutomaticGreetContext: Equatable, Sendable {
         self.lastAutomaticGreetOutcome = lastAutomaticGreetOutcome
         self.hasPendingUnansweredGreet = hasPendingUnansweredGreet
         self.scannerOldestGreetInWindowAt = scannerOldestGreetInWindowAt
+        self.candidateOldestGreetInWindowAt = candidateOldestGreetInWindowAt
         self.candidateFrozenUntil = candidateFrozenUntil
         self.hasVenueBetweenThem = hasVenueBetweenThem
         self.now = now
@@ -525,6 +567,7 @@ public enum AutomaticGreetCooldownPolicy {
         if !member.isWithinStatedAvailability { return .outsideStatedAvailability(isScanner: true) }
         if member.automaticGreetsInWindow >= cap {
             return .memberCapReached(
+                isScanner: true,
                 count: member.automaticGreetsInWindow,
                 cap: cap,
                 until: (oldestGreetInWindowAt ?? now).addingTimeInterval(capWindow)
@@ -636,11 +679,29 @@ public enum AutomaticGreetCooldownPolicy {
 
         // 6. Volume, before the pair timer, because a member at their cap should be told about the
         //    cap rather than about one particular person.
+        //
+        //    BOTH members, as of Phase S-G. It was the scanner only, defended by a comment saying
+        //    the cap protects the member being interrupted and the scanner is the one being
+        //    interrupted. An automatic greet interrupts both of them, so a member who had taken
+        //    their three could still be introduced any number of times by other people walking
+        //    past, which is the crowded room this rule is named for. The scanner is checked first
+        //    because a member is owed the reason they can act on.
         if context.scanner.automaticGreetsInWindow >= context.cap {
             let clearsAt = (context.scannerOldestGreetInWindowAt ?? context.now)
                 .addingTimeInterval(context.capWindow)
             return .suppressed(.memberCapReached(
+                isScanner: true,
                 count: context.scanner.automaticGreetsInWindow,
+                cap: context.cap,
+                until: clearsAt
+            ))
+        }
+        if context.candidate.automaticGreetsInWindow >= context.cap {
+            let clearsAt = (context.candidateOldestGreetInWindowAt ?? context.now)
+                .addingTimeInterval(context.capWindow)
+            return .suppressed(.memberCapReached(
+                isScanner: false,
+                count: context.candidate.automaticGreetsInWindow,
                 cap: context.cap,
                 until: clearsAt
             ))
