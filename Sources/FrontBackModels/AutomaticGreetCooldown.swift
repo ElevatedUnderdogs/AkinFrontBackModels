@@ -100,6 +100,15 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
     /// There is nowhere to send the two of them.
     case noVenueBetweenThem
 
+    /// Something about the OTHER member stops it, and what that is, is theirs.
+    ///
+    /// GOAL_LOOP20 Phase S-I, row SEC-004. The member facing surface answers any signed in member
+    /// about any member id they can name, and nine of the rules above describe the candidate rather
+    /// than the asker: that they are busy until a particular minute, that a moderator confirmed a
+    /// flag against them, that somebody else holds a freeze on them. The server still evaluates and
+    /// logs the real rule, and the scan still obeys it. This is the answer the asker gets instead.
+    case unavailableToYou
+
     /// Whether the reason is one that clears on its own, and when.
     ///
     /// `nil` means it does not clear on a timer: somebody has to do something. Item S-C13 requires
@@ -121,7 +130,8 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
              .unverified,
              .moderationFlagged,
              .outsideStatedAvailability,
-             .noVenueBetweenThem:
+             .noVenueBetweenThem,
+             .unavailableToYou:
             return nil
         }
     }
@@ -148,6 +158,7 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
         case .frozenByAnotherMember: return "frozen_by_another_member"
         case .outsideStatedAvailability: return "outside_stated_availability"
         case .noVenueBetweenThem: return "no_venue_between_them"
+        case .unavailableToYou: return "unavailable_to_you"
         }
     }
 
@@ -216,6 +227,9 @@ public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
             return isScanner
                 ? "This is outside the hours you said you are open to meeting."
                 : "This is outside the hours they said they are open to meeting."
+        case .unavailableToYou:
+            // Deliberately says nothing about them. Row SEC-004: what stops it is theirs.
+            return "We cannot introduce you to them right now."
         case .noVenueBetweenThem:
             return "There is nowhere between you two to meet."
         }
