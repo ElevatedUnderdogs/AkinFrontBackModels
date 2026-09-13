@@ -1492,3 +1492,33 @@ extension GetAutomaticGreetCooldownRequest {
         .init(method: .get)
     }
 }
+
+// MARK: - GOAL_LOOP20 items S-C14 and S-C15. Why there was no introduction.
+
+public struct AutomaticGreetStatusPayload: Codable, Hashable, Equatable {
+
+    /// The member being asked about.
+    public let otherUserID: UUID
+
+    /// Debug only, and refused unless the server allows debug routes. Nil is the ordinary member
+    /// facing call, which changes nothing and only reports.
+    public let debugAction: AutomaticGreetDebugAction?
+
+    public init(otherUserID: UUID, debugAction: AutomaticGreetDebugAction? = nil) {
+        self.otherUserID = otherUserID
+        self.debugAction = debugAction
+    }
+}
+
+public typealias AutomaticGreetStatusRequest =
+    Request<AutomaticGreetStatusPayload, AutomaticGreetStatus>
+
+extension AutomaticGreetStatusRequest {
+    /// Why this member is not being introduced to that one right now, by name.
+    ///
+    /// The same verdict the scanner acts on, computed by the same function, rather than a second
+    /// explanation that could drift from the rule it explains.
+    public static var automaticGreetStatus: Self {
+        .init(method: .post)
+    }
+}

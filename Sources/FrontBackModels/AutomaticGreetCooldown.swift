@@ -644,3 +644,75 @@ public struct AutomaticGreetCooldownSettings: Codable, Hashable, Equatable, Send
         return hours == 1 ? "1 hour" : "\(hours) hours"
     }
 }
+
+// MARK: - Asking why there was no introduction
+
+/// The gate's verdict for one pair, in a form a client can render and a test can assert on.
+///
+/// GOAL_LOOP20 items S-C14 and S-C15. A member who knows somebody compatible is nearby and gets no
+/// introduction should be able to find out why, in the app, without support. That is only possible
+/// if the reason travels as a VALUE: a client handed prose could print it and nothing else.
+public struct AutomaticGreetStatus: Codable, Hashable, Equatable, Sendable {
+
+    public let isEligible: Bool
+
+    /// The stable rule key, for logs, metrics and tests. Nil when eligible.
+    public let ruleName: String?
+
+    /// The sentence a member would recognise. Nil when eligible.
+    public let memberFacingReason: String?
+
+    /// When the pair becomes eligible again, or nil when nothing clears on a timer.
+    public let clearsAt: Date?
+
+    public init(
+        isEligible: Bool,
+        ruleName: String?,
+        memberFacingReason: String?,
+        clearsAt: Date?
+    ) {
+        self.isEligible = isEligible
+        self.ruleName = ruleName
+        self.memberFacingReason = memberFacingReason
+        self.clearsAt = clearsAt
+    }
+
+    public init(_ eligibility: AutomaticGreetEligibility) {
+        switch eligibility {
+        case .eligible:
+            self.init(isEligible: true, ruleName: nil, memberFacingReason: nil, clearsAt: nil)
+        case .suppressed(let reason):
+            self.init(
+                isEligible: false,
+                ruleName: reason.ruleName,
+                memberFacingReason: reason.memberFacingReason,
+                clearsAt: reason.clearsAt
+            )
+        }
+    }
+}
+
+/// What a debug caller wants done to the pair's history before the verdict is computed.
+///
+/// GOAL_LOOP20 item S-C15, and Scott's standing rule about states that are only reachable through a
+/// long real world sequence. A pair cooldown is twenty four hours by default. Without this, testing
+/// the release side of the commonest rule in the set means waiting a day, which is not a thing that
+/// fits inside a working session, so it would not get tested and the rule would ship unverified.
+///
+/// Every case is refused unless the server has been told to allow debug routes, and the refusal
+/// says so rather than failing quietly.
+public enum AutomaticGreetDebugAction: Codable, Hashable, Equatable, Sendable {
+
+    /// Move the pair's last automatic greet far enough into the past that every cooldown has
+    /// elapsed. The greet itself is left alone, so the OUTCOME still applies and the release can be
+    /// tested per outcome rather than only in general.
+    case expireCooldownNow
+
+    /// Put the pair's last automatic greet this many seconds ago, so any point on a cooldown can be
+    /// landed on directly, including the second before it clears.
+    case setLastGreet(secondsAgo: Double)
+
+    /// Forget that this pair was ever introduced automatically, so the next scan sees a first
+    /// introduction.
+    case clearPairHistory
+}
