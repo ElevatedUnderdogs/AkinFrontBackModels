@@ -414,6 +414,37 @@ public enum AutomaticGreetCooldownPolicy {
 
     public static let defaultMemberCapWindow: TimeInterval = 24 * 60 * 60
 
+    /// The rules that are about ONE member, with no second member involved.
+    ///
+    /// GOAL_LOOP20 item S-C14. A member who is getting no automatic introductions at all is asking
+    /// a question about THEMSELVES, not about a particular person, and the answer is usually one of
+    /// these seven. Reusing `evaluate` for it would mean inventing a fake second member and then
+    /// hoping none of the pair rules fired on the fake.
+    ///
+    /// The order is the same as `evaluate`'s and for the same reason: consent first, so a member
+    /// who has turned Auto greets off is told that rather than told about a cap they never reached.
+    public static func memberLevelSuppression(
+        for member: AutomaticGreetContext.Member,
+        now: Date,
+        cap: Int = defaultMemberCap,
+        capWindow: TimeInterval = defaultMemberCapWindow,
+        oldestGreetInWindowAt: Date? = nil
+    ) -> AutomaticGreetSuppression? {
+        if !member.automaticGreetsEnabled { return .automaticGreetsOff(isScanner: true) }
+        if member.isHiddenFromNearby { return .hiddenFromNearby(isScanner: true) }
+        if !member.isEmailVerified { return .unverified(isScanner: true) }
+        if let until = member.busyUntil, until > now { return .busy(isScanner: true, until: until) }
+        if !member.isWithinStatedAvailability { return .outsideStatedAvailability(isScanner: true) }
+        if member.automaticGreetsInWindow >= cap {
+            return .memberCapReached(
+                count: member.automaticGreetsInWindow,
+                cap: cap,
+                until: (oldestGreetInWindowAt ?? now).addingTimeInterval(capWindow)
+            )
+        }
+        return nil
+    }
+
     /// The cooldown for an outcome.
     public static func cooldown(
         for outcome: AutomaticGreetOutcome,
@@ -626,9 +657,32 @@ public struct AutomaticGreetCooldownSettings: Codable, Hashable, Equatable, Send
     /// What `useDefault` currently means, in seconds.
     public let defaultSeconds: TimeInterval
 
-    public init(chosenSeconds: TimeInterval?, defaultSeconds: TimeInterval) {
+    /// Why this member is getting no automatic introductions AT ALL right now, in a sentence they
+    /// would recognise, or nil when nothing about them is stopping it.
+    ///
+    /// GOAL_LOOP20 item S-C14. It travels with the cooldown settings rather than on a call of its
+    /// own, because the screen that asks for one is the screen that should show the other: a member
+    /// looking at the Auto greets panel is already asking whether they are being introduced.
+    ///
+    /// Defaulted in the initialiser so an older server that does not send it decodes, and the row
+    /// then simply says nothing extra rather than failing to load.
+    public let memberLevelReason: String?
+
+    public init(
+        chosenSeconds: TimeInterval?,
+        defaultSeconds: TimeInterval,
+        memberLevelReason: String? = nil
+    ) {
         self.chosenSeconds = chosenSeconds
         self.defaultSeconds = defaultSeconds
+        self.memberLevelReason = memberLevelReason
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        chosenSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .chosenSeconds)
+        defaultSeconds = try container.decode(TimeInterval.self, forKey: .defaultSeconds)
+        memberLevelReason = try container.decodeIfPresent(String.self, forKey: .memberLevelReason)
     }
 
     public var choice: AutomaticGreetCooldownChoice {

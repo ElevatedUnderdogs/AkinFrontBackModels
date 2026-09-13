@@ -625,3 +625,55 @@ final class AutomaticGreetCooldownTests: XCTestCase {
         XCTAssertNotEqual(scanner.memberFacingReason, candidate.memberFacingReason)
     }
 }
+
+// MARK: - S-C14. The member level question, which is a different question
+
+extension AutomaticGreetCooldownTests {
+
+    /// A member with nothing wrong with them is told nothing, which is the state most members are
+    /// in most of the time and the one a wrong answer would be most visible in.
+    func testAMemberWithNothingWrongIsGivenNoReason() {
+        XCTAssertNil(
+            AutomaticGreetCooldownPolicy.memberLevelSuppression(for: member(), now: now)
+        )
+    }
+
+    func testTheMemberLevelReasonNamesTheSwitchBeforeAnythingElse() {
+        let result = AutomaticGreetCooldownPolicy.memberLevelSuppression(
+            for: member(
+                automaticGreetsEnabled: false,
+                automaticGreetsInWindow: AutomaticGreetCooldownPolicy.defaultMemberCap
+            ),
+            now: now
+        )
+        XCTAssertEqual(
+            result?.ruleName,
+            AutomaticGreetSuppression.automaticGreetsOff(isScanner: true).ruleName,
+            "A member who turned Auto greets OFF was told about a cap instead, which sends them "
+                + "looking in the wrong place for a setting they already changed."
+        )
+    }
+
+    func testTheMemberLevelReasonReportsTheCapWhenNothingElseApplies() {
+        let result = AutomaticGreetCooldownPolicy.memberLevelSuppression(
+            for: member(automaticGreetsInWindow: AutomaticGreetCooldownPolicy.defaultMemberCap),
+            now: now
+        )
+        XCTAssertEqual(
+            result?.ruleName,
+            AutomaticGreetSuppression.memberCapReached(count: 3, cap: 3, until: now).ruleName
+        )
+    }
+
+    /// The member level question and the pair question are different questions, and the answers
+    /// must not be confused: a pair cooldown says nothing about whether this member is being
+    /// introduced to anybody at all.
+    func testAPairCooldownIsNotAMemberLevelReason() {
+        XCTAssertNil(
+            AutomaticGreetCooldownPolicy.memberLevelSuppression(for: member(), now: now),
+            "A member whose only problem is one pair's cooldown was told they are not being "
+                + "introduced at all, which is false and would send them to turn a switch that is "
+                + "already on."
+        )
+    }
+}
