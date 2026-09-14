@@ -656,6 +656,7 @@ final class AutomaticGreetCooldownTests: XCTestCase {
         let all: [AutomaticGreetSuppression] = [
             .pairCooldown(until: now),
             .memberCapReached(isScanner: true, count: 3, cap: 3, until: now),
+            .memberCapReached(isScanner: false, count: 3, cap: 3, until: now),
             .alreadyInAGreet(isScanner: true),
             .alreadyInAGreet(isScanner: false),
             .pendingGreetUnanswered,
@@ -670,6 +671,12 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             .frozenByAnotherMember(until: now),
             .outsideStatedAvailability(isScanner: true),
             .noVenueBetweenThem,
+            // The case a member is MOST likely to be shown, and it was missing from both sweeps in
+            // this file. Every candidate side rule collapses to it in
+            // `AutomaticGreetGate.redactedForTheAsker`, so it is the sentence that actually
+            // reaches a phone, and the dash check, the empty sentence check and the distinct name
+            // check all skipped it. GOAL_LOOP20 Phase S-G.
+            .unavailableToYou,
         ]
         for reason in all {
             XCTAssertFalse(reason.ruleName.isEmpty, "A rule with no name cannot be logged.")
@@ -710,6 +717,7 @@ final class AutomaticGreetCooldownTests: XCTestCase {
             .frozenByAnotherMember(until: now),
             .outsideStatedAvailability(isScanner: true),
             .noVenueBetweenThem,
+            .unavailableToYou,
         ]
         XCTAssertEqual(
             Set(oneOfEach.map(\.ruleName)).count,
@@ -838,6 +846,54 @@ extension AutomaticGreetCooldownTests {
         XCTAssertFalse(
             sentence.contains("7"),
             "The asker was told how many introductions the OTHER member has had: \(sentence)"
+        )
+    }
+
+    /// The two sweeps above are hand written, because the enum carries associated values and
+    /// cannot be `CaseIterable`. This is what tells somebody who adds a case that they have to add
+    /// it there too.
+    ///
+    /// GOAL_LOOP20 Phase S-G. `.unavailableToYou` was added to the enum in this loop and to
+    /// neither list, so the case a member is most likely to be shown was the one case nothing
+    /// checked. A hand written list whose name says "every" needs something that notices when the
+    /// type outgrows it.
+    func testTheHandWrittenRuleListCoversEveryCaseTheEnumDeclares() throws {
+        let source = try String(
+            contentsOf: URL(fileURLWithPath: #filePath)
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .appendingPathComponent("Sources/FrontBackModels/AutomaticGreetCooldown.swift"),
+            encoding: .utf8
+        )
+        let declaration = source.range(of: "public enum AutomaticGreetSuppression")
+        let end = declaration.flatMap { source.range(of: "\n}", range: $0.upperBound..<source.endIndex) }
+        let body = try XCTUnwrap(
+            declaration.flatMap { start in end.map { String(source[start.upperBound..<$0.lowerBound]) } },
+            "AutomaticGreetSuppression is not declared where this test looks for it."
+        )
+        let declared = Set(
+            body.components(separatedBy: "\n")
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+                .filter { $0.hasPrefix("case ") }
+                .map { line -> String in
+                    let withoutKeyword = line.dropFirst("case ".count)
+                    return String(withoutKeyword.prefix { $0.isLetter || $0.isNumber })
+                }
+        )
+        XCTAssertGreaterThan(
+            declared.count, 10,
+            "The parser found \(declared.count) cases, so it is broken and this test checks nothing."
+        )
+
+        // Every case name that appears in the `all` sweep, read out of this file the same way.
+        let thisFile = try String(contentsOf: URL(fileURLWithPath: #filePath), encoding: .utf8)
+        let swept = Set(declared.filter { thisFile.contains(".\($0)") })
+        XCTAssertEqual(
+            declared.subtracting(swept).sorted(),
+            [],
+            "These suppression cases are declared and appear in no list in this file, so nothing "
+                + "checks their sentence, their name or their copy."
         )
     }
 }
