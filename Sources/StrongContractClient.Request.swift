@@ -1454,3 +1454,80 @@ extension VenueIntroductionJoinEndpoint {
         .init(method: .post, assertHasAccessToken: false)
     }
 }
+
+// MARK: - GOAL_LOOP20 items S-C9 and S-C10. The member's own automatic greet cooldown.
+
+public struct AutomaticGreetCooldownPayload: Codable, Hashable, Equatable {
+
+    /// The choice the member made. `useDefault` clears their own value and returns them to
+    /// whatever the server's default currently is.
+    public let choice: AutomaticGreetCooldownChoice
+
+    public init(choice: AutomaticGreetCooldownChoice) {
+        self.choice = choice
+    }
+}
+
+public typealias UpdateAutomaticGreetCooldownRequest =
+    Request<AutomaticGreetCooldownPayload, AutomaticGreetCooldownSettings>
+
+extension UpdateAutomaticGreetCooldownRequest {
+    /// Sets how long this member waits between automatic introductions, and answers with what the
+    /// server now holds plus what the default currently is.
+    ///
+    /// It answers with the settings rather than with a bare success, because the row has to show
+    /// the current value and state the default, and a client that had to make a second call to
+    /// learn either could render a value the server does not hold.
+    public static var updateAutomaticGreetCooldown: Self {
+        .init(method: .post)
+    }
+}
+
+public typealias GetAutomaticGreetCooldownRequest =
+    Request<Empty, AutomaticGreetCooldownSettings>
+
+extension GetAutomaticGreetCooldownRequest {
+    /// Reads this member's cooldown and the current server default.
+    public static var automaticGreetCooldown: Self {
+        .init(method: .get)
+    }
+}
+
+// MARK: - GOAL_LOOP20 items S-C14 and S-C15. Why there was no introduction.
+
+public struct AutomaticGreetStatusPayload: Codable, Hashable, Equatable {
+
+    /// The member being asked about.
+    ///
+    /// Spelled `Id` and not `ID`. `IdentifierSpellingGuardTests` caught this type as the
+    /// forty fourth offender against a pinned count of forty three: the server installs
+    /// `.convertToSnakeCase` and `.convertFromSnakeCase` on the shared coders, and Foundation's
+    /// conversion is not its own inverse for a trailing acronym, so `otherUserID` encodes to
+    /// `other_user_id` and decodes back as `otherUserId`, a property that does not exist. The
+    /// forty three types on the grandfathered list keep the old spelling because renaming them
+    /// would change a wire key the deployed server already answers. This one is new in
+    /// GOAL_LOOP20 and nothing has shipped against it, so it is spelled correctly instead.
+    public let otherUserId: UUID
+
+    /// Debug only, and refused unless the server allows debug routes. Nil is the ordinary member
+    /// facing call, which changes nothing and only reports.
+    public let debugAction: AutomaticGreetDebugAction?
+
+    public init(otherUserId: UUID, debugAction: AutomaticGreetDebugAction? = nil) {
+        self.otherUserId = otherUserId
+        self.debugAction = debugAction
+    }
+}
+
+public typealias AutomaticGreetStatusRequest =
+    Request<AutomaticGreetStatusPayload, AutomaticGreetStatus>
+
+extension AutomaticGreetStatusRequest {
+    /// Why this member is not being introduced to that one right now, by name.
+    ///
+    /// The same verdict the scanner acts on, computed by the same function, rather than a second
+    /// explanation that could drift from the rule it explains.
+    public static var automaticGreetStatus: Self {
+        .init(method: .post)
+    }
+}

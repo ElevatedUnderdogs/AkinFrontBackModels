@@ -1,0 +1,72 @@
+#!/bin/bash
+#
+# TC-008: refuse a staged test assertion that compares against a bare literal a construction site
+# has already made unique.
+#
+# The failure this exists to catch is not hypothetical in this repository. Commit `e10f7cb` fixed
+# four fixtures and three of them were the same shape: a value uniquified where it was built, and
+# the assertion left comparing against the old bare literal.
+#
+#   -  XCTAssertEqual(try res.content.decode(AdvertiserMeResponse.self).email, "adv3@e.com")
+#
+# The address had grown a UUID suffix at the construction site. The assertion kept the literal, so
+# it tested that a generated value equalled a string nothing produced any more. Two more like it in
+# `CtrlWaitlistTests` and `VenueScanEndpointTests`, one of which compared two independent `UUID()`
+# values that "could never match".
+#
+# WHAT IT LOOKS FOR, and it is deliberately narrow. A staged line that is an XCTAssertEqual against
+# a quoted literal, where the same file also builds that kind of value with a uniquifier. A blunter
+# rule would flag every assertion in the suite and be turned off within a day, which is the usual
+# fate of a checker that cries wolf.
+#
+# HOW TO OVERRIDE, because a legitimate case exists: a literal that IS the specification, a frozen
+# wire format or a fixed error string. Put `// literal-ok:` and a reason on the line above.
+set -euo pipefail
+
+STAGED="$(git diff --cached --name-only --diff-filter=ACM | grep -E '(Tests?|Spec)\.swift$' || true)"
+[ -z "$STAGED" ] && exit 0
+
+FOUND=0
+for FILE in $STAGED; do
+  [ -f "$FILE" ] || continue
+  # Only files that actually uniquify something. Elsewhere a literal is just a literal.
+  grep -qE 'UUID\(\)|Date\(\)\.timeIntervalSince|\\\(uniqu|randomElement|\.random\(' "$FILE" || continue
+  while IFS=: read -r LINE TEXT; do
+    [ -z "$LINE" ] && continue
+    PREVIOUS="$(sed -n "$((LINE - 1))p" "$FILE" 2>/dev/null || true)"
+    case "$PREVIOUS" in *literal-ok:*) continue ;; esac
+    echo "  $FILE:$LINE"
+    echo "      ${TEXT#"${TEXT%%[![:space:]]*}"}"
+    FOUND=1
+  # `.*` and not `[^)]*`, and this cost a round trip to learn.
+  #
+  # The first version used `XCTAssertEqual\([^)]*"` so as to stay inside the call's parentheses.
+  # That pattern cannot cross a closing paren, so it missed
+  #
+  #   XCTAssertEqual(try res.content.decode(AdvertiserMeResponse.self).email, "adv3@e.com")
+  #
+  # because of the `)` in `decode(...)`. A nested call is the ordinary shape of the very defect
+  # this hook was written for, so the checker passed the one line it exists to catch. Caught by
+  # running it against that line rather than by reading it.
+  done < <(grep -nE 'XCTAssertEqual\(.*"[^"]+"' "$FILE" || true)
+done
+
+if [ "$FOUND" = "1" ]; then
+  cat >&2 <<'MESSAGE'
+
+This commit stages a test that compares against a bare literal, in a file that also generates
+unique values. That is the exact shape of the three fixture defects e10f7cb had to fix: the
+construction site grew a uniquifier and the assertion kept the old string, so the test compared a
+generated value against something nothing produces any more.
+
+Bind the generated value once and assert against the binding.
+
+If the literal IS the specification, a frozen wire format or a fixed error string, say so on the
+line above and this will let it through:
+
+    // literal-ok: the wire format fixes this string
+
+MESSAGE
+  exit 1
+fi
+exit 0
