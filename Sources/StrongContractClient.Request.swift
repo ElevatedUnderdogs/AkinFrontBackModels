@@ -453,6 +453,23 @@ public struct ForceGreetPayload: Codable {
     public var otherUserID: UUID
     public var contextRaw: String
     public var greetingMethod: Greet.Method
+
+    /// GOAL_LOOP26 item 2R.18. The payload had no memberwise initialiser outside this module, so
+    /// only the server could build one and the Demo Greet control had nothing to send. The server
+    /// still refuses a payload whose `userID` is not the token's own account, and refuses both
+    /// participants unless the deployment has named them as review accounts, so an initialiser here
+    /// widens what the client can express and not what the server will accept.
+    public init(
+        userID: UUID,
+        otherUserID: UUID,
+        contextRaw: String,
+        greetingMethod: Greet.Method
+    ) {
+        self.userID = userID
+        self.otherUserID = otherUserID
+        self.contextRaw = contextRaw
+        self.greetingMethod = greetingMethod
+    }
 }
 
 /// Struct version of `ContextCompatibility` Model, used for Codable operations.

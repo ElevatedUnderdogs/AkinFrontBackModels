@@ -201,6 +201,25 @@ public struct NearbySelfStatus: Codable, Hashable, Equatable, Sendable {
     /// they are not on between two coffees.
     public var peopleWaitingForYou: Int
 
+    /// Whether the SERVER says this account may trigger a Demo Greet.
+    ///
+    /// GOAL_LOOP26 item 2R.20. The decision is the server's, from the signed in account's identity
+    /// against the deployment's `DEMO_GREET_ACCOUNTS`, and it rides here because this is already
+    /// the per caller bag that comes back with the nearby list. A client flag, a build
+    /// configuration or a launch argument would all be flippable by anybody who inspects the
+    /// binary, at which point the demo path is a shipped feature for every member, which is a worse
+    /// problem than the one it was built to solve. The client renders what this says and nothing
+    /// more; the endpoint refuses regardless of what the client believes.
+    public var mayTriggerDemoGreet: Bool
+
+    /// The other App Review account, when this one may trigger a Demo Greet, and `nil` otherwise.
+    ///
+    /// Item 2R.19 requires the counterpart to be the real second review account rather than a
+    /// synthesized member, so the id comes from the server's own lookup of a configured review
+    /// account. The client never picks it, and cannot: sending any other id is refused by
+    /// `DemoGreetEligibility.requireDemoGreetAllowed`.
+    public var demoGreetCounterpartID: UUID?
+
     public init(
         pausedUntil: Date? = nil,
         pauseDefaultSeconds: Int = 3600,
@@ -208,7 +227,9 @@ public struct NearbySelfStatus: Codable, Hashable, Equatable, Sendable {
         freezeAllowancePerDay: Int = 0,
         outstandingReservations: Int = 0,
         reservationAllowance: Int = 0,
-        peopleWaitingForYou: Int = 0
+        peopleWaitingForYou: Int = 0,
+        mayTriggerDemoGreet: Bool = false,
+        demoGreetCounterpartID: UUID? = nil
     ) {
         self.pausedUntil = pausedUntil
         self.pauseDefaultSeconds = pauseDefaultSeconds
@@ -217,6 +238,8 @@ public struct NearbySelfStatus: Codable, Hashable, Equatable, Sendable {
         self.outstandingReservations = outstandingReservations
         self.reservationAllowance = reservationAllowance
         self.peopleWaitingForYou = peopleWaitingForYou
+        self.mayTriggerDemoGreet = mayTriggerDemoGreet
+        self.demoGreetCounterpartID = demoGreetCounterpartID
     }
 
     /// Decodes a status from a server that predates `peopleWaitingForYou`
@@ -231,6 +254,10 @@ public struct NearbySelfStatus: Codable, Hashable, Equatable, Sendable {
         outstandingReservations = try container.decodeIfPresent(Int.self, forKey: .outstandingReservations) ?? 0
         reservationAllowance = try container.decodeIfPresent(Int.self, forKey: .reservationAllowance) ?? 0
         peopleWaitingForYou = try container.decodeIfPresent(Int.self, forKey: .peopleWaitingForYou) ?? 0
+        // Absent on every server that predates item 2R.18, and absent is the safe answer: no
+        // control, no counterpart, nothing to render.
+        mayTriggerDemoGreet = try container.decodeIfPresent(Bool.self, forKey: .mayTriggerDemoGreet) ?? false
+        demoGreetCounterpartID = try container.decodeIfPresent(UUID.self, forKey: .demoGreetCounterpartID)
     }
 
     /// The sentence for the count, spelled rather than abbreviated, absent at
