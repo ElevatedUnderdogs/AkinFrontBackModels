@@ -449,19 +449,6 @@ extension TwoPersonGreetRequest {
 }
 
 public struct ForceGreetPayload: Codable {
-
-    /// Vestigial, and optional so a request may omit it.
-    ///
-    /// The name reads like it disables the access token check. It never did. This field is
-    /// declared here and read NOWHERE: not in `akin`, not in `akin-server-side`, not in this
-    /// package. `Handler.forceGreet` decides eligibility from `request.verifiedUser()` and
-    /// `DemoGreetEligibility`, and no code path consults this value.
-    ///
-    /// It was non-optional, so `POST /forceGreet` returned a 400 decode error when a caller
-    /// left it out, which made a dead field look like a required part of the contract. It is
-    /// optional now so the contract stops advertising something that does nothing. It is kept
-    /// rather than deleted so a client already sending it still decodes.
-    public var continueWithoutToken: Bool?
     public var userID: UUID
     public var otherUserID: UUID
     public var contextRaw: String

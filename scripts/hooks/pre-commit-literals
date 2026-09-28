@@ -14,7 +14,8 @@
 # `CtrlWaitlistTests` and `VenueScanEndpointTests`, one of which compared two independent `UUID()`
 # values that "could never match".
 #
-# WHAT IT LOOKS FOR, and it is deliberately narrow. A staged line that is an XCTAssertEqual against
+# WHAT IT LOOKS FOR, and it is deliberately narrow. A line THIS COMMIT ADDS that is an
+# XCTAssertEqual against
 # a quoted literal, where the same file also builds that kind of value with a uniquifier. A blunter
 # rule would flag every assertion in the suite and be turned off within a day, which is the usual
 # fate of a checker that cries wolf.
@@ -31,8 +32,22 @@ for FILE in $STAGED; do
   [ -f "$FILE" ] || continue
   # Only files that actually uniquify something. Elsewhere a literal is just a literal.
   grep -qE 'UUID\(\)|Date\(\)\.timeIntervalSince|\\\(uniqu|randomElement|\.random\(' "$FILE" || continue
+  # Only lines this commit ADDS. The header above says "a staged line", and for a long time this
+  # loop greped the whole file instead, so touching one line in a 1500 line suite reported every
+  # literal assertion in it, about 150 of them, none of them staged. That is precisely the "cries
+  # wolf" behaviour the header says the rule was kept narrow to avoid, and it made the hook
+  # unusable for any edit to an existing test file. Line numbers come from the staged diff's hunk
+  # headers with zero context, so each `+` line's number is the hunk's new start plus its offset.
+  ADDED="$(git diff --cached -U0 -- "$FILE" | awk '
+    /^@@/ { match($0, /\+[0-9]+/); n = substr($0, RSTART + 1, RLENGTH - 1); next }
+    /^\+\+\+/ { next }
+    /^\+/ { print n; n++ }
+  ')"
+  [ -z "$ADDED" ] && continue
   while IFS=: read -r LINE TEXT; do
     [ -z "$LINE" ] && continue
+    # Not added by this commit, so not this commit's problem.
+    printf '%s\n' "$ADDED" | grep -qx "$LINE" || continue
     PREVIOUS="$(sed -n "$((LINE - 1))p" "$FILE" 2>/dev/null || true)"
     case "$PREVIOUS" in *literal-ok:*) continue ;; esac
     echo "  $FILE:$LINE"
