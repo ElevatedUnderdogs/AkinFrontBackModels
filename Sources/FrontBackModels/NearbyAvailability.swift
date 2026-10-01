@@ -218,7 +218,7 @@ public struct NearbySelfStatus: Codable, Hashable, Equatable, Sendable {
     /// synthesized member, so the id comes from the server's own lookup of a configured review
     /// account. The client never picks it, and cannot: sending any other id is refused by
     /// `DemoGreetEligibility.requireDemoGreetAllowed`.
-    public var demoGreetCounterpartID: UUID?
+    public var demoGreetCounterpartId: UUID?
 
     public init(
         pausedUntil: Date? = nil,
@@ -229,7 +229,7 @@ public struct NearbySelfStatus: Codable, Hashable, Equatable, Sendable {
         reservationAllowance: Int = 0,
         peopleWaitingForYou: Int = 0,
         mayTriggerDemoGreet: Bool = false,
-        demoGreetCounterpartID: UUID? = nil
+        demoGreetCounterpartId: UUID? = nil
     ) {
         self.pausedUntil = pausedUntil
         self.pauseDefaultSeconds = pauseDefaultSeconds
@@ -239,7 +239,7 @@ public struct NearbySelfStatus: Codable, Hashable, Equatable, Sendable {
         self.reservationAllowance = reservationAllowance
         self.peopleWaitingForYou = peopleWaitingForYou
         self.mayTriggerDemoGreet = mayTriggerDemoGreet
-        self.demoGreetCounterpartID = demoGreetCounterpartID
+        self.demoGreetCounterpartId = demoGreetCounterpartId
     }
 
     /// Decodes a status from a server that predates `peopleWaitingForYou`
@@ -257,7 +257,7 @@ public struct NearbySelfStatus: Codable, Hashable, Equatable, Sendable {
         // Absent on every server that predates item 2R.18, and absent is the safe answer: no
         // control, no counterpart, nothing to render.
         mayTriggerDemoGreet = try container.decodeIfPresent(Bool.self, forKey: .mayTriggerDemoGreet) ?? false
-        demoGreetCounterpartID = try container.decodeIfPresent(UUID.self, forKey: .demoGreetCounterpartID)
+        demoGreetCounterpartId = try container.decodeIfPresent(UUID.self, forKey: .demoGreetCounterpartId)
     }
 
     /// The sentence for the count, spelled rather than abbreviated, absent at
