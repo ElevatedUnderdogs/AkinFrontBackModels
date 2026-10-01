@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# Cloud-credential re-introduction guard (S3 loop, item J.12).
+#
+# Rejects any commit whose staged content reintroduces a cloud credential:
+#   - an AWS access-key id      (AKIA followed by 16 upper-case alphanumerics)
+#   - an amazonaws.com host      (the S3 residue this loop removed)
+#   - a Cloudflare token/key     (a CLOUDFLARE_/CF_ *TOKEN|KEY|SECRET set to a long value)
+#
+# It scans the STAGED blob of each changed file (not the working tree), so partial staging is
+# judged honestly, and it names the offending file and line. A genuine false positive can be
+# waived for one commit with `git commit --no-verify`, or per line with a trailing
+# `cloud-cred-guard: allow` marker.
+set -euo pipefail
+
+akia='AKIA[0-9A-Z]{16}'
+aws_host='amazonaws\.com'
+cf_token='(CLOUDFLARE|CF)[A-Z0-9_]*(TOKEN|KEY|SECRET)[[:space:]]*[=:][[:space:]]*["'"'"']?[A-Za-z0-9_.-]{30,}'
+
+violations=0
+report() { printf 'BLOCKED %s:%s  %s\n' "$1" "$2" "$3" >&2; violations=$((violations+1)); }
+
+# Files staged for this commit (added/copied/modified), NUL-safe and bash-3.2 compatible
+# (macOS ships bash 3.2, which has no `mapfile`).
+while IFS= read -r -d '' f; do
+  [ -n "$f" ] || continue
+  case "$f" in
+    scripts/hooks/*) continue ;;              # the guard itself carries the patterns as literals
+  esac
+  is_md=0; case "$f" in *.md) is_md=1 ;; esac
+
+  # AKIA is an unambiguous secret shape: checked in every file type.
+  while IFS=: read -r n line; do
+    [ -n "$n" ] || continue
+    case "$line" in *"cloud-cred-guard: allow"*) continue ;; esac
+    report "$f" "$n" "AWS access-key id (AKIA...)"
+  done < <(git show ":$f" 2>/dev/null | grep -InE "$akia" || true)
+
+  # amazonaws.com and Cloudflare tokens: code and config only, so prose/docs may name them.
+  if [ "$is_md" -eq 0 ]; then
+    while IFS=: read -r n line; do
+      [ -n "$n" ] || continue
+      case "$line" in *"cloud-cred-guard: allow"*) continue ;; esac
+      report "$f" "$n" "amazonaws.com host reference"
+    done < <(git show ":$f" 2>/dev/null | grep -InE "$aws_host" || true)
+    while IFS=: read -r n line; do
+      [ -n "$n" ] || continue
+      case "$line" in *"cloud-cred-guard: allow"*) continue ;; esac
+      report "$f" "$n" "Cloudflare token/key assignment"
+    done < <(git show ":$f" 2>/dev/null | grep -InE "$cf_token" || true)
+  fi
+done < <(git diff --cached --name-only --diff-filter=ACM -z)
+
+if [ "$violations" -gt 0 ]; then
+  echo "" >&2
+  echo "pre-commit: refusing the commit; $violations cloud-credential match(es) above." >&2
+  echo "If a match is a genuine false positive, add 'cloud-cred-guard: allow' to that line," >&2
+  echo "or bypass this one commit with 'git commit --no-verify'." >&2
+  exit 1
+fi
+
+# TC-008's literal detector, run as part of the same hook rather than as a second hooksPath.
+#
+# A sweep reported this file as "a credential guard, not a literal detector", which was accurate:
+# the two answer different questions and only one of them was here. Chained rather than merged so
+# each keeps its own message and its own override token, and so a failure names which guard refused.
+GUARD="$(dirname "$0")/pre-commit-literals"
+if [ -x "$GUARD" ]; then
+  "$GUARD" || exit 1
+fi
+
+exit 0

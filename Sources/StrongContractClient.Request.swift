@@ -449,11 +449,27 @@ extension TwoPersonGreetRequest {
 }
 
 public struct ForceGreetPayload: Codable {
-    public var continueWithoutToken: Bool
     public var userID: UUID
     public var otherUserID: UUID
     public var contextRaw: String
     public var greetingMethod: Greet.Method
+
+    /// GOAL_LOOP26 item 2R.18. The payload had no memberwise initialiser outside this module, so
+    /// only the server could build one and the Demo Greet control had nothing to send. The server
+    /// still refuses a payload whose `userID` is not the token's own account, and refuses both
+    /// participants unless the deployment has named them as review accounts, so an initialiser here
+    /// widens what the client can express and not what the server will accept.
+    public init(
+        userID: UUID,
+        otherUserID: UUID,
+        contextRaw: String,
+        greetingMethod: Greet.Method
+    ) {
+        self.userID = userID
+        self.otherUserID = otherUserID
+        self.contextRaw = contextRaw
+        self.greetingMethod = greetingMethod
+    }
 }
 
 /// Struct version of `ContextCompatibility` Model, used for Codable operations.
@@ -1130,6 +1146,30 @@ extension SendGreetEvent {
     }
 }
 
+/// Records a greet event AS THE OTHER App Review account.
+///
+/// GOAL_LOOP26. The greet screen's whole shape is decided by what the other member does: whether
+/// they agree, which time they agree to, whether they reject a proposed time, whether they walk
+/// away, whether they answer or decline the call, whether they confirm the meet happened. A
+/// reviewer holding one device can reach exactly none of those screens, because every one of them
+/// needs a second person to act. The Demo Greet control supplies the meeting; this supplies the
+/// other person's side of it.
+///
+/// It is the same payload as `sendGreetEvent` on purpose. The server runs the identical body,
+/// `Handler.recordGreetEvent`, with the counterpart as the actor, so what a reviewer sees after
+/// using this is the production screen rather than a rehearsal of it.
+///
+/// Who may call it is decided on the server from the signed in account's identity, by the same
+/// `DemoGreetEligibility` gate that guards `forceGreet`, and the action itself has to be on that
+/// type's allow list. There is no client flag, no build configuration and no launch argument.
+public typealias DemoCounterpartGreetEvent = Request<GreetActionPayload, GreetEvent>
+extension DemoCounterpartGreetEvent {
+
+    public static var demoCounterpartGreetEvent: Self {
+        .init(method: .post)
+    }
+}
+
 public typealias GetGreetByID = Request<UUID, Greet>
 extension GetGreetByID {
 
@@ -1452,5 +1492,82 @@ extension VenueIntroductionJoinEndpoint {
 
     public static var venueIntroductionJoin: Self {
         .init(method: .post, assertHasAccessToken: false)
+    }
+}
+
+// MARK: - GOAL_LOOP20 items S-C9 and S-C10. The member's own automatic greet cooldown.
+
+public struct AutomaticGreetCooldownPayload: Codable, Hashable, Equatable {
+
+    /// The choice the member made. `useDefault` clears their own value and returns them to
+    /// whatever the server's default currently is.
+    public let choice: AutomaticGreetCooldownChoice
+
+    public init(choice: AutomaticGreetCooldownChoice) {
+        self.choice = choice
+    }
+}
+
+public typealias UpdateAutomaticGreetCooldownRequest =
+    Request<AutomaticGreetCooldownPayload, AutomaticGreetCooldownSettings>
+
+extension UpdateAutomaticGreetCooldownRequest {
+    /// Sets how long this member waits between automatic introductions, and answers with what the
+    /// server now holds plus what the default currently is.
+    ///
+    /// It answers with the settings rather than with a bare success, because the row has to show
+    /// the current value and state the default, and a client that had to make a second call to
+    /// learn either could render a value the server does not hold.
+    public static var updateAutomaticGreetCooldown: Self {
+        .init(method: .post)
+    }
+}
+
+public typealias GetAutomaticGreetCooldownRequest =
+    Request<Empty, AutomaticGreetCooldownSettings>
+
+extension GetAutomaticGreetCooldownRequest {
+    /// Reads this member's cooldown and the current server default.
+    public static var automaticGreetCooldown: Self {
+        .init(method: .get)
+    }
+}
+
+// MARK: - GOAL_LOOP20 items S-C14 and S-C15. Why there was no introduction.
+
+public struct AutomaticGreetStatusPayload: Codable, Hashable, Equatable {
+
+    /// The member being asked about.
+    ///
+    /// Spelled `Id` and not `ID`. `IdentifierSpellingGuardTests` caught this type as the
+    /// forty fourth offender against a pinned count of forty three: the server installs
+    /// `.convertToSnakeCase` and `.convertFromSnakeCase` on the shared coders, and Foundation's
+    /// conversion is not its own inverse for a trailing acronym, so `otherUserID` encodes to
+    /// `other_user_id` and decodes back as `otherUserId`, a property that does not exist. The
+    /// forty three types on the grandfathered list keep the old spelling because renaming them
+    /// would change a wire key the deployed server already answers. This one is new in
+    /// GOAL_LOOP20 and nothing has shipped against it, so it is spelled correctly instead.
+    public let otherUserId: UUID
+
+    /// Debug only, and refused unless the server allows debug routes. Nil is the ordinary member
+    /// facing call, which changes nothing and only reports.
+    public let debugAction: AutomaticGreetDebugAction?
+
+    public init(otherUserId: UUID, debugAction: AutomaticGreetDebugAction? = nil) {
+        self.otherUserId = otherUserId
+        self.debugAction = debugAction
+    }
+}
+
+public typealias AutomaticGreetStatusRequest =
+    Request<AutomaticGreetStatusPayload, AutomaticGreetStatus>
+
+extension AutomaticGreetStatusRequest {
+    /// Why this member is not being introduced to that one right now, by name.
+    ///
+    /// The same verdict the scanner acts on, computed by the same function, rather than a second
+    /// explanation that could drift from the rule it explains.
+    public static var automaticGreetStatus: Self {
+        .init(method: .post)
     }
 }
