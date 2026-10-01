@@ -1146,6 +1146,30 @@ extension SendGreetEvent {
     }
 }
 
+/// Records a greet event AS THE OTHER App Review account.
+///
+/// GOAL_LOOP26. The greet screen's whole shape is decided by what the other member does: whether
+/// they agree, which time they agree to, whether they reject a proposed time, whether they walk
+/// away, whether they answer or decline the call, whether they confirm the meet happened. A
+/// reviewer holding one device can reach exactly none of those screens, because every one of them
+/// needs a second person to act. The Demo Greet control supplies the meeting; this supplies the
+/// other person's side of it.
+///
+/// It is the same payload as `sendGreetEvent` on purpose. The server runs the identical body,
+/// `Handler.recordGreetEvent`, with the counterpart as the actor, so what a reviewer sees after
+/// using this is the production screen rather than a rehearsal of it.
+///
+/// Who may call it is decided on the server from the signed in account's identity, by the same
+/// `DemoGreetEligibility` gate that guards `forceGreet`, and the action itself has to be on that
+/// type's allow list. There is no client flag, no build configuration and no launch argument.
+public typealias DemoCounterpartGreetEvent = Request<GreetActionPayload, GreetEvent>
+extension DemoCounterpartGreetEvent {
+
+    public static var demoCounterpartGreetEvent: Self {
+        .init(method: .post)
+    }
+}
+
 public typealias GetGreetByID = Request<UUID, Greet>
 extension GetGreetByID {
 
