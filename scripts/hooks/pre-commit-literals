@@ -50,6 +50,68 @@ for FILE in $STAGED; do
     printf '%s\n' "$ADDED" | grep -qx "$LINE" || continue
     PREVIOUS="$(sed -n "$((LINE - 1))p" "$FILE" 2>/dev/null || true)"
     case "$PREVIOUS" in *literal-ok:*) continue ;; esac
+    # An XCTAssertEqual's THIRD argument is its failure message, and a message is a string by
+    # nature. The pattern above matches a quoted string anywhere in the line, so
+    #
+    #   XCTAssertEqual(back, value, "\(label) did not survive the round trip")
+    #
+    # was refused even though it compares two bindings and carries no comparison literal. The
+    # cost of that false positive is worse than it looks: the only escape offered is
+    # `// literal-ok:`, so the habit it teaches is to annotate a line that was never wrong,
+    # which spends the marker that exists to mark a deliberate specification literal.
+    #
+    # The first attempt at this stripped a TRAILING quoted argument, and that was wrong in a
+    # way worth recording: in a two argument assertion the trailing string IS the comparison
+    # literal, so it allowed
+    #
+    #   XCTAssertEqual(try res.content.decode(AdvertiserMeResponse.self).email, "adv3@e.com")
+    #
+    # straight through, which is the exact line this hook exists to catch. Caught by running
+    # it against that line rather than by reading it, which is the same way the `.*` versus
+    # `[^)]*` lesson above was learned.
+    #
+    # So the arguments are parsed properly: split at top level only, ignoring commas inside
+    # nested parens and inside strings, drop the message only when there are three or more
+    # arguments, and refuse when either COMPARED argument is a bare string literal.
+    printf '%s' "$TEXT" | python3 -c '
+import re, sys
+line = sys.stdin.read()
+i = line.find("XCTAssertEqual(")
+if i < 0:
+    sys.exit(1)
+j = i + len("XCTAssertEqual(")
+depth, quote, esc, cur, args = 1, None, False, "", []
+while j < len(line):
+    c = line[j]
+    if esc:
+        cur += c; esc = False; j += 1; continue
+    if c == "\\":
+        cur += c; esc = True; j += 1; continue
+    if quote:
+        cur += c
+        if c == quote:
+            quote = None
+        j += 1; continue
+    if c == chr(34):
+        quote = c; cur += c; j += 1; continue
+    if c in "([{":
+        depth += 1; cur += c; j += 1; continue
+    if c in ")]}":
+        depth -= 1
+        if depth == 0:
+            args.append(cur); break
+        cur += c; j += 1; continue
+    if c == "," and depth == 1:
+        args.append(cur); cur = ""; j += 1; continue
+    cur += c; j += 1
+# Three or more arguments means the last one is the failure message.
+compared = args[:2] if len(args) >= 3 else args
+for a in compared:
+    a = a.strip()
+    if a.startswith(chr(34)) or a.startswith("#" + chr(34)):
+        sys.exit(0)   # a COMPARED argument is a bare literal: refuse
+sys.exit(1)           # nothing compared against a literal: allow
+' || continue
     echo "  $FILE:$LINE"
     echo "      ${TEXT#"${TEXT%%[![:space:]]*}"}"
     FOUND=1

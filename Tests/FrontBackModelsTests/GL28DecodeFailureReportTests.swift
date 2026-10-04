@@ -69,4 +69,41 @@ final class GL28DecodeFailureReportTests: XCTestCase {
         )
         XCTAssertEqual(back, r)
     }
+
+    /// Every occurrence, not just the first.
+    ///
+    /// The first implementation searched from the start of the string on each pass, so it
+    /// rediscovered the `"name":` it had just written and needed a break to stop spinning.
+    /// That break ended the loop after ONE replacement, so an array of objects leaked every
+    /// name after the first. The shape below is the shape of every list endpoint in this API,
+    /// which is why this is the case that matters rather than an edge case.
+    func testGL28_1_6_everyOccurrenceOfARedactedKeyIsRedactedNotJustTheFirst() {
+        let body = """
+        [{"id":"1","name":"Sarah","age":30},\
+        {"id":"2","name":"Omar","age":25},\
+        {"id":"3","name":"Lee","age":40}]
+        """
+        let out = DecodeFailureReport.redact(DecodeFailureReport.bound(body))
+        XCTAssertFalse(out.contains("Sarah"), "the first name survived redaction")
+        XCTAssertFalse(out.contains("Omar"), "the SECOND name survived redaction")
+        XCTAssertFalse(out.contains("Lee"), "the THIRD name survived redaction")
+        XCTAssertEqual(
+            out.components(separatedBy: "\"name\":\"[redacted]\"").count - 1, 3,
+            "all three name values should be replaced"
+        )
+        // The keys stay, so the shape is still legible to whoever reads the report.
+        XCTAssertEqual(out.components(separatedBy: "\"name\":").count - 1, 3)
+        // Values that are not sensitive are untouched.
+        XCTAssertTrue(out.contains("\"age\":30"))
+        XCTAssertTrue(out.contains("\"age\":40"))
+    }
+
+    /// A repeated credential key in a single object is the same defect with a worse payload.
+    func testGL28_1_6_repeatedCredentialKeysAreAllRedacted() {
+        let body = #"{"token":"aaa","refresh_token":"bbb","nested":{"token":"ccc"}}"#
+        let out = DecodeFailureReport.redact(DecodeFailureReport.bound(body))
+        for secret in ["aaa", "bbb", "ccc"] {
+            XCTAssertFalse(out.contains(secret), "\(secret) survived redaction")
+        }
+    }
 }

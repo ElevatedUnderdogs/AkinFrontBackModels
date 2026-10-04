@@ -95,13 +95,23 @@ public struct DecodeFailureReport: Codable, Hashable, Sendable {
         var out = excerpt
         for key in redactedKeys {
             for quote in ["\"\(key)\":", "\"\(key)\" :"] {
-                while let range = out.range(of: quote) {
+                let replacement = "\"\(key)\":\"[redacted]\""
+                // Scan FORWARD from a moving offset. Searching from the start each time finds
+                // the replacement's own `"key":` again, which is why an earlier version of this
+                // loop needed a break to avoid spinning, and why that break left every
+                // occurrence after the first in plaintext. A body that is an array of objects,
+                // which is the shape of every list endpoint here, leaked all but one.
+                var fromOffset = 0
+                while fromOffset <= out.count {
+                    let searchStart = out.index(out.startIndex, offsetBy: fromOffset)
+                    guard let range = out.range(of: quote, range: searchStart..<out.endIndex)
+                    else { break }
                     let after = out[range.upperBound...]
                     let stop = after.firstIndex { $0 == "," || $0 == "}" } ?? after.endIndex
-                    out.replaceSubrange(range.lowerBound..<stop, with: "\"\(key)\":\"[redacted]\"")
-                    if out.range(of: quote) != nil && out.contains("\"\(key)\":\"[redacted]\"") {
-                        break
-                    }
+                    let lowerOffset = out.distance(from: out.startIndex, to: range.lowerBound)
+                    out.replaceSubrange(range.lowerBound..<stop, with: replacement)
+                    // Resume past what was just written, so the loop always advances.
+                    fromOffset = lowerOffset + replacement.count
                 }
             }
         }
