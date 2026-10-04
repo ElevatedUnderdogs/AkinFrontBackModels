@@ -2,25 +2,37 @@
 //  GL28AllTypesRoundTripTests.swift
 //  FrontBackModelsTests
 //
-//  GOAL_LOOP28 item 1.7. Every Codable type in the shared package round trips through the SAME
-//  coders both ends now use. 269 types, one case each, generated from the package source so a
-//  type added later arrives here absent and the coverage gate fails rather than the coverage
-//  quietly shrinking.
+//  GOAL_LOOP28 item 1.7. The types that round trip through the SAME coders both ends now use.
+//  93 cases, one per type, generated from the package source so a type added later arrives
+//  here absent and the coverage gate fails rather than the coverage quietly shrinking.
 //
-//  Names are FULLY QUALIFIED, 35 of them nested. Getting that right took two corrections and
+//  This file is NOT the whole of item 1.7 and an earlier version of this header said it was,
+//  claiming "269 types, one case each" over a file of 93. The package has 265 Codable types.
+//  The ones missing from here are the ones `GL28SynthDecoder` cannot build a value for, almost
+//  all of them raw value enums and the types that contain one, and they are covered by
+//  `GL28EnumRoundTripTests` and `GL28RemainingTypesRoundTripTests`. The coverage gate counts
+//  across all three.
+//
+//  Names are FULLY QUALIFIED, 6 of them nested. Getting that right took two corrections and
 //  both are worth knowing. Bare names do not resolve for a nested type, and one of them,
 //  `Method`, resolved to something else entirely, `OpaquePointer`. Then `extension Greet.Update`
 //  had to be read as naming a nested type rather than just `Greet`, or `Status` was qualified as
 //  `Greet.Status`, which does not exist. The compiler found both, which is the argument for
 //  generating a list and then BUILDING it rather than trusting the generator.
 //
-//  The instance is built by GL28SynthDecoder rather than by hand. Writing 269 samples by hand is
-//  269 chances to write a sample that does not look like the wire, and it is why "round trip every
-//  shared model" usually degrades into "round trip the handful somebody got to".
+//  The instance is built by GL28SynthDecoder rather than by hand. Writing a sample for each of the
+//  package's 265 Codable types by hand is 265 chances to write a sample that does not look like
+//  the wire, and it is why "round trip every shared model" usually degrades into "round trip the
+//  handful somebody got to".
 //
-//  The assertion is byte equality of encode(decode(encode(x))) rather than Equatable, for two
-//  reasons: not every type here is Equatable, and byte stability is the property the wire
-//  actually needs. A field dropped on the way out, or renamed on the way in, changes those bytes.
+//  The assertion compares encode(decode(encode(x))) against encode(x) as PARSED JSON rather than
+//  using Equatable, for two reasons: not every type here is Equatable, and wire stability is the
+//  property that matters. A field dropped on the way out, or renamed on the way in, changes it.
+//
+//  Parsed JSON and not BYTES, which this header claimed for a while and the body never did.
+//  `JSONEncoder` makes no promise about key order, so a byte comparison reports a difference
+//  between two encodings carrying identical content. The first version did compare bytes and
+//  produced a run of failures reading `("89 bytes") is not equal to ("89 bytes")`.
 //
 
 import XCTest

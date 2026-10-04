@@ -32,37 +32,135 @@ final class GL28EnumRoundTripTests: XCTestCase {
         }
     }
 
-    func testGL28_1_7_everyCaseIterableCodableEnumRoundTripsEveryCase() throws {
+    // One case per enum rather than one case walking all thirty one.
+    //
+    // The loop that stood here failed as a single name, `everyCaseIterableCodableEnumRoundTrips`,
+    // which says that SOMETHING in the package stopped round tripping and makes the reader bisect
+    // thirty one types to find out what. It also could not satisfy item 1.7's coverage gate, which
+    // asks for a passing case naming each type, and was right to: a walk that stops at the first
+    // failure proves nothing about the twenty types after it.
+
+    func testGL28_1_7_everyCaseOfAccountDeletionErrorRoundTrips() throws {
         try roundTripAllCases(AccountDeletionError.self, "AccountDeletionError")
+    }
+
+    func testGL28_1_7_everyCaseOfAdDisclosureLabelRoundTrips() throws {
         try roundTripAllCases(AdDisclosureLabel.self, "AdDisclosureLabel")
+    }
+
+    func testGL28_1_7_everyCaseOfAuthorVisibilityRoundTrips() throws {
         try roundTripAllCases(AuthorVisibility.self, "AuthorVisibility")
+    }
+
+    func testGL28_1_7_everyCaseOfAuthoredContentKindRoundTrips() throws {
         try roundTripAllCases(AuthoredContentKind.self, "AuthoredContentKind")
+    }
+
+    func testGL28_1_7_everyCaseOfAutomaticGreetCooldownChoiceRoundTrips() throws {
         try roundTripAllCases(AutomaticGreetCooldownChoice.self, "AutomaticGreetCooldownChoice")
+    }
+
+    func testGL28_1_7_everyCaseOfAutomaticGreetOutcomeRoundTrips() throws {
         try roundTripAllCases(AutomaticGreetOutcome.self, "AutomaticGreetOutcome")
+    }
+
+    func testGL28_1_7_everyCaseOfBuildSourceRoundTrips() throws {
         try roundTripAllCases(BuildSource.self, "BuildSource")
+    }
+
+    func testGL28_1_7_everyCaseOfCallTypeRoundTrips() throws {
         try roundTripAllCases(CallType.self, "CallType")
+    }
+
+    func testGL28_1_7_everyCaseOfCapabilityRoundTrips() throws {
         try roundTripAllCases(Capability.self, "Capability")
+    }
+
+    func testGL28_1_7_everyCaseOfGreetActionActorKindRoundTrips() throws {
         try roundTripAllCases(GreetActionActorKind.self, "GreetActionActorKind")
+    }
+
+    func testGL28_1_7_everyCaseOfGreetActionChannelRoundTrips() throws {
         try roundTripAllCases(GreetActionChannel.self, "GreetActionChannel")
+    }
+
+    func testGL28_1_7_everyCaseOfGreetDemoPhaseRoundTrips() throws {
         try roundTripAllCases(GreetDemoPhase.self, "GreetDemoPhase")
+    }
+
+    func testGL28_1_7_everyCaseOfHideStatusRoundTrips() throws {
         try roundTripAllCases(HideStatus.self, "HideStatus")
+    }
+
+    func testGL28_1_7_everyCaseOfLanguageCodeEnumRoundTrips() throws {
         try roundTripAllCases(LanguageCodeEnum.self, "LanguageCodeEnum")
+    }
+
+    func testGL28_1_7_everyCaseOfMatchingAlgorithmChoiceRoundTrips() throws {
         try roundTripAllCases(MatchingAlgorithmChoice.self, "MatchingAlgorithmChoice")
+    }
+
+    func testGL28_1_7_everyCaseOfModerationTreatmentRoundTrips() throws {
         try roundTripAllCases(ModerationTreatment.self, "ModerationTreatment")
+    }
+
+    func testGL28_1_7_everyCaseOfNearbyAvailabilityRoundTrips() throws {
         try roundTripAllCases(NearbyAvailability.self, "NearbyAvailability")
+    }
+
+    func testGL28_1_7_everyCaseOfNotificationFrequencyRoundTrips() throws {
         try roundTripAllCases(NotificationFrequency.self, "NotificationFrequency")
+    }
+
+    func testGL28_1_7_everyCaseOfNotificationReasonRoundTrips() throws {
         try roundTripAllCases(NotificationReason.self, "NotificationReason")
+    }
+
+    func testGL28_1_7_everyCaseOfProfileSelectionSideRoundTrips() throws {
         try roundTripAllCases(ProfileSelectionSide.self, "ProfileSelectionSide")
+    }
+
+    func testGL28_1_7_everyCaseOfReportFlagRoundTrips() throws {
         try roundTripAllCases(ReportFlag.self, "ReportFlag")
+    }
+
+    func testGL28_1_7_everyCaseOfServerEnvironmentRoundTrips() throws {
         try roundTripAllCases(ServerEnvironment.self, "ServerEnvironment")
+    }
+
+    func testGL28_1_7_everyCaseOfSubscriptionTierRoundTrips() throws {
         try roundTripAllCases(SubscriptionTier.self, "SubscriptionTier")
+    }
+
+    func testGL28_1_7_everyCaseOfSupportedLanguageCodeRoundTrips() throws {
         try roundTripAllCases(SupportedLanguageCode.self, "SupportedLanguageCode")
+    }
+
+    func testGL28_1_7_everyCaseOfVenueAskOutcomeRoundTrips() throws {
         try roundTripAllCases(VenueAskOutcome.self, "VenueAskOutcome")
+    }
+
+    func testGL28_1_7_everyCaseOfVenueAudienceRoundTrips() throws {
         try roundTripAllCases(VenueAudience.self, "VenueAudience")
+    }
+
+    func testGL28_1_7_everyCaseOfVenueAwarenessStateRoundTrips() throws {
         try roundTripAllCases(VenueAwarenessState.self, "VenueAwarenessState")
+    }
+
+    func testGL28_1_7_everyCaseOfVenueMotivationArmRoundTrips() throws {
         try roundTripAllCases(VenueMotivationArm.self, "VenueMotivationArm")
+    }
+
+    func testGL28_1_7_everyCaseOfVenueOutcomeSourceRoundTrips() throws {
         try roundTripAllCases(VenueOutcomeSource.self, "VenueOutcomeSource")
+    }
+
+    func testGL28_1_7_everyCaseOfVenueScanRoleRoundTrips() throws {
         try roundTripAllCases(VenueScanRole.self, "VenueScanRole")
+    }
+
+    func testGL28_1_7_everyCaseOfVenueShiftBucketRoundTrips() throws {
         try roundTripAllCases(VenueShiftBucket.self, "VenueShiftBucket")
     }
 }
