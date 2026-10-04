@@ -1384,8 +1384,7 @@ final class TopLevelModelsBatch7Tests: XCTestCase {
     func testForceGreetPayloadInitAssignsProperties() {
         let userID = UUID()
         let otherUserID = UUID()
-        let payload = ForceGreetPayload(continueWithoutToken: true, userID: userID, otherUserID: otherUserID, contextRaw: "romance", greetingMethod: .wave)
-        XCTAssertTrue(payload.continueWithoutToken)
+        let payload = ForceGreetPayload(userID: userID, otherUserID: otherUserID, contextRaw: "romance", greetingMethod: .wave)
         XCTAssertEqual(payload.userID, userID)
         XCTAssertEqual(payload.otherUserID, otherUserID)
         XCTAssertEqual(payload.contextRaw, "romance")

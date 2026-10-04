@@ -1,0 +1,51 @@
+GL28-D30, re-measured by GL28KeyConversionPopulationTests.
+POPULATION: distinct property names declared under Sources/, any type, any conformance.
+METHOD: Foundation's own .convertToSnakeCase then .convertFromSnakeCase, through a real
+keyed container. Not a reimplementation of either conversion.
+DISTINCT-PROPERTY-NAMES: 789
+NAMES-THAT-BREAK-THE-PAIR: 45
+  KAnonymityFloor
+  access_token_and_user_id
+  actorUserID
+  amPM
+  apnsID
+  baseURLComponents
+  callUUID
+  callerUserID
+  campaignID
+  cloudFlareImageURL
+  cloudflareProfileImageURL
+  contentID
+  contextID
+  creatorID
+  downloadURL
+  eventID
+  exampleJSONString
+  getGreetByID
+  greetID
+  idealProfileID
+  imageIDFromString
+  imageStorageURL
+  imageURL
+  messageID
+  metaDataID
+  originalContextID
+  otherID
+  otherUserID
+  placeID
+  priceUSD
+  profileImageURL
+  profileURL
+  questionID
+  referralURLString
+  relatedUserID
+  responseID
+  sendAppleAuthID
+  targetID
+  targetUserID
+  thisUserID
+  uploadURL
+  userID
+  userRelationID
+  venueByGoogleID
+  venueReportURLString
