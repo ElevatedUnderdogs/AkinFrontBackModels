@@ -36,3 +36,13 @@ nothing anywhere until you have:
 
 Skipping step 3 is the usual way an afternoon disappears: the code is correct, the tests
 pass here, and the client keeps compiling against the version it was already pinned to.
+
+## Branching and deploy
+
+This package is the single point of truth for the wire shape the app and the server both compile
+against. A fix applied in `akin` alone, or in `akin-server-side` alone, re-creates the defect the
+next time either moves.
+
+Mainline is `main`. Measure against `origin/main` after a fetch, never against a local `main`.
+The authoritative document covering all three repositories is `BRANCHING_AND_DEPLOY.md` in the
+`akin` repository.
