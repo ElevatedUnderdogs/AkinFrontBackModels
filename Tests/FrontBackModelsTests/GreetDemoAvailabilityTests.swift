@@ -193,7 +193,6 @@ final class GreetDemoAvailabilityTests: XCTestCase {
                 GreetAction.agreedToMeet(0),
                 .viewedGreetScreen,
                 .callInitiated(.ringToGreet),
-                .dismissGreet,
                 .closeApp,
                 .confirmedMet
             ] {
@@ -205,6 +204,20 @@ final class GreetDemoAvailabilityTests: XCTestCase {
                 // literal-ok: the member facing sentence IS the specification here
                 XCTAssertEqual(result.reason, "This greet has ended, so nothing more can happen on it.")
             }
+            // Dismiss stays live after the end so the demo partner can clear leftover UI.
+            XCTAssertTrue(check(.dismissGreet, ctx).isAvailable, "dismiss must stay reachable after the end")
+        }
+    }
+
+    func testDismissStaysAvailableAfterTheGreetHasEnded() {
+        for ctx in [
+            context([event(.dismissGreet, by: counterpart, seq: 1)]),
+            context([event(.confirmedMet, by: counterpart, seq: 1)]),
+            context([], hasEnded: true)
+        ] {
+            XCTAssertEqual(ctx.phase, .ended)
+            XCTAssertTrue(check(.dismissGreet, ctx).isAvailable)
+            XCTAssertNil(check(.dismissGreet, ctx).reason)
         }
     }
 
