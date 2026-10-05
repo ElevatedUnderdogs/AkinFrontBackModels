@@ -241,6 +241,14 @@ public enum GreetDemoRules {
         counterpartName: String
     ) -> GreetDemoAvailability {
 
+        // Dismiss stays reachable even after the greet has ended. The App Review demo
+        // partner needs a way to clear leftover meetup UI at all times; locking every
+        // row behind the ended guard left Tom with no dismiss once the greet was over.
+        // Other actions still cannot write history onto an ended greet.
+        if case .dismissGreet = action {
+            return .available
+        }
+
         // One rule above all the others: a greet that is over cannot gain history.
         guard context.phase != .ended else {
             return .unavailable(reason: "This greet has ended, so nothing more can happen on it.")
@@ -330,9 +338,14 @@ public enum GreetDemoRules {
             }
             return .available
 
-        case .dismissGreet, .closeApp:
-            // Walking away is available for as long as there is something to walk away from,
-            // which the `.ended` guard above has already established.
+        case .dismissGreet:
+            // Reached only while the greet is still live; the early return above covers
+            // the ended case so the demo partner can always clear leftover UI.
+            return .available
+
+        case .closeApp:
+            // Walking away via close is available for as long as there is something to
+            // walk away from, which the `.ended` guard above has already established.
             return .available
 
         case .manualGreetInitiated, .travelTimeToVenue, .travelDistanceToVenue, .rated:
