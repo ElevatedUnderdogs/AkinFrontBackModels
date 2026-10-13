@@ -45,6 +45,39 @@ public struct MeetMarkState: Codable, Hashable, Sendable {
     }
 }
 
+/// One member on the caller's own "I want to meet" list.
+///
+/// WHAT IT CARRIES AND WHY THAT IS ALL. RULE V: a marked row with no match and a marked row with a
+/// match waiting out the concealed window have to be indistinguishable. This type is how that is
+/// made true in the API rather than remembered at each call site: every field on it is a fact about
+/// the CALLER'S OWN ACT, and there is nowhere to put a fact about the other member's.
+///
+/// ``markedAt`` is the caller's own mark time, which they performed and already know. It is not the
+/// other member's, and there is no field for that one.
+public struct MeetMarkedMember: Codable, Hashable, Sendable, Identifiable {
+
+    /// The marked member's identifier, which is what a row taps through to.
+    public let id: UUID
+
+    /// Their display name, or nil when they have none on file.
+    public let name: String?
+
+    /// When the CALLER marked them.
+    public let markedAt: Date
+
+    /// Memberwise.
+    ///
+    /// - Parameters:
+    ///   - id: the marked member.
+    ///   - name: their display name, if any.
+    ///   - markedAt: when the caller marked them.
+    public init(id: UUID, name: String?, markedAt: Date) {
+        self.id = id
+        self.name = name
+        self.markedAt = markedAt
+    }
+}
+
 /// A mutual reveal, which is the only thing either member is ever told.
 ///
 /// Both members are told in the same instant, after the concealed window measured from the LATER
