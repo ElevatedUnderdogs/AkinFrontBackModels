@@ -184,15 +184,34 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
         self.isMemberCreated = isMemberCreated
     }
 
+    /// A count with a thousands separator, which is what the comp draws.
+    ///
+    /// `ContextListView.html` writes "10,240 members". The first version of this wrote "10240",
+    /// and RULE D says the comp wins. The separator is the device's own, so a member whose region
+    /// groups with a space or a point sees their own convention rather than an American one.
+    ///
+    /// NOTE ON A COMP TO COMP DISAGREEMENT. `ContextSearchView.html` writes the same number as
+    /// "10240", without the separator. Two comps disagree about one string, and the row's own comp
+    /// is the one followed, because the row is what this line belongs to. Recorded here rather
+    /// than resolved silently.
+    ///
+    /// - Parameter count: a number of members or answers.
+    /// - Returns: the number, grouped.
+    static func grouped(_ count: Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter.string(from: NSNumber(value: count)) ?? "\(count)"
+    }
+
     /// The row's second line, assembled once so three platforms cannot write it three ways.
     ///
     /// "412 members, 8 of your answers", with singular and plural spelled out rather than
     /// suffixed, per `design-coverage/specs/ContextListView.md`.
     public var secondLine: String {
-        let members = memberCount == 1 ? "1 member" : "\(memberCount) members"
+        let members = memberCount == 1 ? "1 member" : "\(Self.grouped(memberCount)) members"
         let answers = yourAnsweredQuestionCount == 1
             ? "1 of your answers"
-            : "\(yourAnsweredQuestionCount) of your answers"
+            : "\(Self.grouped(yourAnsweredQuestionCount)) of your answers"
         guard isParticipating == false else { return "\(members), \(answers)" }
         // Note 29 and `D9` rule 5. The clause names the context that is off and says nothing
         // about the others, because nothing about the others changed.
