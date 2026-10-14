@@ -31,6 +31,8 @@ public typealias ContextCatalogRequest = Request<Empty, [ContextCatalogEntry]>
 
 extension ContextCatalogRequest {
 
+    /// Every context in the catalog, most populated first, deduplicated on the
+    /// folded key. The path is this property's own name.
     public static var contextCatalog: Self {
         .init(method: .post)
     }
@@ -41,6 +43,8 @@ public typealias MyContextsRequest = Request<Empty, [MemberContextEntry]>
 
 extension MyContextsRequest {
 
+    /// The caller's own contexts, derived from the questions they answered in each.
+    /// No hand curated membership table stands behind it.
     public static var myContexts: Self {
         .init(method: .post)
     }
@@ -64,10 +68,13 @@ public struct CreateMemberContextPayload: Codable, Hashable, Equatable, Sendable
 /// company created context and a member created one are different acts, and
 /// `ApiController` already serves an older create route. Two endpoints whose
 /// paths collide would be resolved by registration order, silently.
-public typealias CreateMemberContextRequest = Request<CreateMemberContextPayload, ContextCatalogEntry>
+public typealias CreateMemberContextRequest =
+    Request<CreateMemberContextPayload, ContextCatalogEntry>
 
 extension CreateMemberContextRequest {
 
+    /// Creates a context, or joins the one that already carries that folded name.
+    /// The caller cannot tell which happened, and does not need to.
     public static var createMemberContext: Self {
         .init(method: .post)
     }
@@ -79,6 +86,8 @@ public typealias ContextAnsweredQuestionsRequest = Request<UUID, [ContextAnswere
 
 extension ContextAnsweredQuestionsRequest {
 
+    /// The questions the caller answered in one context, with what they chose. The
+    /// screen a member reaches when they want to know why a context is on their list.
     public static var contextAnsweredQuestions: Self {
         .init(method: .post)
     }
@@ -98,10 +107,13 @@ public struct ContextParticipationPayload: Codable, Hashable, Equatable, Sendabl
     }
 }
 
-public typealias SetContextParticipationRequest = Request<ContextParticipationPayload, MemberContextEntry>
+public typealias SetContextParticipationRequest =
+    Request<ContextParticipationPayload, MemberContextEntry>
 
 extension SetContextParticipationRequest {
 
+    /// Switches a context on or off for the caller. Off is a WITHDRAWAL, not a view
+    /// filter: they stop being discoverable and stop being matched in it.
     public static var setContextParticipation: Self {
         .init(method: .post)
     }
@@ -139,6 +151,8 @@ public typealias MyMeetMarksRequest = Request<Empty, [MeetMarkedMember]>
 
 extension MyMeetMarksRequest {
 
+    /// Everyone the caller has marked. Private to the caller, and a row says nothing
+    /// about whether the other member marked back.
     public static var myMeetMarks: Self {
         .init(method: .post)
     }
@@ -149,6 +163,8 @@ public typealias MyMeetRevealsRequest = Request<Empty, [MutualMeetReveal]>
 
 extension MyMeetRevealsRequest {
 
+    /// The mutual marks that have passed their concealed window. The only thing
+    /// either member is ever told.
     public static var myMeetReveals: Self {
         .init(method: .post)
     }
@@ -170,10 +186,13 @@ public struct QuestionnaireRowsPayload: Codable, Hashable, Equatable, Sendable {
     }
 }
 
-public typealias QuestionnaireRowsRequest = Request<QuestionnaireRowsPayload, [QuestionnaireRowSummary]>
+public typealias QuestionnaireRowsRequest =
+    Request<QuestionnaireRowsPayload, [QuestionnaireRowSummary]>
 
 extension QuestionnaireRowsRequest {
 
+    /// The questionnaire rows to list, for one context or for all of them. A nil
+    /// context means everything, which is the reading that cannot silently empty a screen.
     public static var questionnaireRows: Self {
         .init(method: .post)
     }
@@ -194,10 +213,13 @@ public struct QuestionnaireContextPayload: Codable, Hashable, Equatable, Sendabl
 }
 
 /// Reading the per context switch.
-public typealias QuestionnaireContextParticipationRequest = Request<QuestionnaireContextPayload, QuestionnaireContextParticipation>
+public typealias QuestionnaireContextParticipationRequest =
+    Request<QuestionnaireContextPayload, QuestionnaireContextParticipation>
 
 extension QuestionnaireContextParticipationRequest {
 
+    /// Whether one questionnaire counts toward matching in one context, and the
+    /// deciding fact when the context's own switch overrides it.
     public static var questionnaireContextParticipation: Self {
         .init(method: .post)
     }
@@ -217,10 +239,13 @@ public struct SetQuestionnaireContextPayload: Codable, Hashable, Equatable, Send
     }
 }
 
-public typealias SetQuestionnaireContextParticipationRequest = Request<SetQuestionnaireContextPayload, QuestionnaireContextParticipation>
+public typealias SetQuestionnaireContextParticipationRequest =
+    Request<SetQuestionnaireContextPayload, QuestionnaireContextParticipation>
 
 extension SetQuestionnaireContextParticipationRequest {
 
+    /// Turns one questionnaire's answers on or off inside one context. Lossless:
+    /// the answers stay and re-enabling puts them straight back.
     public static var setQuestionnaireContextParticipation: Self {
         .init(method: .post)
     }

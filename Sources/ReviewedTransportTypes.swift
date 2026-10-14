@@ -16,7 +16,6 @@
 
 import Foundation
 
-
 public struct AddQuestionnaireQuestionRequest: Codable {
     public let questionId: UUID
 
@@ -25,7 +24,6 @@ public struct AddQuestionnaireQuestionRequest: Codable {
     }
 }
 
-
 public struct AuthorVisibilityAuditDTO: Codable {
     public let questionId: UUID
     public let oldVisibility: AuthorVisibility
@@ -33,8 +31,13 @@ public struct AuthorVisibilityAuditDTO: Codable {
     public let actorId: UUID
     public let changedAt: Date
 
-
-    public init(questionId: UUID, oldVisibility: AuthorVisibility, newVisibility: AuthorVisibility, actorId: UUID, changedAt: Date) {
+    public init(
+        questionId: UUID,
+        oldVisibility: AuthorVisibility,
+        newVisibility: AuthorVisibility,
+        actorId: UUID,
+        changedAt: Date
+    ) {
         self.questionId = questionId
         self.oldVisibility = oldVisibility
         self.newVisibility = newVisibility
@@ -42,7 +45,6 @@ public struct AuthorVisibilityAuditDTO: Codable {
         self.changedAt = changedAt
     }
 }
-
 
 public struct BrowseContextDTO: Codable {
     public let contextID: UUID
@@ -53,7 +55,6 @@ public struct BrowseContextDTO: Codable {
         self.adoptionCount = adoptionCount
     }
 }
-
 
 public struct BrowseQuestionnaireDTO: Codable {
     public let questionnaireId: UUID
@@ -74,7 +75,14 @@ public struct BrowseQuestionnaireDTO: Codable {
     public let isRated: Bool
     public let derivedImportance: Double?
 
-    public init(questionnaireId: UUID, title: String, creatorId: UUID?, creatorName: String?, isRated: Bool, derivedImportance: Double?) {
+    public init(
+        questionnaireId: UUID,
+        title: String,
+        creatorId: UUID?,
+        creatorName: String?,
+        isRated: Bool,
+        derivedImportance: Double?
+    ) {
         self.questionnaireId = questionnaireId
         self.title = title
         self.creatorId = creatorId
@@ -84,7 +92,6 @@ public struct BrowseQuestionnaireDTO: Codable {
     }
 }
 
-
 public struct CreateContextRequest: Codable {
     public let name: String
 
@@ -92,7 +99,6 @@ public struct CreateContextRequest: Codable {
         self.name = name
     }
 }
-
 
 public struct CreateQuestionnaireRequest: Codable {
     public let title: String
@@ -108,8 +114,6 @@ public struct CreateQuestionnaireRequest: Codable {
     }
 }
 
-
-
 public struct DiscountedPair: Codable, Equatable {
     public let question: UUID
     public let duplicateOf: UUID
@@ -119,7 +123,6 @@ public struct DiscountedPair: Codable, Equatable {
         self.question = question; self.duplicateOf = duplicateOf; self.cosine = cosine
     }
 }
-
 
 public struct ExclusionCostResponse: Codable {
     public let excludedCount: Int
@@ -133,7 +136,6 @@ public struct ExclusionCostResponse: Codable {
     }
 }
 
-
 public struct MyQuestionnaireDTO: Codable {
     public let questionnaireId: UUID
     public let title: String
@@ -145,7 +147,13 @@ public struct MyQuestionnaireDTO: Codable {
     /// member can name a questionnaire first and fill it afterwards.
     public let questionCount: Int
 
-    public init(questionnaireId: UUID, title: String, contextId: UUID, authorVisibility: String, questionCount: Int) {
+    public init(
+        questionnaireId: UUID,
+        title: String,
+        contextId: UUID,
+        authorVisibility: String,
+        questionCount: Int
+    ) {
         self.questionnaireId = questionnaireId
         self.title = title
         self.contextId = contextId
@@ -153,7 +161,6 @@ public struct MyQuestionnaireDTO: Codable {
         self.questionCount = questionCount
     }
 }
-
 
 public struct NameProfileRequest: Codable {
     /// What the member wants it called.
@@ -163,7 +170,6 @@ public struct NameProfileRequest: Codable {
         self.name = name
     }
 }
-
 
 public struct QuestionImportanceDTO: Codable {
     public let questionId: UUID
@@ -179,7 +185,6 @@ public struct QuestionImportanceDTO: Codable {
     }
 }
 
-
 public struct QuestionSummaryDTO: Codable {
     public let questionId: UUID
     public let text: String
@@ -189,7 +194,6 @@ public struct QuestionSummaryDTO: Codable {
         self.text = text
     }
 }
-
 
 public struct QuestionnaireDetailDTO: Codable {
     public let questionnaireId: UUID
@@ -215,7 +219,20 @@ public struct QuestionnaireDetailDTO: Codable {
     public let derivedImportance: Double?
     public let isRated: Bool
 
-    public init(questionnaireId: UUID, title: String, creatorId: UUID?, authorVisibility: String, questionIds: [UUID], questions: [QuestionSummaryDTO], importanceBreakdown: [QuestionImportanceDTO], creatorName: String?, respondentCount: Int, completionCount: Int, derivedImportance: Double?, isRated: Bool) {
+    public init(
+        questionnaireId: UUID,
+        title: String,
+        creatorId: UUID?,
+        authorVisibility: String,
+        questionIds: [UUID],
+        questions: [QuestionSummaryDTO],
+        importanceBreakdown: [QuestionImportanceDTO],
+        creatorName: String?,
+        respondentCount: Int,
+        completionCount: Int,
+        derivedImportance: Double?,
+        isRated: Bool
+    ) {
         self.questionnaireId = questionnaireId
         self.title = title
         self.creatorId = creatorId
@@ -231,7 +248,6 @@ public struct QuestionnaireDetailDTO: Codable {
     }
 }
 
-
 public struct QuestionnaireWithQuestions: Codable {
     public let id: UUID
     public let title: String
@@ -246,7 +262,14 @@ public struct QuestionnaireWithQuestions: Codable {
     public let authorVisibility: String
     public let questionIds: [UUID]
 
-    public init(id: UUID, title: String, creatorId: UUID?, contextId: UUID, authorVisibility: String, questionIds: [UUID]) {
+    public init(
+        id: UUID,
+        title: String,
+        creatorId: UUID?,
+        contextId: UUID,
+        authorVisibility: String,
+        questionIds: [UUID]
+    ) {
         self.id = id
         self.title = title
         self.creatorId = creatorId
@@ -256,7 +279,6 @@ public struct QuestionnaireWithQuestions: Codable {
     }
 }
 
-
 public struct RedundancyExplanationResponse: Codable, Equatable {
     public let discountedPairs: [DiscountedPair]
 
@@ -264,7 +286,6 @@ public struct RedundancyExplanationResponse: Codable, Equatable {
         self.discountedPairs = discountedPairs
     }
 }
-
 
 public struct RenameQuestionnaireRequest: Codable {
     public let title: String
@@ -274,7 +295,6 @@ public struct RenameQuestionnaireRequest: Codable {
     }
 }
 
-
 public struct ReorderQuestionnaireRequest: Codable {
     public let questionIDs: [UUID]
 
@@ -283,13 +303,11 @@ public struct ReorderQuestionnaireRequest: Codable {
     }
 }
 
-
 public enum RequirementFlavor: String, Codable, CaseIterable {
     case mustHaveAnswered = "must_have_answered"
     case mustNotHaveChosen = "must_not_have_chosen"
     case mustHaveChosenOneOf = "must_have_chosen_one_of"
 }
-
 
 public struct SetAlgorithmRequest: Codable {
     public let algorithm: String
@@ -299,7 +317,6 @@ public struct SetAlgorithmRequest: Codable {
     }
 }
 
-
 public struct SetAuthorVisibilityRequest: Codable {
 
     /// The value the creator is choosing.
@@ -308,7 +325,6 @@ public struct SetAuthorVisibilityRequest: Codable {
     public init(authorVisibility: AuthorVisibility) {
         self.authorVisibility = authorVisibility
     }
-
 
     private enum CodingKeys: String, CodingKey {
         case authorVisibility
@@ -332,8 +348,6 @@ public struct SetAuthorVisibilityRequest: Codable {
     }
 }
 
-
-
 public struct SetMutedRequest: Codable {
     /// True to silence the subscription, false to hear it again.
     public let muted: Bool
@@ -342,7 +356,6 @@ public struct SetMutedRequest: Codable {
         self.muted = muted
     }
 }
-
 
 public struct SetRequirementRequest: Codable {
     public let contextID: UUID
@@ -357,7 +370,6 @@ public struct SetRequirementRequest: Codable {
         self.responseIDs = responseIDs
     }
 }
-
 
 public struct SubscriptionListEntry: Codable {
     public let target: SubscriptionTarget
@@ -398,21 +410,24 @@ public struct SubscriptionListEntry: Codable {
     }
 }
 
-
 public struct VenueExclusionWarning: Codable, Equatable {
     public let excludedCount: Int
     public let otherMemberCount: Int
     public let excludedFraction: Double
     public let candidateCount: Int
 
-    public init(excludedCount: Int, otherMemberCount: Int, excludedFraction: Double, candidateCount: Int) {
+    public init(
+        excludedCount: Int,
+        otherMemberCount: Int,
+        excludedFraction: Double,
+        candidateCount: Int
+    ) {
         self.excludedCount = excludedCount
         self.otherMemberCount = otherMemberCount
         self.excludedFraction = excludedFraction
         self.candidateCount = candidateCount
     }
 }
-
 
 public struct VenuePreferenceRequest: Codable {
     public let venueID: UUID
@@ -423,7 +438,6 @@ public struct VenuePreferenceRequest: Codable {
         self.stance = stance
     }
 }
-
 
 public enum VenueStance: String, Codable, CaseIterable {
     case preferred

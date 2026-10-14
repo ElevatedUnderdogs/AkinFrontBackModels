@@ -92,7 +92,9 @@ public struct ContextCatalogEntry: Codable, Hashable, Sendable, Identifiable {
     /// The spelling to show, which is the first spelling anybody created.
     public let displayName: String
 
-    /// The key uniqueness is enforced on. See ``ContextName/normalisedKey(_:)``.
+    /// The key uniqueness is enforced on.
+    ///
+    /// See ``ContextName/normalisedKey(_:)``.
     public let normalisedKey: String
 
     /// How many members are in this context.
@@ -151,7 +153,9 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
     /// the only thing distinguishing them is whose they are.
     public let yourAnsweredQuestionCount: Int
 
-    /// Whether the member participates in it. `D2`: off means they are not discoverable in it,
+    /// Whether the member participates in it.
+    ///
+    /// `D2`: off means they are not discoverable in it,
     /// not matched in it, and its questionnaires leave their feed.
     public let isParticipating: Bool
 
