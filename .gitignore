@@ -91,3 +91,7 @@ iOSInjectionProject/
 
 # graphify writes its knowledge graph here on every commit. A build artifact, not source.
 graphify-out/
+
+# An artefact of GOAL_LOOP28 key conversion counting, regenerated on demand and not part of
+# the package. It was committed once by a blanket `git add` and taken back out by GOAL_LOOP31.
+GL28-key-conversion-population.txt
