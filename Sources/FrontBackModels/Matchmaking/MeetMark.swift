@@ -135,8 +135,9 @@ public struct MutualMeetReveal: Codable, Hashable, Sendable, Identifiable {
 /// The bounds of the concealed window, stated in the contract and enforced on the server.
 ///
 /// The VALUE for a given pair never leaves the server. The BOUNDS are in the contract because they
-/// are a product decision rather than a secret: note 36 says about a week, and a reader of this
-/// package is entitled to know what "about" means without reading the server. Knowing the bounds
+/// are a product decision rather than a secret. The operator asked for about a week, which
+/// GOAL_LOOP30 item 2.2 records, and a reader of this package is entitled to know what "about"
+/// means without reading the server. Knowing the bounds
 /// buys a prober nothing, because a four day range is far wider than the resolution any probe
 /// could use, and that width is exactly what the jitter is for.
 public enum MeetRevealWindow {

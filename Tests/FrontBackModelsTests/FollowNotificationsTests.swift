@@ -83,7 +83,8 @@ final class FollowNotificationsTests: XCTestCase {
     }
 
     func testPayloadWithoutAnAuthorSurvivesTheRoundTrip() throws {
-        // The `.silent` and `.unattributedAnnounced` shape: no author disclosed.
+        // The shape the retired `silent` and `unattributedAnnounced` raw values decode into,
+        // which is `anonymized`: no author disclosed.
         let payload = FollowNotificationPayload(
             reason: .questionAddedByFollowedMember,
             subject: .question(id: UUID(), text: "written by someone who chose not to be named"),
@@ -473,7 +474,8 @@ final class DisclosedAuthorTests: XCTestCase {
         let disclosing = everyRoute.filter { $0.id != nil }
         XCTAssertEqual(
             disclosing.count, 1,
-            "exactly one of the four construction routes may disclose, found \(disclosing.count)"
+            "exactly one of the \(everyRoute.count) construction routes may disclose, found "
+                + "\(disclosing.count)"
         )
     }
 }

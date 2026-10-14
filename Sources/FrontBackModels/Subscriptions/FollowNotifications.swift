@@ -66,8 +66,11 @@ public enum NotificationReason: String, Codable, CaseIterable, Sendable {
     /// three different explanations of the same event.
     ///
     /// None of these sentences names the author, and that is deliberate rather than incidental.
-    /// GOAL_LOOP13 R21.12 forbids naming a creator whose visibility is `.unattributedAnnounced` or
-    /// `.silent`, on every surface including this one, and a sentence that names the member only
+    /// GOAL_LOOP13 R21.12 forbids naming a creator whose visibility is anything but
+    /// ``AuthorVisibility/attributed``, on every surface including this one. The rule was written
+    /// when the enum had four cases; the two that are not `attributed` are now the single
+    /// `anonymized` case, which their old raw values decode into. A sentence that names the member
+    /// only
     /// sometimes is a sentence each caller has to remember to redact. Saying "someone you follow"
     /// in all cases means the redaction cannot be forgotten, because there is nothing to forget.
     public var explanation: String {
@@ -113,8 +116,9 @@ public enum NotificationReason: String, Codable, CaseIterable, Sendable {
 
 /// An author id that has already been through the disclosure decision.
 ///
-/// GOAL_LOOP13 R22.3. The redaction rule, that content created under `.unattributedAnnounced`
-/// or `.silent` must never leave the server carrying an author id, was previously enforced by
+/// GOAL_LOOP13 R22.3. The redaction rule, that content created under any visibility other than
+/// ``AuthorVisibility/attributed`` must never leave the server carrying an author id, was
+/// previously enforced by
 /// each fan-out site remembering to check. A rule held in place by memory is one that a sixth
 /// call site breaks, silently, in the direction nobody notices, because a payload that names
 /// someone looks exactly as correct as one that does not.
@@ -254,9 +258,10 @@ public struct FollowNotificationPayload: Codable, Hashable, Sendable {
     /// question is news about the set, so those carry no author at all.
     ///
     /// Second, and this is the reason that changed: GOAL_LOOP13 R21.12 requires that content
-    /// created under `.unattributedAnnounced` or `.silent` leave the server carrying no author id,
+    /// created under a non attributed visibility leave the server carrying no author id,
     /// even to a recipient who follows that member. This field previously documented the opposite
-    /// for `.unattributedAnnounced`, on the reasoning that a follower already knows who they
+    /// for the announced but unattributed case, on the reasoning that a follower already knows who
+    /// they
     /// follow. The loop rejects that reasoning: the follower knowing WHO they follow is not the
     /// same as being told THIS item was written by them, and with a small following the second
     /// fact identifies the author of a specific piece of content. So `.attributed` is now the only

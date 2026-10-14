@@ -5,7 +5,7 @@
 //  The contracts for the four reviewed features: the unbounded context list,
 //  following, questionnaire toggles, and want to meet.
 //
-//  WHY THIS FILE EXISTS. GOAL_LOOP31 first shipped these eleven endpoints as
+//  WHY THIS FILE EXISTS. GOAL_LOOP31 first shipped these endpoints as
 //  stringly typed Vapor routes, `routes.get("api", "user", ":id", "contexts",
 //  "catalog")`, with the client holding a hand written copy of each path. That
 //  compiles on both sides and 404s in front of a member the first time a path
@@ -96,13 +96,13 @@ extension ContextAnsweredQuestionsRequest {
 /// Turning one context on or off.
 public struct ContextParticipationPayload: Codable, Hashable, Equatable, Sendable {
 
-    public let contextID: UUID
+    public let contextId: UUID
 
     /// `true` to take part in the context, `false` to withdraw from it.
     public let isParticipating: Bool
 
-    public init(contextID: UUID, isParticipating: Bool) {
-        self.contextID = contextID
+    public init(contextId: UUID, isParticipating: Bool) {
+        self.contextId = contextId
         self.isParticipating = isParticipating
     }
 }
@@ -179,10 +179,10 @@ public struct QuestionnaireRowsPayload: Codable, Hashable, Equatable, Sendable {
     /// questionnaires and the browse screen lists everything, so a nil context
     /// means EVERYTHING rather than nothing: the reading that cannot silently
     /// produce an empty screen.
-    public let contextID: UUID?
+    public let contextId: UUID?
 
-    public init(contextID: UUID? = nil) {
-        self.contextID = contextID
+    public init(contextId: UUID? = nil) {
+        self.contextId = contextId
     }
 }
 
@@ -203,12 +203,12 @@ extension QuestionnaireRowsRequest {
 /// the whole point of the per context switch.
 public struct QuestionnaireContextPayload: Codable, Hashable, Equatable, Sendable {
 
-    public let questionnaireID: UUID
-    public let contextID: UUID
+    public let questionnaireId: UUID
+    public let contextId: UUID
 
-    public init(questionnaireID: UUID, contextID: UUID) {
-        self.questionnaireID = questionnaireID
-        self.contextID = contextID
+    public init(questionnaireId: UUID, contextId: UUID) {
+        self.questionnaireId = questionnaireId
+        self.contextId = contextId
     }
 }
 
@@ -228,13 +228,13 @@ extension QuestionnaireContextParticipationRequest {
 /// Setting the per context switch.
 public struct SetQuestionnaireContextPayload: Codable, Hashable, Equatable, Sendable {
 
-    public let questionnaireID: UUID
-    public let contextID: UUID
+    public let questionnaireId: UUID
+    public let contextId: UUID
     public let isEnabled: Bool
 
-    public init(questionnaireID: UUID, contextID: UUID, isEnabled: Bool) {
-        self.questionnaireID = questionnaireID
-        self.contextID = contextID
+    public init(questionnaireId: UUID, contextId: UUID, isEnabled: Bool) {
+        self.questionnaireId = questionnaireId
+        self.contextId = contextId
         self.isEnabled = isEnabled
     }
 }

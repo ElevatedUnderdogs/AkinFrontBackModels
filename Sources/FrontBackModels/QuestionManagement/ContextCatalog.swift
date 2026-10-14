@@ -249,8 +249,9 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
 
     /// The clause a row adds when THIS context is off and the others are not.
     ///
-    /// Note 29 and `D9` rule 5. The clause names the context that is off and says nothing about the
-    /// others, because nothing about the others changed. Empty while the member is participating,
+    /// Decision `D9` rule 5, in `docs/goal-loop-30-evidence/DECISIONS_V2.md`. The clause names the
+    /// context that is off and says nothing about the others, because nothing about the others
+    /// changed. Empty while the member is participating,
     /// so a caller cannot show it for a context that is on.
     ///
     /// THE NAME IS REPEATED, and that is the comp rather than an oversight.

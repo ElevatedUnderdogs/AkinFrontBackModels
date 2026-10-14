@@ -47,11 +47,11 @@ public struct AuthorVisibilityAuditDTO: Codable {
 }
 
 public struct BrowseContextDTO: Codable {
-    public let contextID: UUID
+    public let contextId: UUID
     public let adoptionCount: Int
 
-    public init(contextID: UUID, adoptionCount: Int) {
-        self.contextID = contextID
+    public init(contextId: UUID, adoptionCount: Int) {
+        self.contextId = contextId
         self.adoptionCount = adoptionCount
     }
 }
@@ -296,10 +296,10 @@ public struct RenameQuestionnaireRequest: Codable {
 }
 
 public struct ReorderQuestionnaireRequest: Codable {
-    public let questionIDs: [UUID]
+    public let questionIds: [UUID]
 
-    public init(questionIDs: [UUID]) {
-        self.questionIDs = questionIDs
+    public init(questionIds: [UUID]) {
+        self.questionIds = questionIds
     }
 }
 
@@ -358,16 +358,16 @@ public struct SetMutedRequest: Codable {
 }
 
 public struct SetRequirementRequest: Codable {
-    public let contextID: UUID
-    public let questionID: UUID
+    public let contextId: UUID
+    public let questionId: UUID
     public let flavor: RequirementFlavor
-    public let responseIDs: [UUID]
+    public let responseIds: [UUID]
 
-    public init(contextID: UUID, questionID: UUID, flavor: RequirementFlavor, responseIDs: [UUID]) {
-        self.contextID = contextID
-        self.questionID = questionID
+    public init(contextId: UUID, questionId: UUID, flavor: RequirementFlavor, responseIds: [UUID]) {
+        self.contextId = contextId
+        self.questionId = questionId
         self.flavor = flavor
-        self.responseIDs = responseIDs
+        self.responseIds = responseIds
     }
 }
 
@@ -430,11 +430,11 @@ public struct VenueExclusionWarning: Codable, Equatable {
 }
 
 public struct VenuePreferenceRequest: Codable {
-    public let venueID: UUID
+    public let venueId: UUID
     public let stance: VenueStance
 
-    public init(venueID: UUID, stance: VenueStance) {
-        self.venueID = venueID
+    public init(venueId: UUID, stance: VenueStance) {
+        self.venueId = venueId
         self.stance = stance
     }
 }

@@ -19,8 +19,11 @@ import Foundation
 /// One difference from its two siblings, and it is deliberate. `NearbyFeatureFlag` ships with its
 /// master switch down and every individual flag UP, so turning the master on turns the whole
 /// family on at once. Every flag here ships DOWN, including the individual ones, because these
-/// eight features are reviewed designs rather than proven behaviour: the operator turns them on
-/// one at a time, from the debug view, and judges each on its own.
+/// features are reviewed designs rather than proven behaviour: the operator turns them on one at
+/// a time, from the debug view, and judges each on its own.
+///
+/// How many there are is ``Feature/allCases``, and it is deliberately not written out here: a
+/// number in a comment is wrong the day a flag is added, and this file is where that happens.
 ///
 /// What a flag being down means, exactly. Nothing behind it renders, and nothing behind it sends a
 /// request. Not hidden, withdrawn. A screen that draws a disabled control, or a view model that
@@ -30,8 +33,8 @@ public enum ReviewedFeatureFlag {
 
     // MARK: - Individual flags
 
-    /// Master switch. While `false` none of the seven features below render and none of their
-    /// requests are sent, so the app behaves exactly as it did before GOAL_LOOP31 landed.
+    /// Master switch. While `false` none of the individual features below render and none of
+    /// their requests are sent, so the app behaves exactly as it did before GOAL_LOOP31 landed.
     public static var isReviewedFeaturesEnabled: Bool = false
 
     /// More than two contexts, with the replacement selector above a question.
@@ -189,8 +192,8 @@ public enum ReviewedFeatureFlag {
     /// The flag's own stored value, ignoring the master switch.
     ///
     /// This is what a switch in the debug view shows and sets. ``isEnabled(for:)`` is what a
-    /// feature's code path asks. Keeping the two apart is what lets the operator leave six
-    /// individual switches on, drop the master, and find all six still on when they raise it
+    /// feature's code path asks. Keeping the two apart is what lets the operator leave the
+    /// individual switches on, drop the master, and find them all still on when they raise it
     /// again, rather than having to set them a second time.
     public static func storedValue(for feature: Feature) -> Bool {
         switch feature {
