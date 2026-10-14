@@ -308,14 +308,17 @@ public struct ContextAnsweredQuestion: Codable, Hashable, Sendable, Identifiable
 ///
 /// Sorted here rather than in each client, because the spec's tie breaks are what make the order
 /// the same between launches, and an unstable list is one a member cannot learn.
-public extension Array where Element == MemberContextEntry {
+// `public` ON THE MEMBER AND NOT ON THE EXTENSION. A public extension makes every member
+// public by default, including any added later by somebody who did not mean to widen the
+// package's surface. Spelling it on the one function keeps the decision at the declaration.
+extension Array where Element == MemberContextEntry {
 
     /// Descending by the member's own answer count, then by member count, then alphabetically.
     ///
     /// The member's own count first, so the context they have put the most into is at the top.
     /// The two tie breaks exist so that two rows with equal counts do not swap places between
     /// launches, which is what a sort with no total order does.
-    func inContextListOrder() -> [MemberContextEntry] {
+    public func inContextListOrder() -> [MemberContextEntry] {
         sorted { left, right in
             if left.yourAnsweredQuestionCount != right.yourAnsweredQuestionCount {
                 return left.yourAnsweredQuestionCount > right.yourAnsweredQuestionCount

@@ -114,6 +114,7 @@ public struct DiscountedPair: Codable, Equatable {
     public let question: UUID
     public let duplicateOf: UUID
     public let cosine: Double
+
     public init(question: UUID, duplicateOf: UUID, cosine: Double) {
         self.question = question; self.duplicateOf = duplicateOf; self.cosine = cosine
     }

@@ -1,4 +1,5 @@
 import XCTest
+
 @testable import AkinFrontBackModels
 
 // Swath N2 (item 5.1). The round trip test exists because this exact defect was shipped twice in
