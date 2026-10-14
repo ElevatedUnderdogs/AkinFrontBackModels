@@ -66,8 +66,11 @@ public enum NotificationReason: String, Codable, CaseIterable, Sendable {
     /// three different explanations of the same event.
     ///
     /// None of these sentences names the author, and that is deliberate rather than incidental.
-    /// GOAL_LOOP13 R21.12 forbids naming a creator whose visibility is `.unattributedAnnounced` or
-    /// `.silent`, on every surface including this one, and a sentence that names the member only
+    /// GOAL_LOOP13 R21.12 forbids naming a creator whose visibility is anything but
+    /// ``AuthorVisibility/attributed``, on every surface including this one. The rule was written
+    /// when the enum had four cases; the two that are not `attributed` are now the single
+    /// `anonymized` case, which their old raw values decode into. A sentence that names the member
+    /// only
     /// sometimes is a sentence each caller has to remember to redact. Saying "someone you follow"
     /// in all cases means the redaction cannot be forgotten, because there is nothing to forget.
     public var explanation: String {
@@ -113,8 +116,9 @@ public enum NotificationReason: String, Codable, CaseIterable, Sendable {
 
 /// An author id that has already been through the disclosure decision.
 ///
-/// GOAL_LOOP13 R22.3. The redaction rule, that content created under `.unattributedAnnounced`
-/// or `.silent` must never leave the server carrying an author id, was previously enforced by
+/// GOAL_LOOP13 R22.3. The redaction rule, that content created under any visibility other than
+/// ``AuthorVisibility/attributed`` must never leave the server carrying an author id, was
+/// previously enforced by
 /// each fan-out site remembering to check. A rule held in place by memory is one that a sixth
 /// call site breaks, silently, in the direction nobody notices, because a payload that names
 /// someone looks exactly as correct as one that does not.
@@ -225,6 +229,27 @@ public struct FollowNotificationPayload: Codable, Hashable, Sendable {
     /// The questionnaire involved, when the reason is a followed questionnaire.
     public let questionnaireId: UUID?
 
+    /// The question a RESPONSE answers, so a tap on a response notification can land on it.
+    ///
+    /// GOAL_LOOP31, the slice B adversarial review's finding 2. ``NotificationSubject`` carries a
+    /// response's id and its text and nothing about the question it answers, and every client that
+    /// reads a response reads it on its question's screen. The router that turns this payload into
+    /// a destination recorded the gap in prose and handed it to its implementer, and the
+    /// implementer had nowhere to go: there is no route anywhere that resolves a response to its
+    /// question, so a member who tapped "someone you follow added a new response" landed on
+    /// whatever screen was already there. One optional id closes it.
+    ///
+    /// ADDITIVE AND OPTIONAL, deliberately. A payload written before this field decodes with it
+    /// nil, which is what the three reasons that are not about a response send anyway, so no
+    /// deployed sender has to change in step with a client that reads it. The memberwise
+    /// initializer defaults it for the same reason: the three sites that build a payload about a
+    /// question or a questionnaire say nothing about it and mean nothing by the silence.
+    ///
+    /// NOT A SECOND SPELLING OF THE SUBJECT. For the two question shaped reasons the subject IS
+    /// the question, and this field stays nil there rather than repeating it, so a reader cannot
+    /// find two ids for one question and have to decide which is authoritative.
+    public let questionId: UUID?
+
     /// The member who wrote it, and ONLY when their visibility permits naming them.
     ///
     /// Optional for two different reasons, and both matter.
@@ -233,9 +258,10 @@ public struct FollowNotificationPayload: Codable, Hashable, Sendable {
     /// question is news about the set, so those carry no author at all.
     ///
     /// Second, and this is the reason that changed: GOAL_LOOP13 R21.12 requires that content
-    /// created under `.unattributedAnnounced` or `.silent` leave the server carrying no author id,
+    /// created under a non attributed visibility leave the server carrying no author id,
     /// even to a recipient who follows that member. This field previously documented the opposite
-    /// for `.unattributedAnnounced`, on the reasoning that a follower already knows who they
+    /// for the announced but unattributed case, on the reasoning that a follower already knows who
+    /// they
     /// follow. The loop rejects that reasoning: the follower knowing WHO they follow is not the
     /// same as being told THIS item was written by them, and with a small following the second
     /// fact identifies the author of a specific piece of content. So `.attributed` is now the only
@@ -254,15 +280,19 @@ public struct FollowNotificationPayload: Codable, Hashable, Sendable {
     ///   - author: the author, already through the disclosure decision. Build it with
     ///     `DisclosedAuthor(author:visibility:)`, or use `.none` for a notification about a set
     ///     rather than a person.
+    ///   - questionId: the question a response answers. Defaulted to nil, because only the
+    ///     response reason has one and the other three mean nothing by leaving it out.
     public init(
         reason: NotificationReason,
         subject: NotificationSubject,
         questionnaireId: UUID?,
-        author: DisclosedAuthor
+        author: DisclosedAuthor,
+        questionId: UUID? = nil
     ) {
         self.reason = reason
         self.subject = subject
         self.questionnaireId = questionnaireId
         self.authorId = author.id
+        self.questionId = questionId
     }
 }
