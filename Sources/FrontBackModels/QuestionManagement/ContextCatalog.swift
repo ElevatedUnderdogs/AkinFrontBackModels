@@ -196,7 +196,13 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
         guard isParticipating == false else { return "\(members), \(answers)" }
         // Note 29 and `D9` rule 5. The clause names the context that is off and says nothing
         // about the others, because nothing about the others changed.
-        return "\(members), \(answers). \(displayName) is off. You are not in it."
+        //
+        // THE NAME IS REPEATED, and that is the comp rather than an oversight.
+        // `annotation-site/public/comps/ContextListView.html` draws "188 members, 4 of your
+        // answers. Board games is off. You are not in Board games." RULE D: where the built screen
+        // and the comp disagree, the comp wins. "You are not in it" reads cheaper and leaves "it"
+        // to be resolved from a sentence away, which is the vagueness copy rule 4 is about.
+        return "\(members), \(answers). \(displayName) is off. You are not in \(displayName)."
     }
 }
 
