@@ -207,21 +207,100 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
     ///
     /// "412 members, 8 of your answers", with singular and plural spelled out rather than
     /// suffixed, per `design-coverage/specs/ContextListView.md`.
+    ///
+    /// THE TWO NUMBERS AND NOTHING ELSE. The off clause is NOT here, and the first version of this
+    /// property had it: it appended "<Name> is off. You are not in <Name>." whenever
+    /// `isParticipating` was false. That made the clause a property of the MODEL, and the clause is
+    /// a property of one ROW TREATMENT on one screen, which is where ``offClause`` now lives and
+    /// where `ContextListView` appends it. Two things went wrong while it was here, both reported
+    /// by a reviewer reading the comps rather than the code:
+    ///
+    /// 1. In the all off state every row repeated it, so a member with three contexts off read six
+    ///    sentences saying the same thing and then a card saying it a seventh time.
+    ///    `ContextListView.html` section `data-state="all-off"` draws three rows whose second lines
+    ///    are the two numbers alone, and carries the single card.
+    /// 2. It leaked onto `ContextSearchView`'s "Yours" rows, whose comp shows only the two numbers,
+    ///    because that screen draws this same property.
+    ///
+    /// A reader who only ever needs the full line for one row, which is the single off context
+    /// case, composes it from this and ``offClause``.
     public var secondLine: String {
         let members = memberCount == 1 ? "1 member" : "\(Self.grouped(memberCount)) members"
-        let answers = yourAnsweredQuestionCount == 1
-            ? "1 of your answers"
-            : "\(Self.grouped(yourAnsweredQuestionCount)) of your answers"
-        guard isParticipating == false else { return "\(members), \(answers)" }
-        // Note 29 and `D9` rule 5. The clause names the context that is off and says nothing
-        // about the others, because nothing about the others changed.
-        //
-        // THE NAME IS REPEATED, and that is the comp rather than an oversight.
-        // `annotation-site/public/comps/ContextListView.html` draws "188 members, 4 of your
-        // answers. Board games is off. You are not in Board games." RULE D: where the built screen
-        // and the comp disagree, the comp wins. "You are not in it" reads cheaper and leaves "it"
-        // to be resolved from a sentence away, which is the vagueness copy rule 4 is about.
-        return "\(members), \(answers). \(displayName) is off. You are not in \(displayName)."
+        return "\(members), \(Self.yourAnswersLine(yourAnsweredQuestionCount))"
+    }
+
+    /// How many questions the member has answered, as the row and the questions screen both say it.
+    ///
+    /// Shared between the two rather than written twice, because the caption under the context's
+    /// own questions screen is the same clause as the second half of this row's second line, and
+    /// two implementations of one string is how "8 of your answers" becomes "8 answers" on one
+    /// screen. Singular and plural spelled out rather than suffixed, per
+    /// `design-coverage/specs/ContextListView.md`.
+    ///
+    /// - Parameter count: how many questions the member answered.
+    /// - Returns: "8 of your answers", or "1 of your answers".
+    public static func yourAnswersLine(_ count: Int) -> String {
+        count == 1 ? "1 of your answers" : "\(grouped(count)) of your answers"
+    }
+
+    /// The clause a row adds when THIS context is off and the others are not.
+    ///
+    /// Note 29 and `D9` rule 5. The clause names the context that is off and says nothing about the
+    /// others, because nothing about the others changed. Empty while the member is participating,
+    /// so a caller cannot show it for a context that is on.
+    ///
+    /// THE NAME IS REPEATED, and that is the comp rather than an oversight.
+    /// `annotation-site/public/comps/ContextListView.html` draws "188 members, 4 of your answers.
+    /// Board games is off. You are not in Board games." RULE D: where the built screen and the comp
+    /// disagree, the comp wins. "You are not in it" reads cheaper and leaves "it" to be resolved
+    /// from a sentence away, which is the vagueness copy rule 4 is about.
+    ///
+    /// WHO DECIDES WHETHER TO SHOW IT. The row, not this type, and that is the whole reason it is
+    /// separate: the clause is suppressed in the all off state, and an entry cannot know whether
+    /// every OTHER entry is off.
+    public var offClause: String {
+        guard isParticipating == false else { return "" }
+        return "\(displayName) is off. You are not in \(displayName)."
+    }
+}
+
+/// One question the member has answered in one context, with the selection they made.
+///
+/// WHAT IT IS FOR. The row of `ContextListView` pushes to the questions the member answered in
+/// that context, and `design-coverage/specs/ContextListView.md` makes that destination the whole
+/// answer to "how do I get this context off my list": there is no remove control, so the member
+/// changes the answers and the row leaves when the last one does. The screen cannot be built
+/// without the list, and the list is this.
+///
+/// IT IS PER CONTEXT AND THE QUESTION IS NOT. `D7`: a question is context independent, and the
+/// same question can carry different selections in two contexts. So the context is in the REQUEST
+/// and not in this type, and ``selection`` is the selection in the context that was asked about.
+///
+/// ``selection`` IS OPTIONAL rather than defaulted to an empty string. A member can answer a
+/// question in a context and have the option they chose deleted by its author afterwards, and a
+/// row that renders an empty second line is indistinguishable from one whose answer is still
+/// there. The screen says what is true in each case rather than drawing a blank.
+public struct ContextAnsweredQuestion: Codable, Hashable, Sendable, Identifiable {
+
+    /// The question's identifier, which is what the row opens.
+    public let id: UUID
+
+    /// The question, as it is written.
+    public let text: String
+
+    /// What the member chose in the context that was asked about, when the option is still there.
+    public let selection: String?
+
+    /// Memberwise.
+    ///
+    /// - Parameters:
+    ///   - id: the question's identifier.
+    ///   - text: the question text.
+    ///   - selection: the member's selection in the context asked about.
+    public init(id: UUID, text: String, selection: String?) {
+        self.id = id
+        self.text = text
+        self.selection = selection
     }
 }
 

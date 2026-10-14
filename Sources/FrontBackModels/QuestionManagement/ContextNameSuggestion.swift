@@ -301,4 +301,34 @@ public enum ContextCreateCopy {
     public static func memberCountLine(_ count: Int) -> String {
         count == 1 ? "1 member" : "\(count) members"
     }
+
+    /// What the sheet says when the create request did not land.
+    ///
+    /// NOT A JUDGEMENT, and that is the whole reason this string exists. The first version of the
+    /// sheet had one `catch`, and that `catch` built the moderation refusal, so a member whose
+    /// phone dropped its connection, or whose account lacks the create entitlement, or who created
+    /// while the moderation vendor was down, was told their name could be considered vulgar. An
+    /// accusation the product cannot support, for a condition the member did not cause, about a
+    /// name nothing judged.
+    ///
+    /// The comp has its own state for this: `annotation-site/public/comps/ContextCreateSheet.html`
+    /// section `data-state="failed"` keeps the Create capsule live and adds this one destructive
+    /// caption under it.
+    ///
+    /// THE THIRD SENTENCE IS THE ONE THAT MATTERS. The member has just tried to publish a name to
+    /// a global catalog, so their live question is whether a half created context is now sitting in
+    /// it with their name on it. It says no.
+    ///
+    /// THE COMP AND THE SPEC DISAGREE about that third sentence, and this follows the comp under
+    /// RULE D. `design-coverage/specs/ContextCreateSheet.md` writes "Nothing has been published
+    /// yet."; the comp writes what is here. The apostrophe is the typographic one the comp uses.
+    public static let createFailed =
+        "That did not go through. Check your connection and tap Create again. "
+        + "You haven\u{2019}t created it yet."
+
+    /// The control that dismisses a refusal.
+    ///
+    /// The comp's own label, on the secondary that replaces the Create capsule while a refusal is
+    /// up: `data-state="moderation-declined"` draws `<button class="btn-secondary">Okay</button>`.
+    public static let refusalDismiss = "Okay"
 }

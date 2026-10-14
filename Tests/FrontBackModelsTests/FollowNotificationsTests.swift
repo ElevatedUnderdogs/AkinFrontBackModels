@@ -36,6 +36,51 @@ final class FollowNotificationsTests: XCTestCase {
         XCTAssertEqual(decoded, payload)
     }
 
+    /// GOAL_LOOP31, the slice B adversarial review's finding 2. The question a response answers
+    /// reaches the client, under the key the client will actually see.
+    ///
+    /// Two assertions rather than one, and the second is the one that matters. `question_id` is
+    /// the key the wire carries, and a client reading a response notification has nowhere to go
+    /// without it: every client in this product reads a response on its question's screen, and
+    /// the subject carries only the response.
+    func testAResponsePayloadCarriesTheQuestionItAnswers() throws {
+        let question = UUID()
+        let payload = FollowNotificationPayload(
+            reason: .responseAddedByFollowedMember,
+            subject: .response(id: UUID(), text: "the question is not in the subject"),
+            questionnaireId: nil,
+            author: DisclosedAuthor(author: UUID(), visibility: .attributed),
+            questionId: question
+        )
+        let data = try wireEncoder().encode(payload)
+        XCTAssertTrue(
+            try XCTUnwrap(String(data: data, encoding: .utf8)).contains("\"question_id\""),
+            "the question has to reach the client under the key it decodes from"
+        )
+        let decoded = try wireDecoder().decode(FollowNotificationPayload.self, from: data)
+        XCTAssertEqual(decoded.questionId, question)
+        XCTAssertEqual(decoded, payload)
+    }
+
+    /// A payload from a sender that predates the field decodes, with the question absent.
+    ///
+    /// The whole reason the field is optional and defaulted. A deployed server older than this
+    /// change sends three of the four reasons with nothing to say about a question, and a client
+    /// that refused those payloads would turn an additive change into an outage.
+    func testAPayloadWithNoQuestionStillDecodes() throws {
+        let payload = FollowNotificationPayload(
+            reason: .questionnaireAddedByFollowedMember,
+            subject: .questionnaire(id: UUID(), title: "nothing here answers a question"),
+            questionnaireId: nil,
+            author: DisclosedAuthor(author: UUID(), visibility: .attributed)
+        )
+        let decoded = try wireDecoder().decode(
+            FollowNotificationPayload.self, from: try wireEncoder().encode(payload)
+        )
+        XCTAssertNil(decoded.questionId)
+        XCTAssertEqual(decoded, payload)
+    }
+
     func testPayloadWithoutAnAuthorSurvivesTheRoundTrip() throws {
         // The `.silent` and `.unattributedAnnounced` shape: no author disclosed.
         let payload = FollowNotificationPayload(

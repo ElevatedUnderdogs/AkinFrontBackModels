@@ -225,6 +225,27 @@ public struct FollowNotificationPayload: Codable, Hashable, Sendable {
     /// The questionnaire involved, when the reason is a followed questionnaire.
     public let questionnaireId: UUID?
 
+    /// The question a RESPONSE answers, so a tap on a response notification can land on it.
+    ///
+    /// GOAL_LOOP31, the slice B adversarial review's finding 2. ``NotificationSubject`` carries a
+    /// response's id and its text and nothing about the question it answers, and every client that
+    /// reads a response reads it on its question's screen. The router that turns this payload into
+    /// a destination recorded the gap in prose and handed it to its implementer, and the
+    /// implementer had nowhere to go: there is no route anywhere that resolves a response to its
+    /// question, so a member who tapped "someone you follow added a new response" landed on
+    /// whatever screen was already there. One optional id closes it.
+    ///
+    /// ADDITIVE AND OPTIONAL, deliberately. A payload written before this field decodes with it
+    /// nil, which is what the three reasons that are not about a response send anyway, so no
+    /// deployed sender has to change in step with a client that reads it. The memberwise
+    /// initializer defaults it for the same reason: the three sites that build a payload about a
+    /// question or a questionnaire say nothing about it and mean nothing by the silence.
+    ///
+    /// NOT A SECOND SPELLING OF THE SUBJECT. For the two question shaped reasons the subject IS
+    /// the question, and this field stays nil there rather than repeating it, so a reader cannot
+    /// find two ids for one question and have to decide which is authoritative.
+    public let questionId: UUID?
+
     /// The member who wrote it, and ONLY when their visibility permits naming them.
     ///
     /// Optional for two different reasons, and both matter.
@@ -254,15 +275,19 @@ public struct FollowNotificationPayload: Codable, Hashable, Sendable {
     ///   - author: the author, already through the disclosure decision. Build it with
     ///     `DisclosedAuthor(author:visibility:)`, or use `.none` for a notification about a set
     ///     rather than a person.
+    ///   - questionId: the question a response answers. Defaulted to nil, because only the
+    ///     response reason has one and the other three mean nothing by leaving it out.
     public init(
         reason: NotificationReason,
         subject: NotificationSubject,
         questionnaireId: UUID?,
-        author: DisclosedAuthor
+        author: DisclosedAuthor,
+        questionId: UUID? = nil
     ) {
         self.reason = reason
         self.subject = subject
         self.questionnaireId = questionnaireId
         self.authorId = author.id
+        self.questionId = questionId
     }
 }
