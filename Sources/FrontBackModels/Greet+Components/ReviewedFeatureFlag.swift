@@ -60,8 +60,27 @@ public enum ReviewedFeatureFlag {
     /// compatibility in the contexts it is off in.
     public static var isQuestionnairePreferencesEnabled: Bool = false
 
-    /// Marking a member you would like to meet, privately, with the double blind mutual reveal.
+    /// Marking a member you would like to meet, privately. Nobody is told, at any point;
+    /// a mark only feeds the nearby sort order.
     public static var isWantToMeetEnabled: Bool = false
+
+    /// Whether the built in romance context exists at all.
+    ///
+    /// THE ONLY FLAG HERE THAT SHIPS UP, AND THE ONLY ONE THE MASTER SWITCH DOES NOT GATE. Both
+    /// are consequences of it being a WITHDRAWAL rather than an addition. Every other flag in
+    /// this file adds something: false means the app behaves as it did before, so false is the
+    /// safe default and gating it on the master switch costs nothing. This one removes something
+    /// that ships today, so FALSE is the changed state and `true` is the behaviour members
+    /// already have. A flag whose safe value is `true` cannot also be reset to `false` by a
+    /// master switch that is down by default, because that would withdraw romance from every
+    /// member the moment the file landed.
+    ///
+    /// What false does: romance is absent from every selector, settings list and feed; existing
+    /// romance data is neither shown nor deleted; and no romance scoped fetch, greet or
+    /// compatibility request leaves the client. That is GOAL_LOOP29 decision D5's compliance
+    /// posture, which is that the app ships with no company created romance context so that at
+    /// App Store Review there is no romance in the product, and members add it afterwards.
+    public static var isBuiltInRomanceContextEnabled: Bool = true
 
     // MARK: - Feature identity
 
@@ -96,6 +115,9 @@ public enum ReviewedFeatureFlag {
         /// ``isWantToMeetEnabled``.
         case wantToMeet
 
+        /// ``isBuiltInRomanceContextEnabled``.
+        case builtInRomanceContext
+
         /// The name of the static property this case switches, so evidence and a debug row can
         /// name the flag the same way the source does.
         public var propertyName: String {
@@ -108,6 +130,7 @@ public enum ReviewedFeatureFlag {
             case .followingQuestionnaires: return "isFollowingQuestionnairesEnabled"
             case .questionnairePreferences: return "isQuestionnairePreferencesEnabled"
             case .wantToMeet: return "isWantToMeetEnabled"
+            case .builtInRomanceContext: return "isBuiltInRomanceContextEnabled"
             }
         }
 
@@ -122,6 +145,7 @@ public enum ReviewedFeatureFlag {
             case .followingQuestionnaires: return "Follow a questionnaire"
             case .questionnairePreferences: return "Questionnaire on and off switch"
             case .wantToMeet: return "Want to meet"
+            case .builtInRomanceContext: return "Built in romance context"
             }
         }
 
@@ -150,8 +174,12 @@ public enum ReviewedFeatureFlag {
                 return "Switch a questionnaire off in a context and your answers to it stop "
                     + "counting there. Switch it back on and they count again."
             case .wantToMeet:
-                return "Mark somebody you would like to meet. They are told only if they mark "
-                    + "you too."
+                return "Mark somebody you would like to meet. Nobody is told, at any point. It "
+                    + "only moves them up your nearby list."
+            case .builtInRomanceContext:
+                return "Romance is one of the contexts the app ships with. Switch it off and it "
+                    + "disappears from every selector, list and feed. Nothing you wrote in it is "
+                    + "deleted."
             }
         }
 
@@ -159,7 +187,8 @@ public enum ReviewedFeatureFlag {
         public var area: String {
             switch self {
             case .master: return "Master"
-            case .unboundedContexts, .memberCreatedContexts, .perContextParticipation:
+            case .unboundedContexts, .memberCreatedContexts, .perContextParticipation,
+                 .builtInRomanceContext:
                 return "Contexts"
             case .followingMembers, .followingQuestionnaires: return "Following"
             case .questionnairePreferences: return "Questionnaires"
@@ -176,6 +205,11 @@ public enum ReviewedFeatureFlag {
     /// - Returns: `true` when the feature's own flag is on AND the master switch is on. Asked
     ///   about the master switch itself, the master switch's own value.
     public static func isEnabled(for feature: Feature) -> Bool {
+        // Asked BEFORE the master switch, and this is the whole reason the guard below is not
+        // the first line any more. Romance ships present. If the master switch could answer for
+        // it, then the shipping configuration, master down, would report romance withdrawn, and
+        // every screen that asks this question would drop a context members can see today.
+        if feature == .builtInRomanceContext { return isBuiltInRomanceContextEnabled }
         guard isReviewedFeaturesEnabled else { return false }
         switch feature {
         case .master: return isReviewedFeaturesEnabled
@@ -186,6 +220,7 @@ public enum ReviewedFeatureFlag {
         case .followingQuestionnaires: return isFollowingQuestionnairesEnabled
         case .questionnairePreferences: return isQuestionnairePreferencesEnabled
         case .wantToMeet: return isWantToMeetEnabled
+        case .builtInRomanceContext: return isBuiltInRomanceContextEnabled
         }
     }
 
@@ -205,6 +240,7 @@ public enum ReviewedFeatureFlag {
         case .followingQuestionnaires: return isFollowingQuestionnairesEnabled
         case .questionnairePreferences: return isQuestionnairePreferencesEnabled
         case .wantToMeet: return isWantToMeetEnabled
+        case .builtInRomanceContext: return isBuiltInRomanceContextEnabled
         }
     }
 
@@ -223,6 +259,7 @@ public enum ReviewedFeatureFlag {
         case .followingQuestionnaires: isFollowingQuestionnairesEnabled = value
         case .questionnairePreferences: isQuestionnairePreferencesEnabled = value
         case .wantToMeet: isWantToMeetEnabled = value
+        case .builtInRomanceContext: isBuiltInRomanceContextEnabled = value
         }
     }
 
@@ -231,14 +268,32 @@ public enum ReviewedFeatureFlag {
     /// Used where a decision is about the family rather than about one feature, such as whether
     /// the context plumbing needs to run at all.
     public static var isAnyReviewedFeatureEnabled: Bool {
-        Feature.allCases.contains { $0 != .master && isEnabled(for: $0) }
+        Feature.allCases.contains {
+            // `builtInRomanceContext` is excluded for the same reason it ships up: it is true in
+            // the shipping configuration, so counting it would make this property answer "yes,
+            // something reviewed is live" on an app where nothing reviewed is live.
+            $0 != .master && $0 != .builtInRomanceContext && isEnabled(for: $0)
+        }
     }
 
-    /// The SHIPPING default for every flag, which is `false` for all of them.
+    /// The SHIPPING default for one flag.
     ///
-    /// Named rather than written out at each site so that a ninth flag cannot be given a
-    /// different default by accident.
-    public static let shippingDefault: Bool = false
+    /// Named rather than written out at each site so that a new flag cannot be given a different
+    /// default by accident. It became a function rather than a constant when
+    /// ``isBuiltInRomanceContextEnabled`` arrived, because that one ships UP: a single constant
+    /// could only have been right for one of the two kinds of flag in this file, and
+    /// ``resetToDefaults()`` would then have silently withdrawn romance.
+    ///
+    /// - Parameter feature: the flag to ask about.
+    /// - Returns: the value that flag has in a build nobody has touched.
+    public static func shippingDefault(for feature: Feature) -> Bool {
+        switch feature {
+        case .builtInRomanceContext: return true
+        case .master, .unboundedContexts, .memberCreatedContexts, .perContextParticipation,
+             .followingMembers, .followingQuestionnaires, .questionnairePreferences, .wantToMeet:
+            return false
+        }
+    }
 
     /// Restores every flag to its shipping default.
     ///
@@ -246,7 +301,7 @@ public enum ReviewedFeatureFlag {
     /// which is the same reason ``NearbyFeatureFlag/resetToDefaults()`` exists.
     public static func resetToDefaults() {
         for feature in Feature.allCases {
-            setStoredValue(shippingDefault, for: feature)
+            setStoredValue(shippingDefault(for: feature), for: feature)
         }
     }
 }

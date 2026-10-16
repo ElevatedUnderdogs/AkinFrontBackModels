@@ -158,18 +158,6 @@ extension MyMeetMarksRequest {
     }
 }
 
-/// The mutual marks that have passed their concealed reveal window.
-public typealias MyMeetRevealsRequest = Request<Empty, [MutualMeetReveal]>
-
-extension MyMeetRevealsRequest {
-
-    /// The mutual marks that have passed their concealed window. The only thing
-    /// either member is ever told.
-    public static var myMeetReveals: Self {
-        .init(method: .post)
-    }
-}
-
 // MARK: - Questionnaires
 
 /// Which questionnaire rows to list.

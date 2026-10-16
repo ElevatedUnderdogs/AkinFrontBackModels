@@ -45,6 +45,24 @@ public struct NearbyUser: Codable, Hashable, Equatable {
     /// behaviour the app had before the field existed.
     public var interaction: NearbyInteractionState
 
+    /// How early this member joined, as a band, or nil when they are outside the ranked window.
+    ///
+    /// TestFlight feedback note B17-15: "I want the early adopter emojis to show on the profile
+    /// pictures of different users." Until this field existed, a rank reached exactly one screen,
+    /// the viewer's own early adopter row, so the client had nothing to draw on anybody else's
+    /// photograph.
+    ///
+    /// The BAND and not the rank, deliberately. See `EarlyAdopterTier` for the argument: the note
+    /// asks for a glyph, an ordinal is more disclosure than that, and a number invites a ranking
+    /// nobody designed.
+    ///
+    /// Optional, and nil is the ordinary answer for most members. It is also what a response from
+    /// a server predating this field decodes to, which matters for the whole TestFlight window,
+    /// because the app resolves this package at an exact pin and will be newer than the
+    /// deployment it talks to. A client reading nil draws no badge, which is the same screen the
+    /// app had before the field existed.
+    public var earlyAdopterTier: EarlyAdopterTier?
+
     public init(
         id: UUID,
         name: String,
@@ -53,7 +71,8 @@ public struct NearbyUser: Codable, Hashable, Equatable {
         verified: Bool = false,
         lastLocationUpdate: Date? = nil,
         hasGrantedCallKitConsent: Bool = false,
-        interaction: NearbyInteractionState = .legacyDefault
+        interaction: NearbyInteractionState = .legacyDefault,
+        earlyAdopterTier: EarlyAdopterTier? = nil
     ) {
         self.id = id
         self.name = name
@@ -63,6 +82,7 @@ public struct NearbyUser: Codable, Hashable, Equatable {
         self.lastLocationUpdate = lastLocationUpdate
         self.hasGrantedCallKitConsent = hasGrantedCallKitConsent
         self.interaction = interaction
+        self.earlyAdopterTier = earlyAdopterTier
     }
 
     /// Custom decoder to remain backward-compatible with server payloads that predate
@@ -78,6 +98,11 @@ public struct NearbyUser: Codable, Hashable, Equatable {
         lastLocationUpdate = try container.decodeIfPresent(Date.self, forKey: .lastLocationUpdate)
         hasGrantedCallKitConsent = try container.decodeIfPresent(Bool.self, forKey: .hasGrantedCallKitConsent) ?? false
         interaction = try container.decodeIfPresent(NearbyInteractionState.self, forKey: .interaction) ?? .legacyDefault
+        // `decodeIfPresent` for the same reason every field above it uses one, and for one more:
+        // an UNKNOWN tier string from a future server must not fail the whole decode of a member
+        // and take their photograph off the list with it. `try?` swallows that case to nil, which
+        // draws no badge.
+        earlyAdopterTier = try? container.decodeIfPresent(EarlyAdopterTier.self, forKey: .earlyAdopterTier)
     }
 
 //    public var placeholderGreetUser: NearbyUser {
