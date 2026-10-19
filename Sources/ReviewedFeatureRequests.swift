@@ -213,6 +213,68 @@ extension QuestionnaireContextParticipationRequest {
     }
 }
 
+/// Which kinds of follow notification one member wants, across their whole list.
+///
+/// GOAL_LOOP34 item B4. This is a different decision from muting, which is about one person or
+/// one questionnaire: `FollowingListView.html` draws the sentence "across your whole list" over
+/// the list precisely because the place to change a REASON is not a row.
+///
+/// THE DISABLED ONES TRAVEL, not all four with a flag each. Every reason is on unless the member
+/// has said otherwise, so the empty array is the state a member who has never opened the screen
+/// is in, and a reason added to `NotificationReason` later is on by default for everybody rather
+/// than silently off for whoever answered before it existed.
+public struct FollowNotificationPreferences: Codable, Hashable, Equatable, Sendable {
+
+    /// The reasons this member has switched off.
+    public let disabledReasons: [NotificationReason]
+
+    public init(disabledReasons: [NotificationReason]) {
+        self.disabledReasons = disabledReasons
+    }
+
+    /// Whether this member wants to be told for this reason.
+    public func isEnabled(_ reason: NotificationReason) -> Bool {
+        disabledReasons.contains(reason) == false
+    }
+}
+
+/// Reading a member's own notification preferences.
+public typealias FollowNotificationPreferencesRequest = Request<Empty, FollowNotificationPreferences>
+
+extension FollowNotificationPreferencesRequest {
+
+    /// What this member has switched off. The caller is the member: there is no other member's
+    /// preferences to ask for, and no payload that could name one.
+    public static var followNotificationPreferences: Self {
+        .init(method: .post)
+    }
+}
+
+/// Switching one reason on or off.
+public struct SetFollowNotificationPreferencePayload: Codable, Hashable, Equatable, Sendable {
+
+    public let reason: NotificationReason
+    public let isEnabled: Bool
+
+    public init(reason: NotificationReason, isEnabled: Bool) {
+        self.reason = reason
+        self.isEnabled = isEnabled
+    }
+}
+
+/// The whole set comes back, for the reason the questionnaire switch above returns its own state:
+/// a screen that redraws from what the server now holds cannot drift from it.
+public typealias SetFollowNotificationPreferenceRequest =
+    Request<SetFollowNotificationPreferencePayload, FollowNotificationPreferences>
+
+extension SetFollowNotificationPreferenceRequest {
+
+    /// Turns one kind of notification on or off for this member, everywhere.
+    public static var setFollowNotificationPreference: Self {
+        .init(method: .post)
+    }
+}
+
 /// Setting the per context switch.
 public struct SetQuestionnaireContextPayload: Codable, Hashable, Equatable, Sendable {
 
