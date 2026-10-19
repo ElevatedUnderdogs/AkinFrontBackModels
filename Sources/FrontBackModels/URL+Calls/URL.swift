@@ -28,12 +28,25 @@
 //    }
 //}
 
-//import Foundation
-//
-//public extension URL {
-//
-//    static func cloudflareImageURL(imageID: String, variant: String = "public") -> URL {
-//        let deliveryID = "zhbimJ0OE5fdkDM6_OkY1A" // safe to hardcode
-//        return URL(string: "https://imagedelivery.net/\(deliveryID)/\(imageID)/\(variant)")!
-//    }
-//}
+import Foundation
+
+public extension URL {
+
+    /// Builds a Cloudflare Images delivery URL, the one place client and server construct it.
+    ///
+    /// The delivery identifier is passed in rather than hardcoded so callers read it from their
+    /// own configuration (the server reads `CLOUDFLARE_IMAGES_DELIVERY_ID`). It is a public
+    /// identifier that appears in every delivered image URL, not a secret.
+    ///
+    /// - Parameters:
+    ///   - imageID: the Cloudflare image identifier.
+    ///   - deliveryID: the account's Images delivery identifier.
+    ///   - variant: the Cloudflare Images variant, defaulting to `public`.
+    static func cloudflareImageURL(
+        imageID: String,
+        deliveryID: String,
+        variant: String = "public"
+    ) -> URL? {
+        URL(string: "https://imagedelivery.net/\(deliveryID)/\(imageID)/\(variant)")
+    }
+}

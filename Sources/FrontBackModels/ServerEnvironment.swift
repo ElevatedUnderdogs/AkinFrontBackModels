@@ -8,15 +8,13 @@
 import Foundation
 
 public enum ServerEnvironment: String, CaseIterable, Identifiable, Codable, Hashable, Equatable {
-    /// Used for when working on a personal dev machine.  For example, saving images to the local file structure.
+    /// A personal dev machine. For example, saving images to the local file structure.
     case dev
 
-    /// Used for when working on a staging web service.  For example, working with s3, called from a
-    /// deployed render staging instance.
+    /// A deployed Render staging instance. Images are stored in Cloudflare Images.
     case debug
 
-    /// Used for when working on a staging web service.  For example, working with s3, called from a
-    ///  deployed render production instance.
+    /// A deployed Render production instance. Images are stored in Cloudflare Images.
     case prod
 
     /// Used for conformance to identifiable

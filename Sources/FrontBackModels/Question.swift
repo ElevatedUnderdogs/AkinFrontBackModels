@@ -32,7 +32,13 @@ public struct Question: Codable, Equatable, Hashable {
     public var text: String
     public var responses: [Response] = [] // Codable
     public var id: UUID
-    public var creatorID: UUID
+    /// The member who wrote it, present only when they are disclosed (swath N3 item 6.5).
+    ///
+    /// Optional because authorship is a decision, not a fact the server always publishes. A
+    /// question at `unattributedAnnounced` or `silent` carries no author here, and the type is what
+    /// makes that expressible: while this was non optional, every serializer had to invent a value
+    /// for the undisclosed case, and the value they invented was the real one.
+    public var creatorID: UUID?
     public var defaultCompatibilityRule: CompatibilityRule
 
     /// Keep in mind the instances of these models in this package are customized for each user.
@@ -42,6 +48,24 @@ public struct Question: Codable, Equatable, Hashable {
     public var contextPopularity: [ContextRawValue: PopularityScore] = [:] // Codable
     public var originalContext: Context
     public var assessment: ModerationAssessment
+
+    /// Who, if anyone, the creator wants this question attributed to (swath N3, item 6.3).
+    ///
+    /// Optional, and that is about compatibility rather than about meaning. Swift's synthesized
+    /// `init(from:)` does not consult a property's default value, so a non optional field here
+    /// would make every already-shipped client, which sends no such key, fail to post a question
+    /// at all. Absent means the creator did not choose, and the server stores `silent`, which is
+    /// what every question in the system already meant.
+    public var authorVisibility: AuthorVisibility?
+
+    /// Who wrote it, ready to draw, present only when they are disclosed
+    /// (GOAL_LOOP14 F1.2).
+    ///
+    /// `creatorID` above answers "may this author be named". This answers "what
+    /// is their name", which a client cannot derive from a UUID without a round
+    /// trip per row. Both are gated by the same decision, so the invariant is
+    /// that this is nil whenever `creatorID` is nil.
+    public var author: AuthorSummary?
 
     // MARK - computed properties
 
@@ -59,12 +83,14 @@ public struct Question: Codable, Equatable, Hashable {
         text: String,
         responses: [Response] = [],
         id: UUID,
-        creatorID: UUID,
+        creatorID: UUID?,
         importanceFor: [ContextRawValue : Importance] = [:],
         contextPopularity: [ContextRawValue : PopularityScore] = [:],
         originalContext: Context,
         defaultCompatibilityRule: CompatibilityRule,
-        assessment: ModerationAssessment
+        assessment: ModerationAssessment,
+        authorVisibility: AuthorVisibility? = nil,
+        author: AuthorSummary? = nil
     ) {
         self.requirementsFor = requirementsFor
         self.text = text
@@ -76,6 +102,8 @@ public struct Question: Codable, Equatable, Hashable {
         self.originalContext = originalContext
         self.defaultCompatibilityRule = defaultCompatibilityRule
         self.assessment = assessment
+        self.authorVisibility = authorVisibility
+        self.author = author
     }
 
     func isDeepEqual(to other: Question) -> Bool {

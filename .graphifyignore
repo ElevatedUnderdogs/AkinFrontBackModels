@@ -1,0 +1,24 @@
+# Paths graphify must not walk.
+#
+# The generated default is Node and Python shaped and omits Swift's .build,
+# which holds resolved dependency checkouts and build intermediates rather than
+# this package's source. See the longer note in akin-server-side/.graphifyignore
+# for the measurement that produced this rule. Added 2026-10-03, GL28 Part 11
+# rule PS-004.
+
+# Node and Python defaults, kept.
+node_modules/
+.git/
+.venv/
+venv/
+dist/
+graphify-out/
+*.lock
+
+# Swift.
+.build/
+.build.nosync/
+.swiftpm/
+DerivedData/
+*.xcresult/
+Package.resolved

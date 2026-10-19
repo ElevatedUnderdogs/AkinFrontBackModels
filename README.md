@@ -2,7 +2,9 @@
 
 The Swift package holding the request and response types shared between the Map Mates
 iOS client and its Vapor server. Both sides depend on it, so a type here is the contract:
-if the two repositories disagree about a payload, they disagree here first.
+if the two repositories disagree about a payload, they disagree here first. That includes the
+reviewed feature contracts and the flag set that gates them, so neither side can be wrong about
+which features exist.
 
 ## What is in it
 
@@ -12,6 +14,21 @@ if the two repositories disagree about a payload, they disagree here first.
 - `Sources/StrongContractClient.Request.swift` declares each endpoint as a typed
   `Request<Payload, Response>`, so a route's shape is stated once and both the caller and
   the handler are checked against it.
+
+## The reviewed feature contracts
+
+`Sources/ReviewedFeatureRequests.swift` declares the endpoints, and
+`Sources/ReviewedTransportTypes.swift` holds the payloads they carry.
+`Sources/FrontBackModels/Greet+Components/ReviewedFeatureFlag.swift` holds the flag set both
+repositories read, so the client and the server cannot disagree about which features exist.
+
+The endpoints are the context catalog, a member's own contexts, member context creation, a
+context's answered questions, setting context participation, questionnaire rows, reading and
+setting per context questionnaire participation, and the want to meet mark, unmark, state, own
+marks and own reveals.
+
+A contract's path IS its static property name, through `#function`, so renaming the property
+renames the route on both sides at once. That is the point of declaring them here.
 
 ## Building and testing
 
@@ -36,3 +53,13 @@ nothing anywhere until you have:
 
 Skipping step 3 is the usual way an afternoon disappears: the code is correct, the tests
 pass here, and the client keeps compiling against the version it was already pinned to.
+
+## Branching and deploy
+
+This package is the single point of truth for the wire shape the app and the server both compile
+against. A fix applied in `akin` alone, or in `akin-server-side` alone, re-creates the defect the
+next time either moves.
+
+Mainline is `main`. Measure against `origin/main` after a fetch, never against a local `main`.
+The authoritative document covering all three repositories is `BRANCHING_AND_DEPLOY.md` in the
+`akin` repository.
