@@ -111,4 +111,23 @@ public enum MeetMarkCopy {
 
     /// The label once the mark is placed, which is the way back out of it.
     public static let rescindControl = "Undo I want to meet"
+
+    /// What the list calls a member who has left, in `WantToMeetListView.html`'s own words.
+    ///
+    /// GOAL_LOOP34 item D1.Fd. The server serves a mark on a member who has left with no name at
+    /// all (`MeetMarkedMember.name` is optional and `MeetMarkController.markedMembers` looks the
+    /// users up separately, so a deleted one simply has no entry). Before this the row fell back
+    /// to "A member", which is the word for an author who chose to be anonymous: a member who
+    /// asked not to be named and a member who is gone are different things, and only one of them
+    /// leaves a row that can never do anything again.
+    public static let leftMember = "Someone who has left Map Mates"
+
+    /// Why that row does nothing.
+    public static let leftMemberCaption = "They have left, so their row is read only."
+
+    /// The one thing still possible on it, which is taking it off the list.
+    ///
+    /// A different word from `rescindControl` because it is a different act: undoing a mark on
+    /// somebody who is still here is reversible in a tap, and this is not.
+    public static let removeForGood = "Remove for good"
 }
