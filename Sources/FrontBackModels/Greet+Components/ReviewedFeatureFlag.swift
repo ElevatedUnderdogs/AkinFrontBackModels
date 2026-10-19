@@ -286,7 +286,7 @@ public enum ReviewedFeatureFlag {
         }
     }
 
-    /// The SHIPPING default for one flag.
+    /// The SHIPPING default for one flag. THE ONE PLACE a default is written.
     ///
     /// Named rather than written out at each site so that a new flag cannot be given a different
     /// default by accident. It became a function rather than a constant when
@@ -294,14 +294,34 @@ public enum ReviewedFeatureFlag {
     /// could only have been right for one of the two kinds of flag in this file, and
     /// ``resetToDefaults()`` would then have silently withdrawn romance.
     ///
+    /// WHY THE DECLARATIONS ABOVE NOW READ THIS, and the day it cost. GOAL_LOOP34 item 0.F1
+    /// flipped the nine `static var` declarations to `true` and left this function answering
+    /// `false` for eight of them, because the fact was written in two places and only one of them
+    /// was the one anybody was looking at. 0.F1's own verify read the declarations, so it passed.
+    /// The server does not read the declarations: `ReviewedFlagController` resolves a flag as the
+    /// member's override, then this server's value, then `shippingDefault(for:)`, so production
+    /// answered `shippedDefault: false` and `resolved: false` for all eight on 2026-10-18 at
+    /// 23:10 PDT, with the package pinned at the tag that was supposed to have turned them on. The
+    /// features were off in production, which is the exact failure GOAL_LOOP34 exists to end.
+    ///
+    /// The two spellings now agree, and `GL34ShippingDefaultTests` is what keeps them agreeing:
+    /// it asserts, for every case of ``Feature``, that the declared value and this function say the
+    /// same thing. A tenth flag declared one way and defaulted the other fails that test rather
+    /// than shipping off. The declarations are left as literals on purpose, because GOAL_LOOP34
+    /// item 0.F1 reads them with a grep at the revision the app pins, and a ticked item is not
+    /// edited to suit a later change.
+    ///
     /// - Parameter feature: the flag to ask about.
     /// - Returns: the value that flag has in a build nobody has touched.
     public static func shippingDefault(for feature: Feature) -> Bool {
         switch feature {
-        case .builtInRomanceContext: return true
+        // Every one of these ships UP, by Scott's decision of 2026-10-18 (GOAL_LOOP34 DR3): the
+        // features are to be usable in production, and the per server value and per user override
+        // the server resolves in front of this are what turn one off without a new build.
         case .master, .unboundedContexts, .memberCreatedContexts, .perContextParticipation,
-             .followingMembers, .followingQuestionnaires, .questionnairePreferences, .wantToMeet:
-            return false
+             .followingMembers, .followingQuestionnaires, .questionnairePreferences, .wantToMeet,
+             .builtInRomanceContext:
+            return true
         }
     }
 
