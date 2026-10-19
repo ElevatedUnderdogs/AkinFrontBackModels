@@ -16,11 +16,21 @@ import Foundation
 /// everything while the master switch is down. A second set of ergonomics for the same job is a
 /// second thing to learn, and the two that ship already work.
 ///
-/// One difference from its two siblings, and it is deliberate. `NearbyFeatureFlag` ships with its
-/// master switch down and every individual flag UP, so turning the master on turns the whole
-/// family on at once. Every flag here ships DOWN, including the individual ones, because these
-/// features are reviewed designs rather than proven behaviour: the operator turns them on one at
-/// a time, from the debug view, and judges each on its own.
+/// WHAT THESE SHIP AS, AND WHEN THAT CHANGED. GOAL_LOOP31 shipped every flag here DOWN, including
+/// the individual ones, so that the operator could turn them on one at a time from the debug view
+/// and judge each on its own. GOAL_LOOP33 then ticked twenty five items against those features
+/// and shipped none of them to anybody, because the only switch was `FeatureFlagDebugView`, which
+/// is compiled out of Release, and TestFlight is Release. There was no build in which a member
+/// could reach any of this.
+///
+/// Scott decided on 2026-10-18 that the features are to be usable in production, so every flag
+/// here now ships UP. The default is no longer the only control: GOAL_LOOP34 items 0.F3 to 0.F5
+/// add a per server value and a per user override, resolved in that order and falling back to
+/// these defaults, both settable from the debug screen that TestFlight builds do have. So turning
+/// one off is still a thing the operator can do, and it no longer requires a new build.
+///
+/// `isBuiltInRomanceContextEnabled` is unchanged and still ships `true`, for the separate reason
+/// recorded on it below.
 ///
 /// How many there are is ``Feature/allCases``, and it is deliberately not written out here: a
 /// number in a comment is wrong the day a flag is added, and this file is where that happens.
@@ -35,34 +45,34 @@ public enum ReviewedFeatureFlag {
 
     /// Master switch. While `false` none of the individual features below render and none of
     /// their requests are sent, so the app behaves exactly as it did before GOAL_LOOP31 landed.
-    public static var isReviewedFeaturesEnabled: Bool = false
+    public static var isReviewedFeaturesEnabled: Bool = true
 
     /// More than two contexts, with the replacement selector above a question.
     ///
     /// The shipping control is a two segment pill, which worked because there were two. With this
     /// off the pill is drawn unchanged; with it on the selector handles any number.
-    public static var isUnboundedContextsEnabled: Bool = false
+    public static var isUnboundedContextsEnabled: Bool = true
 
     /// A member may create a context, and the global catalog is searchable.
-    public static var isMemberCreatedContextsEnabled: Bool = false
+    public static var isMemberCreatedContextsEnabled: Bool = true
 
     /// The per context participation switch, which withdraws the member from a context rather
     /// than hiding it from their own screens.
-    public static var isPerContextParticipationEnabled: Bool = false
+    public static var isPerContextParticipationEnabled: Bool = true
 
     /// Following a member, so their new questions reach you.
-    public static var isFollowingMembersEnabled: Bool = false
+    public static var isFollowingMembersEnabled: Bool = true
 
     /// Following a questionnaire, so you are told when it gains a question.
-    public static var isFollowingQuestionnairesEnabled: Bool = false
+    public static var isFollowingQuestionnairesEnabled: Bool = true
 
     /// Turning a questionnaire on or off per context, which withdraws its answers from
     /// compatibility in the contexts it is off in.
-    public static var isQuestionnairePreferencesEnabled: Bool = false
+    public static var isQuestionnairePreferencesEnabled: Bool = true
 
     /// Marking a member you would like to meet, privately. Nobody is told, at any point;
     /// a mark only feeds the nearby sort order.
-    public static var isWantToMeetEnabled: Bool = false
+    public static var isWantToMeetEnabled: Bool = true
 
     /// Whether the built in romance context exists at all.
     ///
@@ -276,7 +286,7 @@ public enum ReviewedFeatureFlag {
         }
     }
 
-    /// The SHIPPING default for one flag.
+    /// The SHIPPING default for one flag. THE ONE PLACE a default is written.
     ///
     /// Named rather than written out at each site so that a new flag cannot be given a different
     /// default by accident. It became a function rather than a constant when
@@ -284,14 +294,34 @@ public enum ReviewedFeatureFlag {
     /// could only have been right for one of the two kinds of flag in this file, and
     /// ``resetToDefaults()`` would then have silently withdrawn romance.
     ///
+    /// WHY THE DECLARATIONS ABOVE NOW READ THIS, and the day it cost. GOAL_LOOP34 item 0.F1
+    /// flipped the nine `static var` declarations to `true` and left this function answering
+    /// `false` for eight of them, because the fact was written in two places and only one of them
+    /// was the one anybody was looking at. 0.F1's own verify read the declarations, so it passed.
+    /// The server does not read the declarations: `ReviewedFlagController` resolves a flag as the
+    /// member's override, then this server's value, then `shippingDefault(for:)`, so production
+    /// answered `shippedDefault: false` and `resolved: false` for all eight on 2026-10-18 at
+    /// 23:10 PDT, with the package pinned at the tag that was supposed to have turned them on. The
+    /// features were off in production, which is the exact failure GOAL_LOOP34 exists to end.
+    ///
+    /// The two spellings now agree, and `GL34ShippingDefaultTests` is what keeps them agreeing:
+    /// it asserts, for every case of ``Feature``, that the declared value and this function say the
+    /// same thing. A tenth flag declared one way and defaulted the other fails that test rather
+    /// than shipping off. The declarations are left as literals on purpose, because GOAL_LOOP34
+    /// item 0.F1 reads them with a grep at the revision the app pins, and a ticked item is not
+    /// edited to suit a later change.
+    ///
     /// - Parameter feature: the flag to ask about.
     /// - Returns: the value that flag has in a build nobody has touched.
     public static func shippingDefault(for feature: Feature) -> Bool {
         switch feature {
-        case .builtInRomanceContext: return true
+        // Every one of these ships UP, by Scott's decision of 2026-10-18 (GOAL_LOOP34 DR3): the
+        // features are to be usable in production, and the per server value and per user override
+        // the server resolves in front of this are what turn one off without a new build.
         case .master, .unboundedContexts, .memberCreatedContexts, .perContextParticipation,
-             .followingMembers, .followingQuestionnaires, .questionnairePreferences, .wantToMeet:
-            return false
+             .followingMembers, .followingQuestionnaires, .questionnairePreferences, .wantToMeet,
+             .builtInRomanceContext:
+            return true
         }
     }
 
