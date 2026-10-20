@@ -213,6 +213,36 @@ extension QuestionnaireContextParticipationRequest {
     }
 }
 
+/// Every questionnaire and context pair the caller has, in one answer.
+///
+/// WHY A SECOND READING ROUTE EXISTS beside the one above, and it is a shape
+/// rather than a convenience. `QuestionnairePreferencesView.html` draws each
+/// questionnaire with a chip for every context its answers count in and a
+/// sentence naming the rest, which means a row cannot be drawn without knowing
+/// that questionnaire's resolution in EVERY context the member has. Pair by
+/// pair that is one request per pair: nine contexts and five questionnaires is
+/// forty five requests before the first row appears, and the app's own screen
+/// was scoped to a single context for the lack of this.
+///
+/// THE CALLER IS THE MEMBER, like the per reason preferences and the meet
+/// marks: there is no payload naming a member, because somebody else's
+/// resolutions are not a thing this API can be asked for.
+///
+/// EVERY PAIR, including the ones the member has never touched, because a row
+/// has to say "not counting here" about a context as surely as it says "counts
+/// here". A route that answered only the rows a member had changed would leave
+/// the screen unable to tell a context that is off from one it has no row for.
+public typealias QuestionnaireContextParticipationsRequest =
+    Request<Empty, [QuestionnaireContextParticipation]>
+
+extension QuestionnaireContextParticipationsRequest {
+
+    /// Every questionnaire and context pair for the caller, resolved.
+    public static var questionnaireContextParticipations: Self {
+        .init(method: .post)
+    }
+}
+
 /// Which kinds of follow notification one member wants, across their whole list.
 ///
 /// GOAL_LOOP34 item B4. This is a different decision from muting, which is about one person or
