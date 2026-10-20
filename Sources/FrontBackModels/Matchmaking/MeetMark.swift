@@ -48,6 +48,99 @@ public struct MeetMarkState: Codable, Hashable, Sendable {
     }
 }
 
+/// Whether a mark was placed from the other member's QUESTION or from their ANSWER.
+///
+/// GOAL_LOOP34 D1.M1, from Q16. gl29.html's want to meet list writes "On their question: ..." or
+/// "On their answer: ...", and its own note calls that line "the only thing on the row that
+/// explains why the row exists". The two readings are not interchangeable: a question is what
+/// they asked everybody, an answer is what they said to one.
+public enum MeetMarkPromptKind: String, Codable, Hashable, Sendable {
+
+    /// The member was reading the other member's question.
+    case question
+
+    /// The member was reading the other member's answer.
+    case answer
+}
+
+/// What the member was reading when they placed a mark.
+///
+/// A FACT ABOUT THE CALLER'S OWN ACT, which is the only kind of fact this feature stores. It says
+/// what THEY were looking at when they marked, so it discloses nothing about the other member
+/// that the other member did not already publish, and nothing at all about whether the mark was
+/// returned. RULE V is untouched: there is still nowhere here to put a difference between a
+/// matched mark and an unmatched one.
+///
+/// The text is carried as well as the id so a row can be drawn without a second request, and
+/// because a question can be edited or withdrawn after a mark is placed: the row says what the
+/// member saw.
+public struct MeetMarkPrompt: Codable, Hashable, Sendable {
+
+    /// Whether this was the member's question or their answer.
+    public let kind: MeetMarkPromptKind
+
+    /// The question this came from, which is what the row taps through to.
+    public let questionId: UUID
+
+    /// The words themselves, as the member saw them.
+    public let text: String
+
+    /// Memberwise.
+    ///
+    /// - Parameters:
+    ///   - kind: question or answer.
+    ///   - questionId: the question it came from.
+    ///   - text: the words the member saw.
+    public init(kind: MeetMarkPromptKind, questionId: UUID, text: String) {
+        self.kind = kind
+        self.questionId = questionId
+        self.text = text
+    }
+}
+
+/// The body of a mark: who, and what the member was reading when they marked them.
+///
+/// IT STILL DECODES A BARE UUID, which is what every client before GOAL_LOOP34 sent and what a
+/// TestFlight build in somebody's pocket will keep sending. A payload that only accepted the new
+/// object would turn those builds' marks into 400s, which is a worse failure than a row with no
+/// prompt line on it.
+public struct MarkWantToMeetPayload: Codable, Hashable, Sendable {
+
+    /// The member being marked.
+    public let memberId: UUID
+
+    /// What the caller was reading when they marked them, where there was something.
+    public let prompt: MeetMarkPrompt?
+
+    /// Memberwise.
+    ///
+    /// - Parameters:
+    ///   - memberId: the member being marked.
+    ///   - prompt: what the caller was reading, if anything.
+    public init(memberId: UUID, prompt: MeetMarkPrompt? = nil) {
+        self.memberId = memberId
+        self.prompt = prompt
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case memberId
+        case prompt
+    }
+
+    /// Decodes the object form, and the bare id older clients send.
+    public init(from decoder: any Decoder) throws {
+        if let single = try? decoder.singleValueContainer(),
+           let identifier = try? single.decode(UUID.self) {
+            self.memberId = identifier
+            self.prompt = nil
+            return
+        }
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.memberId = try container.decode(UUID.self, forKey: .memberId)
+        self.prompt = try container.decodeIfPresent(MeetMarkPrompt.self, forKey: .prompt)
+    }
+}
+
 /// One member on the caller's own "I want to meet" list.
 ///
 /// WHAT IT CARRIES AND WHY THAT IS ALL. RULE V: a marked row the other member has not marked back
@@ -69,16 +162,42 @@ public struct MeetMarkedMember: Codable, Hashable, Sendable, Identifiable {
     /// When the CALLER marked them.
     public let markedAt: Date
 
+    /// What the caller was reading when they marked them.
+    ///
+    /// GOAL_LOOP34 D1.M2. Nil for every mark placed before this field existed, and nil for a mark
+    /// placed from a screen with no question on it: the row then draws the name and the date, as
+    /// it always did.
+    public let prompt: MeetMarkPrompt?
+
     /// Memberwise.
     ///
     /// - Parameters:
     ///   - id: the marked member.
     ///   - name: their display name, if any.
     ///   - markedAt: when the caller marked them.
-    public init(id: UUID, name: String?, markedAt: Date) {
+    ///   - prompt: what the caller was reading when they marked, if anything was stored.
+    public init(id: UUID, name: String?, markedAt: Date, prompt: MeetMarkPrompt? = nil) {
         self.id = id
         self.name = name
         self.markedAt = markedAt
+        self.prompt = prompt
+    }
+
+    /// Decodes a payload with no `prompt` in it, which is what a server that has not shipped
+    /// GOAL_LOOP34 returns.
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.name = try container.decodeIfPresent(String.self, forKey: .name)
+        self.markedAt = try container.decode(Date.self, forKey: .markedAt)
+        self.prompt = try container.decodeIfPresent(MeetMarkPrompt.self, forKey: .prompt)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case markedAt
+        case prompt
     }
 }
 

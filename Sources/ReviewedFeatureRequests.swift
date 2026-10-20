@@ -126,12 +126,20 @@ extension SetContextParticipationRequest {
 /// path. The payload is the target's id; the caller comes from the token.
 public typealias MeetMarkRequest = Request<UUID, MeetMarkState>
 
-extension MeetMarkRequest {
+/// The mark itself carries what the caller was reading, so the three calls no longer share one
+/// payload: GOAL_LOOP34 D1.M1. The body still decodes a bare id, which is what older clients send.
+public typealias MarkWantToMeetRequest = Request<MarkWantToMeetPayload, MeetMarkState>
 
-    /// Mark privately that the caller wants to meet the target.
+extension MarkWantToMeetRequest {
+
+    /// Mark privately that the caller wants to meet the target, and store the question or answer
+    /// they were reading when they did.
     public static var markWantToMeet: Self {
         .init(method: .post)
     }
+}
+
+extension MeetMarkRequest {
 
     /// Withdraw that mark. Inside the concealed window this cancels silently,
     /// with no signal in either direction.
