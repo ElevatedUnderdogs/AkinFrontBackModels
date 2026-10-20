@@ -26,10 +26,24 @@ public enum ContextNameSuggestion: Hashable, Sendable {
     /// Nothing to say. The name is new, or too short to compare.
     case none
 
-    /// The name folds onto an existing context, so creating is joining.
+    /// The name IS an existing context's name, letter for letter.
     ///
     /// - Parameter existing: the context already there.
     case alreadyExists(ContextCatalogEntry)
+
+    /// The name folds onto an existing context under a DIFFERENT spelling, so creating it is
+    /// joining that one and seeing its name rather than the one just typed.
+    ///
+    /// GOAL_LOOP34 A5.Pg, from gl29.html's `case-collapse`: the comp draws this as its own
+    /// state, "You are joining Bouldering" over "This context is already here under that
+    /// spelling, so you join the members in it and see their spelling of the name.", where an
+    /// exact match says "Bouldering already exists." The two sentences answer different
+    /// questions: one tells the member the context is there, the other tells them the name they
+    /// are about to see is not the one they typed. The copy for both has been in this file since
+    /// GOAL_LOOP31; only the exact case was ever returned.
+    ///
+    /// - Parameter existing: the context already there.
+    case joining(ContextCatalogEntry)
 
     /// The name is a near duplicate: it is contained in, or contains, an existing name.
     ///
@@ -45,7 +59,8 @@ public enum ContextNameSuggestion: Hashable, Sendable {
     public var existing: ContextCatalogEntry? {
         switch self {
         case .none: return nil
-        case .alreadyExists(let entry), .nearDuplicate(let entry), .probableMisspelling(let entry):
+        case .alreadyExists(let entry), .joining(let entry), .nearDuplicate(let entry),
+             .probableMisspelling(let entry):
             return entry
         }
     }
@@ -91,8 +106,16 @@ public enum ContextNameSuggestions {
 
         // An exact fold first, because it is not a warning at all: it is the deduplication `D1`
         // asks for, and the member is joining rather than creating.
+        //
+        // TWO ANSWERS, NOT ONE, which is what gl29.html draws. A name typed exactly as the
+        // existing one is told the context already exists; a name that only folds onto it after
+        // normalisation is told it is JOINING that context, because the name it is about to see
+        // is the other spelling rather than the one just typed. Returning the first for both put
+        // "Bouldering already exists." in front of a member who typed "bouldering" and never told
+        // them whose spelling would win.
         if let exact = catalog.first(where: { $0.normalisedKey == key }) {
-            return .alreadyExists(exact)
+            let typedName = typed.trimmingCharacters(in: .whitespacesAndNewlines)
+            return typedName == exact.displayName ? .alreadyExists(exact) : .joining(exact)
         }
         guard key.count >= minimumLengthToCompare else { return .none }
 
