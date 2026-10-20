@@ -74,6 +74,33 @@ final class GL34MeetMarkPromptTests: XCTestCase {
         XCTAssertNil(decoded.prompt)
     }
 
+    func test_markPayload_withNoPromptIsTheOldRequestByteForByte() throws {
+        let identifier = UUID(uuidString: "66666666-7777-8888-9999-000000000000")!
+
+        let new = try JSONEncoder().encode(MarkWantToMeetPayload(memberId: identifier))
+        let old = try JSONEncoder().encode(identifier)
+
+        XCTAssertEqual(
+            String(decoding: new, as: UTF8.self),
+            String(decoding: old, as: UTF8.self),
+            "a server that has not shipped the prompt decodes a bare id and answers 400 to an "
+                + "object, so a mark with nothing to say has to stay the request it was"
+        )
+    }
+
+    func test_markPayload_withAPromptIsAnObject() throws {
+        let payload = MarkWantToMeetPayload(
+            memberId: UUID(uuidString: "66666666-7777-8888-9999-000000000000")!,
+            prompt: MeetMarkPrompt(kind: .question, questionId: UUID(), text: "Why this one?")
+        )
+
+        let wire = String(decoding: try JSONEncoder().encode(payload), as: UTF8.self)
+
+        XCTAssertTrue(wire.hasPrefix("{"), "a prompt needs the object form, and \(wire)")
+        XCTAssertTrue(wire.contains("memberId"))
+        XCTAssertTrue(wire.contains("questionId"))
+    }
+
     // MARK: - The row
 
     func test_markedMember_roundTripsItsPrompt() throws {

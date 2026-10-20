@@ -127,6 +127,24 @@ public struct MarkWantToMeetPayload: Codable, Hashable, Sendable {
         case prompt
     }
 
+    /// Writes the bare id when there is no prompt, and the object when there is.
+    ///
+    /// SO A NEW CLIENT KEEPS WORKING AGAINST AN OLD SERVER. The route decoded a bare UUID until
+    /// GOAL_LOOP34, and a server that has not shipped this change answers 400 to an object: a
+    /// build that always sent the object would break marking everywhere the server is behind it,
+    /// which during a staged rollout is everywhere for a while. A mark with nothing to say about
+    /// where it came from is exactly the old request, byte for byte, so it stays the old request.
+    public func encode(to encoder: any Encoder) throws {
+        guard let prompt else {
+            var single = encoder.singleValueContainer()
+            try single.encode(memberId)
+            return
+        }
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(memberId, forKey: .memberId)
+        try container.encode(prompt, forKey: .prompt)
+    }
+
     /// Decodes the object form, and the bare id older clients send.
     public init(from decoder: any Decoder) throws {
         if let single = try? decoder.singleValueContainer(),
