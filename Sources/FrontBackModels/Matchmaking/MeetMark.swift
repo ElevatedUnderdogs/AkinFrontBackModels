@@ -159,6 +159,30 @@ public struct MarkWantToMeetPayload: Codable, Hashable, Sendable {
     }
 }
 
+/// Whether a marked member is still named, no longer named, or no longer there.
+///
+/// GOAL_LOOP34 D1.M15, from Q17. gl29.html draws these as two different rows and two different
+/// dialogs, and its own note says why: "one Remove is recoverable while the other is not: the
+/// state that decides whether a destructive action can be undone was carried by nothing a member
+/// glances at". A member who went anonymous can be marked again if they are ever named again; an
+/// account that is gone cannot.
+///
+/// THE SERVER ALWAYS KNEW. A departed member has no user row and an anonymous one has a row with
+/// no name, and the response had no field to say which. This is that field.
+///
+/// It says nothing about the OTHER member's mark, so RULE V is untouched.
+public enum MeetMarkedMemberStatus: String, Codable, Sendable {
+
+    /// They are there and they have a name.
+    case named
+
+    /// Their account is there and carries no name any more.
+    case anonymous
+
+    /// There is no account any more.
+    case departed
+}
+
 /// One member on the caller's own "I want to meet" list.
 ///
 /// WHAT IT CARRIES AND WHY THAT IS ALL. RULE V: a marked row the other member has not marked back
@@ -187,6 +211,14 @@ public struct MeetMarkedMember: Codable, Hashable, Sendable, Identifiable {
     /// it always did.
     public let prompt: MeetMarkPrompt?
 
+    /// Whether they are still named, no longer named, or no longer there.
+    ///
+    /// GOAL_LOOP34 D1.M15. A server that predates this field sends none, and the row then falls
+    /// back to what a client could already work out from the name alone: named when there is a
+    /// name, departed when there is not. That fallback is exactly the reading Q17 is about, so it
+    /// is written in one place rather than at each call site.
+    public let status: MeetMarkedMemberStatus
+
     /// Memberwise.
     ///
     /// - Parameters:
@@ -194,11 +226,31 @@ public struct MeetMarkedMember: Codable, Hashable, Sendable, Identifiable {
     ///   - name: their display name, if any.
     ///   - markedAt: when the caller marked them.
     ///   - prompt: what the caller was reading when they marked, if anything was stored.
-    public init(id: UUID, name: String?, markedAt: Date, prompt: MeetMarkPrompt? = nil) {
+    ///   - status: whether they are still named, no longer named, or no longer there. Defaults to
+    ///     the same reading the fallback makes.
+    public init(
+        id: UUID,
+        name: String?,
+        markedAt: Date,
+        prompt: MeetMarkPrompt? = nil,
+        status: MeetMarkedMemberStatus? = nil
+    ) {
         self.id = id
         self.name = name
         self.markedAt = markedAt
         self.prompt = prompt
+        self.status = status ?? Self.status(forName: name)
+    }
+
+    /// What a client can work out from the name alone, which is what a server with no `status`
+    /// field leaves it to work out.
+    ///
+    /// - Parameter name: the name on the row, if any.
+    /// - Returns: named, or departed.
+    static func status(forName name: String?) -> MeetMarkedMemberStatus {
+        guard let name, name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+        else { return .departed }
+        return .named
     }
 
     /// Decodes a payload with no `prompt` in it, which is what a server that has not shipped
@@ -209,6 +261,9 @@ public struct MeetMarkedMember: Codable, Hashable, Sendable, Identifiable {
         self.name = try container.decodeIfPresent(String.self, forKey: .name)
         self.markedAt = try container.decode(Date.self, forKey: .markedAt)
         self.prompt = try container.decodeIfPresent(MeetMarkPrompt.self, forKey: .prompt)
+        self.status = try container.decodeIfPresent(
+            MeetMarkedMemberStatus.self, forKey: .status
+        ) ?? Self.status(forName: self.name)
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -216,6 +271,7 @@ public struct MeetMarkedMember: Codable, Hashable, Sendable, Identifiable {
         case name
         case markedAt
         case prompt
+        case status
     }
 }
 
