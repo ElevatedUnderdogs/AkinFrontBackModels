@@ -303,5 +303,40 @@ public enum MeetMarkCopy {
     public static let markControl = "I want to meet"
 
     /// The label once the mark is placed, which is the way back out of it.
-    public static let rescindControl = "Undo I want to meet"
+    ///
+    /// "UNDO I WANT TO MEET" UNTIL GOAL_LOOP34. gl29.html draws this control marked as "You want
+    /// to meet", in both places it appears: `WantToMeetListView.html` draws it nineteen times on
+    /// the rows, and `SingleGreetedUserView.html` draws it on the profile with the member's name
+    /// after it. The older wording came from item 5.12's rule against invented verbs, read as
+    /// requiring the label to be a verb the member can act on; the comp answers that differently,
+    /// with a pressed toggle that states what is true and undoes it when tapped, which is what
+    /// `aria-pressed="true"` on the comp's button says. The newer design is the one that ships.
+    public static let rescindControl = "You want to meet"
+
+    /// The unmarked label, with the member's name when the surface knows it.
+    ///
+    /// gl29.html's profile draws "I want to meet June"; its list rows draw the words alone,
+    /// because the row names the member on the line above. Both come from here so the two
+    /// surfaces cannot drift.
+    ///
+    /// - Parameter name: whose profile this is, or nil where there is no single subject.
+    /// - Returns: the label.
+    public static func markControl(for name: String?) -> String {
+        label(markControl, name)
+    }
+
+    /// The marked label, with the member's name when the surface knows it.
+    ///
+    /// - Parameter name: whose profile this is, or nil.
+    /// - Returns: the label.
+    public static func rescindControl(for name: String?) -> String {
+        label(rescindControl, name)
+    }
+
+    /// The words, then the name when there is one.
+    private static func label(_ words: String, _ name: String?) -> String {
+        guard let name, name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+        else { return words }
+        return "\(words) \(name)"
+    }
 }
