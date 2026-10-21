@@ -60,6 +60,72 @@ public enum NotificationReason: String, Codable, CaseIterable, Sendable {
     /// A member you follow answered something.
     case responseAddedByFollowedMember
 
+    /// The notification category this reason is delivered under.
+    ///
+    /// GL34 B5. gl29.html's notification centre draws three things iOS can only draw from a
+    /// CATEGORY: the summary line a collapsed stack carries ("8 more questions in this
+    /// questionnaire", "11 more responses in this group"), the action that opens the screen
+    /// where a member chooses what arrives, and the grouping that puts a run of one kind in one
+    /// stack. A push with no category is drawn as a bare alert and stacks under the app's name
+    /// with iOS's own wording, which is what the capture of that state showed.
+    ///
+    /// IN THE CONTRACT because both ends need the same string: the server sets it on the push
+    /// and the client registers the category under it, and a mismatch is a notification that
+    /// silently loses its summary and its action.
+    public var notificationCategoryIdentifier: String {
+        switch self {
+        case .questionAddedToFollowedQuestionnaire: return "follow.questionnaire.questions"
+        case .questionAddedByFollowedMember, .questionnaireAddedByFollowedMember:
+            // ONE CATEGORY FOR THE TWO, because iOS summarises a stack with one line and
+            // gl29.html's line for this stack names both: "4 more questions and questionnaires
+            // in this group". Two categories would draw two stacks and neither line.
+            return "follow.member.content"
+        case .responseAddedByFollowedMember: return "follow.member.responses"
+        }
+    }
+
+    /// The summary a COLLAPSED stack of this kind carries, with `%u` standing for the others.
+    ///
+    /// gl29.html's own three lines. `%u` is the placeholder `UNNotificationCategory` fills with
+    /// the number of notifications the stack is hiding.
+    public var notificationSummaryFormat: String {
+        switch self {
+        case .questionAddedToFollowedQuestionnaire:
+            return "%u more questions in this questionnaire"
+        case .questionAddedByFollowedMember, .questionnaireAddedByFollowedMember:
+            return "%u more questions and questionnaires in this group"
+        case .responseAddedByFollowedMember:
+            return "%u more responses in this group"
+        }
+    }
+
+    /// What the action on one of these notifications is called.
+    ///
+    /// gl29.html draws it in the notification centre, and it is the one thing a member can do
+    /// with a notification about somebody else's content other than open it: decide what arrives
+    /// next. It opens `FollowNotificationPreferencesView`, which is B4's screen.
+    public static let notificationActionTitle = "Choose what arrives"
+
+    /// The identifier that action is delivered back under.
+    public static let notificationActionIdentifier = "follow.choose-what-arrives"
+
+    /// The thread a notification of this reason joins, which is what iOS stacks by.
+    ///
+    /// - Parameter subjectID: the question, questionnaire or response the notification is about.
+    /// - Returns: the thread identifier.
+    public func notificationThreadIdentifier(subjectID: UUID) -> String {
+        switch self {
+        case .questionAddedToFollowedQuestionnaire:
+            // THE QUESTIONNAIRE'S OWN THREAD, because the summary line names it: a run of
+            // questions added to one questionnaire is one stack, and the subject of this reason
+            // IS the questionnaire's question, whose questionnaire the payload carries.
+            return "\(notificationCategoryIdentifier).\(subjectID.uuidString)"
+        case .questionAddedByFollowedMember, .questionnaireAddedByFollowedMember,
+             .responseAddedByFollowedMember:
+            return notificationCategoryIdentifier
+        }
+    }
+
     /// One sentence, addressed to the member, explaining why they are being told.
     ///
     /// Lives in the contract rather than in each client so the three platforms cannot drift into
