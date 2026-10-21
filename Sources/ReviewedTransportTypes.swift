@@ -75,13 +75,32 @@ public struct BrowseQuestionnaireDTO: Codable {
     public let isRated: Bool
     public let derivedImportance: Double?
 
+    /// How many members have answered at least one of its questions.
+    ///
+    /// GL34 C2. `HomeQuestionnairesFiltered.html` draws both counts on every row of this feed,
+    /// in the same words the preferences screen uses: "<N> answered some · <M> answered all".
+    /// This route served neither, so the browse row had nothing to draw and the comp's line was
+    /// missing from the app entirely.
+    ///
+    /// OPTIONAL AND ADDITIVE, so a client reading an older server gets nil and draws no line
+    /// rather than a confident zero.
+    public let answeredSomeCount: Int?
+
+    /// How many members have answered every one of its questions.
+    ///
+    /// Always less than or equal to ``answeredSomeCount`` by construction, for the reason
+    /// `QuestionnaireRowSummary` gives: answering all of something is a way of answering some.
+    public let answeredAllCount: Int?
+
     public init(
         questionnaireId: UUID,
         title: String,
         creatorId: UUID?,
         creatorName: String?,
         isRated: Bool,
-        derivedImportance: Double?
+        derivedImportance: Double?,
+        answeredSomeCount: Int? = nil,
+        answeredAllCount: Int? = nil
     ) {
         self.questionnaireId = questionnaireId
         self.title = title
@@ -89,6 +108,8 @@ public struct BrowseQuestionnaireDTO: Codable {
         self.creatorName = creatorName
         self.isRated = isRated
         self.derivedImportance = derivedImportance
+        self.answeredSomeCount = answeredSomeCount
+        self.answeredAllCount = answeredAllCount
     }
 }
 
