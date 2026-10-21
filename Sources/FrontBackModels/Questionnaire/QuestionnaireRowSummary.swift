@@ -152,6 +152,37 @@ public struct QuestionnaireRowSummary: Codable, Hashable, Sendable, Identifiable
     /// rather than becoming an error state.
     public let creatorImageURL: String?
 
+    /// How many of this questionnaire's questions the member READING the row has answered.
+    ///
+    /// GL34 C1: gl29.html splits the list into three sections, "Yours", "Answered" and "Not
+    /// answered yet", and it says a different thing under an off row in each of the last two. The
+    /// off row of something answered reads "Your answers are kept and they do not count toward
+    /// matching anywhere"; the off row of something never answered reads "You have not answered
+    /// this, so there is nothing to withdraw". A row carried the two counts for EVERYBODY and
+    /// nothing at all about the one member looking at it, so the client could not tell those two
+    /// rows apart and drew the first sentence over both. Telling a member their answers are kept
+    /// when they have never answered is a sentence about somebody else.
+    ///
+    /// NOT A BOOL, because the number is the fact and the bool is one reading of it. A row that
+    /// says 3 of 10 can say "answered" today and could say "3 of 10 answered" tomorrow without
+    /// another contract move; a row that says `true` has thrown the rest away.
+    ///
+    /// OPTIONAL AND ADDITIVE. A server that predates it sends no key, this decodes as nil, and
+    /// `viewerHasAnswered` is then nil as well, which is how a client distinguishes "has not
+    /// answered" from "was not told".
+    public let viewerAnsweredCount: Int?
+
+    /// Whether the member reading the row has answered any of its questions, or nil when the
+    /// server did not say.
+    ///
+    /// Nil and false are DIFFERENT and the distinction is load bearing: nil means an older server
+    /// sent no count, and a client that treated it as false would file every row under "Not
+    /// answered yet" the moment it talked to one.
+    public var viewerHasAnswered: Bool? {
+        guard let viewerAnsweredCount else { return nil }
+        return viewerAnsweredCount > 0
+    }
+
     /// Memberwise, computing the title key so a caller cannot pass one that disagrees.
     ///
     /// - Parameters:
@@ -162,6 +193,8 @@ public struct QuestionnaireRowSummary: Codable, Hashable, Sendable, Identifiable
     ///   - answeredSomeCount: members who answered at least one.
     ///   - answeredAllCount: members who answered every one.
     ///   - creatorImageURL: their picture, or nil when there is none or they are not named.
+    ///   - viewerAnsweredCount: how many of its questions the reader has answered, or nil when
+    ///     the server does not say.
     public init(
         id: UUID,
         title: String,
@@ -169,7 +202,8 @@ public struct QuestionnaireRowSummary: Codable, Hashable, Sendable, Identifiable
         questionCount: Int,
         answeredSomeCount: Int,
         answeredAllCount: Int,
-        creatorImageURL: String? = nil
+        creatorImageURL: String? = nil,
+        viewerAnsweredCount: Int? = nil
     ) {
         self.id = id
         self.title = QuestionnaireTitle.displayTitle(title)
@@ -185,6 +219,7 @@ public struct QuestionnaireRowSummary: Codable, Hashable, Sendable, Identifiable
         } else {
             self.creatorImageURL = creatorImageURL
         }
+        self.viewerAnsweredCount = viewerAnsweredCount
     }
 
     /// The row's counts line, assembled once.
