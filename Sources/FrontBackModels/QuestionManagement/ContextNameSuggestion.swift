@@ -197,6 +197,22 @@ public enum ContextCreateCopy {
     /// What the suggestion chips are for, shown while the field is empty.
     public static let suggestionsLabel = "Tap one of these to fill the field"
 
+    /// What the screen says once a context has been created, over the member's own chips.
+    ///
+    /// GL34 0.V19, from the operator's answer to Q28 (2026-10-21 12:15 AM PT): "after Create,
+    /// show '<name> is yours and it is live. Other members can find it now.' over the context
+    /// chips, with the created context's real name". gl29.html draws it with the sheet gone,
+    /// which is where the member is actually left, and the app said nothing at all.
+    ///
+    /// IN THE SHARED PACKAGE beside the rest of this sheet's words, so the sentence a member
+    /// reads has one spelling wherever it is drawn.
+    ///
+    /// - Parameter name: the created context's own display name.
+    /// - Returns: the sentence.
+    public static func liveConfirmation(_ name: String) -> String {
+        "\(name) is yours and it is live. Other members can find it now."
+    }
+
     /// The consequences, shown above the button at every state.
     public static let consequences =
         "Creating it publishes the name to everyone, and you cannot change the name afterwards. "
