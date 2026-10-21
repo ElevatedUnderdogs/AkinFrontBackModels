@@ -172,6 +172,23 @@ public struct QuestionnaireRowSummary: Codable, Hashable, Sendable, Identifiable
     /// answered" from "was not told".
     public let viewerAnsweredCount: Int?
 
+    /// Whether the author has withdrawn it, or nil when the server did not say.
+    ///
+    /// GL34 C1. gl29.html's preferences screen draws a state it captions "withdrawn by its author
+    /// while the member had": the row keeps the title and the author's name, reads "<Name>
+    /// withdrew this. Your answers are kept and they no longer count toward matching.", and
+    /// carries "Remove from this list" where the switch was. Nothing else a row carries can say
+    /// that has happened, and a client cannot infer it: a withdrawn questionnaire still has a
+    /// title, an author and two counts.
+    ///
+    /// NIL IS NOT FALSE, for the reason ``viewerAnsweredCount`` gives: nil is a server that does
+    /// not know about withdrawal, and a client that read it as false would draw a switch on a row
+    /// whose switch the server refuses to move. A client that has nil draws the row it drew
+    /// before, which is the pre-withdrawal behaviour and not a wrong claim.
+    ///
+    /// OPTIONAL AND ADDITIVE. A server that predates it sends no key and this decodes as nil.
+    public let withdrawnByAuthor: Bool?
+
     /// Whether the member reading the row has answered any of its questions, or nil when the
     /// server did not say.
     ///
@@ -195,6 +212,8 @@ public struct QuestionnaireRowSummary: Codable, Hashable, Sendable, Identifiable
     ///   - creatorImageURL: their picture, or nil when there is none or they are not named.
     ///   - viewerAnsweredCount: how many of its questions the reader has answered, or nil when
     ///     the server does not say.
+    ///   - withdrawnByAuthor: whether the author has withdrawn it, or nil when the server does
+    ///     not say.
     public init(
         id: UUID,
         title: String,
@@ -203,7 +222,8 @@ public struct QuestionnaireRowSummary: Codable, Hashable, Sendable, Identifiable
         answeredSomeCount: Int,
         answeredAllCount: Int,
         creatorImageURL: String? = nil,
-        viewerAnsweredCount: Int? = nil
+        viewerAnsweredCount: Int? = nil,
+        withdrawnByAuthor: Bool? = nil
     ) {
         self.id = id
         self.title = QuestionnaireTitle.displayTitle(title)
@@ -220,6 +240,7 @@ public struct QuestionnaireRowSummary: Codable, Hashable, Sendable, Identifiable
             self.creatorImageURL = creatorImageURL
         }
         self.viewerAnsweredCount = viewerAnsweredCount
+        self.withdrawnByAuthor = withdrawnByAuthor
     }
 
     /// The row's counts line, assembled once.
