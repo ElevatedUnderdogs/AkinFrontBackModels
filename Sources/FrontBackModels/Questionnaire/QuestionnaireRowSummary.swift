@@ -135,6 +135,23 @@ public struct QuestionnaireRowSummary: Codable, Hashable, Sendable, Identifiable
     /// something is a way of answering some of it.
     public let answeredAllCount: Int
 
+    /// The creator's picture, when the row is allowed to show one.
+    ///
+    /// GOAL_LOOP34, Q15, Scott 2026-10-20 10:40 PDT: "this should show the user's picture in the
+    /// profile circle". The circle beside the attribution drew the first letter of the name and
+    /// nothing else, because a row carried no way to find a picture: the creator case is an id
+    /// and a name.
+    ///
+    /// NIL FOR AN ANONYMOUS CREATOR, and that is the whole reason this is a field on the ROW
+    /// rather than on ``QuestionnaireCreator/member(id:name:)``. A picture names somebody as
+    /// surely as a name does, so the case that refuses to name them has nowhere to put one and
+    /// the server sends nothing here. R21.12's rule, applied to a face.
+    ///
+    /// OPTIONAL AND ADDITIVE. A server that predates it sends no key and this decodes as nil,
+    /// which is what a member with no picture sends anyway, so the letter stays the fallback
+    /// rather than becoming an error state.
+    public let creatorImageURL: String?
+
     /// Memberwise, computing the title key so a caller cannot pass one that disagrees.
     ///
     /// - Parameters:
@@ -144,13 +161,15 @@ public struct QuestionnaireRowSummary: Codable, Hashable, Sendable, Identifiable
     ///   - questionCount: how many questions it holds.
     ///   - answeredSomeCount: members who answered at least one.
     ///   - answeredAllCount: members who answered every one.
+    ///   - creatorImageURL: their picture, or nil when there is none or they are not named.
     public init(
         id: UUID,
         title: String,
         creator: QuestionnaireCreator,
         questionCount: Int,
         answeredSomeCount: Int,
-        answeredAllCount: Int
+        answeredAllCount: Int,
+        creatorImageURL: String? = nil
     ) {
         self.id = id
         self.title = QuestionnaireTitle.displayTitle(title)
@@ -159,6 +178,13 @@ public struct QuestionnaireRowSummary: Codable, Hashable, Sendable, Identifiable
         self.questionCount = questionCount
         self.answeredSomeCount = answeredSomeCount
         self.answeredAllCount = answeredAllCount
+        // NEVER FOR AN ANONYMOUS CREATOR, here rather than only at the call site: a second caller
+        // that forgets is the leak this type can prevent and a comment cannot.
+        if case .anonymous = creator {
+            self.creatorImageURL = nil
+        } else {
+            self.creatorImageURL = creatorImageURL
+        }
     }
 
     /// The row's counts line, assembled once.
