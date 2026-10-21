@@ -401,12 +401,33 @@ public struct SubscriptionListEntry: Codable {
     /// `...ID` form for this reason.
     public let imageUrl: String?
 
+    /// Whether the member this row points at is gone.
+    ///
+    /// GOAL_LOOP34 item B3. `FollowingListView.html`'s `member-anonymous-or-left` state draws
+    /// that row differently from every other: no bell, because there is nothing left to be told
+    /// about, and the caption "Nothing more will arrive" in place of the notification state. The
+    /// server has always titled the row "A member who has left"; a client reading the title to
+    /// decide how to draw it would be matching on a sentence, which is the thing the title
+    /// exists to be rather than a flag.
+    ///
+    /// Optional rather than defaulted so a server that predates the field still decodes, which
+    /// is the same reason `imageUrl` is optional. Absent means present: a row from an older
+    /// server is drawn the way it always was.
+    public let departed: Bool?
+
     /// Not every caller has an image to supply, and a questionnaire never does.
-    public init(target: SubscriptionTarget, title: String, muted: Bool, imageUrl: String? = nil) {
+    public init(
+        target: SubscriptionTarget,
+        title: String,
+        muted: Bool,
+        imageUrl: String? = nil,
+        departed: Bool? = nil
+    ) {
         self.target = target
         self.title = title
         self.muted = muted
         self.imageUrl = imageUrl
+        self.departed = departed
     }
 }
 
