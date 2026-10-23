@@ -54,6 +54,18 @@ public struct Context: Codable, Hashable {
         public static let romance = Case(rawValue: "romance")
         public static let social = Case(rawValue: "social")
 
+        /// The Case for business, the second context every member sees.
+        ///
+        /// GOAL_LOOP35 box 75, DR115: a member never has fewer than two contexts they did not have
+        /// to create, and this is the other one.
+        ///
+        /// DELIBERATELY NOT IN `allCases` BELOW. That list is the older built-in-only idea of the
+        /// set, and its own comment says live call sites should read the context list instead.
+        /// Adding to it would change what every one of those older paths sees, which is a wider
+        /// change than shipping a second default. The set the server actually creates from is
+        /// `Handler.shippedContextCases`, and that is where this Case is added alongside social.
+        public static let business = Case(rawValue: "business")
+
         /// The built-in contexts. Call sites that must reflect member-created contexts read the live
         /// context list instead (swept in item 1.12); this remains for the built-in-only paths.
         public static let allCases: [Case] = [.romance, .social]
