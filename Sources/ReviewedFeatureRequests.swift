@@ -338,3 +338,118 @@ extension SetQuestionnaireContextParticipationRequest {
         .init(method: .post)
     }
 }
+
+// MARK: - The member profile, build 27
+
+/// What a member profile shows about a member beyond what the chip that opened it knew.
+///
+/// Build 27, B27-16: "It should show folllower count." A chip carries an ``AuthorSummary``, which
+/// is a name, a face and an id, and nothing about the member's standing. The count is a fact only
+/// the server holds, so the profile asks for it rather than deriving it, and a profile opened from
+/// a chip and one opened from greet history ask the same question and get the same answer.
+///
+/// THE COUNT IS THE SUBJECT'S, NOT THE VIEWER'S, and it is public. It says how many members follow
+/// the member being looked at. It says nothing about who they are, which would be a different
+/// disclosure, and nothing about whether the viewer is among them, which the follow control
+/// already knows.
+public struct MemberProfileSummary: Codable, Hashable, Equatable, Sendable {
+
+    /// The member this is about.
+    public let memberId: UUID
+
+    /// How many members follow them.
+    ///
+    /// Not optional. A profile that cannot say the number draws no count at all, which is the
+    /// request failing, and a request that succeeded with no number would be a second way to
+    /// express the same absence.
+    public let followerCount: Int
+
+    public init(memberId: UUID, followerCount: Int) {
+        self.memberId = memberId
+        self.followerCount = followerCount
+    }
+}
+
+public typealias MemberProfileSummaryRequest = Request<UUID, MemberProfileSummary>
+
+extension MemberProfileSummaryRequest {
+
+    /// What the profile shows about a member that a chip does not carry. The payload is the
+    /// subject's id; the viewer comes from the token.
+    public static var memberProfileSummary: Self {
+        .init(method: .post)
+    }
+}
+
+// MARK: - Adding a question to a questionnaire, build 27
+
+/// Adding one question to one questionnaire the CALLER created.
+///
+/// Build 27, B27-09: "single question view three dot buttons should have the option in addition to
+/// flag, it can be add question to questionnaire, and then you can add it that way to a
+/// questionnaire you created". B27-10 settles whose questions may be added: "Tou can add questions
+/// from anyone. It should not be limited to questions you've created."
+///
+/// SO THE TWO OWNERSHIP RULES ARE DIFFERENT, and that asymmetry is the whole contract. The
+/// QUESTIONNAIRE must be the caller's, because adding to somebody else's questionnaire would let
+/// any member rewrite a grouping they do not own. The QUESTION need not be: a questionnaire is a
+/// grouping of questions worth answering together, and restricting it to the caller's own
+/// questions would make a questionnaire a list of things one person wrote rather than a reading
+/// list. The caller is never a field here; the server reads them from the verified token.
+public struct AddQuestionToQuestionnairePayload: Codable, Hashable, Equatable, Sendable {
+
+    /// The questionnaire to add to. Must be one the caller created.
+    public let questionnaireId: UUID
+
+    /// The question to add. May be anybody's.
+    public let questionId: UUID
+
+    public init(questionnaireId: UUID, questionId: UUID) {
+        self.questionnaireId = questionnaireId
+        self.questionId = questionId
+    }
+}
+
+/// What the caller learns after adding.
+///
+/// The questionnaire's two counts come back so the confirmation can say what changed without a
+/// second round trip, and so a second add of the same question can be told from a first: adding a
+/// question already in the questionnaire succeeds and leaves ``questionCount`` where it was,
+/// rather than failing. A member who taps add twice has asked for a state, not an operation.
+public struct AddQuestionToQuestionnaireResult: Codable, Hashable, Equatable, Sendable {
+
+    /// The questionnaire that was added to.
+    public let questionnaireId: UUID
+
+    /// Its title, so the confirmation can name it.
+    public let questionnaireTitle: String
+
+    /// How many questions it holds now.
+    public let questionCount: Int
+
+    /// Whether this call is what put the question there.
+    public let wasAlreadyPresent: Bool
+
+    public init(
+        questionnaireId: UUID,
+        questionnaireTitle: String,
+        questionCount: Int,
+        wasAlreadyPresent: Bool
+    ) {
+        self.questionnaireId = questionnaireId
+        self.questionnaireTitle = questionnaireTitle
+        self.questionCount = questionCount
+        self.wasAlreadyPresent = wasAlreadyPresent
+    }
+}
+
+public typealias AddQuestionToQuestionnaireRequest =
+    Request<AddQuestionToQuestionnairePayload, AddQuestionToQuestionnaireResult>
+
+extension AddQuestionToQuestionnaireRequest {
+
+    /// Adds anybody's question to a questionnaire the caller created.
+    public static var addQuestionToQuestionnaire: Self {
+        .init(method: .post)
+    }
+}
