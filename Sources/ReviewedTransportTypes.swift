@@ -234,6 +234,22 @@ public struct QuestionnaireDetailDTO: Codable {
     /// The working behind the importance figure. Empty when nothing is rated.
     public let importanceBreakdown: [QuestionImportanceDTO]
     public let creatorName: String?
+
+    /// The author's picture, when they have one and this reader may be told who they are.
+    ///
+    /// Build 27, B27-13, tester: "Why isn't the profile picture showing?" IT WAS NOT SENT. The
+    /// client's author chip draws a picture when the payload carries one and falls back to
+    /// initials when it does not, and this payload carried a name and an identifier only, so
+    /// every questionnaire detail screen drew initials. The chip was correct throughout.
+    ///
+    /// NIL WHERE `creatorName` IS NIL, which is the rule `QuestionnaireRowSummary.creatorImageURL`
+    /// states in full: a picture names somebody as surely as a name does, so a payload that has
+    /// declined to identify the author has nowhere to put one.
+    ///
+    /// OPTIONAL AND DEFAULTED, so every existing construction site keeps compiling and a client
+    /// that predates it ignores an unknown key.
+    public let creatorImageUrl: String?
+
     public let respondentCount: Int
     public let completionCount: Int
     /// Null when unrated. Paired with `isRated` so absence is explicit rather than inferred.
@@ -249,6 +265,7 @@ public struct QuestionnaireDetailDTO: Codable {
         questions: [QuestionSummaryDTO],
         importanceBreakdown: [QuestionImportanceDTO],
         creatorName: String?,
+        creatorImageUrl: String? = nil,
         respondentCount: Int,
         completionCount: Int,
         derivedImportance: Double?,
@@ -262,6 +279,7 @@ public struct QuestionnaireDetailDTO: Codable {
         self.questions = questions
         self.importanceBreakdown = importanceBreakdown
         self.creatorName = creatorName
+        self.creatorImageUrl = creatorImageUrl
         self.respondentCount = respondentCount
         self.completionCount = completionCount
         self.derivedImportance = derivedImportance
