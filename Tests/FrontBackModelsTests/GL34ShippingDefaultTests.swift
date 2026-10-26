@@ -100,17 +100,56 @@ final class GL34ShippingDefaultTests: XCTestCase {
         }
     }
 
-    /// The nine GL29 flags are ON in a build nobody has touched.
+    /// Every flag that is MEANT to ship on does.
     ///
     /// Scott's decision of 2026-10-18 (DR3): the features are to be usable in production. This is
     /// the one assertion that would have failed on the day, and it is deliberately about the
     /// function rather than the declaration, because the function is what the server reads.
-    func testTheGL29FlagsShipOn() {
-        for feature in ReviewedFeatureFlag.Feature.allCases {
+    ///
+    /// THE EXCEPTIONS ARE LISTED, NOT SKIPPED, and that is what keeps this test sharp. Build 27
+    /// added the first flag that ships DOWN on purpose, and the easy change would have been to
+    /// let this loop pass over anything that answers false. That would have turned the guard into
+    /// a tautology: a GL29 flag flipping off by accident, which is the exact defect this test was
+    /// written after, would then also pass. So a flag that ships down has to be named here, and
+    /// naming it is a deliberate act somebody has to perform.
+    func testTheFlagsThatShipOnDo() {
+        for feature in ReviewedFeatureFlag.Feature.allCases
+        where Self.deliberatelyShipsOff.contains(feature) == false {
             XCTAssertTrue(
                 ReviewedFeatureFlag.shippingDefault(for: feature),
                 "\(feature.rawValue) ships off, so the server resolves it off for every member who "
-                    + "has no override and no server value"
+                    + "has no override and no server value. If that is deliberate, add it to "
+                    + "deliberatelyShipsOff with the reason."
+            )
+        }
+    }
+
+    /// The flags that ship DOWN on purpose, each with the reason it does.
+    ///
+    /// `questionnaireMatchmaking`: build 27. Scott's own note, B27-08, is that the design is not
+    /// settled, "I'm not sure how that is going to work yet witj contexts", so the feature has no
+    /// agreed shape and must not be the half built thing a tester finds. The debug screen's third
+    /// switch is how it is turned on when there is something to turn on.
+    static let deliberatelyShipsOff: Set<ReviewedFeatureFlag.Feature> = [.questionnaireMatchmaking]
+
+    /// A flag that ships down is down in all three readings, not just one of them.
+    ///
+    /// The defect this guards is the one the file's other tests were written after: a flag
+    /// declared one way and resolved another. It applies to a flag that ships down exactly as it
+    /// applies to one that ships up.
+    func testAFlagThatShipsOffIsOffEveryWayOfAsking() {
+        for feature in Self.deliberatelyShipsOff {
+            XCTAssertFalse(
+                ReviewedFeatureFlag.shippingDefault(for: feature),
+                "\(feature.rawValue) is listed as shipping off but shippingDefault says on"
+            )
+            XCTAssertFalse(
+                ReviewedFeatureFlag.storedValue(for: feature),
+                "\(feature.rawValue) is listed as shipping off but its declaration reads on"
+            )
+            XCTAssertFalse(
+                ReviewedFeatureFlag.isEnabled(for: feature),
+                "\(feature.rawValue) is listed as shipping off but a feature path would run it"
             )
         }
     }
@@ -120,8 +159,9 @@ final class GL34ShippingDefaultTests: XCTestCase {
     /// `isEnabled(for: )` is what a feature's own code path asks, and it is a different function
     /// from both of the two above: a flag could ship on and still be gated off by a master switch
     /// that shipped down, which is what the GL29 features did until this loop.
-    func testEveryFeatureReadsEnabledInAShippingBuild() {
-        for feature in ReviewedFeatureFlag.Feature.allCases {
+    func testEveryFeatureMeantToBeOnReadsEnabledInAShippingBuild() {
+        for feature in ReviewedFeatureFlag.Feature.allCases
+        where Self.deliberatelyShipsOff.contains(feature) == false {
             XCTAssertTrue(
                 ReviewedFeatureFlag.isEnabled(for: feature),
                 "\(feature.rawValue) is not enabled in a build nobody has touched"
