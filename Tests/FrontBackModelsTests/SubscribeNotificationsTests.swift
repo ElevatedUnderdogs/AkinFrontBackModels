@@ -7,7 +7,7 @@ import XCTest
 // `foo_id` under `.convertToSnakeCase` and then decodes back as `fooId`, which is a different
 // property, so the decode fails. Both strategies are installed process wide in the server's
 // `configure.swift`, so every payload crossing the wire meets them.
-final class FollowNotificationsTests: XCTestCase {
+final class SubscribeNotificationsTests: XCTestCase {
 
     private func wireEncoder() -> JSONEncoder {
         let encoder = JSONEncoder()
@@ -22,8 +22,8 @@ final class FollowNotificationsTests: XCTestCase {
     }
 
     func testPayloadSurvivesTheSnakeCaseRoundTrip() throws {
-        let payload = FollowNotificationPayload(
-            reason: .questionAddedToFollowedQuestionnaire,
+        let payload = SubscribeNotificationPayload(
+            reason: .questionAddedToSubscribedQuestionnaire,
             subject: .question(id: UUID(), text: "what does the round trip prove"),
             questionnaireId: UUID(),
             author: DisclosedAuthor(author: UUID(), visibility: .attributed)
@@ -33,7 +33,7 @@ final class FollowNotificationsTests: XCTestCase {
         // The keys the client will actually see.
         XCTAssertTrue(json.contains("\"questionnaire_id\""), json)
         XCTAssertTrue(json.contains("\"author_id\""), json)
-        let decoded = try wireDecoder().decode(FollowNotificationPayload.self, from: data)
+        let decoded = try wireDecoder().decode(SubscribeNotificationPayload.self, from: data)
         XCTAssertEqual(decoded, payload)
     }
 
@@ -46,8 +46,8 @@ final class FollowNotificationsTests: XCTestCase {
     /// the subject carries only the response.
     func testAResponsePayloadCarriesTheQuestionItAnswers() throws {
         let question = UUID()
-        let payload = FollowNotificationPayload(
-            reason: .responseAddedByFollowedMember,
+        let payload = SubscribeNotificationPayload(
+            reason: .responseAddedBySubscribedMember,
             subject: .response(id: UUID(), text: "the question is not in the subject"),
             questionnaireId: nil,
             author: DisclosedAuthor(author: UUID(), visibility: .attributed),
@@ -58,7 +58,7 @@ final class FollowNotificationsTests: XCTestCase {
             try XCTUnwrap(String(data: data, encoding: .utf8)).contains("\"question_id\""),
             "the question has to reach the client under the key it decodes from"
         )
-        let decoded = try wireDecoder().decode(FollowNotificationPayload.self, from: data)
+        let decoded = try wireDecoder().decode(SubscribeNotificationPayload.self, from: data)
         XCTAssertEqual(decoded.questionId, question)
         XCTAssertEqual(decoded, payload)
     }
@@ -69,14 +69,14 @@ final class FollowNotificationsTests: XCTestCase {
     /// change sends three of the four reasons with nothing to say about a question, and a client
     /// that refused those payloads would turn an additive change into an outage.
     func testAPayloadWithNoQuestionStillDecodes() throws {
-        let payload = FollowNotificationPayload(
-            reason: .questionnaireAddedByFollowedMember,
+        let payload = SubscribeNotificationPayload(
+            reason: .questionnaireAddedBySubscribedMember,
             subject: .questionnaire(id: UUID(), title: "nothing here answers a question"),
             questionnaireId: nil,
             author: DisclosedAuthor(author: UUID(), visibility: .attributed)
         )
         let decoded = try wireDecoder().decode(
-            FollowNotificationPayload.self, from: try wireEncoder().encode(payload)
+            SubscribeNotificationPayload.self, from: try wireEncoder().encode(payload)
         )
         XCTAssertNil(decoded.questionId)
         XCTAssertEqual(decoded, payload)
@@ -85,14 +85,14 @@ final class FollowNotificationsTests: XCTestCase {
     func testPayloadWithoutAnAuthorSurvivesTheRoundTrip() throws {
         // The shape the retired `silent` and `unattributedAnnounced` raw values decode into,
         // which is `anonymized`: no author disclosed.
-        let payload = FollowNotificationPayload(
-            reason: .questionAddedByFollowedMember,
+        let payload = SubscribeNotificationPayload(
+            reason: .questionAddedBySubscribedMember,
             subject: .question(id: UUID(), text: "written by someone who chose not to be named"),
             questionnaireId: nil,
             author: .none
         )
         let decoded = try wireDecoder().decode(
-            FollowNotificationPayload.self, from: try wireEncoder().encode(payload)
+            SubscribeNotificationPayload.self, from: try wireEncoder().encode(payload)
         )
         XCTAssertEqual(decoded, payload)
         XCTAssertNil(decoded.authorId)
@@ -147,22 +147,22 @@ final class FollowNotificationsTests: XCTestCase {
     /// `questionText` were non-optional and there was nowhere to put a response or a questionnaire.
     func testEveryReasonRoundTripsCarryingItsOwnSubject() throws {
         let cases: [(NotificationReason, NotificationSubject)] = [
-            (.questionAddedToFollowedQuestionnaire, .question(id: UUID(), text: "a question joining a set")),
-            (.questionAddedByFollowedMember, .question(id: UUID(), text: "a question by a followed member")),
-            (.questionnaireAddedByFollowedMember, .questionnaire(id: UUID(), title: "a new questionnaire")),
-            (.responseAddedByFollowedMember, .response(id: UUID(), text: "a response by a followed member")),
+            (.questionAddedToSubscribedQuestionnaire, .question(id: UUID(), text: "a question joining a set")),
+            (.questionAddedBySubscribedMember, .question(id: UUID(), text: "a question by a subscribed member")),
+            (.questionnaireAddedBySubscribedMember, .questionnaire(id: UUID(), title: "a new questionnaire")),
+            (.responseAddedBySubscribedMember, .response(id: UUID(), text: "a response by a subscribed member")),
         ]
         XCTAssertEqual(cases.count, NotificationReason.allCases.count, "a reason has no round trip case")
 
         for (reason, subject) in cases {
-            let payload = FollowNotificationPayload(
+            let payload = SubscribeNotificationPayload(
                 reason: reason,
                 subject: subject,
-                questionnaireId: reason == .questionAddedToFollowedQuestionnaire ? UUID() : nil,
+                questionnaireId: reason == .questionAddedToSubscribedQuestionnaire ? UUID() : nil,
                 author: .none
             )
             let decoded = try wireDecoder().decode(
-                FollowNotificationPayload.self, from: try wireEncoder().encode(payload)
+                SubscribeNotificationPayload.self, from: try wireEncoder().encode(payload)
             )
             XCTAssertEqual(decoded, payload, "\(reason) did not survive the wire")
             XCTAssertEqual(decoded.subject.id, subject.id)
@@ -192,7 +192,7 @@ final class FollowNotificationsTests: XCTestCase {
         for reason in NotificationReason.allCases {
             XCTAssertEqual(
                 reason.isAboutTheAuthor,
-                reason != .questionAddedToFollowedQuestionnaire,
+                reason != .questionAddedToSubscribedQuestionnaire,
                 "\(reason) classified the wrong way"
             )
         }
@@ -206,7 +206,7 @@ final class FollowNotificationsTests: XCTestCase {
         for reason in NotificationReason.allCases {
             XCTAssertFalse(reason.explanation.contains("%@"), "\(reason) interpolates a name")
             XCTAssertTrue(
-                reason.explanation.contains("Someone you follow") || !reason.isAboutTheAuthor,
+                reason.explanation.contains("Someone you subscribe to") || !reason.isAboutTheAuthor,
                 "\(reason) is about an author but does not say it anonymously: \(reason.explanation)"
             )
         }
@@ -304,10 +304,10 @@ final class UndisclosedAuthorContractTests: XCTestCase {
 //
 // This class used to assert the OPPOSITE of what it asserts now, and the reversal is deliberate.
 // The old contract held that `unattributedAnnounced` withheld the author from the public view and
-// named them to that member's own followers, on the reasoning that a follower already chose to
-// follow them. R21.12 rejects that: knowing WHO you follow is not the same as being told THIS item
-// was written by them, and with a small following the second fact identifies the author of a
-// specific piece of content.
+// named them to that member's own subscribers, on the reasoning that a subscriber already
+// chose to subscribe to them. R21.12 rejects that: knowing WHO you subscribe to is not the
+// same as being told THIS item was written by them, and with a short subscriber list the
+// second fact identifies the author of a specific piece of content.
 //
 // So the fan-out no longer discloses for either hiding state, and the copy moved with the
 // behaviour. The old test is not deleted quietly; it is inverted here, so anyone reading the
@@ -330,12 +330,13 @@ final class AuthorVisibilityCopyTests: XCTestCase {
                 "the explanation must say we will not show you as the creator, for \(kind): \(copy)"
             )
             XCTAssertTrue(
-                copy.contains("follow"),
-                "the explanation must say people cannot follow you from it, for \(kind): \(copy)"
+                copy.contains("subscribe"),
+                "the explanation must say people cannot subscribe to you from it, for \(kind): "
+                    + "\(copy)"
             )
             XCTAssertTrue(
                 copy.contains("questions") && copy.contains("responses"),
-                "the explanation must name what following would have told them about: \(copy)"
+                "the explanation must name what subscribing would have told them about: \(copy)"
             )
             XCTAssertTrue(copy.contains(kind.noun), "the sentence must name the content: \(copy)")
         }
@@ -347,11 +348,11 @@ final class AuthorVisibilityCopyTests: XCTestCase {
     }
 
     /// `attributed` states the opposite consequence, in the same sentence as the control.
-    func testTheAttributedDescriptionSaysTheNameIsShownAndCanBeFollowed() {
+    func testTheAttributedDescriptionSaysTheNameIsShownAndCanBeSubscribed() {
         for kind in AuthoredContentKind.allCases {
             let copy = AuthorVisibility.attributed.descriptionForUser(for: kind).lowercased()
             XCTAssertTrue(copy.contains("wrote this"), copy)
-            XCTAssertTrue(copy.contains("follow"), "the consequence travels with the control: \(copy)")
+            XCTAssertTrue(copy.contains("subscribe"), "the consequence travels with the control: \(copy)")
         }
     }
 
@@ -411,8 +412,8 @@ final class DisclosedAuthorTests: XCTestCase {
     func testAHiddenAuthorIsAbsentFromTheEncodedPayload() throws {
         let author = UUID()
         for visibility in [AuthorVisibility.anonymized] {
-            let payload = FollowNotificationPayload(
-                reason: .questionAddedByFollowedMember,
+            let payload = SubscribeNotificationPayload(
+                reason: .questionAddedBySubscribedMember,
                 subject: .question(id: UUID(), text: "who wrote this"),
                 questionnaireId: nil,
                 author: DisclosedAuthor(author: author, visibility: visibility)
@@ -434,8 +435,8 @@ final class DisclosedAuthorTests: XCTestCase {
     /// that discloses nothing at all, which would be a different bug wearing this one's clothes.
     func testAnAttributedAuthorIsStillCarried() throws {
         let author = UUID()
-        let payload = FollowNotificationPayload(
-            reason: .questionAddedByFollowedMember,
+        let payload = SubscribeNotificationPayload(
+            reason: .questionAddedBySubscribedMember,
             subject: .question(id: UUID(), text: "who wrote this"),
             questionnaireId: nil,
             author: DisclosedAuthor(author: author, visibility: .attributed)
@@ -456,7 +457,7 @@ final class DisclosedAuthorTests: XCTestCase {
     ///
     /// The item asks for a fresh-context agent to try writing a plausible endpoint that leaks a
     /// silent author, and for the attempt to fail to compile. The compile half is real and is
-    /// stated here as a property rather than prose: `FollowNotificationPayload` has exactly one
+    /// stated here as a property rather than prose: `SubscribeNotificationPayload` has exactly one
     /// initializer, it takes `DisclosedAuthor`, and `DisclosedAuthor` has exactly one public
     /// initializer that takes a visibility. There is no expression that produces a populated
     /// `authorId` without naming a visibility, so the leak is not reachable by forgetting; it is

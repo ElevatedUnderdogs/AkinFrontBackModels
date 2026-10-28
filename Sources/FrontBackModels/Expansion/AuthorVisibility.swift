@@ -5,8 +5,9 @@ import Foundation
 //
 // It was already dead in behaviour before it was retired in type. GOAL_LOOP13
 // R21.12 stopped a notification arising from `unattributedAnnounced` content
-// from carrying an author id or naming the creator, even to a follower who had
-// chosen to follow them. That was the last thing separating it from `silent`.
+// from carrying an author id or naming the creator, even to a subscriber who
+// had chosen to subscribe to them. That was the last thing separating it from
+// `silent`.
 // After R21.12 the two values disclose the author to nobody, on any surface,
 // and differ only in what the surface CLAIMS: one says a member wrote this, the
 // other says nothing. A member was being asked to reason about a distinction
@@ -63,13 +64,14 @@ public enum AuthoredContentKind: String, Codable, CaseIterable, Hashable, Sendab
 /// what the server means by the stored value.
 public enum AuthorVisibility: String, Codable, CaseIterable, Hashable, Sendable {
 
-    /// The author is named on the content and can be followed from it. This is the default: the
-    /// switch is off, and the ordinary case is that people see who wrote what they are reading.
+    /// The author is named on the content and can be subscribed to from it. This is the default:
+    /// the switch is off, and the ordinary case is that people see who wrote what they are
+    /// reading.
     case attributed
 
-    /// The author is not named anywhere, and cannot be followed from this content. No notification
-    /// arising from it names them either, which after R21.12 is already true of both values this
-    /// case absorbs.
+    /// The author is not named anywhere, and cannot be subscribed to from this content. No
+    /// notification arising from it names them either, which after R21.12 is already true of both
+    /// values this case absorbs.
     case anonymized
 
     // MARK: - Legacy storage
@@ -81,12 +83,12 @@ public enum AuthorVisibility: String, Codable, CaseIterable, Hashable, Sendable 
     /// turns a stale row into a slightly stale label rather than a 500.
     public enum Legacy {
 
-        /// Nothing was said about authorship, and the author could not be followed from the
-        /// content. That is what ``AuthorVisibility/anonymized`` means.
+        /// Nothing was said about authorship, and the author could not be subscribed to from
+        /// the content. That is what ``AuthorVisibility/anonymized`` means.
         public static let silent = "silent"
 
         /// The surface claimed a member wrote it, without saying which member. After R21.12 it
-        /// disclosed the author to nobody, including followers, so it and ``silent`` had become
+        /// disclosed the author to nobody, including subscribers, so it and ``silent`` had become
         /// the same thing behind two labels.
         public static let unattributedAnnounced = "unattributedAnnounced"
 
@@ -176,7 +178,7 @@ public enum AuthorVisibility: String, Codable, CaseIterable, Hashable, Sendable 
     public static func switchExplanation(for kind: AuthoredContentKind) -> String {
         """
         We will not show you as the creator of this \(kind.noun), and people will not be able to \
-        follow you from it to find out when you create other questions and responses.
+        subscribe to you from it to find out when you create other questions and responses.
         """
     }
 
@@ -187,7 +189,8 @@ public enum AuthorVisibility: String, Codable, CaseIterable, Hashable, Sendable 
     public func descriptionForUser(for kind: AuthoredContentKind) -> String {
         switch self {
         case .attributed:
-            return "People will see that you wrote this \(kind.noun), and can follow you from it."
+            return "People will see that you wrote this \(kind.noun), and can subscribe to you "
+                + "from it."
         case .anonymized:
             return AuthorVisibility.switchExplanation(for: kind)
         }

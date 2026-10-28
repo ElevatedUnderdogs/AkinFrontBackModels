@@ -27,7 +27,7 @@ final class AuthorVisibilityContentKindTests: XCTestCase {
     ///
     /// GOAL_LOOP14 narrowed the check from "the other noun appears nowhere in the sentence" to
     /// "the other noun is not the subject". The blanket form started failing on copy that is
-    /// correct: the anonymized explanation ends by naming what following the member would have
+    /// correct: the anonymized explanation ends by naming what subscribing to the member would
     /// told the reader about, which is that member's other questions and responses, whatever the
     /// content in hand happens to be. That trailing clause is deliberate, it is the half of the
     /// consequence the retired middle option omitted, and the user's own wording for this switch
@@ -63,7 +63,7 @@ final class AuthorVisibilityContentKindTests: XCTestCase {
     /// direction, for any content kind.
     ///
     /// This assertion replaces the R21.12 one it grew out of. R21.12 stopped the fan-out naming
-    /// the author to followers for `unattributedAnnounced`, which is what left that value
+    /// the author to subscribers for `unattributedAnnounced`, which is what left that value
     /// behaviourally identical to `silent` and made the middle option removable. The promise being
     /// checked is the same promise; it now belongs to the single anonymized state.
     func testAnonymizedDoesNotPromiseAnyDisclosure() {
