@@ -30,7 +30,7 @@ final class MemberContextEntryWireKeyTests: XCTestCase {
     func testARowWrittenWithTheRetiredKeyStillDecodes() throws {
         let rows = try JSONDecoder().decode([MemberContextEntry].self, from: Data(oldKeyBody.utf8))
         XCTAssertEqual(rows.count, 1)
-        XCTAssertEqual(rows[0].yourAnsweredQuestionCount, 2)
+        XCTAssertEqual(rows[0].answeredQuestionCount, 2)
         // literal-ok: the body above is the deployment's own, copied from one read
         XCTAssertEqual(rows[0].displayName, "Social")
     }
@@ -38,7 +38,7 @@ final class MemberContextEntryWireKeyTests: XCTestCase {
     func testARowWrittenWithTheCurrentKeyStillDecodes() throws {
         let rows = try JSONDecoder().decode([MemberContextEntry].self, from: Data(newKeyBody.utf8))
         XCTAssertEqual(rows.count, 1)
-        XCTAssertEqual(rows[0].yourAnsweredQuestionCount, 12)
+        XCTAssertEqual(rows[0].answeredQuestionCount, 12)
     }
 
     /// Encoding writes the current key and only the current key, so a row this package produces
@@ -46,12 +46,12 @@ final class MemberContextEntryWireKeyTests: XCTestCase {
     func testEncodingWritesOnlyTheCurrentKey() throws {
         let entry = MemberContextEntry(
             id: UUID(), displayName: "Social", memberCount: 3,
-            yourAnsweredQuestionCount: 7, isParticipating: true, isMemberCreated: false
+            answeredQuestionCount: 7, isParticipating: true, isMemberCreated: false
         )
         let data = try JSONEncoder().encode(entry)
         let text = String(decoding: data, as: UTF8.self)
-        XCTAssertTrue(text.contains("yourAnsweredQuestionCount"))
-        XCTAssertFalse(text.contains("\"answeredQuestionCount\""))
+        XCTAssertTrue(text.contains("answeredQuestionCount"))
+        XCTAssertFalse(text.contains("\"yourAnsweredQuestionCount\""))
         let back = try JSONDecoder().decode(MemberContextEntry.self, from: data)
         XCTAssertEqual(back, entry)
     }

@@ -228,13 +228,12 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
 
     /// Decodes either spelling of the answered count.
     ///
-    /// WHY TWO SPELLINGS. The field was `answeredQuestionCount` and became
-    /// `yourAnsweredQuestionCount`, because the row carries two counts and the only thing
-    /// separating them is whose they are. A deployment pinned to the older package still sends
-    /// the old key, and the synthesized decoder refuses a row without the new one: the member
-    /// then sees "The contexts did not arrive" on a request the server answered 200. That is
-    /// build 29's B29-05, measured on 2026-10-28 against the debug deployment, and the same
-    /// throw is what made the Questions home header fall back to its two shipping contexts.
+    /// WHY TWO SPELLINGS. This build renamed the field FROM `yourAnsweredQuestionCount` TO
+    /// `answeredQuestionCount` (the property's own comment above says so), and a deployment that
+    /// predates the rename still sends the retired key. The synthesized decoder refuses a row
+    /// without the new one, so the member sees "The contexts did not arrive" on a request the
+    /// server answered 200: that is build 29's B29-05 and build 30's B30-01, the second measured
+    /// against PRODUCTION, which still writes the retired key and which this loop may not deploy.
     ///
     /// Accepting both costs one initializer and makes a server and a client of different ages
     /// work together, which is the same contract rule the subscribe rename follows: names change
@@ -248,12 +247,12 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
         isParticipating = try container.decode(Bool.self, forKey: .isParticipating)
         isMemberCreated = try container.decode(Bool.self, forKey: .isMemberCreated)
         if let count = try container.decodeIfPresent(
-            Int.self, forKey: .yourAnsweredQuestionCount
+            Int.self, forKey: .answeredQuestionCount
         ) {
-            yourAnsweredQuestionCount = count
+            answeredQuestionCount = count
         } else {
-            yourAnsweredQuestionCount = try container.decode(
-                Int.self, forKey: .answeredQuestionCount
+            answeredQuestionCount = try container.decode(
+                Int.self, forKey: .yourAnsweredQuestionCount
             )
         }
     }
@@ -280,7 +279,7 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
         try container.encode(displayName, forKey: .displayName)
         try container.encode(normalisedKey, forKey: .normalisedKey)
         try container.encode(memberCount, forKey: .memberCount)
-        try container.encode(yourAnsweredQuestionCount, forKey: .yourAnsweredQuestionCount)
+        try container.encode(answeredQuestionCount, forKey: .answeredQuestionCount)
         try container.encode(isParticipating, forKey: .isParticipating)
         try container.encode(isMemberCreated, forKey: .isMemberCreated)
     }
