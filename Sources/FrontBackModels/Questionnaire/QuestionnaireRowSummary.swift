@@ -77,20 +77,20 @@ public enum QuestionnaireCreator: Codable, Hashable, Sendable {
         }
     }
 
-    /// Whether a follow control may be offered for this creator.
+    /// Whether a subscribe control may be offered for this creator.
     ///
     /// Item 3.7: the control is ABSENT on an anonymous author, not disabled. A disabled button
     /// tells the reader there is a specific person behind the questionnaire, which is the
     /// disclosure ``DisclosedAuthor`` exists to make impossible.
-    public var isFollowable: Bool {
+    public var isSubscribable: Bool {
         switch self {
         case .you, .anonymous: return false
         case .member: return true
         }
     }
 
-    /// The member to follow, when there is one to follow.
-    public var followableMemberId: UUID? {
+    /// The member to subscribe to, when there is one to subscribe to.
+    public var subscribableMemberId: UUID? {
         switch self {
         case .member(let id, _): return id
         case .you, .anonymous: return nil

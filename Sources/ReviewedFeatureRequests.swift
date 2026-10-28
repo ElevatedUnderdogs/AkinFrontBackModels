@@ -3,7 +3,7 @@
 //  AkinFrontBackModels
 //
 //  The contracts for the four reviewed features: the unbounded context list,
-//  following, questionnaire toggles, and want to meet.
+//  subscriptions, questionnaire toggles, and want to meet.
 //
 //  WHY THIS FILE EXISTS. GOAL_LOOP31 first shipped these endpoints as
 //  stringly typed Vapor routes, `routes.get("api", "user", ":id", "contexts",
@@ -251,7 +251,7 @@ extension QuestionnaireContextParticipationsRequest {
     }
 }
 
-/// Which kinds of follow notification one member wants, across their whole list.
+/// Which kinds of subscription notification one member wants, across their whole list.
 ///
 /// GOAL_LOOP34 item B4. This is a different decision from muting, which is about one person or
 /// one questionnaire: `FollowingListView.html` draws the sentence "across your whole list" over
@@ -261,7 +261,7 @@ extension QuestionnaireContextParticipationsRequest {
 /// has said otherwise, so the empty array is the state a member who has never opened the screen
 /// is in, and a reason added to `NotificationReason` later is on by default for everybody rather
 /// than silently off for whoever answered before it existed.
-public struct FollowNotificationPreferences: Codable, Hashable, Equatable, Sendable {
+public struct SubscribeNotificationPreferences: Codable, Hashable, Equatable, Sendable {
 
     /// The reasons this member has switched off.
     public let disabledReasons: [NotificationReason]
@@ -277,19 +277,34 @@ public struct FollowNotificationPreferences: Codable, Hashable, Equatable, Senda
 }
 
 /// Reading a member's own notification preferences.
-public typealias FollowNotificationPreferencesRequest = Request<Empty, FollowNotificationPreferences>
+public typealias SubscribeNotificationPreferencesRequest =
+    Request<Empty, SubscribeNotificationPreferences>
 
-extension FollowNotificationPreferencesRequest {
+extension SubscribeNotificationPreferencesRequest {
 
     /// What this member has switched off. The caller is the member: there is no other member's
     /// preferences to ask for, and no payload that could name one.
+    public static var subscribeNotificationPreferences: Self {
+        .init(method: .post)
+    }
+
+    /// The same route under its retired path, because a path here IS this property's own
+    /// name and the shipped App Store app asks for the old one.
+    ///
+    /// GOAL_LOOP37 decision D5. Build 29's rename moved every Swift name from follow to
+    /// subscribe, which moved this path with it, and the binary already on members' phones
+    /// cannot be recompiled: without this accessor the server stops serving a route that is
+    /// still being called, and a member's notification preferences screen 404s. The server
+    /// registers both and they resolve to the same handler.
+    ///
+    /// REMOVE IT when no build in the field still asks for it, and not before.
     public static var followNotificationPreferences: Self {
         .init(method: .post)
     }
 }
 
 /// Switching one reason on or off.
-public struct SetFollowNotificationPreferencePayload: Codable, Hashable, Equatable, Sendable {
+public struct SetSubscribeNotificationPreferencePayload: Codable, Hashable, Equatable, Sendable {
 
     public let reason: NotificationReason
     public let isEnabled: Bool
@@ -302,12 +317,21 @@ public struct SetFollowNotificationPreferencePayload: Codable, Hashable, Equatab
 
 /// The whole set comes back, for the reason the questionnaire switch above returns its own state:
 /// a screen that redraws from what the server now holds cannot drift from it.
-public typealias SetFollowNotificationPreferenceRequest =
-    Request<SetFollowNotificationPreferencePayload, FollowNotificationPreferences>
+public typealias SetSubscribeNotificationPreferenceRequest =
+    Request<SetSubscribeNotificationPreferencePayload, SubscribeNotificationPreferences>
 
-extension SetFollowNotificationPreferenceRequest {
+extension SetSubscribeNotificationPreferenceRequest {
 
     /// Turns one kind of notification on or off for this member, everywhere.
+    public static var setSubscribeNotificationPreference: Self {
+        .init(method: .post)
+    }
+
+    /// The same route under its retired path, for the reason given on
+    /// ``SubscribeNotificationPreferencesRequest/followNotificationPreferences``: the path is
+    /// this property's name, and the shipped App Store app sends the follow spelling.
+    ///
+    /// REMOVE IT when no build in the field still asks for it, and not before.
     public static var setFollowNotificationPreference: Self {
         .init(method: .post)
     }

@@ -8,8 +8,8 @@
 
 import Foundation
 
-/// Client controlled feature flags for the four reviewed feature areas: contexts, following,
-/// questionnaire preferences, and want to meet.
+/// Client controlled feature flags for the four reviewed feature areas: contexts,
+/// subscriptions, questionnaire preferences, and want to meet.
 ///
 /// Shaped after ``CallKitFeatureFlag`` and ``NearbyFeatureFlag`` on purpose. Same idea, same
 /// ergonomics: a master switch, one boolean per feature, and an `isEnabled(for:)` that refuses
@@ -60,11 +60,11 @@ public enum ReviewedFeatureFlag {
     /// than hiding it from their own screens.
     public static var isPerContextParticipationEnabled: Bool = true
 
-    /// Following a member, so their new questions reach you.
-    public static var isFollowingMembersEnabled: Bool = true
+    /// Subscribing to a member, so their new questions reach you.
+    public static var isSubscribedMembersEnabled: Bool = true
 
-    /// Following a questionnaire, so you are told when it gains a question.
-    public static var isFollowingQuestionnairesEnabled: Bool = true
+    /// Subscribing to a questionnaire, so you are told when it gains a question.
+    public static var isSubscribedQuestionnairesEnabled: Bool = true
 
     /// Turning a questionnaire on or off per context, which withdraws its answers from
     /// compatibility in the contexts it is off in.
@@ -113,11 +113,11 @@ public enum ReviewedFeatureFlag {
         /// ``isPerContextParticipationEnabled``.
         case perContextParticipation
 
-        /// ``isFollowingMembersEnabled``.
-        case followingMembers
+        /// ``isSubscribedMembersEnabled``.
+        case subscribedMembers
 
-        /// ``isFollowingQuestionnairesEnabled``.
-        case followingQuestionnaires
+        /// ``isSubscribedQuestionnairesEnabled``.
+        case subscribedQuestionnaires
 
         /// ``isQuestionnairePreferencesEnabled``.
         case questionnairePreferences
@@ -128,19 +128,48 @@ public enum ReviewedFeatureFlag {
         /// ``isBuiltInRomanceContextEnabled``.
         case builtInRomanceContext
 
-        /// The name of the static property this case switches, so evidence and a debug row can
-        /// name the flag the same way the source does.
+        /// The STORED KEY this flag is recorded under, which is also its identity on the wire.
+        ///
+        /// IT IS NOT THE DECLARATION'S SPELLING ANY MORE, for two of the nine, and that is
+        /// deliberate. GOAL_LOOP37 renamed follow to subscribe throughout, so the two
+        /// declarations above are now `isSubscribedMembersEnabled` and
+        /// `isSubscribedQuestionnairesEnabled`. These strings did not move with them: the
+        /// server's `reviewed_flag_settings` rows, every per member override, and
+        /// ``ResolvedFlag/flag`` are keyed on them, and a key that changes is a flag whose
+        /// stored value stops being found. GOAL_LOOP34 item 0.F1 already shipped the GL29
+        /// features OFF in production by writing one fact in two places, and this is the same
+        /// hazard from the other direction.
+        ///
+        /// ``declaredPropertyName`` is what the source says today. This is what the field
+        /// says. `GL34ShippingDefaultTests` reads the first and
+        /// `ReviewedFeatureFlagStoredKeyTests` pins the second.
         public var propertyName: String {
             switch self {
             case .master: return "isReviewedFeaturesEnabled"
             case .unboundedContexts: return "isUnboundedContextsEnabled"
             case .memberCreatedContexts: return "isMemberCreatedContextsEnabled"
             case .perContextParticipation: return "isPerContextParticipationEnabled"
-            case .followingMembers: return "isFollowingMembersEnabled"
-            case .followingQuestionnaires: return "isFollowingQuestionnairesEnabled"
+            case .subscribedMembers: return "isFollowingMembersEnabled"
+            case .subscribedQuestionnaires: return "isFollowingQuestionnairesEnabled"
             case .questionnairePreferences: return "isQuestionnairePreferencesEnabled"
             case .wantToMeet: return "isWantToMeetEnabled"
             case .builtInRomanceContext: return "isBuiltInRomanceContextEnabled"
+            }
+        }
+
+        /// The spelling of the `static var` this case switches, as the source declares it today.
+        ///
+        /// Separate from ``propertyName`` since GOAL_LOOP37, because the two stopped being one
+        /// string: the declarations were renamed to subscribe and the stored keys were not. This
+        /// is the one `GL34ShippingDefaultTests` looks up, because that test reads this file's
+        /// declarations and compares each literal against ``shippingDefault(for:)``.
+        public var declaredPropertyName: String {
+            switch self {
+            case .subscribedMembers: return "isSubscribedMembersEnabled"
+            case .subscribedQuestionnaires: return "isSubscribedQuestionnairesEnabled"
+            case .master, .unboundedContexts, .memberCreatedContexts, .perContextParticipation,
+                 .questionnairePreferences, .wantToMeet, .builtInRomanceContext:
+                return propertyName
             }
         }
 
@@ -151,8 +180,8 @@ public enum ReviewedFeatureFlag {
             case .unboundedContexts: return "More than two contexts"
             case .memberCreatedContexts: return "Members can make contexts"
             case .perContextParticipation: return "Context on and off switch"
-            case .followingMembers: return "Follow a member"
-            case .followingQuestionnaires: return "Follow a questionnaire"
+            case .subscribedMembers: return "Subscribe to a member"
+            case .subscribedQuestionnaires: return "Subscribe to a questionnaire"
             case .questionnairePreferences: return "Questionnaire on and off switch"
             case .wantToMeet: return "Want to meet"
             case .builtInRomanceContext: return "Built in romance context"
@@ -176,10 +205,10 @@ public enum ReviewedFeatureFlag {
             case .perContextParticipation:
                 return "Switch a context off and you leave it: nobody finds you there and its "
                     + "questionnaires leave your feed."
-            case .followingMembers:
-                return "Follow a member and you hear about the questions they write."
-            case .followingQuestionnaires:
-                return "Follow a questionnaire and you hear when it gains a question."
+            case .subscribedMembers:
+                return "Subscribe to a member and you hear about the questions they write."
+            case .subscribedQuestionnaires:
+                return "Subscribe to a questionnaire and you hear when it gains a question."
             case .questionnairePreferences:
                 return "Switch a questionnaire off in a context and your answers to it stop "
                     + "counting there. Switch it back on and they count again."
@@ -200,7 +229,7 @@ public enum ReviewedFeatureFlag {
             case .unboundedContexts, .memberCreatedContexts, .perContextParticipation,
                  .builtInRomanceContext:
                 return "Contexts"
-            case .followingMembers, .followingQuestionnaires: return "Following"
+            case .subscribedMembers, .subscribedQuestionnaires: return "Subscriptions"
             case .questionnairePreferences: return "Questionnaires"
             case .wantToMeet: return "Want to meet"
             }
@@ -226,8 +255,8 @@ public enum ReviewedFeatureFlag {
         case .unboundedContexts: return isUnboundedContextsEnabled
         case .memberCreatedContexts: return isMemberCreatedContextsEnabled
         case .perContextParticipation: return isPerContextParticipationEnabled
-        case .followingMembers: return isFollowingMembersEnabled
-        case .followingQuestionnaires: return isFollowingQuestionnairesEnabled
+        case .subscribedMembers: return isSubscribedMembersEnabled
+        case .subscribedQuestionnaires: return isSubscribedQuestionnairesEnabled
         case .questionnairePreferences: return isQuestionnairePreferencesEnabled
         case .wantToMeet: return isWantToMeetEnabled
         case .builtInRomanceContext: return isBuiltInRomanceContextEnabled
@@ -246,8 +275,8 @@ public enum ReviewedFeatureFlag {
         case .unboundedContexts: return isUnboundedContextsEnabled
         case .memberCreatedContexts: return isMemberCreatedContextsEnabled
         case .perContextParticipation: return isPerContextParticipationEnabled
-        case .followingMembers: return isFollowingMembersEnabled
-        case .followingQuestionnaires: return isFollowingQuestionnairesEnabled
+        case .subscribedMembers: return isSubscribedMembersEnabled
+        case .subscribedQuestionnaires: return isSubscribedQuestionnairesEnabled
         case .questionnairePreferences: return isQuestionnairePreferencesEnabled
         case .wantToMeet: return isWantToMeetEnabled
         case .builtInRomanceContext: return isBuiltInRomanceContextEnabled
@@ -265,8 +294,8 @@ public enum ReviewedFeatureFlag {
         case .unboundedContexts: isUnboundedContextsEnabled = value
         case .memberCreatedContexts: isMemberCreatedContextsEnabled = value
         case .perContextParticipation: isPerContextParticipationEnabled = value
-        case .followingMembers: isFollowingMembersEnabled = value
-        case .followingQuestionnaires: isFollowingQuestionnairesEnabled = value
+        case .subscribedMembers: isSubscribedMembersEnabled = value
+        case .subscribedQuestionnaires: isSubscribedQuestionnairesEnabled = value
         case .questionnairePreferences: isQuestionnairePreferencesEnabled = value
         case .wantToMeet: isWantToMeetEnabled = value
         case .builtInRomanceContext: isBuiltInRomanceContextEnabled = value
@@ -319,7 +348,7 @@ public enum ReviewedFeatureFlag {
         // features are to be usable in production, and the per server value and per user override
         // the server resolves in front of this are what turn one off without a new build.
         case .master, .unboundedContexts, .memberCreatedContexts, .perContextParticipation,
-             .followingMembers, .followingQuestionnaires, .questionnairePreferences, .wantToMeet,
+             .subscribedMembers, .subscribedQuestionnaires, .questionnairePreferences, .wantToMeet,
              .builtInRomanceContext:
             return true
         }
