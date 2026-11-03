@@ -91,7 +91,7 @@ private func synthesize<T: Decodable>(_ type: T.Type, codingPath: [CodingKey], d
     case is VenueAudience.Type: return VenueAudience.counterStaff as! T
     case is ProfileSelectionSide.Type: return ProfileSelectionSide.my as! T
     case is NotificationReason.Type:
-        return NotificationReason.questionAddedToFollowedQuestionnaire as! T
+        return NotificationReason.questionAddedToSubscribedQuestionnaire as! T
     case is AutomaticGreetCooldownChoice.Type:
         return AutomaticGreetCooldownChoice.useDefault as! T
     case is AdDisclosureLabel.Type: return AdDisclosureLabel.sponsored as! T

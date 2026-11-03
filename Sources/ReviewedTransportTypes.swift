@@ -394,7 +394,7 @@ public struct SetRequirementRequest: Codable {
 
 public struct SubscriptionListEntry: Codable {
     public let target: SubscriptionTarget
-    /// What the member is following, as they would name it: a questionnaire's
+    /// What the member subscribes to, as they would name it: a questionnaire's
     /// title, or a member's full name.
     ///
     /// Added after item 8.13 drove the running app: the list rendered three rows
@@ -404,7 +404,7 @@ public struct SubscriptionListEntry: Codable {
     public let title: String
     public let muted: Bool
 
-    /// The followed member's profile picture, when there is one.
+    /// The subscribed member's profile picture, when there is one.
     ///
     /// GOAL_LOOP13 R21.16. The row carried a target, a title and a mute state, which is not
     /// enough to recognise a PERSON: two members with similar names render as two lines of text

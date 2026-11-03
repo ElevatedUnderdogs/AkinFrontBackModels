@@ -323,8 +323,8 @@ final class GL28RemainingTypesRoundTripTests: XCTestCase {
         try roundTripSynthesized(ChooseForMeResponse.self, "ChooseForMeResponse")
     }
 
-    func testGL28_1_7_roundTripsFollowNotificationPayload() throws {
-        try roundTripSynthesized(FollowNotificationPayload.self, "FollowNotificationPayload")
+    func testGL28_1_7_roundTripsSubscribeNotificationPayload() throws {
+        try roundTripSynthesized(SubscribeNotificationPayload.self, "SubscribeNotificationPayload")
     }
 
     func testGL28_1_7_roundTripsFreezeNearbyUserPayload() throws {

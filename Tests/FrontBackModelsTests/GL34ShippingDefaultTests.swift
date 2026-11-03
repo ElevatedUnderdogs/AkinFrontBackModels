@@ -86,7 +86,13 @@ final class GL34ShippingDefaultTests: XCTestCase {
         )
 
         for feature in ReviewedFeatureFlag.Feature.allCases {
-            let name = feature.propertyName
+            // `declaredPropertyName`, not `propertyName`, since GOAL_LOOP37. The two stopped being
+            // one string when the follow flags were renamed to subscribe and their STORED keys
+            // were deliberately left alone, so `propertyName` now answers with the retired
+            // spelling for two of the nine. This test is about the declarations in the file, which
+            // is what `declaredPropertyName` names; `ReviewedFeatureFlagStoredKeyTests` is what
+            // holds the stored keys still.
+            let name = feature.declaredPropertyName
             let literal = try XCTUnwrap(
                 declared[name], "no declaration found for \(name), which Feature.\(feature.rawValue) names"
             )

@@ -37,14 +37,14 @@ final class AuthorVisibilityTwoStateTests: XCTestCase {
         XCTAssertEqual(try decode("attributed"), .attributed)
     }
 
-    /// `silent` said nothing about authorship and let nobody follow the author from the content.
-    /// That is exactly what `anonymized` means.
+    /// `silent` said nothing about authorship and let nobody subscribe to the author from the
+    /// content. That is exactly what `anonymized` means.
     func testSilentDecodesToAnonymized() throws {
         XCTAssertEqual(try decode(AuthorVisibility.Legacy.silent), .anonymized)
     }
 
     /// `unattributedAnnounced` claimed a member wrote it without naming them. After GOAL_LOOP13
-    /// R21.12 it disclosed the author to nobody, including followers, which is what left it
+    /// R21.12 it disclosed the author to nobody, including subscribers, which is what left it
     /// behaviourally identical to `silent` and made the middle option removable.
     func testUnattributedAnnouncedDecodesToAnonymized() throws {
         XCTAssertEqual(try decode(AuthorVisibility.Legacy.unattributedAnnounced), .anonymized)

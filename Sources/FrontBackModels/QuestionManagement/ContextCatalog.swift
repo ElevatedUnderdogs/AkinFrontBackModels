@@ -188,6 +188,65 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
         self.isMemberCreated = isMemberCreated
     }
 
+    /// Decodes either spelling of the answered count.
+    ///
+    /// WHY TWO SPELLINGS. The field was `answeredQuestionCount` and became
+    /// `yourAnsweredQuestionCount`, because the row carries two counts and the only thing
+    /// separating them is whose they are. A deployment pinned to the older package still sends
+    /// the old key, and the synthesized decoder refuses a row without the new one: the member
+    /// then sees "The contexts did not arrive" on a request the server answered 200. That is
+    /// build 29's B29-05, measured on 2026-10-28 against the debug deployment, and the same
+    /// throw is what made the Questions home header fall back to its two shipping contexts.
+    ///
+    /// Accepting both costs one initializer and makes a server and a client of different ages
+    /// work together, which is the same contract rule the subscribe rename follows: names change
+    /// on both sides, wire keys keep answering to what is already in the field.
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        displayName = try container.decode(String.self, forKey: .displayName)
+        normalisedKey = try container.decode(String.self, forKey: .normalisedKey)
+        memberCount = try container.decode(Int.self, forKey: .memberCount)
+        isParticipating = try container.decode(Bool.self, forKey: .isParticipating)
+        isMemberCreated = try container.decode(Bool.self, forKey: .isMemberCreated)
+        if let count = try container.decodeIfPresent(
+            Int.self, forKey: .yourAnsweredQuestionCount
+        ) {
+            yourAnsweredQuestionCount = count
+        } else {
+            yourAnsweredQuestionCount = try container.decode(
+                Int.self, forKey: .answeredQuestionCount
+            )
+        }
+    }
+
+    /// The keys on the wire, including the retired spelling of the answered count.
+    ///
+    /// Only the NEW key is written, so a row this package encodes is always the current shape;
+    /// the old one exists to be read.
+    public enum CodingKeys: String, CodingKey {
+        case id
+        case displayName
+        case normalisedKey
+        case memberCount
+        case yourAnsweredQuestionCount
+        case isParticipating
+        case isMemberCreated
+        case answeredQuestionCount
+    }
+
+    /// Only the current keys are written.
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(displayName, forKey: .displayName)
+        try container.encode(normalisedKey, forKey: .normalisedKey)
+        try container.encode(memberCount, forKey: .memberCount)
+        try container.encode(yourAnsweredQuestionCount, forKey: .yourAnsweredQuestionCount)
+        try container.encode(isParticipating, forKey: .isParticipating)
+        try container.encode(isMemberCreated, forKey: .isMemberCreated)
+    }
+
     /// A count with a thousands separator, which is what the comp draws.
     ///
     /// `ContextListView.html` writes "10,240 members". The first version of this wrote "10240",
