@@ -51,7 +51,7 @@ public enum ReviewedFeatureFlag {
     ///
     /// The shipping control is a two segment pill, which worked because there were two. With this
     /// off the pill is drawn unchanged; with it on the selector handles any number.
-    public static var isUnboundedContextsEnabled: Bool = true
+    public static var isUnboundedContextsEnabled: Bool = false
 
     /// A member may create a context, and the global catalog is searchable.
     public static var isMemberCreatedContextsEnabled: Bool = true
@@ -339,7 +339,7 @@ public enum ReviewedFeatureFlag {
         // Every one of these ships UP, by Scott's decision of 2026-10-18 (GOAL_LOOP34 DR3): the
         // features are to be usable in production, and the per server value and per user override
         // the server resolves in front of this are what turn one off without a new build.
-        case .master, .unboundedContexts, .memberCreatedContexts, .perContextParticipation,
+        case .master, .memberCreatedContexts, .perContextParticipation,
              .followingMembers, .followingQuestionnaires, .questionnairePreferences, .wantToMeet,
              .builtInRomanceContext:
             return true
@@ -347,6 +347,10 @@ public enum ReviewedFeatureFlag {
         // into the line above so that adding a flag cannot quietly inherit the wrong default.
         // Its feature has no agreed shape yet; see the property's own note.
         case .questionnaireMatchmaking:
+            return false
+        // Build 34, Scott's decision of 2026-11-03: multiple contexts support ships DOWN, so a
+        // member answers in one context at a time until it is switched on per server or member.
+        case .unboundedContexts:
             return false
         }
     }

@@ -130,7 +130,10 @@ final class GL34ShippingDefaultTests: XCTestCase {
     /// settled, "I'm not sure how that is going to work yet witj contexts", so the feature has no
     /// agreed shape and must not be the half built thing a tester finds. The debug screen's third
     /// switch is how it is turned on when there is something to turn on.
-    static let deliberatelyShipsOff: Set<ReviewedFeatureFlag.Feature> = [.questionnaireMatchmaking]
+    /// `unboundedContexts`: build 34. Scott, 2026-11-03: multiple contexts support ships off.
+    static let deliberatelyShipsOff: Set<ReviewedFeatureFlag.Feature> = [
+        .questionnaireMatchmaking, .unboundedContexts,
+    ]
 
     /// A flag that ships down is down in all three readings, not just one of them.
     ///
