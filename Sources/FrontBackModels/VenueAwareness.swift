@@ -250,6 +250,11 @@ public enum VenueAwarenessTransition {
         case .notReceptive:
             return .declined
 
+        case .staffRude:
+            // Hostile is a refusal and then some. The state is the same; the wait
+            // the refusal buys is what differs.
+            return .declined
+
         case .noChance:
             // The customer never got to say anything, so the venue learned nothing.
             // The pitch is still spent, which is why the state stays at pitched
@@ -288,6 +293,14 @@ public enum VenueAskOutcome: String, Codable, Sendable, Hashable, CaseIterable {
 
     /// The staff heard it and did not want it.
     case notReceptive
+
+    /// The staff were rude, or made the customer feel unwelcome.
+    ///
+    /// Separate from ``notReceptive`` on purpose. "Not interested" is a decision
+    /// about Map Mates and buys the ordinary refusal freeze. This one is about how
+    /// the staff treated somebody we sent, so it escalates: see
+    /// ``VenueCooldownPolicy/hostileReportWait(currentWait:)``.
+    case staffRude
 
     /// There was no opening: a queue, a rush, nobody free to talk to.
     case noChance
@@ -424,6 +437,13 @@ public struct VenuePitchContext: Equatable, Sendable {
     /// on the day it refused. An adversarial pass walked both sequences.
     public let lastRefusalAt: Date?
 
+    /// What this venue was already waiting, before the outcome being evaluated.
+    ///
+    /// Only the hostile report branch reads it, because that is the one rule whose
+    /// answer depends on the wait already in force rather than on the outcome alone.
+    /// Nil, and the floor applies, when the venue has never been frozen.
+    public let currentWait: TimeInterval?
+
     /// The moment being tested.
     public let now: Date
 
@@ -435,6 +455,7 @@ public struct VenuePitchContext: Equatable, Sendable {
         lastPitchShiftBucket: VenueShiftBucket?,
         lastPitchAt: Date?,
         lastRefusalAt: Date? = nil,
+        currentWait: TimeInterval? = nil,
         now: Date
     ) {
         self.state = state
@@ -444,6 +465,7 @@ public struct VenuePitchContext: Equatable, Sendable {
         self.lastPitchShiftBucket = lastPitchShiftBucket
         self.lastPitchAt = lastPitchAt
         self.lastRefusalAt = lastRefusalAt
+        self.currentWait = currentWait
         self.now = now
     }
 }
@@ -485,6 +507,25 @@ public enum VenueCooldownPolicy {
 
     /// A venue that said no is not asked again for this long.
     public static let declinedFreeze: TimeInterval = 90 * 24 * 60 * 60
+
+    /// The shortest wait a hostile staff behaviour report can leave behind.
+    public static let hostileReportFloor: TimeInterval = 10 * 24 * 60 * 60
+
+    /// The longest wait any report can produce, the same ninety days a refusal buys.
+    public static let hostileReportCeiling: TimeInterval = 90 * 24 * 60 * 60
+
+    /// The wait after a report that the staff were rude or made somebody feel
+    /// unwelcome: at least ten days, otherwise three times what the venue was
+    /// already waiting, and never more than ninety days.
+    ///
+    /// Pure, and separate from ``evaluate(_:)``, so the rule can be read and tested
+    /// on its own and computed identically on the client for an explanation string.
+    /// Only the escalation is in here. Whether a given report escalates at all is a
+    /// question about who filed it and when, which the server answers.
+    public static func hostileReportWait(currentWait: TimeInterval) -> TimeInterval {
+        let escalated = max(hostileReportFloor, currentWait * 3)
+        return min(escalated, hostileReportCeiling)
+    }
 
     /// Interested but not signed up. Short, because the next conversation is the
     /// one that lands.
@@ -617,6 +658,9 @@ public enum VenueCooldownPolicy {
         case .notReceptive:
             freeze = declinedFreeze
             outcomeSentence = "The last person here was not interested"
+        case .staffRude:
+            freeze = hostileReportWait(currentWait: context.currentWait ?? 0)
+            outcomeSentence = "The last person we sent here was made to feel unwelcome"
         case .noChance:
             freeze = noChanceFreeze
             outcomeSentence = "The last customer never got an opening to say anything"
@@ -1535,7 +1579,7 @@ public enum VenueAwarenessFold {
         switch row.outcome {
         case .receptive, .alreadyKnew:
             return (.aware, row.spokeAt, row.source == .venueBranch)
-        case .notReceptive, .noChance, .skipped, .none:
+        case .notReceptive, .staffRude, .noChance, .skipped, .none:
             return nil
         }
     }
@@ -1557,7 +1601,7 @@ public enum VenueAwarenessFold {
         now: Date,
         freeze: TimeInterval
     ) -> Bool {
-        guard row.outcome == .notReceptive else { return false }
+        guard row.outcome == .notReceptive || row.outcome == .staffRude else { return false }
         // The venue's own no is aged from when the venue said it.
         //
         // A customer's report is aged from `shownAt`, which is when the exchange
