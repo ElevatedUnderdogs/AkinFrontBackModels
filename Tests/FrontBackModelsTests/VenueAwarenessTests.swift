@@ -660,7 +660,17 @@ final class VenueOutcomeAuthorityTests: XCTestCase {
 
     func testEveryCombinationDecidesAndCarriesAReason() {
         let contexts = allContexts()
-        XCTAssertEqual(contexts.count, 5 * 3 * 6 * 4)
+        // Derived from the enums rather than written as 5 * 3 * 6 * 4, which was the count
+        // before `staffRude` was added and which goes stale every time an outcome or a source
+        // is. The assertion is the same one: `allContexts` must cover every combination,
+        // including the nil for each optional, so a dropped loop still fails here.
+        XCTAssertEqual(
+            contexts.count,
+            VenueAskOutcome.allCases.count
+                * VenueOutcomeSource.allCases.count
+                * (VenueAskOutcome.allCases.count + 1)
+                * (VenueOutcomeSource.allCases.count + 1)
+        )
 
         for context in contexts {
             let decision = VenueOutcomeAuthority.decide(context)
