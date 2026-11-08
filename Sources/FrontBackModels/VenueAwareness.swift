@@ -1360,6 +1360,17 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
     /// has no venue to report on.
     public let venueReportURLString: String?
 
+    /// How many days an introduction at this venue is held off once the venue
+    /// declines, as the server computes it now.
+    ///
+    /// Sent so the venue branch can state the real wait instead of a number
+    /// compiled into the App Clip. The wait is not a constant: a report that the
+    /// staff were rude escalates it, so an App Clip that promised ninety days was
+    /// telling a venue something the server had already changed. Nil from a server
+    /// that predates this field, and the caller then says the wait without naming a
+    /// length rather than guessing one.
+    public let declineWaitDays: Int?
+
     public init(
         venueName: String,
         usersSentToVenueThisMonth: Int,
@@ -1370,7 +1381,8 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         isOrphan: Bool,
         orphanReason: String?,
         venueGooglePlaceIdentifier: String?,
-        venueReportURLString: String? = nil
+        venueReportURLString: String? = nil,
+        declineWaitDays: Int? = nil
     ) {
         self.venueName = venueName
         self.usersSentToVenueThisMonth = usersSentToVenueThisMonth
@@ -1382,6 +1394,7 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         self.orphanReason = orphanReason
         self.venueGooglePlaceIdentifier = venueGooglePlaceIdentifier
         self.venueReportURLString = venueReportURLString
+        self.declineWaitDays = declineWaitDays
     }
 
     /// Decodes tolerantly, because an App Clip in the wild is always an older
@@ -1419,6 +1432,7 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         venueReportURLString = try container.decodeIfPresent(
             String.self, forKey: .venueReportURLString
         )
+        declineWaitDays = try container.decodeIfPresent(Int.self, forKey: .declineWaitDays)
     }
 }
 
