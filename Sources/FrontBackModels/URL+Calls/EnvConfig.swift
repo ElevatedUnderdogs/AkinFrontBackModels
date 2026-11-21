@@ -22,7 +22,7 @@ enum EnvConfig {
     }
     
     static var fromAppStore: Bool {
-        return !isDebug && !isTestFlight
+        !isDebug && !isTestFlight
     }
     
     static var appConfiguration: AppConfiguration {

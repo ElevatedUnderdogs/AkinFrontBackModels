@@ -118,7 +118,7 @@ extension Question {
 
         /// Performs a full field-by-field comparison of all properties.
         public func deepEquals(_ other: Question.Response) -> Bool {
-            return self.id == other.id &&
+            self.id == other.id &&
             self.text == other.text &&
             self.timeStamp == other.timeStamp &&
             self.creator == other.creator &&

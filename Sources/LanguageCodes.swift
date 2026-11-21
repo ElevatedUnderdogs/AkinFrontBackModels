@@ -36,7 +36,7 @@ public enum LanguageCodeEnum: RawRepresentable, Codable, CaseIterable, Equatable
 
     /// A static collection of all supported language cases.
     public static var allCases: [LanguageCodeEnum] {
-        return SupportedLanguageCode.allCases.map { LanguageCodeEnum.supported($0) }
+        SupportedLanguageCode.allCases.map { LanguageCodeEnum.supported($0) }
     }
 
     /// Returns the raw string value of the language code.

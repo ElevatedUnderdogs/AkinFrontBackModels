@@ -136,7 +136,7 @@ public struct Question: Codable, Equatable, Hashable {
     }
 
     func isDeepEqual(to other: Question) -> Bool {
-        return self.id == other.id &&
+        self.id == other.id &&
         self.text == other.text &&
         self.responses == other.responses &&
         self.creatorID == other.creatorID &&
