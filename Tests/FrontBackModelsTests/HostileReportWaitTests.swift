@@ -49,7 +49,8 @@ final class HostileReportWaitTests: XCTestCase {
     /// A negative wait is not reachable through the server's own path, but the rule is public and
     /// `max` is what keeps it honest, so the floor is asserted rather than assumed.
     func testEveryResultSitsBetweenTheFloorAndTheCeiling() {
-        let inputs: [TimeInterval] = [-1, 0, 1, day, 3 * day, 10 * day, 29 * day, 30 * day,
+        let inputs: [TimeInterval] = [
+                                      -1, 0, 1, day, 3 * day, 10 * day, 29 * day, 30 * day,
                                       31 * day, 89 * day, 90 * day, 1_000 * day]
         for input in inputs {
             let result = Policy.hostileReportWait(currentWait: input)
