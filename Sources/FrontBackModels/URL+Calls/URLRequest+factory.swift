@@ -22,7 +22,7 @@ extension URLRequest {
             request.httpBody = data
             request.httpMethod = "POST"
             return request
-        } catch let error {
+        } catch {
             return nil
         }
     }
@@ -34,7 +34,7 @@ extension URLRequest {
             request.httpBody = data
             request.httpMethod = "POST"
             return request
-        } catch let error {
+        } catch {
             return nil
         }
     }
@@ -46,7 +46,7 @@ extension URLRequest {
             request.httpMethod = "POST"
             request.httpBody = data
             return request
-        } catch let error {
+        } catch {
             return nil
         }
     }
@@ -86,7 +86,7 @@ extension URLRequest {
             request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
             request.httpBody = data
             return request
-        } catch let error {
+        } catch {
             return nil
         }
     }
