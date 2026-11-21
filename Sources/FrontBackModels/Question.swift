@@ -96,7 +96,7 @@ public struct Question: Codable, Equatable, Hashable {
     }
 
     public func responses(containing searchText: String) -> [Response] {
-        responses.filter {  $0.text.lowercased().contains(searchText.lowercased()) }
+        responses.filter { $0.text.lowercased().contains(searchText.lowercased()) }
     }
 
     /// This initializer isn't synthesized when Codable is conformed to.
