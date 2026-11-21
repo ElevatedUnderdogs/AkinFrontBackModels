@@ -29,7 +29,7 @@ public enum GreetLogEvent: Codable, ActionStringConvertible {
     case rateLimited
 
     // Received on device (client-ack style)
-    case pushNotifReceived(providerMessageID: UUID) // APNs
+    case pushNotifReceived(providerMessageID: UUID)  // APNs
     case voipReceived(providerMessageID: UUID)      // VoIP
 
     case rejectedViaAnotherCall

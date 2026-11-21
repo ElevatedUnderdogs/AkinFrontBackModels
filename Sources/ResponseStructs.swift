@@ -362,7 +362,7 @@ public struct AddResponseResponse: Codable {
 // Response model for `nearbyUsers(location:)` API call
 public struct NearbyUsersResponse: Codable {
     public var success: Bool
-    public var users: [UserInformation] // Reusing UserInformation public struct from earlier
+    public var users: [UserInformation]  // Reusing UserInformation public struct from earlier
 
     public init(success: Bool, users: [UserInformation]) {
         self.success = success

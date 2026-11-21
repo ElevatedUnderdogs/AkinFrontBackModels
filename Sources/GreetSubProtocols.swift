@@ -74,8 +74,8 @@ public struct TimingUpdateResponse: Codable, Equatable {
 public enum RejectionAction: String, Codable, Equatable {
     case dismiss   // before agreeing
     case cancel    // after agreeing
-    case rejectedVoip // tapped red close call button.
-    case closedApp // user closed the app
+    case rejectedVoip  // tapped red close call button.
+    case closedApp  // user closed the app
     case rejectedByAcceptingAnotherCall
 }
 

@@ -28,9 +28,9 @@ public struct Question: Codable, Equatable, Hashable {
     
     // MARK - stored properties
 
-    public var requirementsFor: [Context: [Response.Selections.MyTheir]] = [:] // codable
+    public var requirementsFor: [Context: [Response.Selections.MyTheir]] = [:]  // codable
     public var text: String
-    public var responses: [Response] = [] // Codable
+    public var responses: [Response] = []  // Codable
     public var id: UUID
     /// The member who wrote it, present only when they are disclosed (swath N3 item 6.5).
     ///
@@ -42,10 +42,10 @@ public struct Question: Codable, Equatable, Hashable {
     public var defaultCompatibilityRule: CompatibilityRule
 
     /// Keep in mind the instances of these models in this package are customized for each user.
-    public var importanceFor: [ContextRawValue: Importance] = [:] // Codable
+    public var importanceFor: [ContextRawValue: Importance] = [:]  // Codable
 
     /// The popularity of this question in each context.
-    public var contextPopularity: [ContextRawValue: PopularityScore] = [:] // Codable
+    public var contextPopularity: [ContextRawValue: PopularityScore] = [:]  // Codable
 
     /// Whether an agent judged this question to be more about romance than about business or
     /// friendship (GOAL_LOOP41).

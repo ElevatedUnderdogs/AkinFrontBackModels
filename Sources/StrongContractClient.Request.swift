@@ -863,7 +863,7 @@ public typealias GetBlockedUsersRequest = Request<Int, [GreetedUser]>
 extension GetBlockedUsersRequest {
     /// Returns a list of users that are blocked by this user.
     public static var getBlockedUsers: Self {
-        .init(method: .post) // POST, so the page number travels in the body.
+        .init(method: .post)  // POST, so the page number travels in the body.
     }
 }
 
@@ -872,7 +872,7 @@ public typealias GetGreetedUsersRequest = Request<Int, [ClientGreetingSettings]>
 extension GetGreetedUsersRequest {
     /// Returns a list of users that are blocked by this user.
     public static var getGreetedUsers: Self {
-        .init(method: .post) // POST, so the page number travels in the body.
+        .init(method: .post)  // POST, so the page number travels in the body.
     }
 }
 
