@@ -18,7 +18,7 @@ extension URLRequest {
     static func update(schedule: [Week.Day]) -> URLRequest? {
         do {
             let data = try JSONEncoder().encode(schedule)
-            var request = URLRequest(url: URL.updateSchedule!)
+            var request = URLRequest(url: URL.updateSchedule)
             request.httpBody = data
             request.httpMethod = "POST"
             return request

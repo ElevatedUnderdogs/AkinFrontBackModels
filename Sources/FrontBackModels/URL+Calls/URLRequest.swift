@@ -156,11 +156,16 @@ extension URL {
             .url
     }
 
-    static var updateSchedule: URL? {
+    /// SW-GS-090: declared non optional, like its neighbour `updateGreet` directly below, which
+    /// is the same four lines. It used to be `URL?`, and its one caller force unwrapped it, which
+    /// is a force unwrap that contradicts its own declaration. The invariant documented above
+    /// this extension is what makes the `!` here safe, and moving the unwrap to this side means
+    /// the caller has none.
+    static var updateSchedule: URL {
         URLComponents.baseURLComponents
             .with(path: "updateSchedule")
             .with(queryItems: .access_token_and_user_id)
-            .url
+            .url!
     }
 
     static var updateGreet: URL {
