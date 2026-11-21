@@ -56,7 +56,7 @@ public extension ActionStringConvertible {
         case Optional<Any>.none:
             return "nil"
 
-        case let optional as Optional<Any>:
+        case let optional as Any?:
             return optional.map { stringifyAssociatedValue($0) } ?? "nil"
 
         default:
