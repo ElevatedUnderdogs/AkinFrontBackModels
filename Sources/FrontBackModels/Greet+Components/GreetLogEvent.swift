@@ -125,7 +125,7 @@ public enum GreetLogEvent: Codable, ActionStringConvertible {
              .rejectedViaAnotherCall:
             return nil
         case .greetAction(let action):
-            if case let .travelTimeToVenue(changedTo: current) = action {
+            if case .travelTimeToVenue(changedTo: let current) = action {
                 return current.string
             }
             return nil
