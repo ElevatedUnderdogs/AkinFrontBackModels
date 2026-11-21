@@ -1411,9 +1411,7 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         usersSentToVenueThisMonth = try container.decode(
             Int.self, forKey: .usersSentToVenueThisMonth
         )
-        participatingStaffCount = try container.decode(
-            Int.self, forKey: .participatingStaffCount
-        )
+        participatingStaffCount = try container.decode(Int.self, forKey: .participatingStaffCount)
         isOrphan = try container.decode(Bool.self, forKey: .isOrphan)
         orphanReason = try container.decodeIfPresent(String.self, forKey: .orphanReason)
         venueGooglePlaceIdentifier = try container.decodeIfPresent(

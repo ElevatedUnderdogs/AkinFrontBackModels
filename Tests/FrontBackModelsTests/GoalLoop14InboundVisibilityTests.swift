@@ -98,9 +98,7 @@ final class GoalLoop14InboundVisibilityTests: XCTestCase {
     /// property that keeps an uninterpretable row from resolving to "show this
     /// person's name".
     func testTheStoredValueDecodeStillFailsClosed() throws {
-        let decoded = try JSONDecoder().decode(
-            AuthorVisibility.self, from: Data("\"banana\"".utf8)
-        )
+        let decoded = try JSONDecoder().decode(AuthorVisibility.self, from: Data("\"banana\"".utf8))
         XCTAssertEqual(decoded, .anonymized)
     }
 }

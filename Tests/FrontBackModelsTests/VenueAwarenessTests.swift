@@ -1091,8 +1091,6 @@ extension VenueAwarenessFoldTests {
             venueScannedAt: nil,
             venueJoinedAt: nil
         )
-        XCTAssertEqual(
-            VenueAwarenessFold.state(of: [staleCustomerReport], now: now), .pitched
-        )
+        XCTAssertEqual(VenueAwarenessFold.state(of: [staleCustomerReport], now: now), .pitched)
     }
 }

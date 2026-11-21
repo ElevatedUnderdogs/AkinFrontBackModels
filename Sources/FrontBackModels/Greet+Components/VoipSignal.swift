@@ -36,11 +36,7 @@ public enum VoipSignal: Codable, Equatable, Hashable, Sendable {
     /// candidate emitted by either participant.  All three
     /// fields are required so the receiving side can
     /// reconstruct the candidate exactly.
-    case iceCandidate(
-        sdp: String,
-        sdpMLineIndex: Int32,
-        sdpMid: String?
-    )
+    case iceCandidate(sdp: String, sdpMLineIndex: Int32, sdpMid: String?)
 
     // MARK: - Codable
 

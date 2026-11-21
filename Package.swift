@@ -10,11 +10,7 @@ let package = Package(
         .iOS(.v13),  // Existing iOS minimum platform version.
         .macOS(.v10_15)  // Specify minimum macOS platform version.
     ],
-    products: [
-        .library(
-            name: "AkinFrontBackModels",
-            targets: ["AkinFrontBackModels"]),
-    ],
+    products: [.library(name: "AkinFrontBackModels", targets: ["AkinFrontBackModels"])],
     dependencies: [
         .package(url: "https://github.com/scott-lydon/EncryptDecryptKey.git", from: "1.1.2"),
         // Add StrongContractClient package dependency
@@ -28,8 +24,6 @@ let package = Package(
                 "EncryptDecryptKey",
                 "StrongContractClient",
             ]),
-        .testTarget(
-            name: "FrontBackModelsTests",
-            dependencies: ["AkinFrontBackModels"]),
+        .testTarget(name: "FrontBackModelsTests", dependencies: ["AkinFrontBackModels"]),
     ]
 )

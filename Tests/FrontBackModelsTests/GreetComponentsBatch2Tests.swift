@@ -33,12 +33,7 @@ private func makeImageMetadata() -> ImageMetadata {
 }
 
 private func makeNearbyUser(id: UUID = UUID(), name: String = "Test User") -> NearbyUser {
-    NearbyUser(
-        id: id,
-        name: name,
-        profileImage: "",
-        imageMetaData: makeImageMetadata()
-    )
+    NearbyUser(id: id, name: name, profileImage: "", imageMetaData: makeImageMetadata())
 }
 
 private func makeBusiness(

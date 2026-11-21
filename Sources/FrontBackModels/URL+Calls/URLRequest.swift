@@ -26,11 +26,7 @@ extension URLRequest {
     
     /// Might not need to pass this user id if the user is signed in and passing access tokens etc.
     static func addDisplay(img: Data, thisUserID: UUID) -> URLRequest? {
-        NSMutableURLRequest(
-            img: img,
-            url: URL.addDisplay(),
-            thisUserID: thisUserID
-        )?.urlRequest
+        NSMutableURLRequest(img: img, url: URL.addDisplay(), thisUserID: thisUserID)?.urlRequest
     }
     
     /// Initializes a URLRequest configured for a specified HTTP method with a JSON body from a Codable object.
@@ -206,11 +202,7 @@ extension URL {
     ) -> URL {
             URLComponents.baseURLComponents
                 .with(path: "updateUserLocation")
-                .with(queryItems: .access_token_and_user_id,
-                    .lat(lat),
-                    .lon(lon),
-                    .context("")
-                )
+                .with(queryItems: .access_token_and_user_id,.lat(lat),.lon(lon),.context(""))
             .url!
     }
 
@@ -252,9 +244,7 @@ extension URL {
     static func updateEmail(new: String, password: String) -> URL {
         URLComponents.baseURLComponents
             .with(path: "updateEmail")
-            .with(queryItems: .access_token_and_user_id,
-                .email(new),
-                .password(password))
+            .with(queryItems: .access_token_and_user_id,.email(new),.password(password))
             .url!
     }
 
@@ -285,16 +275,13 @@ extension URL {
     static func add(question: Question) -> URL {
         URLComponents.baseURLComponents
             .with(path: "addQuestion")
-            .with(queryItems: .access_token_and_user_id,
-                .question(text: question.text),
-                .date())
+            .with(queryItems: .access_token_and_user_id,.question(text: question.text),.date())
             .url!
     }
 
     static func manualGreet(otherID: Int) -> URL {
         URLComponents.baseURLComponents.with(path: "manualGreet")
-            .with(queryItems: .access_token_and_user_id,
-                .other_id(String(otherID)))
+            .with(queryItems: .access_token_and_user_id,.other_id(String(otherID)))
             .url!
     }
 
@@ -315,9 +302,7 @@ extension URL {
     static func registerDeviceToken(error: String) -> URL {
         URLComponents.baseURLComponents
             .with(path: "registerDeviceTokenError")
-            .with(queryItems: .access_token_and_user_id,
-                .environment(),
-                .error(error))
+            .with(queryItems: .access_token_and_user_id,.environment(),.error(error))
         .url!
     }
 

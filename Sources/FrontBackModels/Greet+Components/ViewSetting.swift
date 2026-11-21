@@ -42,28 +42,13 @@ public enum ViewSetting: Equatable, Codable {
     public var cellTypes: [Greet.CellName] {
         switch self {
         case .start:
-            return [
-                .ProfilePicCell,
-                .MeetDecisionCell,
-                .OpenersCell,
-                .DismissCell,
-            ]
+            return [.ProfilePicCell,.MeetDecisionCell,.OpenersCell,.DismissCell]
             
         case .thisUserAgreed:
-            return [
-                .ProfilePicCell,
-                .MeetDecisionCell,
-                .OpenersCell,
-                .DismissCell,
-            ]
+            return [.ProfilePicCell,.MeetDecisionCell,.OpenersCell,.DismissCell]
             
         case .otherAskedIfCanMeetLater(_):
-            return [
-                .ProfilePicCell,
-                .AlternateDecisionCell,
-                .OpenersCell,
-                .DismissCell,
-            ]
+            return [.ProfilePicCell,.AlternateDecisionCell,.OpenersCell,.DismissCell]
 
         case .inGreet:
             // Both users agreed to meet.

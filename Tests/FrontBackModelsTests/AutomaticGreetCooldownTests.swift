@@ -746,9 +746,7 @@ extension AutomaticGreetCooldownTests {
     /// A member with nothing wrong with them is told nothing, which is the state most members are
     /// in most of the time and the one a wrong answer would be most visible in.
     func testAMemberWithNothingWrongIsGivenNoReason() {
-        XCTAssertNil(
-            AutomaticGreetCooldownPolicy.memberLevelSuppression(for: member(), now: now)
-        )
+        XCTAssertNil(AutomaticGreetCooldownPolicy.memberLevelSuppression(for: member(), now: now))
     }
 
     func testTheMemberLevelReasonNamesTheSwitchBeforeAnythingElse() {

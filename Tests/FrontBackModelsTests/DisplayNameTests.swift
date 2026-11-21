@@ -63,10 +63,7 @@ final class DisplayNameTests: XCTestCase {
     /// `GreetDemoAvailability.availability(counterpartName:)` interpolates its argument into sentences.
     /// An empty name there produces " has already opened this greet.", which reads as a bug.
     func testASentenceNeverBeginsWithAnEmptyName() {
-        XCTAssertEqual(
-            DisplayName.forSentence(firstName: "", lastName: ""),
-            "This person"
-        )
+        XCTAssertEqual(DisplayName.forSentence(firstName: "", lastName: ""), "This person")
         XCTAssertEqual(
             DisplayName.forSentence(firstName: nil, lastName: nil, fallback: "The other member"),
             "The other member"
