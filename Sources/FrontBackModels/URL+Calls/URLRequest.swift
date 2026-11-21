@@ -179,8 +179,9 @@ extension URL {
     }
 
     /// New vapor backend url for location update service.
-    /// - Parameter userId: User's id who's location needs to be updated.
-    /// - Parameter contextId: Current context id.
+    /// - Parameters:
+    ///   - userId: User's id who's location needs to be updated.
+    ///   - contextId: Current context id.
     /// - Returns: `URL` to the location update service.
     static func updateUserLocation(userId: UUID, contextId: String) -> URL {
         URLComponents.baseURLComponents.with(path: "user/\(userId)/location/context/\(contextId)/")
