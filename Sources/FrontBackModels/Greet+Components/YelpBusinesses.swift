@@ -41,9 +41,15 @@ public struct Business: Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case rating, price, phone, id, categories
+        case rating
+        case price
+        case phone
+        case id
+        case categories
         case reviewCount = "review_count"
-        case name, url, coordinates
+        case name
+        case url
+        case coordinates
         case imageURL = "image_url"
         case location
     }
@@ -70,7 +76,12 @@ public struct Location: Codable {
     public let state, address1, zipCode: String
 
     enum CodingKeys: String, CodingKey {
-        case city, country, address2, address3, state, address1
+        case city
+        case country
+        case address2
+        case address3
+        case state
+        case address1
         case zipCode = "zip_code"
     }
 

@@ -19,7 +19,10 @@ public struct Question: Codable, Equatable, Hashable {
         // for example there can be questions created by this user in the not answered,
         // answered and all.  This category though is mostly used for making requests to the
         // server and secondarily to for the client presentation. 
-        case not_answered, answered, all, created
+        case not_answered
+        case answered
+        case all
+        case created
     }
     
     public static func == (lhs: Question, rhs: Question) -> Bool {

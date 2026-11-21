@@ -12,6 +12,7 @@ import Foundation
 extension Question.Response.Selections {
     
     public enum MyTheir: String, CaseIterable, Codable {
-        case my, their
+        case my
+        case their
     }
 }

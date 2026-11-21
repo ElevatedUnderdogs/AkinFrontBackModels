@@ -8,7 +8,8 @@
 import Foundation
 
 public enum CompatibilityRule: String, Codable, Hashable, Equatable {
-    case mandatory, weighted
+    case mandatory
+    case weighted
 }
 
 public let genderResponses = ["Male", "Female"]

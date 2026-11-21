@@ -11,7 +11,8 @@ import Foundation
 public enum ViewSetting: Equatable, Codable {
 
     public enum ConifirmationReason: String, Codable {
-        case nearby, theyConfirmed
+        case nearby
+        case theyConfirmed
     }
 
     /// When both users agreed to meet, but haven't met yet.
