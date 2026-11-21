@@ -1,8 +1,3 @@
-//
-//  TopLevelModelsBatch7Tests.swift
-//  AkinFrontBackModels
-//
-
 import XCTest
 import StrongContractClient
 @testable import AkinFrontBackModels
