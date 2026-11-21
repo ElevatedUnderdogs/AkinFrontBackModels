@@ -45,6 +45,31 @@ extension Greet {
             self = .getRating(localNotificationModel)
         }
 
+        // Decode
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let caseType = try container.decode(CaseType.self, forKey: .caseType)
+
+            switch caseType {
+            case .getRating:
+                let model = try container.decode(Greet.Notification.LocalModel.self, forKey: .associatedValue)
+                self = .getRating(model)
+
+            case .greet:
+                let greet = try container.decode(Greet.self, forKey: .associatedValue)
+                self = .greet(greet)
+
+            case .silentLocationUpdate:
+                self = .silentLocationUpdate
+
+            // Commented out by Scott Lydon + claude on 4/19/26:
+            // case .voipCall:
+            //     let greet = try container.decode(Greet.self, forKey: .associatedValue)
+            //     let callType = try container.decode(CallType.self, forKey: .callType)
+            //     self = .voipCall(greet, callType: callType)
+            }
+        }
+
         // Define an enum for case types to avoid stringly-typed values
         private enum CaseType: String, Codable {
             case getRating
@@ -88,31 +113,6 @@ extension Greet {
             //     try container.encode(CaseType.voipCall, forKey: .caseType)
             //     try container.encode(greet, forKey: .associatedValue)
             //     try container.encode(callType, forKey: .callType)
-            }
-        }
-
-        // Decode
-        public init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            let caseType = try container.decode(CaseType.self, forKey: .caseType)
-
-            switch caseType {
-            case .getRating:
-                let model = try container.decode(Greet.Notification.LocalModel.self, forKey: .associatedValue)
-                self = .getRating(model)
-
-            case .greet:
-                let greet = try container.decode(Greet.self, forKey: .associatedValue)
-                self = .greet(greet)
-
-            case .silentLocationUpdate:
-                self = .silentLocationUpdate
-
-            // Commented out by Scott Lydon + claude on 4/19/26:
-            // case .voipCall:
-            //     let greet = try container.decode(Greet.self, forKey: .associatedValue)
-            //     let callType = try container.decode(CallType.self, forKey: .callType)
-            //     self = .voipCall(greet, callType: callType)
             }
         }
     }

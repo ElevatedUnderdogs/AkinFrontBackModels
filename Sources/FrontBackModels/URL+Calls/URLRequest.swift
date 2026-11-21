@@ -229,6 +229,16 @@ extension URL {
             .url!
     }
 
+    static func update(oldPassword: String, newPassword: String, savedEmail: String?) -> URL? {
+        guard let email = savedEmail else { return nil }
+        return URLComponents.baseURLComponents
+            .with(path: "updatePassByOldPass")
+            .with(queryItems: .oldPassword(oldPassword),
+                .new_password(newPassword),
+                .primary_email(email))
+            .url!
+    }
+
     static var terms: URL {
         URLComponents.baseURLComponents.with(path: "getTerms")
             .url!
@@ -255,16 +265,6 @@ extension URL {
             .url!
     }
 
-    static func update(oldPassword: String, newPassword: String, savedEmail: String?) -> URL? {
-        guard let email = savedEmail else { return nil }
-        return URLComponents.baseURLComponents
-            .with(path: "updatePassByOldPass")
-            .with(queryItems: .oldPassword(oldPassword),
-                .new_password(newPassword),
-                .primary_email(email))
-            .url!
-    }
-
     static func sendMake(deviceString: String) -> URL {
         URLComponents.baseURLComponents
             .with(path: "make")
@@ -276,6 +276,13 @@ extension URL {
         URLComponents.baseURLComponents
             .with(path: "addQuestion")
             .with(queryItems: .access_token_and_user_id,.question(text: question.text),.date())
+            .url!
+    }
+
+    static func add(response: Question.Response, questionID: String) -> URL {
+        URLComponents.baseURLComponents
+            .with(path: "addOption")
+            .with(queryItems: .access_token_and_user_id, .question_id(questionID), .response(response.text))
             .url!
     }
 
@@ -317,14 +324,6 @@ extension URL {
     }
 
     // MARK - pending product update
-    static func hide(me hide: Bool) -> URL {
-        URLComponents.baseURLComponents
-            .with(path: "HideFromNearByList")
-            .with(queryItems: .access_token_and_user_id, .hide(me: hide))
-            .url!
-    }
-
-    // MARK - pending product update
     /// User id shoudl be set before using this.
     static func register(pushKitDeviceToken: String) -> URL {
         URLComponents.baseURLComponents
@@ -332,6 +331,14 @@ extension URL {
             .with(queryItems: .pushKitDevice(token: pushKitDeviceToken),
                 .access_token_and_user_id,
                 .environment(.environmentString))
+            .url!
+    }
+
+    // MARK - pending product update
+    static func hide(me hide: Bool) -> URL {
+        URLComponents.baseURLComponents
+            .with(path: "HideFromNearByList")
+            .with(queryItems: .access_token_and_user_id, .hide(me: hide))
             .url!
     }
 
@@ -367,13 +374,6 @@ extension URL {
             .url!
     }
 
-
-    static func add(response: Question.Response, questionID: String) -> URL {
-        URLComponents.baseURLComponents
-            .with(path: "addOption")
-            .with(queryItems: .access_token_and_user_id, .question_id(questionID), .response(response.text))
-            .url!
-    }
 
     static func make(
         my: Question.Response.Selections.MyTheir.Choice?,
