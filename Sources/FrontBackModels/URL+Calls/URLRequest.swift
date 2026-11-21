@@ -55,6 +55,9 @@ extension URLRequest {
         payload: T,
         contentType: String = "application/octet-stream"
     ) {
+        // SW-GS-090: the same invariant the URL extension below documents at length, in one
+        // sentence: baseURLComponents always carries a scheme and a host, and components that
+        // have both yield a URL for any path.
         self.init(url: URLComponents.baseURLComponents.with(path: path).url!)
         
         httpMethod = method.rawValue
@@ -93,6 +96,25 @@ public struct PayloadResponse {
    // var path:
 }
 
+/// WHY EVERY `.url!` IN THIS EXTENSION IS SAFE, STATED ONCE FOR ALL OF THEM.
+///
+/// Rule SW-GS-090 asks for the invariant behind a force unwrap. There are 32 of them in this
+/// file and they all rest on the same one, so it is written here rather than copied 32 times.
+///
+/// `URLComponents.url` returns nil only when the components cannot form a valid URL. Every
+/// builder below starts from `URLComponents.baseURLComponents`, which is one of two values
+/// constructed in URLComponents.swift with a scheme, a host and a port already set:
+///
+///     debug     http  127.0.0.1 : 8080
+///     notDebug  https akindev   : 8080
+///
+/// and then adds a path and query items. A components value that already has a scheme and a
+/// host yields a URL for any path and any query items, because percent encoding handles the
+/// rest. Nothing below removes the scheme or the host.
+///
+/// THE ONE WAY THIS COULD BECOME UNSAFE is a change in URLComponents.swift that leaves
+/// `baseURLComponents` without a scheme or a host. That is the line to look at if any of these
+/// ever traps, rather than the call sites.
 extension URL {
 
     static func reportFlags(_ flags: [Int], question id: Int) -> URL? {
