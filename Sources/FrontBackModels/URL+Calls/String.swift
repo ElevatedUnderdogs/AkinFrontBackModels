@@ -146,7 +146,7 @@ extension String {
         """
     }
 
-    /// Converts `pushProviderAccepted` → `push_provider_accepted`
+    /// Converts `pushProviderAccepted` → `push_provider_accepted`.
     var snakeCased: String {
         unicodeScalars.reduce(into: "") { result, scalar in
             if CharacterSet.uppercaseLetters.contains(scalar) {

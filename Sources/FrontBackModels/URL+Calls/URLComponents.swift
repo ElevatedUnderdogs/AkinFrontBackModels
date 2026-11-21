@@ -23,7 +23,7 @@ extension URLComponents {
         return components
     }
 
-    /// "https://akindev/api/"
+    /// "https://akindev/api/".
     public static var notDebug: Self {
         var components = URLComponents()
         components.scheme = "https"

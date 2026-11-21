@@ -273,7 +273,7 @@ public enum GreetAction: Codable, Sendable, Hashable, Equatable, ActionStringCon
     ///  **UI Effect:** May prompt a user asking if they would like to meet at an alternative time.
     case agreedToMeet(Int)
 
-    /// In the negotiation
+    /// In the negotiation.
     case rejectTime(Int)
 
     /// Associated value in minutes.
@@ -374,7 +374,7 @@ public enum GreetAction: Codable, Sendable, Hashable, Equatable, ActionStringCon
         return false
     }
 
-    /// If the case is agreedToMeet then this returns the time in minutes
+    /// If the case is agreedToMeet then this returns the time in minutes.
     public var agreeToTime: Int? {
         if case .agreedToMeet(let int) = self {
             return int

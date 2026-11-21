@@ -12,7 +12,7 @@ import EncryptDecryptKey
 // MARK: - Data shape you’ll pass back
 public struct VenueInfo: Hashable, Equatable, Codable {
 
-    /// Google places id is a `String` not `UUID`
+    /// Google places id is a `String` not `UUID`.
     public let googlePlacesid: String
     public let name: String
     public let address: String

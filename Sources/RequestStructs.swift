@@ -154,7 +154,7 @@ public typealias HideMe = Bool
 
 public struct LoginPayload: Codable {
 
-    /// Email does not need encryption
+    /// Email does not need encryption.
     public let email: String
 
     /// The password is encrypted https to be sent in the body
@@ -189,7 +189,7 @@ public struct AnswerChoice: Codable {
     public let choice: Question.Response.Selections.MyTheir.Choice?
     public let responseID: UUID
 
-    /// While this is a bit redundant, it helps with denormalization, saves a query
+    /// While this is a bit redundant, it helps with denormalization, saves a query.
     public let questionID: UUID
     public let createdAt: Date
     public let context: Context

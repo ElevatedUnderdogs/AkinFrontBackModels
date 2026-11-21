@@ -85,7 +85,7 @@ extension UploadImageRequest {
 public typealias Register = Request<User.SignUp, RegisterResponse>
 extension Register {
 
-    /// Registers a new user
+    /// Registers a new user.
     public static var register: Self {
         .init(method: .post)
     }
@@ -150,7 +150,7 @@ public struct ImpactEmployeeSummary: Identifiable, Hashable, Codable, Equatable 
     /// The number of user/s this employee has referred to this app.
     public let referralsCount: Int
 
-    /// Estimated user/s routed due to/attributed to this employee's referrals
+    /// Estimated user/s routed due to/attributed to this employee's referrals.
     public let usersSentToVenue: Int
 
     public var id: String {
@@ -207,7 +207,7 @@ extension EmployeeLeaderboardFromGoogleID {
 public struct PlaceSuggestion: Identifiable, Hashable, Sendable, Codable, Equatable {
     /// Google uses string ids not uuid.
     public var id: String { placeID }
-    ///Usually the name of  the venue
+    ///Usually the name of  the venue.
     public let primaryText: String
     ///The  street and city, but not full address.
     public let secondaryText: String?
@@ -351,7 +351,7 @@ extension ForgotPasswordEndpoint {
         .init(method: .post)
     }
 
-    /// Registers a new user
+    /// Registers a new user.
     public static var resendVerification: Self {
         .init(method: .post)
     }
@@ -411,7 +411,7 @@ public struct AcceptTermsRequest: Codable, Equatable, Hashable {
 
 public typealias TermsRequest = Request<Empty, TermsOfService>
 extension TermsRequest {
-    /// Gets the terms and conditions of using the app
+    /// Gets the terms and conditions of using the app.
     public static var latestTerms: Self {
         .init(method: .get)
     }
@@ -420,7 +420,7 @@ extension TermsRequest {
 public typealias AcceptTermsRequestType = Request<AcceptTermsRequest, StandardPostResponse>
 
 extension AcceptTermsRequestType {
-    /// Post a new acceptance of the current Terms version
+    /// Post a new acceptance of the current Terms version.
     public static var acceptTerms: Self {
         .init(method: .post)
     }
@@ -490,7 +490,7 @@ public struct ContextCompatibilityStruct: Codable {
     public var userRelationID: UUID?
     public var contextRaw: String
 
-    /// Initializer for `ContextCompatibilityStruct`
+    /// Initializer for `ContextCompatibilityStruct`.
     init(
         id: UUID,
         isIntroduced: Bool,
@@ -543,7 +543,7 @@ extension ManualGreetRequest {
 
 public typealias MetersWillingToTravelRequest = Request<Int, StandardPostResponse>
 extension MetersWillingToTravelRequest {
-    /// This updates the meters a user is willing to travel for a greet/in-person meetup
+    /// This updates the meters a user is willing to travel for a greet/in-person meetup.
     public static var setMetersWillingToTravel: Self {
         .init(method: .post)
     }
@@ -551,7 +551,7 @@ extension MetersWillingToTravelRequest {
 
 public typealias LogoutRequest = Request<Empty, StandardPostResponse>
 extension LogoutRequest {
-    /// Logs out the current user
+    /// Logs out the current user.
     public static var logout: Self {
         .init(method: .post)
     }
@@ -680,7 +680,7 @@ extension UpdateImportanceRequest {
 public typealias GetContextsRequest = Request<Empty, [Context]>
 extension GetContextsRequest {
 
-    /// Get the contexts
+    /// Get the contexts.
     public static var getContexts: Self {
         .init(method: .get)
     }

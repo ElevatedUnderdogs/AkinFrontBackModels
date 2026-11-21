@@ -10,7 +10,7 @@ import Foundation
 
 public struct Settings: Codable {
 
-    /// Set this 
+    /// Set this.
     static var shared: Self?
 
     // MARK - properties

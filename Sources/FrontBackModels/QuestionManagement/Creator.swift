@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// A struct to hold details for users to see details about the creator of content such as a `Response`
+/// A struct to hold details for users to see details about the creator of content such as a `Response`.
 public struct Creator: Codable, Hashable, Equatable {
     public let profileImageURL: String
     public let displayName: String

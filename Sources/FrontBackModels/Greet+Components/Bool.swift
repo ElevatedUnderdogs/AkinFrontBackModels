@@ -12,7 +12,7 @@ extension Bool {
         "\(int)"
     }
 
-    ///Returns 1 if true, 0 if false
+    ///Returns 1 if true, 0 if false.
     public var int: Int {
         self ? 1 : 0
     }
