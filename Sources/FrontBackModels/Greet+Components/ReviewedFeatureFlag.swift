@@ -51,7 +51,7 @@ public enum ReviewedFeatureFlag {
     ///
     /// The shipping control is a two segment pill, which worked because there were two. With this
     /// off the pill is drawn unchanged; with it on the selector handles any number.
-    public static var isUnboundedContextsEnabled: Bool = true
+    public static var isUnboundedContextsEnabled: Bool = false
 
     /// A member may create a context, and the global catalog is searchable.
     public static var isMemberCreatedContextsEnabled: Bool = true
@@ -90,6 +90,16 @@ public enum ReviewedFeatureFlag {
     /// compatibility request leaves the client. That is GOAL_LOOP29 decision D5's compliance
     /// posture, which is that the app ships with no company created romance context so that at
     /// App Store Review there is no romance in the product, and members add it afterwards.
+    /// Build 27, B27-04. Whether questionnaires are an avenue for automatic meetups.
+    ///
+    /// SHIPS DOWN, where every other flag here now ships up. Scott's own note on this, B27-08, is
+    /// that the design is not settled: "I'm not sure how that is going to work yet witj contexts
+    /// ... Should a questionnaire be an avenue for match making disconnected from any context ...
+    /// or should it be an avenue per context per questionnaire." A flag whose feature has no
+    /// agreed shape must not be the one thing a tester finds half built, and the switch on the
+    /// debug screen is how it is turned on when there is something to turn on.
+    public static var isQuestionnaireMatchmakingEnabled: Bool = false
+
     public static var isBuiltInRomanceContextEnabled: Bool = true
 
     // MARK: - Feature identity
@@ -125,6 +135,9 @@ public enum ReviewedFeatureFlag {
         /// ``isWantToMeetEnabled``.
         case wantToMeet
 
+        /// ``isQuestionnaireMatchmakingEnabled``.
+        case questionnaireMatchmaking
+
         /// ``isBuiltInRomanceContextEnabled``.
         case builtInRomanceContext
 
@@ -153,6 +166,7 @@ public enum ReviewedFeatureFlag {
             case .subscribedQuestionnaires: return "isFollowingQuestionnairesEnabled"
             case .questionnairePreferences: return "isQuestionnairePreferencesEnabled"
             case .wantToMeet: return "isWantToMeetEnabled"
+            case .questionnaireMatchmaking: return "isQuestionnaireMatchmakingEnabled"
             case .builtInRomanceContext: return "isBuiltInRomanceContextEnabled"
             }
         }
@@ -168,7 +182,8 @@ public enum ReviewedFeatureFlag {
             case .subscribedMembers: return "isSubscribedMembersEnabled"
             case .subscribedQuestionnaires: return "isSubscribedQuestionnairesEnabled"
             case .master, .unboundedContexts, .memberCreatedContexts, .perContextParticipation,
-                 .questionnairePreferences, .wantToMeet, .builtInRomanceContext:
+                 .questionnairePreferences, .questionnaireMatchmaking, .wantToMeet,
+                 .builtInRomanceContext:
                 return propertyName
             }
         }
@@ -184,6 +199,7 @@ public enum ReviewedFeatureFlag {
             case .subscribedQuestionnaires: return "Subscribe to a questionnaire"
             case .questionnairePreferences: return "Questionnaire on and off switch"
             case .wantToMeet: return "Want to meet"
+            case .questionnaireMatchmaking: return "Enable meetups based on questionnaires"
             case .builtInRomanceContext: return "Built in romance context"
             }
         }
@@ -215,6 +231,9 @@ public enum ReviewedFeatureFlag {
             case .wantToMeet:
                 return "Mark somebody you would like to meet. Nobody is told, at any point. It "
                     + "only moves them up your nearby list."
+            case .questionnaireMatchmaking:
+                return "Let answers inside a questionnaire count towards who we introduce you "
+                    + "to. Off until the design is settled."
             case .builtInRomanceContext:
                 return "Romance is one of the contexts the app ships with. Switch it off and it "
                     + "disappears from every selector, list and feed. Nothing you wrote in it is "
@@ -230,7 +249,7 @@ public enum ReviewedFeatureFlag {
                  .builtInRomanceContext:
                 return "Contexts"
             case .subscribedMembers, .subscribedQuestionnaires: return "Subscriptions"
-            case .questionnairePreferences: return "Questionnaires"
+            case .questionnairePreferences, .questionnaireMatchmaking: return "Questionnaires"
             case .wantToMeet: return "Want to meet"
             }
         }
@@ -259,6 +278,7 @@ public enum ReviewedFeatureFlag {
         case .subscribedQuestionnaires: return isSubscribedQuestionnairesEnabled
         case .questionnairePreferences: return isQuestionnairePreferencesEnabled
         case .wantToMeet: return isWantToMeetEnabled
+        case .questionnaireMatchmaking: return isQuestionnaireMatchmakingEnabled
         case .builtInRomanceContext: return isBuiltInRomanceContextEnabled
         }
     }
@@ -279,6 +299,7 @@ public enum ReviewedFeatureFlag {
         case .subscribedQuestionnaires: return isSubscribedQuestionnairesEnabled
         case .questionnairePreferences: return isQuestionnairePreferencesEnabled
         case .wantToMeet: return isWantToMeetEnabled
+        case .questionnaireMatchmaking: return isQuestionnaireMatchmakingEnabled
         case .builtInRomanceContext: return isBuiltInRomanceContextEnabled
         }
     }
@@ -298,6 +319,7 @@ public enum ReviewedFeatureFlag {
         case .subscribedQuestionnaires: isSubscribedQuestionnairesEnabled = value
         case .questionnairePreferences: isQuestionnairePreferencesEnabled = value
         case .wantToMeet: isWantToMeetEnabled = value
+        case .questionnaireMatchmaking: isQuestionnaireMatchmakingEnabled = value
         case .builtInRomanceContext: isBuiltInRomanceContextEnabled = value
         }
     }
@@ -347,10 +369,25 @@ public enum ReviewedFeatureFlag {
         // Every one of these ships UP, by Scott's decision of 2026-10-18 (GOAL_LOOP34 DR3): the
         // features are to be usable in production, and the per server value and per user override
         // the server resolves in front of this are what turn one off without a new build.
-        case .master, .unboundedContexts, .memberCreatedContexts, .perContextParticipation,
+        // NEITHER `.unboundedContexts` NOR `.questionnaireMatchmaking` IS IN THIS LIST, and leaving
+        // them out is the merge decision rather than an oversight. Each has its own `return false`
+        // below with its own recorded reason, and the comment on the first of those says exactly why
+        // they are listed separately: so that adding a flag cannot quietly inherit the wrong
+        // default. Listing a flag in both places is how a flag ships UP while the source reads
+        // DOWN, which this repository has already shipped once.
+        case .master, .memberCreatedContexts, .perContextParticipation,
              .subscribedMembers, .subscribedQuestionnaires, .questionnairePreferences, .wantToMeet,
              .builtInRomanceContext:
             return true
+        // Build 27. The ONE flag that ships DOWN, and it is listed separately rather than folded
+        // into the line above so that adding a flag cannot quietly inherit the wrong default.
+        // Its feature has no agreed shape yet; see the property's own note.
+        case .questionnaireMatchmaking:
+            return false
+        // Build 34, Scott's decision of 2026-11-03: multiple contexts support ships DOWN, so a
+        // member answers in one context at a time until it is switched on per server or member.
+        case .unboundedContexts:
+            return false
         }
     }
 

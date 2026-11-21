@@ -23,8 +23,13 @@ public struct Context: Codable, Hashable {
     }
 
     /// Now always succeeds (item 1.11): a user-created context carries an arbitrary raw value, so
-    /// this no longer returns nil for anything other than romance and social. The initializer stays
-    /// failable in signature only so existing `if let`/`guard let` call sites keep compiling.
+    /// this no longer returns nil for a raw value that is not one of the built in cases. The
+    /// initializer stays failable in signature only so existing `if let`/`guard let` call sites
+    /// keep compiling.
+    ///
+    /// The built in cases were romance and social when this was written, which is why the sentence
+    /// above used to name that pair. Business joined them in GOAL_LOOP41, and naming the SET
+    /// rather than its members is what keeps this line true the next time one is added.
     public init?(id: UUID, rawValue: String) {
         self.id = id
         self.case = Case(rawValue: rawValue)
