@@ -59,15 +59,31 @@ public struct Context: Codable, Hashable {
         /// GOAL_LOOP35 box 75, DR115: a member never has fewer than two contexts they did not have
         /// to create, and this is the other one.
         ///
-        /// DELIBERATELY NOT IN `allCases` BELOW. That list is the older built-in-only idea of the
-        /// set, and its own comment says live call sites should read the context list instead.
-        /// Adding to it would change what every one of those older paths sees, which is a wider
-        /// change than shipping a second default. The set the server actually creates from is
-        /// `Handler.shippedContextCases`, and that is where this Case is added alongside social.
+        /// NOW IN `allCases` BELOW, AND THAT IS A REVERSAL OF WHAT THIS COMMENT USED TO SAY. The
+        /// argument here was that leaving business out kept the change narrow, because every
+        /// built-in-only path that reads `allCases` would otherwise gain a context it had never
+        /// seen. GOAL_LOOP41 reverses it: Social and Business are the two contexts every member
+        /// has without creating anything, and a default that the built-in-only paths cannot see is
+        /// not a default. Those paths are the settings rows, the compatibility sweep and the debug
+        /// fixtures, and each of them was describing a product with one company context. The
+        /// server creates from `Handler.shippedContextCases`, which is `[.social, .business]`, and
+        /// a client list that disagreed with it is the drift this closes.
         public static let business = Case(rawValue: "business")
 
-        /// The built-in contexts. Call sites that must reflect member-created contexts read the live
-        /// context list instead (swept in item 1.12); this remains for the built-in-only paths.
-        public static let allCases: [Case] = [.romance, .social]
+        /// The built-in contexts, the two company defaults first. Call sites that must reflect
+        /// member-created contexts read the live context list instead (swept in item 1.12); this
+        /// remains for the built-in-only paths.
+        ///
+        /// THE ORDER IS THE ORDER THE TWO WAY CONTROLS DRAW, so a reader of this list does not
+        /// have to re-sort it to match the screen. The list used to start with romance, and the
+        /// one caller that needed Social first sorted it again itself and said in its own comment
+        /// that it was doing so.
+        ///
+        /// ROMANCE IS STILL HERE, AND IT IS NO LONGER A DEFAULT. It remains a built-in context a
+        /// member can switch on in the contexts section, so every built-in-only path still has to
+        /// be able to name it. What changed is that nobody may take the DEFAULTS from the front of
+        /// this list: the two places that decide which contexts are defaults, `DefaultContexts`
+        /// in the app and `Handler.shippedContextCases` on the server, state their own pair.
+        public static let allCases: [Case] = [.social, .business, .romance]
     }
 }
