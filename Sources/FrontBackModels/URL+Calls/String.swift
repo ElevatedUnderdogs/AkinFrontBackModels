@@ -169,8 +169,6 @@ extension String {
 }
 
 
-import Foundation
-
 public extension ModerationAssessment {
     static var exampleJSONString: String {
         let example = ModerationAssessment(entries: [
