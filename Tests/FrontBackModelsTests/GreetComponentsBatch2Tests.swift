@@ -324,7 +324,7 @@ final class GreetComponentsBatch2Tests: XCTestCase {
     // MARK: - Dictionary-String-Any.swift
 
     func testDatabaseTimeLapsePresent() {
-        let dict: [String: Any] = ["databaseTimeLapse": Float(1.5)]
+        let dict: [String: Any] = ["databaseTimeLapse": (1.5 as Float)]
         XCTAssertEqual(dict.databaseTimeLapse, 1.5)
     }
 
@@ -339,7 +339,7 @@ final class GreetComponentsBatch2Tests: XCTestCase {
     }
 
     func testServersideOnlyTimeLapsePresent() {
-        let dict: [String: Any] = ["serversideOnlyTimeLapse": Float(2.5)]
+        let dict: [String: Any] = ["serversideOnlyTimeLapse": (2.5 as Float)]
         XCTAssertEqual(dict.serversideOnlyTimeLapse, 2.5)
     }
 

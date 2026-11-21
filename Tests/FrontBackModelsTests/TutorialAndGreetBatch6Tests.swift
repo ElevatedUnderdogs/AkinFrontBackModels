@@ -247,15 +247,15 @@ final class TutorialAndGreetBatch6Tests: XCTestCase {
     // MARK: - FloatingPoint
 
     func testDegreesToRadians() {
-        XCTAssertEqual(Double(0).degreesToRadians, 0, accuracy: 0.0000001)
-        XCTAssertEqual(Double(180).degreesToRadians, .pi, accuracy: 0.0000001)
-        XCTAssertEqual(Double(90).degreesToRadians, .pi / 2, accuracy: 0.0000001)
-        XCTAssertEqual(Double(360).degreesToRadians, 2 * .pi, accuracy: 0.0000001)
-        XCTAssertEqual(Double(-90).degreesToRadians, -(.pi / 2), accuracy: 0.0000001)
+        XCTAssertEqual((0 as Double).degreesToRadians, 0, accuracy: 0.0000001)
+        XCTAssertEqual((180 as Double).degreesToRadians, .pi, accuracy: 0.0000001)
+        XCTAssertEqual((90 as Double).degreesToRadians, .pi / 2, accuracy: 0.0000001)
+        XCTAssertEqual((360 as Double).degreesToRadians, 2 * .pi, accuracy: 0.0000001)
+        XCTAssertEqual((-90 as Double).degreesToRadians, -(.pi / 2), accuracy: 0.0000001)
     }
 
     func testRadiansToDegrees() {
-        XCTAssertEqual(Double(0).radiansToDegrees, 0, accuracy: 0.0000001)
+        XCTAssertEqual((0 as Double).radiansToDegrees, 0, accuracy: 0.0000001)
         XCTAssertEqual(Double.pi.radiansToDegrees, 180, accuracy: 0.0000001)
         XCTAssertEqual((Double.pi / 2).radiansToDegrees, 90, accuracy: 0.0000001)
         XCTAssertEqual((2 * Double.pi).radiansToDegrees, 360, accuracy: 0.0000001)
