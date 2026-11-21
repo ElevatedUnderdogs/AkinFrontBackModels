@@ -373,9 +373,12 @@ extension URL {
         URLComponents.baseURLComponents
             .with(path: "addUserResponse")
             .with(
-                queryItems: .access_token_and_user_id, .context(forContext.rawValue), .question_id(String(questionID)), .responseID(String(responseID)),
-                    .my(my?.weightMultiplier),
-                    .their(their?.weightMultiplier)
+                queryItems: .access_token_and_user_id,
+                .context(forContext.rawValue),
+                .question_id(String(questionID)),
+                .responseID(String(responseID)),
+                .my(my?.weightMultiplier),
+                .their(their?.weightMultiplier)
             )
             .url!
     }
