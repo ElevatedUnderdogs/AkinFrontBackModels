@@ -41,7 +41,7 @@ public struct Settings: Codable {
         for context: Context.Case
     ) {
         guard shouldAdd,
-        let indexOfPReference = contextPreferences.firstIndex(where: { $0.context.case == context }) else { return
+              let indexOfPReference = contextPreferences.firstIndex(where: { $0.context.case == context }) else { return
         }
         self.contextPreferences[indexOfPReference].allowedGreetingMethods.append(greetingMethod)
     }
