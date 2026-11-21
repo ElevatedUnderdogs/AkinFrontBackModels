@@ -53,7 +53,7 @@ extension URLRequest {
     
     static func yelpBusiness(latitude: Double, longitude: Double, apikey: String) -> URLRequest? {
         guard let url = URL.yelpBusiness(latitude: latitude, longitude: longitude) else { return nil }
-        var request =  URLRequest(url: url)
+        var request = URLRequest(url: url)
         request.setValue("Bearer \(apikey)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "GET"
         return request
