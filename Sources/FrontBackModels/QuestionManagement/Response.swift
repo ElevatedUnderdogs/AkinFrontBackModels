@@ -40,6 +40,23 @@ extension Question {
         public var theirChoices: [ContextRawValue: Selections.MyTheir.Choice] = [:]
         public var popularity: [ContextRawValue: PopularityScore] = [:]
 
+
+        /// Whether an agent judged this response to be more about romance than about business or
+        /// friendship (GOAL_LOOP41).
+        ///
+        /// Optional for the same reason as `Question.isRomanceRelated`: unclassified is a real
+        /// state, and a non optional `Bool` would have to answer for a response nothing has read
+        /// yet. A response whose answer here is `true` is hidden from a member who has not selected
+        /// the romance context, except from the member who wrote it.
+        public var isRomanceRelated: Bool?
+
+        /// The one context an agent judged this response is best suited to: social, business, or
+        /// romance (GOAL_LOOP41).
+        ///
+        /// `originalContextID` below stays the context the member answered in. This is the
+        /// judgement about where the answer belongs, and it never overwrites that.
+        public var bestSuitedContextRaw: String?
+
         public var originalContextID: UUID
 
         public var assessment: ModerationAssessment
@@ -79,7 +96,9 @@ extension Question {
             originalContextID: UUID,
             assessment: ModerationAssessment,
             authorVisibility: AuthorVisibility? = nil,
-            author: AuthorSummary? = nil
+            author: AuthorSummary? = nil,
+            isRomanceRelated: Bool? = nil,
+            bestSuitedContextRaw: String? = nil
         ) {
             self.text = text
             self.timeStamp = timeStamp
@@ -93,6 +112,8 @@ extension Question {
             self.assessment = assessment
             self.authorVisibility = authorVisibility
             self.author = author
+            self.isRomanceRelated = isRomanceRelated
+            self.bestSuitedContextRaw = bestSuitedContextRaw
         }
 
         /// Performs a full field-by-field comparison of all properties.
@@ -105,7 +126,9 @@ extension Question {
             self.myChoice == other.myChoice &&
             self.theirChoices == other.theirChoices &&
             self.popularity == other.popularity &&
-            self.originalContextID == other.originalContextID
+            self.originalContextID == other.originalContextID &&
+            self.isRomanceRelated == other.isRomanceRelated &&
+            self.bestSuitedContextRaw == other.bestSuitedContextRaw
         }
 
         public func has(

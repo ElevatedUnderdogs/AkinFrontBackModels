@@ -46,6 +46,28 @@ public struct Question: Codable, Equatable, Hashable {
 
     /// The popularity of this question in each context.
     public var contextPopularity: [ContextRawValue: PopularityScore] = [:] // Codable
+
+    /// Whether an agent judged this question to be more about romance than about business or
+    /// friendship (GOAL_LOOP41).
+    ///
+    /// Optional, and the optionality is the unclassified state rather than a convenience: a
+    /// question exists the moment it is posted and is judged afterwards, out of band, so there is a
+    /// window in which no answer exists yet. A `Bool` with a default would have to pick one of the
+    /// two answers for that window, and either pick is a claim the classifier never made.
+    ///
+    /// Read by the feed: a question whose answer here is `true` is hidden from a member who has not
+    /// selected the romance context, except from the member who wrote it.
+    public var isRomanceRelated: Bool?
+
+    /// The one context an agent judged this question is best suited to: social, business, or
+    /// romance (GOAL_LOOP41).
+    ///
+    /// A single raw value rather than a set, because the question it answers is "where does this
+    /// belong", which has one answer. `originalContext` below stays the context the member was in
+    /// when they wrote it, and this never overwrites it: where a question was written and where it
+    /// fits are different facts, and the second is a judgement that can be revised.
+    public var bestSuitedContextRaw: String?
+
     public var originalContext: Context
     public var assessment: ModerationAssessment
 
@@ -90,7 +112,9 @@ public struct Question: Codable, Equatable, Hashable {
         defaultCompatibilityRule: CompatibilityRule,
         assessment: ModerationAssessment,
         authorVisibility: AuthorVisibility? = nil,
-        author: AuthorSummary? = nil
+        author: AuthorSummary? = nil,
+        isRomanceRelated: Bool? = nil,
+        bestSuitedContextRaw: String? = nil
     ) {
         self.requirementsFor = requirementsFor
         self.text = text
@@ -104,6 +128,8 @@ public struct Question: Codable, Equatable, Hashable {
         self.assessment = assessment
         self.authorVisibility = authorVisibility
         self.author = author
+        self.isRomanceRelated = isRomanceRelated
+        self.bestSuitedContextRaw = bestSuitedContextRaw
     }
 
     func isDeepEqual(to other: Question) -> Bool {
@@ -115,6 +141,8 @@ public struct Question: Codable, Equatable, Hashable {
         self.importanceFor == other.importanceFor &&
         self.contextPopularity == other.contextPopularity &&
         self.originalContext == other.originalContext &&
-        self.requirementsFor == other.requirementsFor
+        self.requirementsFor == other.requirementsFor &&
+        self.isRomanceRelated == other.isRomanceRelated &&
+        self.bestSuitedContextRaw == other.bestSuitedContextRaw
     }
 }
