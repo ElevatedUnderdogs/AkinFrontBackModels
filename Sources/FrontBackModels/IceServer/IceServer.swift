@@ -25,29 +25,29 @@ import Foundation
 /// STUN entries (STUN is unauthenticated) and present for TURN/TURNS.
 public struct IceServer: Codable, Equatable, Hashable, Sendable {
 
-	/// The Uniform Resource Identifiers (URIs) the peer connection should
-	/// try in order when gathering candidates.
-	public let urls: [String]
+    /// The Uniform Resource Identifiers (URIs) the peer connection should
+    /// try in order when gathering candidates.
+    public let urls: [String]
 
-	/// Short-lived TURN username minted by Cloudflare.  `nil` for STUN.
-	public let username: String?
+    /// Short-lived TURN username minted by Cloudflare.  `nil` for STUN.
+    public let username: String?
 
-	/// Short-lived TURN credential minted by Cloudflare.  `nil` for STUN.
-	public let credential: String?
+    /// Short-lived TURN credential minted by Cloudflare.  `nil` for STUN.
+    public let credential: String?
 
-	/// Creates a new `IceServer` description.
-	///
-	/// - Parameters:
-	///   - urls: Ordered list of STUN/TURN Uniform Resource Identifiers.
-	///   - username: TURN username, or `nil` for STUN-only entries.
-	///   - credential: TURN credential, or `nil` for STUN-only entries.
-	public init(
-		urls: [String],
-		username: String?,
-		credential: String?
-	) {
-		self.urls = urls
-		self.username = username
-		self.credential = credential
-	}
+    /// Creates a new `IceServer` description.
+    ///
+    /// - Parameters:
+    ///   - urls: Ordered list of STUN/TURN Uniform Resource Identifiers.
+    ///   - username: TURN username, or `nil` for STUN-only entries.
+    ///   - credential: TURN credential, or `nil` for STUN-only entries.
+    public init(
+        urls: [String],
+        username: String?,
+        credential: String?
+    ) {
+        self.urls = urls
+        self.username = username
+        self.credential = credential
+    }
 }

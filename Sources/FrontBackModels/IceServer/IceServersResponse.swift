@@ -21,16 +21,16 @@ import Foundation
 /// into its Web Real Time Communication (WebRTC) `RTCConfiguration`.
 public struct IceServersResponse: Codable, Equatable, Hashable, Sendable {
 
-	/// The full, ordered list of servers.  Callers should preserve the
-	/// order so STUN is attempted before TURN relay, which keeps most
-	/// calls off Cloudflare's paid TURN path when a direct peer-to-peer
-	/// route is reachable.
-	public let iceServers: [IceServer]
+    /// The full, ordered list of servers.  Callers should preserve the
+    /// order so STUN is attempted before TURN relay, which keeps most
+    /// calls off Cloudflare's paid TURN path when a direct peer-to-peer
+    /// route is reachable.
+    public let iceServers: [IceServer]
 
-	/// Creates a new response envelope.
-	///
-	/// - Parameter iceServers: Ordered ICE servers to return.
-	public init(iceServers: [IceServer]) {
-		self.iceServers = iceServers
-	}
+    /// Creates a new response envelope.
+    ///
+    /// - Parameter iceServers: Ordered ICE servers to return.
+    public init(iceServers: [IceServer]) {
+        self.iceServers = iceServers
+    }
 }
