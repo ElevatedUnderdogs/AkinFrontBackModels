@@ -80,7 +80,7 @@ public enum WireDate {
     }
 }
 
-public extension JSONDecoder {
+extension JSONDecoder {
 
     /// The decoder every Map Mates wire reply is read with, on both platforms.
     ///
@@ -88,7 +88,7 @@ public extension JSONDecoder {
     /// both understood, and so the behaviour does not change underneath us when a Foundation
     /// version changes what `.iso8601` tolerates. That substitution is exactly what hid this
     /// defect from a macOS check.
-    static var akinWire: JSONDecoder {
+    public static var akinWire: JSONDecoder {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         decoder.dateDecodingStrategy = .custom { decoder in
@@ -107,10 +107,10 @@ public extension JSONDecoder {
     }
 }
 
-public extension JSONEncoder {
+extension JSONEncoder {
 
     /// The encoder every Map Mates wire reply is written with, on both platforms.
-    static var akinWire: JSONEncoder {
+    public static var akinWire: JSONEncoder {
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
         encoder.outputFormatting = .withoutEscapingSlashes

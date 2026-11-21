@@ -11,9 +11,9 @@ public protocol ActionStringConvertible {
     var actionString: String { get }
 }
 
-public extension ActionStringConvertible {
+extension ActionStringConvertible {
 
-    var actionString: String {
+    public var actionString: String {
         let mirror = Mirror(reflecting: self)
 
         // Case name (strip "(...)" if present)

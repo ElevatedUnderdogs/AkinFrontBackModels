@@ -11,11 +11,11 @@ import Foundation
 import FoundationNetworking
 #endif
 
-public extension URLComponents {
+extension URLComponents {
 
     /// "http://127.0.0.1:8080/api/"
     /// Same as `localhost`
-    static var debug: Self {
+    public static var debug: Self {
         var components = URLComponents()
         components.scheme = "http"
         components.host = "127.0.0.1"
@@ -24,7 +24,7 @@ public extension URLComponents {
     }
 
     /// "https://akindev/api/"
-    static var notDebug: Self {
+    public static var notDebug: Self {
         var components = URLComponents()
         components.scheme = "https"
         components.host = "akindev"
@@ -32,21 +32,21 @@ public extension URLComponents {
         return components
     }
 
-    static var baseURLComponents: Self {
+    public static var baseURLComponents: Self {
         EnvConfig.isDebug ? debug : notDebug
     }
 
-    func with(queryItems: URLQueryItem...) -> Self {
+    public func with(queryItems: URLQueryItem...) -> Self {
         with(array: queryItems)
     }
 
-    func with(array: [URLQueryItem]) -> Self {
+    public func with(array: [URLQueryItem]) -> Self {
         var buffer = self
         buffer.queryItems = buffer.queryItems ?? [] + array
         return buffer
     }
 
-    func with(path: String) -> Self {
+    public func with(path: String) -> Self {
         var buffer = self
         buffer.path = "/api/" + path
         return buffer

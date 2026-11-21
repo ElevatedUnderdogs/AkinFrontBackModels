@@ -169,8 +169,8 @@ extension String {
 }
 
 
-public extension ModerationAssessment {
-    static var exampleJSONString: String {
+extension ModerationAssessment {
+    public static var exampleJSONString: String {
         let example = ModerationAssessment(entries: [
             FlagExplanation(
                 flag: .threatensPhysicalHarm,

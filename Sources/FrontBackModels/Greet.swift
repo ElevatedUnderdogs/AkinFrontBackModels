@@ -185,14 +185,14 @@ public struct Greet: Codable, Equatable, Hashable {
 }
 
 typealias Minutes = Int
-fileprivate extension Date {
+extension Date {
 
-    init?(timeFromNow: Minutes) {
+    fileprivate init?(timeFromNow: Minutes) {
         guard let date = Calendar.current.date(byAdding: .minute, value: timeFromNow, to: Date()) else { return nil}
         self = date
     }
 
-    var clockTime: String {
+    fileprivate var clockTime: String {
         let dateFormatter = DateFormatter()
         dateFormatter.calendar = .init(identifier: .gregorian)
         dateFormatter.locale = .init(identifier: "en_US_POSIX")
