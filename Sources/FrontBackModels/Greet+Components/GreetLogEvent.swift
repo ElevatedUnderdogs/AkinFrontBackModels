@@ -164,7 +164,7 @@ public enum GreetActionActorKind: String, Codable, CaseIterable {
 /// Stored as "websocket" | "apple_push" | "voice_push".
 public enum GreetActionChannel: String, Codable, CaseIterable {
     case websocket
-    case applePush = "apple_push"   /// Apple Push Notification service (APNs)
-    case voicePush  = "voice_push"  /// Voice-over-Internet push
+    case applePush = "apple_push"  /// Apple Push Notification service (APNs)
+    case voicePush = "voice_push"  /// Voice-over-Internet push
     case notApplicable = "not_applicable"
 }
