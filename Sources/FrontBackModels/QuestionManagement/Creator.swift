@@ -16,7 +16,7 @@ public struct Creator: Codable, Hashable, Equatable {
     public init(
         profileImageURL: String,
         displayName: String,
-        contextCompatibility: [ContextRawValue : Decimal]
+        contextCompatibility: [ContextRawValue: Decimal]
     ) {
         self.profileImageURL = profileImageURL
         self.displayName = displayName

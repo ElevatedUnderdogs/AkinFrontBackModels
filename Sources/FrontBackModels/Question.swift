@@ -101,13 +101,13 @@ public struct Question: Codable, Equatable, Hashable {
 
     /// This initializer isn't synthesized when Codable is conformed to.
     public init(
-        requirementsFor: [Context : [Response.Selections.MyTheir]] = [:],
+        requirementsFor: [Context: [Response.Selections.MyTheir]] = [:],
         text: String,
         responses: [Response] = [],
         id: UUID,
         creatorID: UUID?,
-        importanceFor: [ContextRawValue : Importance] = [:],
-        contextPopularity: [ContextRawValue : PopularityScore] = [:],
+        importanceFor: [ContextRawValue: Importance] = [:],
+        contextPopularity: [ContextRawValue: PopularityScore] = [:],
         originalContext: Context,
         defaultCompatibilityRule: CompatibilityRule,
         assessment: ModerationAssessment,
