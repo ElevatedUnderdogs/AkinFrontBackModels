@@ -3,7 +3,7 @@ import XCTest
 
 final class GreetComponentsBatch3Tests: XCTestCase {
 
-    // MARK: - AkinCommon+User.swift (User)
+    // MARK: - User.swift (User)
 
     func testUserInit_setsProvidedFieldsAndDefaults() {
         let id = UUID()
@@ -124,7 +124,7 @@ final class GreetComponentsBatch3Tests: XCTestCase {
         XCTAssertEqual(received.first?.name, "Scott")
     }
 
-    // MARK: - AlertContents.swift (Contents)
+    // MARK: - Contents.swift (Contents)
 
     func testContentsInit_defaultsOmittedOptionalsToNil() {
         let contents = Contents(title: "Title", message: "Message", confirmation: "Okay")

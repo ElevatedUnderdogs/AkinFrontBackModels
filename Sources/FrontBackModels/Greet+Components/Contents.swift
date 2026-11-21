@@ -1,5 +1,5 @@
 //
-//  AlertContents.swift
+//  Contents.swift
 //  akin
 //
 //  Created by Scott Lydon on 8/4/19.
