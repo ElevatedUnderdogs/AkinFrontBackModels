@@ -307,9 +307,14 @@ final class QuestionManagementBatch5Tests: XCTestCase {
     }
 
     func testContextCaseIterable() {
-        XCTAssertEqual(Context.Case.allCases.count, 2)
+        // Business joined the list in GOAL_LOOP41, which makes it three. The count is asserted
+        // alongside the membership checks on purpose: a `contains` suite alone passes just as well
+        // when a fourth case arrives by accident, and the list is read by paths that enumerate it
+        // to build settings rows and debug fixtures.
+        XCTAssertEqual(Context.Case.allCases.count, 3)
         XCTAssertTrue(Context.Case.allCases.contains(.romance))
         XCTAssertTrue(Context.Case.allCases.contains(.social))
+        XCTAssertTrue(Context.Case.allCases.contains(.business))
     }
 
     func testContextCaseRawValues() {

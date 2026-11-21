@@ -63,6 +63,35 @@ public enum ContextName {
         NormalisedName.isSame(one, other)
     }
 
+    /// The spelling to STORE and SHOW for a context: sentence case.
+    ///
+    /// Build 27, B27-01: "force all contexts to be left camel case or whichever it is that a word
+    /// starts with a capital and the rest is lowercase". So "ROCK CLIMBING", "rock climbing" and
+    /// "Rock Climbing" all store and show as "Rock climbing".
+    ///
+    /// SENTENCE CASE, NOT TITLE CASE. Only the first character of the whole name is raised; every
+    /// other character is lowered. Capitalising each word would turn "Board games" into "Board
+    /// Games" and "rock climbing" into "Rock Climbing", which is a different rule from the one
+    /// asked for and would also mangle a name whose second word is deliberately lower, such as "Dungeons and dragons".
+    ///
+    /// IT REPLACES ``displayName(_:)`` AS THE STORED SPELLING, and it does not change
+    /// ``normalisedKey(_:)``. Uniqueness is still enforced on the case folded key, so applying
+    /// this to an existing catalog can never split one context into two; it can only reveal that
+    /// two rows were already sharing one key, which is what the server migration reports.
+    ///
+    /// THE FOLD IS LOCALE INDEPENDENT, for the reason ``NormalisedName`` gives: `uppercased()` and
+    /// `lowercased()` with no locale are Unicode's own mappings, so a Turkish device and an
+    /// English one agree about ISTANBUL. A locale aware fold would store two spellings of one
+    /// context depending on who typed it.
+    ///
+    /// - Parameter raw: whatever the member typed.
+    /// - Returns: the sentence cased spelling to store and show.
+    public static func sentenceCasedContextName(_ raw: String) -> String {
+        let name = displayName(raw)
+        guard let first = name.first else { return name }
+        return String(first).uppercased() + name.dropFirst().lowercased()
+    }
+
     /// Whether a typed name is long enough and short enough to be a context.
     ///
     /// - Parameter raw: whatever the member typed.
@@ -126,7 +155,7 @@ public struct ContextCatalogEntry: Codable, Hashable, Sendable, Identifiable {
 /// One row of a member's OWN context list.
 ///
 /// `D6`: the list is DERIVED, never curated. A context is on it because the member answered a
-/// question in that context, and it leaves when those answers do. ``yourAnsweredQuestionCount`` is
+/// question in that context, and it leaves when those answers do. ``answeredQuestionCount`` is
 /// therefore not decoration: it is the reason the row exists, and a row carrying zero is a row
 /// that should not have been sent.
 ///
@@ -147,11 +176,20 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
     /// How many members are in this context.
     public let memberCount: Int
 
-    /// How many questions THIS member has answered in it.
+    /// How many questions THIS member has made at least one response selection in, in it.
     ///
-    /// Spelled out in full rather than as `answerCount`, because the row carries two counts and
-    /// the only thing distinguishing them is whose they are.
-    public let yourAnsweredQuestionCount: Int
+    /// Build 27, B27-06, in Scott's own words: "<question count for which this user made at least
+    /// one response selection for in the given context> questions you've answered in this
+    /// context". So it counts QUESTIONS, not selections: a member who picked three options on one
+    /// question has answered one question, and both server paths that build this row fold the
+    /// choices into a set of question identifiers before counting them.
+    ///
+    /// RENAMED FROM `yourAnsweredQuestionCount` IN THIS BUILD, and the rename is the point. The
+    /// old name existed to tell two counts apart while the row carried both; B27-06 replaces the
+    /// row's whole line with this one count, so the member count no longer sits beside it and the
+    /// possessive distinguishes nothing. Changing the property changes the wire key, which is why
+    /// server and client move together or neither compiles.
+    public let answeredQuestionCount: Int
 
     /// Whether the member participates in it.
     ///
@@ -168,14 +206,14 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
     ///   - id: the context's identifier.
     ///   - displayName: whatever spelling the catalog holds.
     ///   - memberCount: how many members are in it.
-    ///   - yourAnsweredQuestionCount: how many questions this member answered in it.
+    ///   - answeredQuestionCount: how many questions this member answered in it.
     ///   - isParticipating: whether the member participates.
     ///   - isMemberCreated: whether a member created it.
     public init(
         id: UUID,
         displayName: String,
         memberCount: Int,
-        yourAnsweredQuestionCount: Int,
+        answeredQuestionCount: Int,
         isParticipating: Bool,
         isMemberCreated: Bool
     ) {
@@ -183,20 +221,19 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
         self.displayName = ContextName.displayName(displayName)
         self.normalisedKey = ContextName.normalisedKey(displayName)
         self.memberCount = memberCount
-        self.yourAnsweredQuestionCount = yourAnsweredQuestionCount
+        self.answeredQuestionCount = answeredQuestionCount
         self.isParticipating = isParticipating
         self.isMemberCreated = isMemberCreated
     }
 
     /// Decodes either spelling of the answered count.
     ///
-    /// WHY TWO SPELLINGS. The field was `answeredQuestionCount` and became
-    /// `yourAnsweredQuestionCount`, because the row carries two counts and the only thing
-    /// separating them is whose they are. A deployment pinned to the older package still sends
-    /// the old key, and the synthesized decoder refuses a row without the new one: the member
-    /// then sees "The contexts did not arrive" on a request the server answered 200. That is
-    /// build 29's B29-05, measured on 2026-10-28 against the debug deployment, and the same
-    /// throw is what made the Questions home header fall back to its two shipping contexts.
+    /// WHY TWO SPELLINGS. This build renamed the field FROM `yourAnsweredQuestionCount` TO
+    /// `answeredQuestionCount` (the property's own comment above says so), and a deployment that
+    /// predates the rename still sends the retired key. The synthesized decoder refuses a row
+    /// without the new one, so the member sees "The contexts did not arrive" on a request the
+    /// server answered 200: that is build 29's B29-05 and build 30's B30-01, the second measured
+    /// against PRODUCTION, which still writes the retired key and which this loop may not deploy.
     ///
     /// Accepting both costs one initializer and makes a server and a client of different ages
     /// work together, which is the same contract rule the subscribe rename follows: names change
@@ -210,12 +247,12 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
         isParticipating = try container.decode(Bool.self, forKey: .isParticipating)
         isMemberCreated = try container.decode(Bool.self, forKey: .isMemberCreated)
         if let count = try container.decodeIfPresent(
-            Int.self, forKey: .yourAnsweredQuestionCount
+            Int.self, forKey: .answeredQuestionCount
         ) {
-            yourAnsweredQuestionCount = count
+            answeredQuestionCount = count
         } else {
-            yourAnsweredQuestionCount = try container.decode(
-                Int.self, forKey: .answeredQuestionCount
+            answeredQuestionCount = try container.decode(
+                Int.self, forKey: .yourAnsweredQuestionCount
             )
         }
     }
@@ -242,7 +279,7 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
         try container.encode(displayName, forKey: .displayName)
         try container.encode(normalisedKey, forKey: .normalisedKey)
         try container.encode(memberCount, forKey: .memberCount)
-        try container.encode(yourAnsweredQuestionCount, forKey: .yourAnsweredQuestionCount)
+        try container.encode(answeredQuestionCount, forKey: .answeredQuestionCount)
         try container.encode(isParticipating, forKey: .isParticipating)
         try container.encode(isMemberCreated, forKey: .isMemberCreated)
     }
@@ -289,7 +326,7 @@ public struct MemberContextEntry: Codable, Hashable, Sendable, Identifiable {
     /// case, composes it from this and ``offClause``.
     public var secondLine: String {
         let members = memberCount == 1 ? "1 member" : "\(Self.grouped(memberCount)) members"
-        return "\(members), \(Self.yourAnswersLine(yourAnsweredQuestionCount))"
+        return "\(members), \(Self.yourAnswersLine(answeredQuestionCount))"
     }
 
     /// How many questions the member has answered, as the row and the questions screen both say it.
@@ -384,8 +421,8 @@ extension Array where Element == MemberContextEntry {
     /// launches, which is what a sort with no total order does.
     public func inContextListOrder() -> [MemberContextEntry] {
         sorted { left, right in
-            if left.yourAnsweredQuestionCount != right.yourAnsweredQuestionCount {
-                return left.yourAnsweredQuestionCount > right.yourAnsweredQuestionCount
+            if left.answeredQuestionCount != right.answeredQuestionCount {
+                return left.answeredQuestionCount > right.answeredQuestionCount
             }
             if left.memberCount != right.memberCount {
                 return left.memberCount > right.memberCount

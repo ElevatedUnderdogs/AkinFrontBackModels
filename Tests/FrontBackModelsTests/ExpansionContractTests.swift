@@ -75,7 +75,7 @@ final class ExpansionContractTests: XCTestCase {
         XCTAssertNotNil(Context(id: UUID(), rawValue: "climbing partners"))
         XCTAssertEqual(Context.Case.romance.rawValue, "romance")
         XCTAssertEqual(Context.Case.social.rawValue, "social")
-        XCTAssertEqual(Context.Case.allCases, [.romance, .social])
+        XCTAssertEqual(Context.Case.allCases, [.social, .business, .romance])
         // wire format unchanged: a Case encodes as a bare string, not an object
         let data = try JSONEncoder().encode(Context.Case.social)
         XCTAssertEqual(String(decoding: data, as: UTF8.self), "\"social\"")
