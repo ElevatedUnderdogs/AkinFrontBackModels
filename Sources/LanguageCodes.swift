@@ -56,11 +56,7 @@ public enum LanguageCodeEnum: RawRepresentable, Codable, CaseIterable, Equatable
     /// Initializes a LanguageCode from a string literal.
     /// - Parameter value: A string literal representing a language code (e.g., "en", "fr").
     public init(stringLiteral value: String) {
-        if let code = LanguageCodeEnum(rawValue: value) {
-            self = code
-        } else {
-            self = .unsupported(value)
-        }
+        self = LanguageCodeEnum(rawValue: value) ?? .unsupported(value)
     }
 
     /// Returns the localized name of the language based on the current locale.
