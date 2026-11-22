@@ -283,7 +283,11 @@ extension URL {
     static func add(response: Question.Response, questionID: String) -> URL {
         URLComponents.baseURLComponents
             .with(path: "addOption")
-            .with(queryItems: .access_token_and_user_id, .question_id(questionID), .response(response.text))
+            .with(
+                queryItems: .access_token_and_user_id,
+                .question_id(questionID),
+                .response(response.text)
+            )
             .url!
     }
 

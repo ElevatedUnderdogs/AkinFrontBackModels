@@ -36,7 +36,8 @@ public enum CallKitFeatureFlag {
 
     /// Whether any VoIP calling feature is currently active.
     public static var isAnyVoipCallEnabled: Bool {
-        isCallKitEnabled && (isRingToVoipAfterOtherUserNotViewedEnabled || isRingToVoipEnrouteEnabled)
+        isCallKitEnabled
+            && (isRingToVoipAfterOtherUserNotViewedEnabled || isRingToVoipEnrouteEnabled)
     }
 
     /// Checks whether a specific `CallType` is allowed under the

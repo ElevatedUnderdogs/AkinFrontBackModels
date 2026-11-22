@@ -24,7 +24,9 @@ final class B27ModelsContractTests: XCTestCase {
         return decoder
     }
 
-    private func sampleDetail(imageURL: String? = "https://example.com/sarah.jpg") -> QuestionnaireDetailDTO {
+    private func sampleDetail(
+        imageURL: String? = "https://example.com/sarah.jpg"
+    ) -> QuestionnaireDetailDTO {
         QuestionnaireDetailDTO(
             questionnaireId: UUID(uuidString: "50C1A1C0-C0DE-57C0-ACDE-EC7EC7EC7EC7")!,
             title: "Example",

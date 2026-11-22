@@ -23,7 +23,9 @@ extension URLRequest {
             request.httpMethod = "POST"
             return request
         } catch {
-            FileHandle.standardError.write(Data("URLRequest.update(schedule:) could not encode the schedule: \(error)\n".utf8))
+            FileHandle.standardError.write(
+                Data("URLRequest.update(schedule:) could not encode the schedule: \(error)\n".utf8)
+            )
             return nil
         }
     }
@@ -36,7 +38,9 @@ extension URLRequest {
             request.httpMethod = "POST"
             return request
         } catch {
-            FileHandle.standardError.write(Data("URLRequest.update(greet:) could not encode the greet: \(error)\n".utf8))
+            FileHandle.standardError.write(
+                Data("URLRequest.update(greet:) could not encode the greet: \(error)\n".utf8)
+            )
             return nil
         }
     }
@@ -49,7 +53,12 @@ extension URLRequest {
             request.httpBody = data
             return request
         } catch {
-            FileHandle.standardError.write(Data("URLRequest.update(midGreetSettings:) could not encode the settings: \(error)\n".utf8))
+            FileHandle.standardError.write(
+                Data(
+                    "URLRequest.update(midGreetSettings:) could not encode the settings: \(error)\n"
+                        .utf8
+                )
+            )
             return nil
         }
     }
@@ -90,7 +99,9 @@ extension URLRequest {
             request.httpBody = data
             return request
         } catch {
-            FileHandle.standardError.write(Data("URLRequest.updateUserLocation could not encode the location: \(error)\n".utf8))
+            FileHandle.standardError.write(
+                Data("URLRequest.updateUserLocation could not encode the location: \(error)\n".utf8)
+            )
             return nil
         }
     }
