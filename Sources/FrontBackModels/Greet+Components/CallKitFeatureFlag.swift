@@ -14,45 +14,46 @@ import Foundation
 /// code path should check the relevant flag before executing.
 public enum CallKitFeatureFlag {
 
-	// MARK: - Individual flags
+    // MARK: - Individual flags
 
-	/// Master switch: when `false`, all CallKit functionality is disabled
-	/// and no call-related user interface (UI) is shown.
-	public static var isCallKitEnabled: Bool = false
+    /// Master switch: when `false`, all CallKit functionality is disabled
+    /// and no call-related user interface (UI) is shown.
+    public static var isCallKitEnabled: Bool = false
 
-	/// Enables the legacy ring-to-greet behaviour where a PushKit
-	/// notification nudges the user into the greet flow.
-	public static var isRingToGreetEnabled: Bool = true
+    /// Enables the legacy ring-to-greet behaviour where a PushKit
+    /// notification nudges the user into the greet flow.
+    public static var isRingToGreetEnabled: Bool = true
 
-	/// Enables offering a VoIP call when the other user has not
-	/// viewed the greet screen after the configured delay.
-	public static var isRingToVoipAfterOtherUserNotViewedEnabled: Bool = false
+    /// Enables offering a VoIP call when the other user has not
+    /// viewed the greet screen after the configured delay.
+    public static var isRingToVoipAfterOtherUserNotViewedEnabled: Bool = false
 
-	/// Enables a VoIP call button while both users are en route
-	/// to the venue, for coordination.
-	public static var isRingToVoipEnrouteEnabled: Bool = false
+    /// Enables a VoIP call button while both users are en route
+    /// to the venue, for coordination.
+    public static var isRingToVoipEnrouteEnabled: Bool = false
 
-	// MARK: - Convenience
+    // MARK: - Convenience
 
-	/// Whether any VoIP calling feature is currently active.
-	public static var isAnyVoipCallEnabled: Bool {
-		isCallKitEnabled && (isRingToVoipAfterOtherUserNotViewedEnabled || isRingToVoipEnrouteEnabled)
-	}
+    /// Whether any VoIP calling feature is currently active.
+    public static var isAnyVoipCallEnabled: Bool {
+        isCallKitEnabled
+            && (isRingToVoipAfterOtherUserNotViewedEnabled || isRingToVoipEnrouteEnabled)
+    }
 
-	/// Checks whether a specific `CallType` is allowed under the
-	/// current flag configuration.
-	/// - Parameter callType: The call type to evaluate.
-	/// - Returns: `true` when the call type's flag is on **and** the
-	///   master switch is on.
-	public static func isEnabled(for callType: CallType) -> Bool {
-		guard isCallKitEnabled else { return false }
-		switch callType {
-		case .ringToGreet:
-			return isRingToGreetEnabled
-		case .ringToVoipAfterOtherUserNotViewed:
-			return isRingToVoipAfterOtherUserNotViewedEnabled
-		case .ringToVoipEnroute:
-			return isRingToVoipEnrouteEnabled
-		}
-	}
+    /// Checks whether a specific `CallType` is allowed under the
+    /// current flag configuration.
+    /// - Parameter callType: The call type to evaluate.
+    /// - Returns: `true` when the call type's flag is on **and** the
+    ///   master switch is on.
+    public static func isEnabled(for callType: CallType) -> Bool {
+        guard isCallKitEnabled else { return false }
+        switch callType {
+        case .ringToGreet:
+            return isRingToGreetEnabled
+        case .ringToVoipAfterOtherUserNotViewed:
+            return isRingToVoipAfterOtherUserNotViewedEnabled
+        case .ringToVoipEnroute:
+            return isRingToVoipEnrouteEnabled
+        }
+    }
 }

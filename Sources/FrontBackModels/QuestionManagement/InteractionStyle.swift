@@ -11,6 +11,8 @@ import Foundation
 extension Question {
 
     public enum InteractionStyle: String, Codable {
-        case binary, none, normal
+        case binary
+        case none
+        case normal
     }
 }

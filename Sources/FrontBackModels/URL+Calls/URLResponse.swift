@@ -14,12 +14,12 @@ import FoundationNetworking
 
 extension HTTPURLResponse {
     public enum HTTPStatus: Int, Codable {
-        /// 1xx informational reponses
+        /// 1xx informational reponses.
         case cont                           = 100
         case switchingProtocol              = 101
         case processing                     = 102
         case earlyHints                     = 103
-        /// 2xx success responses
+        /// 2xx success responses.
         case ok                             = 200
         case created                        = 201
         case accepted                       = 202
@@ -30,7 +30,7 @@ extension HTTPURLResponse {
         case multiStatus                    = 207
         case alreadyReported                = 208
         case imUsed                         = 226
-        /// 3xx redirection responses
+        /// 3xx redirection responses.
         case multipleChoices                = 300
         case movedPermanently               = 301
         case found                          = 302
@@ -40,7 +40,7 @@ extension HTTPURLResponse {
         case switchProxy                    = 306
         case temporaryRedirect              = 307
         case permanentRedirect              = 308
-        /// 4xx client error responses
+        /// 4xx client error responses.
         case badRequest                     = 400
         case unauthorized                   = 401
         case paymentRequired                = 402
@@ -70,7 +70,7 @@ extension HTTPURLResponse {
         case tooManyRequests                = 429
         case requestHeaderFieldsTooLarge    = 431
         case unavailableForLegalReasons     = 451
-        /// 5xx server errors
+        /// 5xx server errors.
         case internalServerError            = 500
         case notImplemented                 = 501
         case badGateway                     = 502

@@ -171,28 +171,32 @@ final class GL28RemainingTypesRoundTripTests: XCTestCase {
     }
 
     func testGL28_1_7_everyCaseOfFreezeOutcomeRoundTrips() throws {
-        for value: FreezeOutcome in [.frozen, .released, .allowanceExhausted,
+        for value: FreezeOutcome in [
+                                     .frozen, .released, .allowanceExhausted,
                                      .heldByAnother, .targetUnreachable] {
             try roundTrip(value, "FreezeOutcome.\(value)")
         }
     }
 
     func testGL28_1_7_everyCaseOfReserveOutcomeRoundTrips() throws {
-        for value: ReserveOutcome in [.reserved, .cancelled, .allowanceExhausted,
+        for value: ReserveOutcome in [
+                                      .reserved, .cancelled, .allowanceExhausted,
                                       .alreadyQueued, .targetAvailableNow, .targetNotReservable] {
             try roundTrip(value, "ReserveOutcome.\(value)")
         }
     }
 
     func testGL28_1_7_everyCaseOfGreetDemoCallStateRoundTrips() throws {
-        for value: GreetDemoCallState in [.none, .ringingFromViewer,
+        for value: GreetDemoCallState in [
+                                          .none, .ringingFromViewer,
                                           .ringingFromCounterpart, .connected] {
             try roundTrip(value, "GreetDemoCallState.\(value)")
         }
     }
 
     func testGL28_1_7_everyCaseOfGreetCellNameRoundTrips() throws {
-        for value: Greet.CellName in [.AlternateDecisionCell, .BackToTopCell, .DismissCell,
+        for value: Greet.CellName in [
+                                      .AlternateDecisionCell, .BackToTopCell, .DismissCell,
                                       .GetReadyMeetCell, .GreetAddressCell, .GreetMapCell,
                                       .InstructionCell, .MeetDecisionCell, .OpenersCell,
                                       .OtherGreeterSettingsCell, .ProfilePicCell,
@@ -208,7 +212,8 @@ final class GL28RemainingTypesRoundTripTests: XCTestCase {
     }
 
     func testGL28_1_7_everyCaseOfNearbyUserMessageMessageTypeRoundTrips() throws {
-        for value: NearbyUserMessage.MessageType in [.addUser, .removeUser,
+        for value: NearbyUserMessage.MessageType in [
+                                                     .addUser, .removeUser,
                                                      .updateUser, .resetAll] {
             try roundTrip(value, "NearbyUserMessage.MessageType.\(value)")
         }
@@ -228,7 +233,8 @@ final class GL28RemainingTypesRoundTripTests: XCTestCase {
     /// `Int` raw value cannot drift the way a `String` one can, because the number IS the
     /// meaning and it is fixed by RFC 9110 rather than by a spelling somebody chose.
     func testGL28_1_7_httpStatusRoundTripsAcrossEveryBand() throws {
-        for value: HTTPURLResponse.HTTPStatus in [.cont, .ok, .created, .noContent,
+        for value: HTTPURLResponse.HTTPStatus in [
+                                                  .cont, .ok, .created, .noContent,
                                                   .multipleChoices, .badRequest, .unauthorized,
                                                   .forbidden, .notFound, .imATeaPot,
                                                   .tooManyRequests, .internalServerError,
@@ -240,7 +246,8 @@ final class GL28RemainingTypesRoundTripTests: XCTestCase {
     // MARK: - Enums with associated values, every case
 
     func testGL28_1_7_everyCaseOfAutomaticGreetDebugActionRoundTrips() throws {
-        for value: AutomaticGreetDebugAction in [.expireCooldownNow,
+        for value: AutomaticGreetDebugAction in [
+                                                 .expireCooldownNow,
                                                  .setLastGreet(secondsAgo: 42.5),
                                                  .clearPairHistory] {
             try roundTrip(value, "AutomaticGreetDebugAction.\(value)")

@@ -15,7 +15,10 @@ public enum NearbyUserMessage: Codable {
     case resetAll([NearbyUser])
 
     public enum CodingKeys: String, CodingKey {
-        case type, user, userID, users
+        case type
+        case user
+        case userID
+        case users
     }
 
     public enum MessageType: String, Codable {

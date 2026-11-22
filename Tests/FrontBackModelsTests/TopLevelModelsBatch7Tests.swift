@@ -1,8 +1,3 @@
-//
-//  TopLevelModelsBatch7Tests.swift
-//  AkinFrontBackModels
-//
-
 import XCTest
 import StrongContractClient
 @testable import AkinFrontBackModels
@@ -549,7 +544,7 @@ final class TopLevelModelsBatch7Tests: XCTestCase {
         let payload = VoipCallPayload(
             greetID: greetID, callUUID: callUUID, callType: .ringToVoipEnroute, callerUserID: callerUserID,
             callerDisplayName: "Jane", callerHandleValue: "555-1234", hasVideo: true,
-            serverUnixTimestampSeconds: 12345, messageID: messageID
+            serverUnixTimestampSeconds: 12_345, messageID: messageID
         )
         XCTAssertEqual(payload.greetID, greetID)
         XCTAssertEqual(payload.callUUID, callUUID)
@@ -558,7 +553,7 @@ final class TopLevelModelsBatch7Tests: XCTestCase {
         XCTAssertEqual(payload.callerDisplayName, "Jane")
         XCTAssertEqual(payload.callerHandleValue, "555-1234")
         XCTAssertTrue(payload.hasVideo)
-        XCTAssertEqual(payload.serverUnixTimestampSeconds, 12345)
+        XCTAssertEqual(payload.serverUnixTimestampSeconds, 12_345)
         XCTAssertEqual(payload.messageID, messageID)
     }
 

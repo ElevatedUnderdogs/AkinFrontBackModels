@@ -30,7 +30,7 @@
 
 import Foundation
 
-public extension URL {
+extension URL {
 
     /// Builds a Cloudflare Images delivery URL, the one place client and server construct it.
     ///
@@ -42,7 +42,7 @@ public extension URL {
     ///   - imageID: the Cloudflare image identifier.
     ///   - deliveryID: the account's Images delivery identifier.
     ///   - variant: the Cloudflare Images variant, defaulting to `public`.
-    static func cloudflareImageURL(
+    public static func cloudflareImageURL(
         imageID: String,
         deliveryID: String,
         variant: String = "public"

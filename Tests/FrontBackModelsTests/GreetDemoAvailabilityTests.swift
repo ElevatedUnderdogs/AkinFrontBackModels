@@ -102,7 +102,7 @@ final class GreetDemoAvailabilityTests: XCTestCase {
 
         ctx = context([
             event(.callInitiated(.ringToGreet), by: viewer, seq: 1),
-            event(.callAnswered(.ringToGreet), by: counterpart, seq: 2)
+            event(.callAnswered(.ringToGreet), by: counterpart, seq: 2),
         ])
         XCTAssertEqual(ctx.call, .connected)
         XCTAssertTrue(check(.callEnded(.ringToGreet), ctx).isAvailable, "A connected call can be hung up.")

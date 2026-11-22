@@ -18,7 +18,7 @@ final class ExpansionContractTests: XCTestCase {
     // 1.5: MatchingAlgorithmChoice is Codable, CaseIterable, Hashable and carries user copy.
     func testMatchingAlgorithmChoiceConformances() throws {
         XCTAssertEqual(MatchingAlgorithmChoice.allCases.count, 2)                 // CaseIterable
-        let set: Set<MatchingAlgorithmChoice> = [.percentileWeighted, .latentFactor] // Hashable
+        let set: Set<MatchingAlgorithmChoice> = [.percentileWeighted, .latentFactor]  // Hashable
         XCTAssertEqual(set.count, 2)
         let decoded = try JSONDecoder().decode(MatchingAlgorithmChoice.self,     // Codable
                                                from: JSONEncoder().encode(MatchingAlgorithmChoice.latentFactor))

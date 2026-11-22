@@ -12,7 +12,7 @@ import EncryptDecryptKey
 // MARK: - Data shape you’ll pass back
 public struct VenueInfo: Hashable, Equatable, Codable {
 
-    /// Google places id is a `String` not `UUID`
+    /// Google places id is a `String` not `UUID`.
     public let googlePlacesid: String
     public let name: String
     public let address: String
@@ -88,7 +88,7 @@ extension User {
             
             if email.isEmpty {
                 errors.append(" No email was provided.")
-            } else if email.count  < 3 {
+            } else if email.count < 3 {
                 errors.append(" The email is too short ;).")
             } else if email.isNotValidEmail {
                 errors.append(" The email \(email) is not a valid email.")

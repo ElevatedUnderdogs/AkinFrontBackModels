@@ -48,9 +48,7 @@ final class MeetMarkedMemberStatusTests: XCTestCase {
     func test_eachCaseRoundTrips() throws {
         for status in [MeetMarkedMemberStatus.named, .anonymous, .departed] {
             let row = member(name: status == .named ? "June" : nil, status: status)
-            let decoded = try decoder.decode(
-                MeetMarkedMember.self, from: try encoder.encode(row)
-            )
+            let decoded = try decoder.decode(MeetMarkedMember.self, from: try encoder.encode(row))
             XCTAssertEqual(decoded.status, status, "\(status) did not survive the wire")
             XCTAssertEqual(decoded, row)
         }

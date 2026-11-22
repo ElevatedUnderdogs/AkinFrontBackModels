@@ -51,7 +51,7 @@ public struct GreetedUser: Identifiable, Codable, Equatable, Hashable {
     public var isBlocked: Bool
     public var manualNotificationFrequency: NotificationFrequency
     public var automaticNotificationFrequency: NotificationFrequency
-    /// 0.0 - 1.0 represents 100%
+    /// 0.0 - 1.0 represents 100%.
     public var rating: Double?
     public var greetIDs: [UUID] = []
     public var metOnDate: Date?
@@ -362,7 +362,7 @@ public struct AddResponseResponse: Codable {
 // Response model for `nearbyUsers(location:)` API call
 public struct NearbyUsersResponse: Codable {
     public var success: Bool
-    public var users: [UserInformation] // Reusing UserInformation public struct from earlier
+    public var users: [UserInformation]  // Reusing UserInformation public struct from earlier
 
     public init(success: Bool, users: [UserInformation]) {
         self.success = success

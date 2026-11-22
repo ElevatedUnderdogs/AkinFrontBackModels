@@ -46,7 +46,7 @@ public enum ReportFlag: String, Codable, CaseIterable, Hashable {
     case misstyping
     case missSpelling
 
-    /// Human-readable string for display purposes (UI, emails, etc.)
+    /// Human-readable string for display purposes (UI, emails, etc.).
     public var displayName: String {
         switch self {
         case .childSexualAbuseMaterial: return "Child Sexual Abuse Material"

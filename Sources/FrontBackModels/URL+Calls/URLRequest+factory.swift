@@ -18,15 +18,18 @@ extension URLRequest {
     static func update(schedule: [Week.Day]) -> URLRequest? {
         do {
             let data = try JSONEncoder().encode(schedule)
-            var request = URLRequest(url: URL.updateSchedule!)
+            var request = URLRequest(url: URL.updateSchedule)
             request.httpBody = data
             request.httpMethod = "POST"
             return request
-        } catch let error {
+        } catch {
+            FileHandle.standardError.write(
+                Data("URLRequest.update(schedule:) could not encode the schedule: \(error)\n".utf8)
+            )
             return nil
         }
     }
-    
+
     static func update(greet: Greet) -> URLRequest? {
         do {
             let data = try JSONEncoder().encode(greet)
@@ -34,11 +37,14 @@ extension URLRequest {
             request.httpBody = data
             request.httpMethod = "POST"
             return request
-        } catch let error {
+        } catch {
+            FileHandle.standardError.write(
+                Data("URLRequest.update(greet:) could not encode the greet: \(error)\n".utf8)
+            )
             return nil
         }
     }
-    
+
     static func update(midGreetSettings: Greet.Settings) -> URLRequest? {
         do {
             let data = try JSONEncoder().encode(midGreetSettings)
@@ -46,14 +52,20 @@ extension URLRequest {
             request.httpMethod = "POST"
             request.httpBody = data
             return request
-        } catch let error {
+        } catch {
+            FileHandle.standardError.write(
+                Data(
+                    "URLRequest.update(midGreetSettings:) could not encode the settings: \(error)\n"
+                        .utf8
+                )
+            )
             return nil
         }
     }
     
     static func yelpBusiness(latitude: Double, longitude: Double, apikey: String) -> URLRequest? {
         guard let url = URL.yelpBusiness(latitude: latitude, longitude: longitude) else { return nil }
-        var request =  URLRequest(url: url)
+        var request = URLRequest(url: url)
         request.setValue("Bearer \(apikey)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "GET"
         return request
@@ -66,7 +78,8 @@ extension URLRequest {
     ///   - longitude: Longitude of the location coordinate.
     ///   - contextId: Current context id.
     /// - Returns: New instance of `URLRequest`.
-    @inline(__always) static func updateUserLocation(
+    @inline(__always)
+    static func updateUserLocation(
         userId: UUID?/* = Keychain.thisUserID*/,
         latitude: Double?/* = CLLocationCoordinate2D.thisLocation?.latitude*/,
         longitude: Double?/* = CLLocationCoordinate2D.thisLocation?.longitude*/,
@@ -85,11 +98,14 @@ extension URLRequest {
             request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
             request.httpBody = data
             return request
-        } catch let error {
+        } catch {
+            FileHandle.standardError.write(
+                Data("URLRequest.updateUserLocation could not encode the location: \(error)\n".utf8)
+            )
             return nil
         }
     }
-    
+
 //    /// Adds/Updates user's location onto the server database.
 //    /// - Parameters:
 //    ///   - userId: `User`'s id who's location needs to be updated. Current logged in user's id is the default value.

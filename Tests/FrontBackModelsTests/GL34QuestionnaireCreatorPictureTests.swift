@@ -59,9 +59,7 @@ final class GL34QuestionnaireCreatorPictureTests: XCTestCase {
         {"id":"\(UUID().uuidString)","title":"Weekend plans","normalisedTitleKey":"weekend plans",
          "creator":{"you":{}},"questionCount":3,"answeredSomeCount":2,"answeredAllCount":1}
         """
-        let row = try JSONDecoder().decode(
-            QuestionnaireRowSummary.self, from: Data(json.utf8)
-        )
+        let row = try JSONDecoder().decode(QuestionnaireRowSummary.self, from: Data(json.utf8))
         XCTAssertNil(row.creatorImageURL)
         XCTAssertEqual(row.questionCount, 3)
     }

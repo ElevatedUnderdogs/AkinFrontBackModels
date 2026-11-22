@@ -19,7 +19,10 @@ public struct Question: Codable, Equatable, Hashable {
         // for example there can be questions created by this user in the not answered,
         // answered and all.  This category though is mostly used for making requests to the
         // server and secondarily to for the client presentation. 
-        case not_answered, answered, all, created
+        case not_answered
+        case answered
+        case all
+        case created
     }
     
     public static func == (lhs: Question, rhs: Question) -> Bool {
@@ -28,9 +31,9 @@ public struct Question: Codable, Equatable, Hashable {
     
     // MARK - stored properties
 
-    public var requirementsFor: [Context: [Response.Selections.MyTheir]] = [:] // codable
+    public var requirementsFor: [Context: [Response.Selections.MyTheir]] = [:]  // codable
     public var text: String
-    public var responses: [Response] = [] // Codable
+    public var responses: [Response] = []  // Codable
     public var id: UUID
     /// The member who wrote it, present only when they are disclosed (swath N3 item 6.5).
     ///
@@ -42,10 +45,10 @@ public struct Question: Codable, Equatable, Hashable {
     public var defaultCompatibilityRule: CompatibilityRule
 
     /// Keep in mind the instances of these models in this package are customized for each user.
-    public var importanceFor: [ContextRawValue: Importance] = [:] // Codable
+    public var importanceFor: [ContextRawValue: Importance] = [:]  // Codable
 
     /// The popularity of this question in each context.
-    public var contextPopularity: [ContextRawValue: PopularityScore] = [:] // Codable
+    public var contextPopularity: [ContextRawValue: PopularityScore] = [:]  // Codable
 
     /// Whether an agent judged this question to be more about romance than about business or
     /// friendship (GOAL_LOOP41).
@@ -96,18 +99,18 @@ public struct Question: Codable, Equatable, Hashable {
     }
 
     public func responses(containing searchText: String) -> [Response] {
-        responses.filter {  $0.text.lowercased().contains(searchText.lowercased()) }
+        responses.filter { $0.text.lowercased().contains(searchText.lowercased()) }
     }
 
     /// This initializer isn't synthesized when Codable is conformed to.
     public init(
-        requirementsFor: [Context : [Response.Selections.MyTheir]] = [:],
+        requirementsFor: [Context: [Response.Selections.MyTheir]] = [:],
         text: String,
         responses: [Response] = [],
         id: UUID,
         creatorID: UUID?,
-        importanceFor: [ContextRawValue : Importance] = [:],
-        contextPopularity: [ContextRawValue : PopularityScore] = [:],
+        importanceFor: [ContextRawValue: Importance] = [:],
+        contextPopularity: [ContextRawValue: PopularityScore] = [:],
         originalContext: Context,
         defaultCompatibilityRule: CompatibilityRule,
         assessment: ModerationAssessment,
@@ -133,7 +136,7 @@ public struct Question: Codable, Equatable, Hashable {
     }
 
     func isDeepEqual(to other: Question) -> Bool {
-        return self.id == other.id &&
+        self.id == other.id &&
         self.text == other.text &&
         self.responses == other.responses &&
         self.creatorID == other.creatorID &&
