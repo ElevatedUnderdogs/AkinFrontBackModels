@@ -177,11 +177,19 @@ private struct GL28SynthKeyed<K: CodingKey>: KeyedDecodingContainerProtocol {
         GL28SynthUnkeyed(codingPath: codingPath + [key], depth: depth + 1,
                          count: depth + 1 >= GL28SynthDecoder.maxDepth ? 0 : 2)
     }
+
     func superDecoder() throws -> Decoder {
-        var d = GL28SynthDecoder(); d.codingPath = codingPath; d.depth = depth + 1; return d
+        var d = GL28SynthDecoder()
+        d.codingPath = codingPath
+        d.depth = depth + 1
+        return d
     }
+
     func superDecoder(forKey key: K) throws -> Decoder {
-        var d = GL28SynthDecoder(); d.codingPath = codingPath + [key]; d.depth = depth + 1; return d
+        var d = GL28SynthDecoder()
+        d.codingPath = codingPath + [key]
+        d.depth = depth + 1
+        return d
     }
 }
 
@@ -192,25 +200,41 @@ private struct GL28SynthUnkeyed: UnkeyedDecodingContainer {
     var currentIndex: Int = 0
     var isAtEnd: Bool { currentIndex >= (count ?? 0) }
 
-    mutating func decodeNil() throws -> Bool { currentIndex += 1; return false }
-    mutating func decode(_ type: Bool.Type) throws -> Bool { currentIndex += 1; return Sample.bool }
-    mutating func decode(_ type: String.Type) throws -> String { currentIndex += 1; return Sample.string }
-    mutating func decode(_ type: Double.Type) throws -> Double { currentIndex += 1; return Sample.double }
-    mutating func decode(_ type: Float.Type) throws -> Float { currentIndex += 1; return Float(Sample.double) }
-    mutating func decode(_ type: Int.Type) throws -> Int { currentIndex += 1; return Sample.int }
-    mutating func decode(_ type: Int8.Type) throws -> Int8 { currentIndex += 1; return Int8(Sample.int) }
-    mutating func decode(_ type: Int16.Type) throws -> Int16 { currentIndex += 1; return Int16(Sample.int) }
-    mutating func decode(_ type: Int32.Type) throws -> Int32 { currentIndex += 1; return Int32(Sample.int) }
-    mutating func decode(_ type: Int64.Type) throws -> Int64 { currentIndex += 1; return Int64(Sample.int) }
-    mutating func decode(_ type: UInt.Type) throws -> UInt { currentIndex += 1; return UInt(Sample.int) }
-    mutating func decode(_ type: UInt8.Type) throws -> UInt8 { currentIndex += 1; return UInt8(Sample.int) }
-    mutating func decode(_ type: UInt16.Type) throws -> UInt16 { currentIndex += 1; return UInt16(Sample.int) }
-    mutating func decode(_ type: UInt32.Type) throws -> UInt32 { currentIndex += 1; return UInt32(Sample.int) }
-    mutating func decode(_ type: UInt64.Type) throws -> UInt64 { currentIndex += 1; return UInt64(Sample.int) }
+    mutating func decodeNil() throws -> Bool { currentIndex += 1
+    return false }
+    mutating func decode(_ type: Bool.Type) throws -> Bool { currentIndex += 1
+    return Sample.bool }
+    mutating func decode(_ type: String.Type) throws -> String { currentIndex += 1
+    return Sample.string }
+    mutating func decode(_ type: Double.Type) throws -> Double { currentIndex += 1
+    return Sample.double }
+    mutating func decode(_ type: Float.Type) throws -> Float { currentIndex += 1
+    return Float(Sample.double) }
+    mutating func decode(_ type: Int.Type) throws -> Int { currentIndex += 1
+    return Sample.int }
+    mutating func decode(_ type: Int8.Type) throws -> Int8 { currentIndex += 1
+    return Int8(Sample.int) }
+    mutating func decode(_ type: Int16.Type) throws -> Int16 { currentIndex += 1
+    return Int16(Sample.int) }
+    mutating func decode(_ type: Int32.Type) throws -> Int32 { currentIndex += 1
+    return Int32(Sample.int) }
+    mutating func decode(_ type: Int64.Type) throws -> Int64 { currentIndex += 1
+    return Int64(Sample.int) }
+    mutating func decode(_ type: UInt.Type) throws -> UInt { currentIndex += 1
+    return UInt(Sample.int) }
+    mutating func decode(_ type: UInt8.Type) throws -> UInt8 { currentIndex += 1
+    return UInt8(Sample.int) }
+    mutating func decode(_ type: UInt16.Type) throws -> UInt16 { currentIndex += 1
+    return UInt16(Sample.int) }
+    mutating func decode(_ type: UInt32.Type) throws -> UInt32 { currentIndex += 1
+    return UInt32(Sample.int) }
+    mutating func decode(_ type: UInt64.Type) throws -> UInt64 { currentIndex += 1
+    return UInt64(Sample.int) }
     mutating func decode<T: Decodable>(_ type: T.Type) throws -> T {
         currentIndex += 1
         return try synthesize(type, codingPath: codingPath, depth: depth)
     }
+
     mutating func nestedContainer<NK: CodingKey>(keyedBy type: NK.Type) throws
     -> KeyedDecodingContainer<NK> {
         currentIndex += 1
@@ -220,9 +244,13 @@ private struct GL28SynthUnkeyed: UnkeyedDecodingContainer {
         currentIndex += 1
         return GL28SynthUnkeyed(codingPath: codingPath, depth: depth + 1, count: 0)
     }
+
     mutating func superDecoder() throws -> Decoder {
         currentIndex += 1
-        var d = GL28SynthDecoder(); d.codingPath = codingPath; d.depth = depth + 1; return d
+        var d = GL28SynthDecoder()
+        d.codingPath = codingPath
+        d.depth = depth + 1
+        return d
     }
 }
 
