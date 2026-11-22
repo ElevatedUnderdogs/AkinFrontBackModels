@@ -23,10 +23,11 @@ extension URLRequest {
             request.httpMethod = "POST"
             return request
         } catch {
+            FileHandle.standardError.write(Data("URLRequest.update(schedule:) could not encode the schedule: \(error)\n".utf8))
             return nil
         }
     }
-    
+
     static func update(greet: Greet) -> URLRequest? {
         do {
             let data = try JSONEncoder().encode(greet)
@@ -35,10 +36,11 @@ extension URLRequest {
             request.httpMethod = "POST"
             return request
         } catch {
+            FileHandle.standardError.write(Data("URLRequest.update(greet:) could not encode the greet: \(error)\n".utf8))
             return nil
         }
     }
-    
+
     static func update(midGreetSettings: Greet.Settings) -> URLRequest? {
         do {
             let data = try JSONEncoder().encode(midGreetSettings)
@@ -47,6 +49,7 @@ extension URLRequest {
             request.httpBody = data
             return request
         } catch {
+            FileHandle.standardError.write(Data("URLRequest.update(midGreetSettings:) could not encode the settings: \(error)\n".utf8))
             return nil
         }
     }
@@ -87,10 +90,11 @@ extension URLRequest {
             request.httpBody = data
             return request
         } catch {
+            FileHandle.standardError.write(Data("URLRequest.updateUserLocation could not encode the location: \(error)\n".utf8))
             return nil
         }
     }
-    
+
 //    /// Adds/Updates user's location onto the server database.
 //    /// - Parameters:
 //    ///   - userId: `User`'s id who's location needs to be updated. Current logged in user's id is the default value.
