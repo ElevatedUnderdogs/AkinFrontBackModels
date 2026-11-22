@@ -52,7 +52,10 @@ extension Greet {
 
             switch caseType {
             case .getRating:
-                let model = try container.decode(Greet.Notification.LocalModel.self, forKey: .associatedValue)
+                let model = try container.decode(
+                    Greet.Notification.LocalModel.self,
+                    forKey: .associatedValue
+                )
                 self = .getRating(model)
 
             case .greet:

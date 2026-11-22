@@ -24,7 +24,9 @@ final class B27ModelsContractTests: XCTestCase {
         return decoder
     }
 
-    private func sampleDetail(imageURL: String? = "https://example.com/sarah.jpg") -> QuestionnaireDetailDTO {
+    private func sampleDetail(
+        imageURL: String? = "https://example.com/sarah.jpg"
+    ) -> QuestionnaireDetailDTO {
         QuestionnaireDetailDTO(
             questionnaireId: UUID(uuidString: "50C1A1C0-C0DE-57C0-ACDE-EC7EC7EC7EC7")!,
             title: "Example",
@@ -66,9 +68,9 @@ final class B27ModelsContractTests: XCTestCase {
     /// contract used, so a client that already reads it keeps working.
     func testDetailEncodesAndDecodesThePicture() throws {
         let encoded = try wireEncoder().encode(sampleDetail())
-        let json = try JSONSerialization.jsonObject(with: encoded) as! [String: Any]
-        XCTAssertEqual(json["creator_image_url"] as? String, "https://example.com/sarah.jpg")
-        XCTAssertEqual(json["creator_name"] as? String, "Sarah")
+        let wire = try JSONDecoder().decode(QuestionnaireDetailWireProbe.self, from: encoded)
+        XCTAssertEqual(wire.creatorImageURL, "https://example.com/sarah.jpg")
+        XCTAssertEqual(wire.creatorName, "Sarah")
         let decoded = try wireDecoder().decode(QuestionnaireDetailDTO.self, from: encoded)
         XCTAssertEqual(decoded.creatorImageUrl, "https://example.com/sarah.jpg")
         XCTAssertEqual(decoded.creatorName, "Sarah")
@@ -92,9 +94,9 @@ final class B27ModelsContractTests: XCTestCase {
         let summary = MemberProfileSummary(memberId: id, subscriberCount: 4)
         XCTAssertEqual(summary.subscriberCount, 4)
         let encoded = try wireEncoder().encode(summary)
-        let json = try JSONSerialization.jsonObject(with: encoded) as! [String: Any]
-        XCTAssertEqual(json["subscriber_count"] as? Int, 4)
-        XCTAssertNil(json["follower_count"])
+        let wire = try JSONDecoder().decode(MemberProfileSummaryWireProbe.self, from: encoded)
+        XCTAssertEqual(wire.subscriberCount, 4)
+        XCTAssertNil(wire.followerCount)
         let decoded = try wireDecoder().decode(MemberProfileSummary.self, from: encoded)
         XCTAssertEqual(decoded.subscriberCount, 4)
         XCTAssertEqual(decoded.memberId, id)

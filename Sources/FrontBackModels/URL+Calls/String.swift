@@ -170,6 +170,10 @@ extension String {
 
 
 extension ModerationAssessment {
+    /// A sample assessment encoded as JSON, the shape the moderation model is asked to answer in.
+    ///
+    /// Used in the model prompt as a worked example, so the JSON it returns decodes into
+    /// ``ModerationAssessment``.
     public static var exampleJSONString: String {
         let example = ModerationAssessment(entries: [
             FlagExplanation(

@@ -72,7 +72,8 @@ public enum ContextName {
     /// SENTENCE CASE, NOT TITLE CASE. Only the first character of the whole name is raised; every
     /// other character is lowered. Capitalising each word would turn "Board games" into "Board
     /// Games" and "rock climbing" into "Rock Climbing", which is a different rule from the one
-    /// asked for and would also mangle a name whose second word is deliberately lower, such as "Dungeons and dragons".
+    /// asked for and would also mangle a name whose second word is deliberately lower, such as
+    /// "Dungeons and dragons".
     ///
     /// IT REPLACES ``displayName(_:)`` AS THE STORED SPELLING, and it does not change
     /// ``normalisedKey(_:)``. Uniqueness is still enforced on the case folded key, so applying
