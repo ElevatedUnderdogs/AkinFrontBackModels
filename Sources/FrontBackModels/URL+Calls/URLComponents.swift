@@ -32,20 +32,26 @@ extension URLComponents {
         return components
     }
 
+    /// The server address requests start from: ``debug`` in a debug build, ``notDebug`` otherwise.
     public static var baseURLComponents: Self {
         EnvConfig.isDebug ? debug : notDebug
     }
 
+    /// A copy of these components with the given query items, written as a variadic list.
     public func with(queryItems: URLQueryItem...) -> Self {
         with(array: queryItems)
     }
 
+    /// A copy of these components with the given query items.
+    ///
+    /// If the components already carry query items, those are kept and `array` is not added.
     public func with(array: [URLQueryItem]) -> Self {
         var buffer = self
         buffer.queryItems = buffer.queryItems ?? [] + array
         return buffer
     }
 
+    /// A copy of these components whose path is `path` under the server's `/api/` root.
     public func with(path: String) -> Self {
         var buffer = self
         buffer.path = "/api/" + path
