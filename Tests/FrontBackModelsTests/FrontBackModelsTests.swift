@@ -12,7 +12,7 @@ struct GreetDetailsInputOutput {
     let output: Greet.Update
 
     var greetUpdate: Greet.Update {
-        return Greet.Update(
+        Greet.Update(
             this: this,
             otherUser: otherUser,
             withinRange: withinRange,
@@ -23,7 +23,7 @@ struct GreetDetailsInputOutput {
     }
 
     var passes: Bool {
-        return greetUpdate == output
+        greetUpdate == output
     }
 }
 

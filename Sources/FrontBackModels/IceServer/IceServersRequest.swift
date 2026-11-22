@@ -26,10 +26,10 @@ public typealias IceServersRequestType = Request<Empty, IceServersResponse>
 
 extension IceServersRequestType {
 
-	/// Fetches a fresh set of Interactive Connectivity Establishment
-	/// (ICE) servers from the server.  The server talks to Cloudflare
-	/// behind the scenes and returns a normalized `IceServersResponse`.
-	public static var iceServers: Self {
-		.init(method: .get)
-	}
+    /// Fetches a fresh set of Interactive Connectivity Establishment
+    /// (ICE) servers from the server.  The server talks to Cloudflare
+    /// behind the scenes and returns a normalized `IceServersResponse`.
+    public static var iceServers: Self {
+        .init(method: .get)
+    }
 }

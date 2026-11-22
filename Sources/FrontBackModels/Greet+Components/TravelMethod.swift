@@ -9,7 +9,12 @@
 import Foundation
 
 public enum TravelMethod: String, Codable {
-    case bike, car, none, walk, motorcycle, transit
+    case bike
+    case car
+    case none
+    case walk
+    case motorcycle
+    case transit
 
     /// The string used for google places api.
     /// https://developers.google.com/maps/documentation/routes/reference/rest/v2/RouteTravelMode

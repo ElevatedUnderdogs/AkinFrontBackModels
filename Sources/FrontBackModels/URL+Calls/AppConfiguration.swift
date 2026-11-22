@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  AppConfiguration.swift
 //  
 //
 //  Created by Scott Lydon on 4/3/24.

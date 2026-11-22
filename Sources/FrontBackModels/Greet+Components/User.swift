@@ -14,7 +14,7 @@ public struct User: Codable {
 
     // MARK - properties
 
-    public var privacy: PrivateDetails? // Codable
+    public var privacy: PrivateDetails?  // Codable
     public var cloudFlareImageURL: String?
     public var firstName: String
     public var lastName: String
@@ -22,7 +22,7 @@ public struct User: Codable {
     public var email: String
     public var zip: Int?
     public var phoneNumber: Int? = nil
-    public var requiredQuestions: [Question] = [] // Codable
+    public var requiredQuestions: [Question] = []  // Codable
     public var birthDate: Date? = nil
     public var meetingSchedule: [Week.Day] = []
     public var dobString: String?

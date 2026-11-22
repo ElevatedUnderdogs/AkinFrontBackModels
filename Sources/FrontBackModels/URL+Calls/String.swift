@@ -146,7 +146,7 @@ extension String {
         """
     }
 
-    /// Converts `pushProviderAccepted` → `push_provider_accepted`
+    /// Converts `pushProviderAccepted` → `push_provider_accepted`.
     var snakeCased: String {
         unicodeScalars.reduce(into: "") { result, scalar in
             if CharacterSet.uppercaseLetters.contains(scalar) {
@@ -169,10 +169,12 @@ extension String {
 }
 
 
-import Foundation
-
-public extension ModerationAssessment {
-    static var exampleJSONString: String {
+extension ModerationAssessment {
+    /// A sample assessment encoded as JSON, the shape the moderation model is asked to answer in.
+    ///
+    /// Used in the model prompt as a worked example, so the JSON it returns decodes into
+    /// ``ModerationAssessment``.
+    public static var exampleJSONString: String {
         let example = ModerationAssessment(entries: [
             FlagExplanation(
                 flag: .threatensPhysicalHarm,

@@ -13,7 +13,13 @@ extension Week {
     public struct Day: Codable {
 
         public enum Name: String, Codable {
-            case Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
+            case Sunday
+            case Monday
+            case Tuesday
+            case Wednesday
+            case Thursday
+            case Friday
+            case Saturday
         }
 
         public var name: Name

@@ -8,13 +8,13 @@
 import Foundation
 
 public enum BuildSource: String, CaseIterable, Identifiable, Codable, Hashable, Equatable {
-    /// Local development build run from Xcode (DEBUG)
+    /// Local development build run from Xcode (DEBUG).
     case xcode
 
-    /// Beta version distributed via TestFlight
+    /// Beta version distributed via TestFlight.
     case testflight
 
-    /// Production version downloaded from App Store
+    /// Production version downloaded from App Store.
     case appStore
 
     public var id: String { rawValue }

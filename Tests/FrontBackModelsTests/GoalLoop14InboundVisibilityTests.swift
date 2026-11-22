@@ -51,18 +51,16 @@ final class GoalLoop14InboundVisibilityTests: XCTestCase {
     /// The refusal names what arrived and what is accepted, which is the half of
     /// F5.7 that makes the error usable rather than merely correct.
     func testTheRefusalNamesTheAcceptedSet() throws {
-        let error = try XCTUnwrap(
-            {
-                do {
-                    _ = try AuthorVisibility.requireKnown("banana")
-                    return nil as AuthorVisibility.UnknownValue?
-                } catch let unknown as AuthorVisibility.UnknownValue {
-                    return unknown
-                } catch {
-                    return nil
-                }
-            }()
-        )
+        let error = try XCTUnwrap({
+            do {
+                _ = try AuthorVisibility.requireKnown("banana")
+                return nil as AuthorVisibility.UnknownValue?
+            } catch let unknown as AuthorVisibility.UnknownValue {
+                return unknown
+            } catch {
+                return nil
+            }
+        }())
         let message = error.description
         XCTAssertTrue(message.contains("banana"), "the message does not say what arrived: \(message)")
         for accepted in AuthorVisibility.allCases {
@@ -100,9 +98,7 @@ final class GoalLoop14InboundVisibilityTests: XCTestCase {
     /// property that keeps an uninterpretable row from resolving to "show this
     /// person's name".
     func testTheStoredValueDecodeStillFailsClosed() throws {
-        let decoded = try JSONDecoder().decode(
-            AuthorVisibility.self, from: Data("\"banana\"".utf8)
-        )
+        let decoded = try JSONDecoder().decode(AuthorVisibility.self, from: Data("\"banana\"".utf8))
         XCTAssertEqual(decoded, .anonymized)
     }
 }

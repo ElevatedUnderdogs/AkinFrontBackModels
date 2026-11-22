@@ -23,7 +23,7 @@ extension Array where Element == Question.Response {
     }
 }
 
-extension Array where Element == Greet.Method  {
+extension Array where Element == Greet.Method {
     public mutating func remove(greetingMethod: Greet.Method) {
         removeAll { $0 == greetingMethod }
     }

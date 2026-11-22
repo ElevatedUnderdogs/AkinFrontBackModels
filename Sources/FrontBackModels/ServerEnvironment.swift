@@ -17,6 +17,6 @@ public enum ServerEnvironment: String, CaseIterable, Identifiable, Codable, Hash
     /// A deployed Render production instance. Images are stored in Cloudflare Images.
     case prod
 
-    /// Used for conformance to identifiable
+    /// Used for conformance to identifiable.
     public var id: String { rawValue }
 }

@@ -24,7 +24,7 @@ public enum Requirement: Equatable, Codable {
         case requiresDeeplinkToSettings, regular
     }
 
-    // MARK - inits
+    // MARK: - inits
     init?(from authorizationStatus: LocationAuthorizationStatus) {
         switch authorizationStatus {
         case .notDetermined:

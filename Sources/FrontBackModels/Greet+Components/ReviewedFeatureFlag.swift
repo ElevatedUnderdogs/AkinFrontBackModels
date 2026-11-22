@@ -371,8 +371,8 @@ public enum ReviewedFeatureFlag {
         // the server resolves in front of this are what turn one off without a new build.
         // NEITHER `.unboundedContexts` NOR `.questionnaireMatchmaking` IS IN THIS LIST, and leaving
         // them out is the merge decision rather than an oversight. Each has its own `return false`
-        // below with its own recorded reason, and the comment on the first of those says exactly why
-        // they are listed separately: so that adding a flag cannot quietly inherit the wrong
+        // below with its own recorded reason, and the comment on the first of those says exactly
+        // why they are listed separately: so that adding a flag cannot quietly inherit the wrong
         // default. Listing a flag in both places is how a flag ships UP while the source reads
         // DOWN, which this repository has already shipped once.
         case .master, .memberCreatedContexts, .perContextParticipation,

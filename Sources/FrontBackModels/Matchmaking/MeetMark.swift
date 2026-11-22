@@ -122,6 +122,19 @@ public struct MarkWantToMeetPayload: Codable, Hashable, Sendable {
         self.prompt = prompt
     }
 
+    /// Decodes the object form, and the bare id older clients send.
+    public init(from decoder: any Decoder) throws {
+        if let single = try? decoder.singleValueContainer(),
+           let identifier = try? single.decode(UUID.self) {
+            self.memberId = identifier
+            self.prompt = nil
+            return
+        }
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.memberId = try container.decode(UUID.self, forKey: .memberId)
+        self.prompt = try container.decodeIfPresent(MeetMarkPrompt.self, forKey: .prompt)
+    }
+
     private enum CodingKeys: String, CodingKey {
         case memberId
         case prompt
@@ -143,19 +156,6 @@ public struct MarkWantToMeetPayload: Codable, Hashable, Sendable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(memberId, forKey: .memberId)
         try container.encode(prompt, forKey: .prompt)
-    }
-
-    /// Decodes the object form, and the bare id older clients send.
-    public init(from decoder: any Decoder) throws {
-        if let single = try? decoder.singleValueContainer(),
-           let identifier = try? single.decode(UUID.self) {
-            self.memberId = identifier
-            self.prompt = nil
-            return
-        }
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.memberId = try container.decode(UUID.self, forKey: .memberId)
-        self.prompt = try container.decodeIfPresent(MeetMarkPrompt.self, forKey: .prompt)
     }
 }
 
@@ -242,17 +242,6 @@ public struct MeetMarkedMember: Codable, Hashable, Sendable, Identifiable {
         self.status = status ?? Self.status(forName: name)
     }
 
-    /// What a client can work out from the name alone, which is what a server with no `status`
-    /// field leaves it to work out.
-    ///
-    /// - Parameter name: the name on the row, if any.
-    /// - Returns: named, or departed.
-    static func status(forName name: String?) -> MeetMarkedMemberStatus {
-        guard let name, name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
-        else { return .departed }
-        return .named
-    }
-
     /// Decodes a payload with no `prompt` in it, which is what a server that has not shipped
     /// GOAL_LOOP34 returns.
     public init(from decoder: any Decoder) throws {
@@ -264,6 +253,17 @@ public struct MeetMarkedMember: Codable, Hashable, Sendable, Identifiable {
         self.status = try container.decodeIfPresent(
             MeetMarkedMemberStatus.self, forKey: .status
         ) ?? Self.status(forName: self.name)
+    }
+
+    /// What a client can work out from the name alone, which is what a server with no `status`
+    /// field leaves it to work out.
+    ///
+    /// - Parameter name: the name on the row, if any.
+    /// - Returns: named, or departed.
+    static func status(forName name: String?) -> MeetMarkedMemberStatus {
+        guard let name, name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+        else { return .departed }
+        return .named
     }
 
     private enum CodingKeys: String, CodingKey {

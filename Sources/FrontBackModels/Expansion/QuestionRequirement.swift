@@ -13,9 +13,9 @@ public enum QuestionRequirement: Codable, Hashable {
     /// The question this requirement is about, common to every flavor.
     public var questionID: UUID {
         switch self {
-        case let .mustHaveAnswered(q):        return q
-        case let .mustNotHaveChosen(q, _):    return q
-        case let .mustHaveChosenOneOf(q, _):  return q
+        case .mustHaveAnswered(let q):        return q
+        case .mustNotHaveChosen(let q, _):    return q
+        case .mustHaveChosenOneOf(let q, _):  return q
         }
     }
 }

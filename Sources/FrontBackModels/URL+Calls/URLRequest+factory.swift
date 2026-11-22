@@ -18,11 +18,11 @@ extension URLRequest {
     static func update(schedule: [Week.Day]) -> URLRequest? {
         do {
             let data = try JSONEncoder().encode(schedule)
-            var request = URLRequest(url: URL.updateSchedule!)
+            var request = URLRequest(url: URL.updateSchedule)
             request.httpBody = data
             request.httpMethod = "POST"
             return request
-        } catch let error {
+        } catch {
             return nil
         }
     }
@@ -34,7 +34,7 @@ extension URLRequest {
             request.httpBody = data
             request.httpMethod = "POST"
             return request
-        } catch let error {
+        } catch {
             return nil
         }
     }
@@ -46,14 +46,14 @@ extension URLRequest {
             request.httpMethod = "POST"
             request.httpBody = data
             return request
-        } catch let error {
+        } catch {
             return nil
         }
     }
     
     static func yelpBusiness(latitude: Double, longitude: Double, apikey: String) -> URLRequest? {
         guard let url = URL.yelpBusiness(latitude: latitude, longitude: longitude) else { return nil }
-        var request =  URLRequest(url: url)
+        var request = URLRequest(url: url)
         request.setValue("Bearer \(apikey)", forHTTPHeaderField: "Authorization")
         request.httpMethod = "GET"
         return request
@@ -66,7 +66,8 @@ extension URLRequest {
     ///   - longitude: Longitude of the location coordinate.
     ///   - contextId: Current context id.
     /// - Returns: New instance of `URLRequest`.
-    @inline(__always) static func updateUserLocation(
+    @inline(__always)
+    static func updateUserLocation(
         userId: UUID?/* = Keychain.thisUserID*/,
         latitude: Double?/* = CLLocationCoordinate2D.thisLocation?.latitude*/,
         longitude: Double?/* = CLLocationCoordinate2D.thisLocation?.longitude*/,
@@ -85,7 +86,7 @@ extension URLRequest {
             request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
             request.httpBody = data
             return request
-        } catch let error {
+        } catch {
             return nil
         }
     }

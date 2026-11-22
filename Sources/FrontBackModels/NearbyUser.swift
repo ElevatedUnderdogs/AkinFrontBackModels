@@ -10,7 +10,7 @@ import Foundation
 /// To hold details about nearby users for display.
 public struct NearbyUser: Codable, Hashable, Equatable {
 
-    /// IdValue
+    /// IdValue.
     public let id: UUID
 
     /// Display name of the user.

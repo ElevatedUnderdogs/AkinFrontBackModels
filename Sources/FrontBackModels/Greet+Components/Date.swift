@@ -27,7 +27,7 @@ extension Date {
 
     var birthdayReadable: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM d, yyyy" // Example: "January 5, 1993"
+        formatter.dateFormat = "MMMM d, yyyy"  // Example: "January 5, 1993"
         return formatter.string(from: self)
     }
 }

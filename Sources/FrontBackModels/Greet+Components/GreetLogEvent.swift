@@ -29,7 +29,7 @@ public enum GreetLogEvent: Codable, ActionStringConvertible {
     case rateLimited
 
     // Received on device (client-ack style)
-    case pushNotifReceived(providerMessageID: UUID) // APNs
+    case pushNotifReceived(providerMessageID: UUID)  // APNs
     case voipReceived(providerMessageID: UUID)      // VoIP
 
     case rejectedViaAnotherCall
@@ -125,7 +125,7 @@ public enum GreetLogEvent: Codable, ActionStringConvertible {
              .rejectedViaAnotherCall:
             return nil
         case .greetAction(let action):
-            if case let .travelTimeToVenue(changedTo: current) = action {
+            if case .travelTimeToVenue(changedTo: let current) = action {
                 return current.string
             }
             return nil
@@ -164,7 +164,7 @@ public enum GreetActionActorKind: String, Codable, CaseIterable {
 /// Stored as "websocket" | "apple_push" | "voice_push".
 public enum GreetActionChannel: String, Codable, CaseIterable {
     case websocket
-    case applePush = "apple_push"   /// Apple Push Notification service (APNs)
-    case voicePush  = "voice_push"  /// Voice-over-Internet push
+    case applePush = "apple_push"  /// Apple Push Notification service (APNs)
+    case voicePush = "voice_push"  /// Voice-over-Internet push
     case notApplicable = "not_applicable"
 }

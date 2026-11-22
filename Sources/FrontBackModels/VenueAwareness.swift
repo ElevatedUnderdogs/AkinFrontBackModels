@@ -1072,8 +1072,12 @@ public enum VenueMotivationArm: String, Codable, Equatable, Sendable, CaseIterab
     public static func forUser(_ userIdentifier: UUID) -> VenueMotivationArm {
         var total: UInt32 = 0
         withUnsafeBytes(of: userIdentifier.uuid) { buffer in
-            total = buffer.reduce(into: UInt32(0)) { running, byte in
-                running = running &+ UInt32(byte)
+            total = buffer.reduce(into: (0 as UInt32)) { running, byte in
+                // `+` rather than `&+`: a uuid is 16 bytes, so this sum is at most 16 times 255,
+                // which is 4,080 and cannot overflow a UInt32. Masking here would hide an
+                // overflow that cannot happen, and trapping is what should happen if the input
+                // ever stops being 16 bytes.
+                running = running + UInt32(byte)
             }
         }
         return total % 2 == 0 ? .intrinsic : .extrinsic
@@ -1411,9 +1415,7 @@ public struct VenueScanResponse: Codable, Equatable, Sendable {
         usersSentToVenueThisMonth = try container.decode(
             Int.self, forKey: .usersSentToVenueThisMonth
         )
-        participatingStaffCount = try container.decode(
-            Int.self, forKey: .participatingStaffCount
-        )
+        participatingStaffCount = try container.decode(Int.self, forKey: .participatingStaffCount)
         isOrphan = try container.decode(Bool.self, forKey: .isOrphan)
         orphanReason = try container.decodeIfPresent(String.self, forKey: .orphanReason)
         venueGooglePlaceIdentifier = try container.decodeIfPresent(

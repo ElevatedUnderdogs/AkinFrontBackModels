@@ -28,6 +28,15 @@ extension Greet {
             self.id = id
         }
 
+        /// Settings for a greet that has no time proposals yet, only a status.
+        /// - Parameters:
+        ///   - status: Where the greet stands, for example proposed or confirmed.
+        ///   - id: The greet these settings belong to.
+        public init(status: Greet.Update.Status, id: UUID) {
+            self.status = status
+            self.id = id
+        }
+
         public mutating func updateSettings(with otherUserSettings: Settings?) {
             guard let otherUserSettings = otherUserSettings else { return }
 
@@ -41,11 +50,6 @@ extension Greet {
             if !validProposedTimes.isEmpty {
                 status = .enroute
             }
-        }
-
-        public init(status: Greet.Update.Status, id: UUID) {
-            self.status = status
-            self.id = id
         }
     }
 }

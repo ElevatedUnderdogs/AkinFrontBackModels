@@ -11,7 +11,9 @@ import Foundation
 extension Question.SaveAttemptServerResponse {
     
     public enum ServerError: String, Error, Codable {
-        case incorrectFormatServerError, repeatQuestion, unknownError
+        case incorrectFormatServerError
+        case repeatQuestion
+        case unknownError
         
         public var explanation: String {
             switch self {

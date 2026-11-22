@@ -11,12 +11,15 @@ public protocol ActionStringConvertible {
     var actionString: String { get }
 }
 
-public extension ActionStringConvertible {
+extension ActionStringConvertible {
 
-    var actionString: String {
+    public var actionString: String {
         let mirror = Mirror(reflecting: self)
 
         // Case name (strip "(...)" if present)
+        // SW-GS-090: `components(separatedBy:)` returns at least one element for every input,
+        // including the empty string, so `.first` is never nil here. Swift's own documentation
+        // states it: the result contains the whole string when the separator does not occur.
         let rawCaseName = String(describing: self)
             .components(separatedBy: "(")
             .first!
@@ -56,7 +59,7 @@ public extension ActionStringConvertible {
         case Optional<Any>.none:
             return "nil"
 
-        case let optional as Optional<Any>:
+        case let optional as Any?:
             return optional.map { stringifyAssociatedValue($0) } ?? "nil"
 
         default:

@@ -90,9 +90,9 @@ extension Question {
             id: UUID,
             creator: UUID?,
             questionID: UUID,
-            myChoice: [ContextRawValue : Selections.MyTheir.Choice] = [:],
-            theirChoices: [ContextRawValue : Selections.MyTheir.Choice] = [:],
-            popularity: [ContextRawValue : PopularityScore] = [:],
+            myChoice: [ContextRawValue: Selections.MyTheir.Choice] = [:],
+            theirChoices: [ContextRawValue: Selections.MyTheir.Choice] = [:],
+            popularity: [ContextRawValue: PopularityScore] = [:],
             originalContextID: UUID,
             assessment: ModerationAssessment,
             authorVisibility: AuthorVisibility? = nil,
@@ -118,7 +118,7 @@ extension Question {
 
         /// Performs a full field-by-field comparison of all properties.
         public func deepEquals(_ other: Question.Response) -> Bool {
-            return self.id == other.id &&
+            self.id == other.id &&
             self.text == other.text &&
             self.timeStamp == other.timeStamp &&
             self.creator == other.creator &&

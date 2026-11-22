@@ -594,7 +594,11 @@ final class URLCallsBatch4Tests: XCTestCase {
     }
 
     func testUpdateScheduleURL() {
-        XCTAssertEqual(URL.updateSchedule?.absoluteString, "http://127.0.0.1:8080/api/updateSchedule?access_token=")
+        // literal-ok: the wire format fixes this string, and it is what the builder is held to.
+        XCTAssertEqual(
+            URL.updateSchedule.absoluteString,
+            "http://127.0.0.1:8080/api/updateSchedule?access_token="
+        )
     }
 
     func testUpdateGreetURL() {

@@ -19,8 +19,8 @@ extension Question {
         public init?(_ int: Int) {
             switch int {
             case 1: self = .irrelevant
-            case 3: self =  .somewhat
-            case 9: self =  .very
+            case 3: self = .somewhat
+            case 9: self = .very
             default: return nil
             }
         }

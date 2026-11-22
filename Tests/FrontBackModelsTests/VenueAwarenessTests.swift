@@ -110,10 +110,7 @@ final class VenueAwarenessTests: XCTestCase {
     /// Total across all twenty four hours, with no hour landing in two buckets and
     /// none landing in none.
     func testEveryHourOfTheDayHasExactlyOneBucket() throws {
-        var buckets: [VenueShiftBucket] = []
-        for hour in 0...23 {
-            buckets.append(try VenueShiftBucket.forLocalHour(hour))
-        }
+        let buckets: [VenueShiftBucket] = try (0...23).map { try VenueShiftBucket.forLocalHour($0) }
 
         XCTAssertEqual(buckets.count, 24)
         XCTAssertEqual(
@@ -1091,8 +1088,6 @@ extension VenueAwarenessFoldTests {
             venueScannedAt: nil,
             venueJoinedAt: nil
         )
-        XCTAssertEqual(
-            VenueAwarenessFold.state(of: [staleCustomerReport], now: now), .pitched
-        )
+        XCTAssertEqual(VenueAwarenessFold.state(of: [staleCustomerReport], now: now), .pitched)
     }
 }

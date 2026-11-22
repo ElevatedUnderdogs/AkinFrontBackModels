@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// JSON structure returned from a moderation prompt for GPT
+/// JSON structure returned from a moderation prompt for GPT.
 public struct ModerationAssessment: Codable, Hashable, Equatable {
 
     public let entries: [FlagExplanation]

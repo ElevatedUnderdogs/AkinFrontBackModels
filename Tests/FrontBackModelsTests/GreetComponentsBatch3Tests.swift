@@ -3,7 +3,7 @@ import XCTest
 
 final class GreetComponentsBatch3Tests: XCTestCase {
 
-    // MARK: - AkinCommon+User.swift (User)
+    // MARK: - User.swift (User)
 
     func testUserInit_setsProvidedFieldsAndDefaults() {
         let id = UUID()
@@ -13,7 +13,7 @@ final class GreetComponentsBatch3Tests: XCTestCase {
             lastName: "Lovelace",
             user_id: id,
             email: "ada@example.com",
-            zip: 12345,
+            zip: 12_345,
             dob: "1990-01-01"
         )
 
@@ -22,7 +22,7 @@ final class GreetComponentsBatch3Tests: XCTestCase {
         XCTAssertEqual(user.firstName, "Ada")
         XCTAssertEqual(user.lastName, "Lovelace")
         XCTAssertEqual(user.email, "ada@example.com")
-        XCTAssertEqual(user.zip, 12345)
+        XCTAssertEqual(user.zip, 12_345)
         XCTAssertEqual(user.dobString, "1990-01-01")
 
         XCTAssertNil(user.privacy)
@@ -76,12 +76,12 @@ final class GreetComponentsBatch3Tests: XCTestCase {
             lastName: "White",
             user_id: UUID(),
             email: "dana@example.com",
-            zip: 54321,
+            zip: 54_321,
             dob: "1985-05-05"
         )
         user.privacy = PrivateDetails(password: "secret", romanceOn: true, accessToken: "tok-123")
-        user.phoneNumber = 5551234567
-        user.birthDate = Date(timeIntervalSince1970: 1700000000)
+        user.phoneNumber = 5_551_234_567
+        user.birthDate = Date(timeIntervalSince1970: 1_700_000_000)
         user.meetingSchedule = [Week.Day(name: .Monday, timeBlocks: [])]
 
         let data = try JSONEncoder().encode(user)
@@ -124,7 +124,7 @@ final class GreetComponentsBatch3Tests: XCTestCase {
         XCTAssertEqual(received.first?.name, "Scott")
     }
 
-    // MARK: - AlertContents.swift (Contents)
+    // MARK: - Contents.swift (Contents)
 
     func testContentsInit_defaultsOmittedOptionalsToNil() {
         let contents = Contents(title: "Title", message: "Message", confirmation: "Okay")
@@ -728,7 +728,7 @@ final class GreetComponentsBatch3Tests: XCTestCase {
         settings.phone = "555-1000"
         settings.firstName = "Grace"
         settings.lastName = "Hopper"
-        settings.dob = Date(timeIntervalSince1970: 1700000000)
+        settings.dob = Date(timeIntervalSince1970: 1_700_000_000)
         settings.birthday = DateComponents(year: 1990, month: 1, day: 1)
         settings.contextPreferences = [
             ContextPreferences(context: Context(id: UUID(), case: .romance), metersWillingToTravel: 100, allowedGreetingMethods: [.wave], isMeetEnabled: true)

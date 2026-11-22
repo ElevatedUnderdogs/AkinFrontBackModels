@@ -15,7 +15,7 @@ extension Greet.Update {
         case confirmedMet
 //        /// Arrived at the meeting point but haven't confirmed met.
 //        case atMeetingPoint
-        /// When the user started or is moving towards the meeting point
+        /// When the user started or is moving towards the meeting point.
         case enroute
         /// When a user when too far out of range of the meeting location.
         case exceededRange

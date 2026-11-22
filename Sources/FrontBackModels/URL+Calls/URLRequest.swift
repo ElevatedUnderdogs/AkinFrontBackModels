@@ -26,11 +26,7 @@ extension URLRequest {
     
     /// Might not need to pass this user id if the user is signed in and passing access tokens etc.
     static func addDisplay(img: Data, thisUserID: UUID) -> URLRequest? {
-        NSMutableURLRequest(
-            img: img,
-            url: URL.addDisplay(),
-            thisUserID: thisUserID
-        )?.urlRequest
+        NSMutableURLRequest(img: img, url: URL.addDisplay(), thisUserID: thisUserID)?.urlRequest
     }
     
     /// Initializes a URLRequest configured for a specified HTTP method with a JSON body from a Codable object.
@@ -55,6 +51,9 @@ extension URLRequest {
         payload: T,
         contentType: String = "application/octet-stream"
     ) {
+        // SW-GS-090: the same invariant the URL extension below documents at length, in one
+        // sentence: baseURLComponents always carries a scheme and a host, and components that
+        // have both yield a URL for any path.
         self.init(url: URLComponents.baseURLComponents.with(path: path).url!)
         
         httpMethod = method.rawValue
@@ -93,6 +92,25 @@ public struct PayloadResponse {
    // var path:
 }
 
+/// WHY EVERY `.url!` IN THIS EXTENSION IS SAFE, STATED ONCE FOR ALL OF THEM.
+///
+/// Rule SW-GS-090 asks for the invariant behind a force unwrap. There are 32 of them in this
+/// file and they all rest on the same one, so it is written here rather than copied 32 times.
+///
+/// `URLComponents.url` returns nil only when the components cannot form a valid URL. Every
+/// builder below starts from `URLComponents.baseURLComponents`, which is one of two values
+/// constructed in URLComponents.swift with a scheme, a host and a port already set:
+///
+///     debug     http  127.0.0.1 : 8080
+///     notDebug  https akindev   : 8080
+///
+/// and then adds a path and query items. A components value that already has a scheme and a
+/// host yields a URL for any path and any query items, because percent encoding handles the
+/// rest. Nothing below removes the scheme or the host.
+///
+/// THE ONE WAY THIS COULD BECOME UNSAFE is a change in URLComponents.swift that leaves
+/// `baseURLComponents` without a scheme or a host. That is the line to look at if any of these
+/// ever traps, rather than the call sites.
 extension URL {
 
     static func reportFlags(_ flags: [Int], question id: Int) -> URL? {
@@ -134,11 +152,16 @@ extension URL {
             .url
     }
 
-    static var updateSchedule: URL? {
+    /// SW-GS-090: declared non optional, like its neighbour `updateGreet` directly below, which
+    /// is the same four lines. It used to be `URL?`, and its one caller force unwrapped it, which
+    /// is a force unwrap that contradicts its own declaration. The invariant documented above
+    /// this extension is what makes the `!` here safe, and moving the unwrap to this side means
+    /// the caller has none.
+    static var updateSchedule: URL {
         URLComponents.baseURLComponents
             .with(path: "updateSchedule")
             .with(queryItems: .access_token_and_user_id)
-            .url
+            .url!
     }
 
     static var updateGreet: URL {
@@ -156,8 +179,9 @@ extension URL {
     }
 
     /// New vapor backend url for location update service.
-    /// - Parameter userId: User's id who's location needs to be updated.
-    /// - Parameter contextId: Current context id.
+    /// - Parameters:
+    ///   - userId: User's id who's location needs to be updated.
+    ///   - contextId: Current context id.
     /// - Returns: `URL` to the location update service.
     static func updateUserLocation(userId: UUID, contextId: String) -> URL {
         URLComponents.baseURLComponents.with(path: "user/\(userId)/location/context/\(contextId)/")
@@ -179,11 +203,7 @@ extension URL {
     ) -> URL {
             URLComponents.baseURLComponents
                 .with(path: "updateUserLocation")
-                .with(queryItems: .access_token_and_user_id,
-                    .lat(lat),
-                    .lon(lon),
-                    .context("")
-                )
+                .with(queryItems: .access_token_and_user_id,.lat(lat),.lon(lon),.context(""))
             .url!
     }
 
@@ -210,6 +230,16 @@ extension URL {
             .url!
     }
 
+    static func update(oldPassword: String, newPassword: String, savedEmail: String?) -> URL? {
+        guard let email = savedEmail else { return nil }
+        return URLComponents.baseURLComponents
+            .with(path: "updatePassByOldPass")
+            .with(queryItems: .oldPassword(oldPassword),
+                .new_password(newPassword),
+                .primary_email(email))
+            .url!
+    }
+
     static var terms: URL {
         URLComponents.baseURLComponents.with(path: "getTerms")
             .url!
@@ -225,9 +255,7 @@ extension URL {
     static func updateEmail(new: String, password: String) -> URL {
         URLComponents.baseURLComponents
             .with(path: "updateEmail")
-            .with(queryItems: .access_token_and_user_id,
-                .email(new),
-                .password(password))
+            .with(queryItems: .access_token_and_user_id,.email(new),.password(password))
             .url!
     }
 
@@ -235,16 +263,6 @@ extension URL {
         URLComponents.baseURLComponents
             .with(path: "allowsCourtesyCall")
             .with(queryItems: .access_token_and_user_id, .allows(allows))
-            .url!
-    }
-
-    static func update(oldPassword: String, newPassword: String, savedEmail: String?) -> URL? {
-        guard let email = savedEmail else { return nil }
-        return URLComponents.baseURLComponents
-            .with(path: "updatePassByOldPass")
-            .with(queryItems: .oldPassword(oldPassword),
-                .new_password(newPassword),
-                .primary_email(email))
             .url!
     }
 
@@ -258,16 +276,24 @@ extension URL {
     static func add(question: Question) -> URL {
         URLComponents.baseURLComponents
             .with(path: "addQuestion")
-            .with(queryItems: .access_token_and_user_id,
-                .question(text: question.text),
-                .date())
+            .with(queryItems: .access_token_and_user_id,.question(text: question.text),.date())
+            .url!
+    }
+
+    static func add(response: Question.Response, questionID: String) -> URL {
+        URLComponents.baseURLComponents
+            .with(path: "addOption")
+            .with(
+                queryItems: .access_token_and_user_id,
+                .question_id(questionID),
+                .response(response.text)
+            )
             .url!
     }
 
     static func manualGreet(otherID: Int) -> URL {
         URLComponents.baseURLComponents.with(path: "manualGreet")
-            .with(queryItems: .access_token_and_user_id,
-                .other_id(String(otherID)))
+            .with(queryItems: .access_token_and_user_id,.other_id(String(otherID)))
             .url!
     }
 
@@ -288,9 +314,7 @@ extension URL {
     static func registerDeviceToken(error: String) -> URL {
         URLComponents.baseURLComponents
             .with(path: "registerDeviceTokenError")
-            .with(queryItems: .access_token_and_user_id,
-                .environment(),
-                .error(error))
+            .with(queryItems: .access_token_and_user_id,.environment(),.error(error))
         .url!
     }
 
@@ -305,14 +329,6 @@ extension URL {
     }
 
     // MARK - pending product update
-    static func hide(me hide: Bool) -> URL {
-        URLComponents.baseURLComponents
-            .with(path: "HideFromNearByList")
-            .with(queryItems: .access_token_and_user_id, .hide(me: hide))
-            .url!
-    }
-
-    // MARK - pending product update
     /// User id shoudl be set before using this.
     static func register(pushKitDeviceToken: String) -> URL {
         URLComponents.baseURLComponents
@@ -320,6 +336,14 @@ extension URL {
             .with(queryItems: .pushKitDevice(token: pushKitDeviceToken),
                 .access_token_and_user_id,
                 .environment(.environmentString))
+            .url!
+    }
+
+    // MARK - pending product update
+    static func hide(me hide: Bool) -> URL {
+        URLComponents.baseURLComponents
+            .with(path: "HideFromNearByList")
+            .with(queryItems: .access_token_and_user_id, .hide(me: hide))
             .url!
     }
 
@@ -356,13 +380,6 @@ extension URL {
     }
 
 
-    static func add(response: Question.Response, questionID: String) -> URL {
-        URLComponents.baseURLComponents
-            .with(path: "addOption")
-            .with(queryItems: .access_token_and_user_id, .question_id(questionID), .response(response.text))
-            .url!
-    }
-
     static func make(
         my: Question.Response.Selections.MyTheir.Choice?,
         their: Question.Response.Selections.MyTheir.Choice?,
@@ -373,9 +390,12 @@ extension URL {
         URLComponents.baseURLComponents
             .with(path: "addUserResponse")
             .with(
-                queryItems: .access_token_and_user_id, .context(forContext.rawValue), .question_id(String(questionID)), .responseID(String(responseID)),
-                    .my(my?.weightMultiplier),
-                    .their(their?.weightMultiplier)
+                queryItems: .access_token_and_user_id,
+                .context(forContext.rawValue),
+                .question_id(String(questionID)),
+                .responseID(String(responseID)),
+                .my(my?.weightMultiplier),
+                .their(their?.weightMultiplier)
             )
             .url!
     }

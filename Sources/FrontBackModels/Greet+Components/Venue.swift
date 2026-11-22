@@ -31,13 +31,13 @@ public struct Venue: Codable, Hashable, Equatable {
 
 public struct ImpactVenue: Identifiable, Hashable, Codable, Equatable {
 
-    /// Venue id
+    /// Venue id.
     public let id: UUID
 
-    /// Venue name
+    /// Venue name.
     public let name: String
 
-    /// venue address
+    /// venue address.
     public let address: String
 
     public init(id: UUID, name: String, address: String) {
