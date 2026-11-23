@@ -71,7 +71,14 @@ extension String {
     """
     }
 
-    public static let accountNotVerifed: String = "This account's email hasn't been verified yet.  Would you like us to resend a link?"
+    /// The reason `/login` gives when the password is right and the address is not verified.
+    ///
+    /// GOAL_LOOP42 box 72, acceptance criterion A2. It used to end "Would you like us to resend a
+    /// link?", which was an offer the server does not perform: that path throws straight after
+    /// writing the legal acceptance and sends nothing, and queues nothing. It also said "link"
+    /// where what the member is now sent is a six digit code beside the link. The offer belongs
+    /// to the app, which makes it in one tap, so the server says only what it knows.
+    public static let accountNotVerifed: String = "This account's email hasn't been verified yet."
 
     static var generateBoundaryString: String {
         "Boundary-\(NSUUID().uuidString)"
