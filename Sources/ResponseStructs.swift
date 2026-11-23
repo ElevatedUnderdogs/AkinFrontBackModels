@@ -85,10 +85,27 @@ public struct RegisterResponse: Codable {
     public var message: String?
     public var userId: UUID?
 
-    public init(success: Bool, message: String?, userId: UUID?) {
+    /// Whether the mail provider ACCEPTED the verification email for this registration.
+    ///
+    /// GOAL_LOOP42 box 62, acceptance criterion A1. `success` says the account was created, which
+    /// it is even when no mail went out: registration deliberately does not fail on a mail
+    /// failure, because Railway blocks outbound SMTP and every signup 500'd when it did.
+    /// Until this field existed the only record of which of the two happened was the English in
+    /// `message`, so an app that wanted to say the truthful thing had to parse a sentence. Now it
+    /// reads a field.
+    ///
+    /// Accepted is not delivered (A6). This is true when the provider took the message, and says
+    /// nothing about it reaching an inbox; a bounce arrives later, as a webhook event.
+    ///
+    /// Optional because an older server does not send it. An app reading `nil` knows only that it
+    /// is talking to a server that cannot tell it, and must not claim an email was sent.
+    public var verificationEmailSent: Bool?
+
+    public init(success: Bool, message: String?, userId: UUID?, verificationEmailSent: Bool? = nil) {
         self.success = success
         self.message = message
         self.userId = userId
+        self.verificationEmailSent = verificationEmailSent
     }
 }
 
@@ -109,6 +126,49 @@ public struct RegisterResponse: Codable {
 //        self.verified = verified
 //    }
 //}
+
+/// What `/verificationDeliveryState` answers.
+///
+/// GOAL_LOOP42 box 78, acceptance criterion A6: a member whose verification email bounced, was
+/// refused or was suppressed is told so on the next verify screen, with a way to correct the
+/// address.
+///
+/// WHY AN ENDPOINT RATHER THAN THE 403's REASON. `/login` already refuses an unverified account
+/// with a reason string, and the server can vary that string by delivery outcome. Measured on the
+/// client, that string never arrives: `URLResponse.shouldDisplayErrorToUser` returns false for
+/// 401 and 403, so `errorPreferringServerReason` substitutes the status-code error and the body's
+/// reason is dropped before any caller sees it. Changing that is a shared-helper change touching
+/// every 403 in the app. A 200 with a field is the shape this client can read.
+///
+/// WHY IT TAKES A PASSWORD. Only addresses with accounts have delivery outcomes, so an endpoint
+/// that answered this for an address alone would be the account existence oracle A3 forbids, and
+/// would undo what `/resendVerification`'s neutral answer exists to protect. A caller who already
+/// holds the password learns nothing about any account but their own.
+///
+/// A WRONG PASSWORD AND AN UNKNOWN ADDRESS ANSWER IDENTICALLY, `undeliverable: false` with the
+/// address echoed back. That is the same false a member with a healthy address gets, so the
+/// refusal is not distinguishable from the ordinary answer either.
+public struct VerificationDeliveryState: Codable {
+
+    /// True when the last verification email to this address bounced or could not be sent, so
+    /// another one will not arrive and the address itself has to change.
+    ///
+    /// False for everything else, including every refusal, and including a member whose last
+    /// message is merely delayed: delayed means still coming, and telling somebody their address
+    /// is wrong while the message is in flight is worse than saying nothing.
+    public var undeliverable: Bool
+
+    /// The address this answer is about, echoed back so the screen can name it.
+    ///
+    /// Echoed from the request rather than read from the account, so it carries nothing the
+    /// caller did not already type.
+    public var email: String
+
+    public init(undeliverable: Bool, email: String) {
+        self.undeliverable = undeliverable
+        self.email = email
+    }
+}
 
 public struct StandardPostResponse: Codable {
     public var success: Bool

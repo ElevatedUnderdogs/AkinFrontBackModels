@@ -222,7 +222,7 @@ final class URLCallsBatch4Tests: XCTestCase {
     func testAccountNotVerifiedText() {
         XCTAssertEqual(
             String.accountNotVerifed,
-            "This account's email hasn't been verified yet.  Would you like us to resend a link?"
+            "This account's email hasn't been verified yet."
         )
     }
 
