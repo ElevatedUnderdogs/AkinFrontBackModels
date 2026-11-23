@@ -80,6 +80,27 @@ extension String {
     /// to the app, which makes it in one tap, so the server says only what it knows.
     public static let accountNotVerifed: String = "This account's email hasn't been verified yet."
 
+    /// The reason `/login` gives when the address is unverified AND the last verification email
+    /// to it could not be delivered.
+    ///
+    /// GOAL_LOOP42 box 78, acceptance criterion A6. Sending another message to an address that
+    /// bounced, was refused or was suppressed produces another bounce, so a member told only
+    /// "not verified yet" would tap for a new email as often as they liked and never receive one.
+    /// This sentence is the difference between a member who is waiting and a member who has to
+    /// correct their address.
+    ///
+    /// It is on this path and nowhere else on purpose. `/resendVerification` answers identically
+    /// for an address with an account and one without (A3), so a delivery outcome cannot ride on
+    /// it: only addresses with accounts have outcomes, which is exactly the oracle that neutral
+    /// answer exists to prevent. This reason is given only to a caller who has already presented
+    /// the correct password, so it tells them nothing about any account but their own.
+    ///
+    /// DELIVERED, not SENT: the send succeeded and the provider accepted it. What failed happened
+    /// afterwards, and a member deciding whether their address is wrong needs that distinction.
+    public static let accountNotVerifiedUndeliverable: String =
+        "This account's email hasn't been verified yet, and our last message to that address "
+            + "could not be delivered. Check the address, and correct it if it is wrong."
+
     static var generateBoundaryString: String {
         "Boundary-\(NSUUID().uuidString)"
     }
