@@ -1,5 +1,5 @@
 //
-//  SchemaReadyEnumGoldens.swift
+//  SavedJSONBeforeChangeCases.swift
 //  FrontBackModelsTests
 //
 //  The exact JSON every case of the changed enums produced BEFORE `CaseIterable` and the
@@ -8,503 +8,503 @@
 //  both with sorted keys so the text is stable.
 //
 //  SchemaReadyEnumTests decodes each string with the new code and encodes it again. Getting the
-//  same bytes back proves the change did not move the wire format, in either direction. Do not
+//  same bytes back proves the change did not change the JSON, in either direction. Do not
 //  regenerate these from the current code: that would only prove the code agrees with itself.
 //
 //  Long strings are split into pieces so no line passes 100 columns. The pieces are joined
 //  back into one string with nothing between them.
 //
 
-enum SchemaReadyEnumGoldens {
+enum SavedJSONBeforeChangeCases {
 
-    static let automaticGreetDebugAction: [WireGolden] = [
-        WireGolden(
+    static let automaticGreetDebugAction: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "expireCooldownNow",
             plain: #"{"expireCooldownNow":{}}"#,
-            wire: #"{"expire_cooldown_now":{}}"#
+            akinWire: #"{"expire_cooldown_now":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "setLastGreet",
             plain: #"{"setLastGreet":{"secondsAgo":1.5}}"#,
-            wire: #"{"set_last_greet":{"seconds_ago":1.5}}"#
+            akinWire: #"{"set_last_greet":{"seconds_ago":1.5}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "clearPairHistory",
             plain: #"{"clearPairHistory":{}}"#,
-            wire: #"{"clear_pair_history":{}}"#
+            akinWire: #"{"clear_pair_history":{}}"#
         ),
     ]
 
-    static let automaticGreetSuppression: [WireGolden] = [
-        WireGolden(
+    static let automaticGreetSuppression: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "pairCooldown",
             plain: #"{"pairCooldown":{"until":812692800.1229999}}"#,
-            wire: #"{"pair_cooldown":{"until":"2026-10-03T04:00:00.123Z"}}"#
+            akinWire: #"{"pair_cooldown":{"until":"2026-10-03T04:00:00.123Z"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "memberCapReached",
             plain: [
                 #"{"memberCapReached":{"cap":7,"count":7,"isScanner":true,"until":8126"#,
                 #"92800.1229999}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"member_cap_reached":{"cap":7,"count":7,"is_scanner":true,"until":""#,
                 #"2026-10-03T04:00:00.123Z"}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "alreadyInAGreet",
             plain: #"{"alreadyInAGreet":{"isScanner":true}}"#,
-            wire: #"{"already_in_a_greet":{"is_scanner":true}}"#
+            akinWire: #"{"already_in_a_greet":{"is_scanner":true}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "pendingGreetUnanswered",
             plain: #"{"pendingGreetUnanswered":{}}"#,
-            wire: #"{"pending_greet_unanswered":{}}"#
+            akinWire: #"{"pending_greet_unanswered":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "alreadyMet",
             plain: #"{"alreadyMet":{"until":812692800.1229999}}"#,
-            wire: #"{"already_met":{"until":"2026-10-03T04:00:00.123Z"}}"#
+            akinWire: #"{"already_met":{"until":"2026-10-03T04:00:00.123Z"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "busy",
             plain: #"{"busy":{"isScanner":true,"until":812692800.1229999}}"#,
-            wire: #"{"busy":{"is_scanner":true,"until":"2026-10-03T04:00:00.123Z"}}"#
+            akinWire: #"{"busy":{"is_scanner":true,"until":"2026-10-03T04:00:00.123Z"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "automaticGreetsOff",
             plain: #"{"automaticGreetsOff":{"isScanner":true}}"#,
-            wire: #"{"automatic_greets_off":{"is_scanner":true}}"#
+            akinWire: #"{"automatic_greets_off":{"is_scanner":true}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "hiddenFromNearby",
             plain: #"{"hiddenFromNearby":{"isScanner":true}}"#,
-            wire: #"{"hidden_from_nearby":{"is_scanner":true}}"#
+            akinWire: #"{"hidden_from_nearby":{"is_scanner":true}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "blocked",
             plain: #"{"blocked":{}}"#,
-            wire: #"{"blocked":{}}"#
+            akinWire: #"{"blocked":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "unreachable",
             plain: #"{"unreachable":{}}"#,
-            wire: #"{"unreachable":{}}"#
+            akinWire: #"{"unreachable":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "unverified",
             plain: #"{"unverified":{"isScanner":true}}"#,
-            wire: #"{"unverified":{"is_scanner":true}}"#
+            akinWire: #"{"unverified":{"is_scanner":true}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "moderationFlagged",
             plain: #"{"moderationFlagged":{}}"#,
-            wire: #"{"moderation_flagged":{}}"#
+            akinWire: #"{"moderation_flagged":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "frozenByAnotherMember",
             plain: #"{"frozenByAnotherMember":{"until":812692800.1229999}}"#,
-            wire: #"{"frozen_by_another_member":{"until":"2026-10-03T04:00:00.123Z"}}"#
+            akinWire: #"{"frozen_by_another_member":{"until":"2026-10-03T04:00:00.123Z"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "outsideStatedAvailability",
             plain: #"{"outsideStatedAvailability":{"isScanner":true}}"#,
-            wire: #"{"outside_stated_availability":{"is_scanner":true}}"#
+            akinWire: #"{"outside_stated_availability":{"is_scanner":true}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "noVenueBetweenThem",
             plain: #"{"noVenueBetweenThem":{}}"#,
-            wire: #"{"no_venue_between_them":{}}"#
+            akinWire: #"{"no_venue_between_them":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "unavailableToYou",
             plain: #"{"unavailableToYou":{}}"#,
-            wire: #"{"unavailable_to_you":{}}"#
+            akinWire: #"{"unavailable_to_you":{}}"#
         ),
     ]
 
-    static let greetAction: [WireGolden] = [
-        WireGolden(
+    static let greetAction: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "manualGreetInitiated",
             plain: #"{"manualGreetInitiated":{}}"#,
-            wire: #"{"manual_greet_initiated":{}}"#
+            akinWire: #"{"manual_greet_initiated":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "agreedToMeet",
             plain: #"{"agreedToMeet":{"_0":7}}"#,
-            wire: #"{"agreed_to_meet":{"_0":7}}"#
+            akinWire: #"{"agreed_to_meet":{"_0":7}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "rejectTime",
             plain: #"{"rejectTime":{"_0":7}}"#,
-            wire: #"{"reject_time":{"_0":7}}"#
+            akinWire: #"{"reject_time":{"_0":7}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "travelTimeToVenue",
             plain: #"{"travelTimeToVenue":{"changedTo":7}}"#,
-            wire: #"{"travel_time_to_venue":{"changed_to":7}}"#
+            akinWire: #"{"travel_time_to_venue":{"changed_to":7}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "travelDistanceToVenue",
             plain: #"{"travelDistanceToVenue":{"changedTo":1.5}}"#,
-            wire: #"{"travel_distance_to_venue":{"changed_to":1.5}}"#
+            akinWire: #"{"travel_distance_to_venue":{"changed_to":1.5}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "dismissGreet",
             plain: #"{"dismissGreet":{}}"#,
-            wire: #"{"dismiss_greet":{}}"#
+            akinWire: #"{"dismiss_greet":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "closeApp",
             plain: #"{"closeApp":{}}"#,
-            wire: #"{"close_app":{}}"#
+            akinWire: #"{"close_app":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "tappedRedVoipReject",
             plain: #"{"tappedRedVoipReject":{}}"#,
-            wire: #"{"tapped_red_voip_reject":{}}"#
+            akinWire: #"{"tapped_red_voip_reject":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "notGettingCloser",
             plain: #"{"notGettingCloser":{"allowance":7,"current":7,"start":7}}"#,
-            wire: #"{"not_getting_closer":{"allowance":7,"current":7,"start":7}}"#
+            akinWire: #"{"not_getting_closer":{"allowance":7,"current":7,"start":7}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "callInitiated",
             plain: #"{"callInitiated":{"_0":"ringToVoipEnroute"}}"#,
-            wire: #"{"call_initiated":{"_0":"ringToVoipEnroute"}}"#
+            akinWire: #"{"call_initiated":{"_0":"ringToVoipEnroute"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "callAnswered",
             plain: #"{"callAnswered":{"_0":"ringToVoipEnroute"}}"#,
-            wire: #"{"call_answered":{"_0":"ringToVoipEnroute"}}"#
+            akinWire: #"{"call_answered":{"_0":"ringToVoipEnroute"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "callDeclined",
             plain: #"{"callDeclined":{"_0":"ringToVoipEnroute"}}"#,
-            wire: #"{"call_declined":{"_0":"ringToVoipEnroute"}}"#
+            akinWire: #"{"call_declined":{"_0":"ringToVoipEnroute"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "callEnded",
             plain: #"{"callEnded":{"_0":"ringToVoipEnroute"}}"#,
-            wire: #"{"call_ended":{"_0":"ringToVoipEnroute"}}"#
+            akinWire: #"{"call_ended":{"_0":"ringToVoipEnroute"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "viewedGreetScreen",
             plain: #"{"viewedGreetScreen":{}}"#,
-            wire: #"{"viewed_greet_screen":{}}"#
+            akinWire: #"{"viewed_greet_screen":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "confirmedMet",
             plain: #"{"confirmedMet":{}}"#,
-            wire: #"{"confirmed_met":{}}"#
+            akinWire: #"{"confirmed_met":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "rated",
             plain: #"{"rated":{"_0":7,"outOf":7}}"#,
-            wire: #"{"rated":{"_0":7,"out_of":7}}"#
+            akinWire: #"{"rated":{"_0":7,"out_of":7}}"#
         ),
     ]
 
-    static let greetLogEvent: [WireGolden] = [
-        WireGolden(
+    static let greetLogEvent: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "greetAction",
             plain: #"{"greetAction":{"_0":{"manualGreetInitiated":{}}}}"#,
-            wire: #"{"greet_action":{"_0":{"manual_greet_initiated":{}}}}"#
+            akinWire: #"{"greet_action":{"_0":{"manual_greet_initiated":{}}}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "pushQueued",
             plain: [
                 #"{"pushQueued":{"channel":"apple_push","providerMessageID":"00000000-"#,
                 #"0000-0000-0000-0000000000A1"}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"push_queued":{"channel":"apple_push","provider_message_id":"000000"#,
                 #"00-0000-0000-0000-0000000000A1"}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "pushSent",
             plain: [
                 #"{"pushSent":{"channel":"apple_push","providerMessageID":"00000000-00"#,
                 #"00-0000-0000-0000000000A1"}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"push_sent":{"channel":"apple_push","provider_message_id":"00000000"#,
                 #"-0000-0000-0000-0000000000A1"}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "pushProviderAccepted",
             plain: [
                 #"{"pushProviderAccepted":{"providerMessageID":"00000000-0000-0000-000"#,
                 #"0-0000000000A1"}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"push_provider_accepted":{"provider_message_id":"00000000-0000-0000"#,
                 #"-0000-0000000000A1"}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "pushFailed",
             plain: #"{"pushFailed":{"channel":"apple_push"}}"#,
-            wire: #"{"push_failed":{"channel":"apple_push"}}"#
+            akinWire: #"{"push_failed":{"channel":"apple_push"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "webSocketSent",
             plain: #"{"webSocketSent":{}}"#,
-            wire: #"{"web_socket_sent":{}}"#
+            akinWire: #"{"web_socket_sent":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "webSocketFailed",
             plain: #"{"webSocketFailed":{}}"#,
-            wire: #"{"web_socket_failed":{}}"#
+            akinWire: #"{"web_socket_failed":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "deliveryConfirmed",
             plain: [
                 #"{"deliveryConfirmed":{"channel":"apple_push","providerMessageID":"00"#,
                 #"000000-0000-0000-0000-0000000000A1"}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"delivery_confirmed":{"channel":"apple_push","provider_message_id":"#,
                 #""00000000-0000-0000-0000-0000000000A1"}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "fallbackTriggered",
             plain: #"{"fallbackTriggered":{"to":"apple_push"}}"#,
-            wire: #"{"fallback_triggered":{"to":"apple_push"}}"#
+            akinWire: #"{"fallback_triggered":{"to":"apple_push"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "rateLimited",
             plain: #"{"rateLimited":{}}"#,
-            wire: #"{"rate_limited":{}}"#
+            akinWire: #"{"rate_limited":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "pushNotifReceived",
             plain: [
                 #"{"pushNotifReceived":{"providerMessageID":"00000000-0000-0000-0000-0"#,
                 #"000000000A1"}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"push_notif_received":{"provider_message_id":"00000000-0000-0000-00"#,
                 #"00-0000000000A1"}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "voipReceived",
             plain: [
                 #"{"voipReceived":{"providerMessageID":"00000000-0000-0000-0000-000000"#,
                 #"0000A1"}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"voip_received":{"provider_message_id":"00000000-0000-0000-0000-000"#,
                 #"0000000A1"}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "rejectedViaAnotherCall",
             plain: #"{"rejectedViaAnotherCall":{}}"#,
-            wire: #"{"rejected_via_another_call":{}}"#
+            akinWire: #"{"rejected_via_another_call":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "userViewed",
             plain: #"{"userViewed":{}}"#,
-            wire: #"{"user_viewed":{}}"#
+            akinWire: #"{"user_viewed":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "greetCreated",
             plain: #"{"greetCreated":{}}"#,
-            wire: #"{"greet_created":{}}"#
+            akinWire: #"{"greet_created":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "greetExpired",
             plain: #"{"greetExpired":{}}"#,
-            wire: #"{"greet_expired":{}}"#
+            akinWire: #"{"greet_expired":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "settingsUpdated",
             plain: #"{"settingsUpdated":{}}"#,
-            wire: #"{"settings_updated":{}}"#
+            akinWire: #"{"settings_updated":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "serverFound",
             plain: #"{"serverFound":{"error":"gl28"}}"#,
-            wire: #"{"server_found":{"error":"gl28"}}"#
+            akinWire: #"{"server_found":{"error":"gl28"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "clientFound",
             plain: #"{"clientFound":{"error":"gl28"}}"#,
-            wire: #"{"client_found":{"error":"gl28"}}"#
+            akinWire: #"{"client_found":{"error":"gl28"}}"#
         ),
     ]
 
-    static let greetedClientStatus: [WireGolden] = [
-        WireGolden(
+    static let greetedClientStatus: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "confirmedMet",
             plain: #"{"confirmedMet":{}}"#,
-            wire: #"{"confirmed_met":{}}"#
+            akinWire: #"{"confirmed_met":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "exceededRange",
             plain: #"{"exceededRange":{}}"#,
-            wire: #"{"exceeded_range":{}}"#
+            akinWire: #"{"exceeded_range":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "rejectedOther",
             plain: #"{"rejectedOther":{}}"#,
-            wire: #"{"rejected_other":{}}"#
+            akinWire: #"{"rejected_other":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "onGoing",
             plain: #"{"onGoing":{}}"#,
-            wire: #"{"on_going":{}}"#
+            akinWire: #"{"on_going":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "connectionLost",
             plain: #"{"connectionLost":{}}"#,
-            wire: #"{"connection_lost":{}}"#
+            akinWire: #"{"connection_lost":{}}"#
         ),
     ]
 
-    static let hideOption: [WireGolden] = [
-        WireGolden(
+    static let hideOption: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "automatic",
             plain: #"{"automatic":{}}"#,
-            wire: #"{"automatic":{}}"#
+            akinWire: #"{"automatic":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "manual",
             plain: #"{"manual":{}}"#,
-            wire: #"{"manual":{}}"#
+            akinWire: #"{"manual":{}}"#
         ),
     ]
 
-    static let initiationMethod: [WireGolden] = [
-        WireGolden(
+    static let initiationMethod: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "manual",
             plain: #"{"manual":{"userID":"00000000-0000-0000-0000-0000000000A1"}}"#,
-            wire: #"{"manual":{"user_id":"00000000-0000-0000-0000-0000000000A1"}}"#
+            akinWire: #"{"manual":{"user_id":"00000000-0000-0000-0000-0000000000A1"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "automatic",
             plain: #"{"automatic":{"userID":"00000000-0000-0000-0000-0000000000A1"}}"#,
-            wire: #"{"automatic":{"user_id":"00000000-0000-0000-0000-0000000000A1"}}"#
+            akinWire: #"{"automatic":{"user_id":"00000000-0000-0000-0000-0000000000A1"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "devForced",
             plain: #"{"devForced":{}}"#,
-            wire: #"{"dev_forced":{}}"#
+            akinWire: #"{"dev_forced":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "unknown",
             plain: #"{"unknown":{}}"#,
-            wire: #"{"unknown":{}}"#
+            akinWire: #"{"unknown":{}}"#
         ),
     ]
 
-    static let manualGreetResponse: [WireGolden] = [
-        WireGolden(
+    static let manualGreetResponse: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "notification",
             plain: [
                 #"{"notification":{"_0":{"notification":{"caseType":"silentLocationUpd"#,
                 #"ate"},"status":"success"}}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"notification":{"_0":{"notification":{"case_type":"silentLocationUp"#,
                 #"date"},"status":"success"}}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "otherUserIsInGreet",
             plain: #"{"otherUserIsInGreet":{}}"#,
-            wire: #"{"other_user_is_in_greet":{}}"#
+            akinWire: #"{"other_user_is_in_greet":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "thisUserIsInGreet",
             plain: #"{"thisUserIsInGreet":{}}"#,
-            wire: #"{"this_user_is_in_greet":{}}"#
+            akinWire: #"{"this_user_is_in_greet":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "thisAndOtherUserAlreadyInSameGreet",
             plain: #"{"thisAndOtherUserAlreadyInSameGreet":{}}"#,
-            wire: #"{"this_and_other_user_already_in_same_greet":{}}"#
+            akinWire: #"{"this_and_other_user_already_in_same_greet":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "noNearbyVenuesOpen",
             plain: #"{"noNearbyVenuesOpen":{}}"#,
-            wire: #"{"no_nearby_venues_open":{}}"#
+            akinWire: #"{"no_nearby_venues_open":{}}"#
         ),
     ]
 
-    static let notificationSubject: [WireGolden] = [
-        WireGolden(
+    static let notificationSubject: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "question",
             plain: [
                 #"{"question":{"id":"00000000-0000-0000-0000-0000000000A1","text":"gl2"#,
                 #"8"}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"question":{"id":"00000000-0000-0000-0000-0000000000A1","text":"gl2"#,
                 #"8"}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "response",
             plain: [
                 #"{"response":{"id":"00000000-0000-0000-0000-0000000000A1","text":"gl2"#,
                 #"8"}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"response":{"id":"00000000-0000-0000-0000-0000000000A1","text":"gl2"#,
                 #"8"}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "questionnaire",
             plain: [
                 #"{"questionnaire":{"id":"00000000-0000-0000-0000-0000000000A1","title"#,
                 #"":"gl28"}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"questionnaire":{"id":"00000000-0000-0000-0000-0000000000A1","title"#,
                 #"":"gl28"}}"#,
             ].joined()
         ),
     ]
 
-    static let questionRequirement: [WireGolden] = [
-        WireGolden(
+    static let questionRequirement: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "mustHaveAnswered",
             plain: [
                 #"{"mustHaveAnswered":{"questionID":"00000000-0000-0000-0000-000000000"#,
                 #"0A1"}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"must_have_answered":{"question_id":"00000000-0000-0000-0000-000000"#,
                 #"0000A1"}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "mustNotHaveChosen",
             plain: [
                 #"{"mustNotHaveChosen":{"questionID":"00000000-0000-0000-0000-00000000"#,
                 #"00A1","responseIDs":["00000000-0000-0000-0000-0000000000A1"]}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"must_not_have_chosen":{"question_id":"00000000-0000-0000-0000-0000"#,
                 #"000000A1","response_i_ds":["00000000-0000-0000-0000-0000000000A1"]}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "mustHaveChosenOneOf",
             plain: [
                 #"{"mustHaveChosenOneOf":{"questionID":"00000000-0000-0000-0000-000000"#,
                 #"0000A1","responseIDs":["00000000-0000-0000-0000-0000000000A1"]}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"must_have_chosen_one_of":{"question_id":"00000000-0000-0000-0000-0"#,
                 #"000000000A1","response_i_ds":["00000000-0000-0000-0000-0000000000A1""#,
                 #"]}}"#,
@@ -512,83 +512,83 @@ enum SchemaReadyEnumGoldens {
         ),
     ]
 
-    static let questionnaireCreator: [WireGolden] = [
-        WireGolden(
+    static let questionnaireCreator: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "you",
             plain: #"{"you":{}}"#,
-            wire: #"{"you":{}}"#
+            akinWire: #"{"you":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "member",
             plain: [
                 #"{"member":{"id":"00000000-0000-0000-0000-0000000000A1","name":"gl28""#,
                 #"}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"member":{"id":"00000000-0000-0000-0000-0000000000A1","name":"gl28""#,
                 #"}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "anonymous",
             plain: #"{"anonymous":{}}"#,
-            wire: #"{"anonymous":{}}"#
+            akinWire: #"{"anonymous":{}}"#
         ),
     ]
 
-    static let relationUpdate: [WireGolden] = [
-        WireGolden(
+    static let relationUpdate: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "automatic",
             plain: #"{"automatic":{"_0":"Daily"}}"#,
-            wire: #"{"automatic":{"_0":"Daily"}}"#
+            akinWire: #"{"automatic":{"_0":"Daily"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "manual",
             plain: #"{"manual":{"_0":"Daily"}}"#,
-            wire: #"{"manual":{"_0":"Daily"}}"#
+            akinWire: #"{"manual":{"_0":"Daily"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "blocked",
             plain: #"{"blocked":{"_0":true}}"#,
-            wire: #"{"blocked":{"_0":true}}"#
+            akinWire: #"{"blocked":{"_0":true}}"#
         ),
     ]
 
-    static let requirement: [WireGolden] = [
-        WireGolden(
+    static let requirement: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "birthday",
             plain: #"{"birthday":{}}"#,
-            wire: #"{"birthday":{}}"#
+            akinWire: #"{"birthday":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "location",
             plain: #"{"location":{"_0":{"shouldUpgradeToAlways":{}}}}"#,
-            wire: #"{"location":{"_0":{"should_upgrade_to_always":{}}}}"#
+            akinWire: #"{"location":{"_0":{"should_upgrade_to_always":{}}}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "profilePic",
             plain: #"{"profilePic":{}}"#,
-            wire: #"{"profile_pic":{}}"#
+            akinWire: #"{"profile_pic":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "pushNotification",
             plain: #"{"pushNotification":{"_0":{"regular":{}}}}"#,
-            wire: #"{"push_notification":{"_0":{"regular":{}}}}"#
+            akinWire: #"{"push_notification":{"_0":{"regular":{}}}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "callKitConsent",
             plain: #"{"callKitConsent":{}}"#,
-            wire: #"{"call_kit_consent":{}}"#
+            akinWire: #"{"call_kit_consent":{}}"#
         ),
     ]
 
-    static let socketPayload: [WireGolden] = [
-        WireGolden(
+    static let socketPayload: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "greetUpdate",
             plain: #"{"greetUpdate":{"_0":{"caseType":"silentLocationUpdate"}}}"#,
-            wire: #"{"greet_update":{"_0":{"case_type":"silentLocationUpdate"}}}"#
+            akinWire: #"{"greet_update":{"_0":{"case_type":"silentLocationUpdate"}}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "greetEvent",
             plain: [
                 #"{"greetEvent":{"_0":{"action":{"manualGreetInitiated":{}},"actorUser"#,
@@ -596,7 +596,7 @@ enum SchemaReadyEnumGoldens {
                 #"0000-0000-0000000000A1","greetID":"00000000-0000-0000-0000-000000000"#,
                 #"0A1","serverDate":812692800.1229999,"serverSequenceNumber":7}}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"greet_event":{"_0":{"action":{"manual_greet_initiated":{}},"actor_"#,
                 #"user_id":"00000000-0000-0000-0000-0000000000A1","event_id":"00000000"#,
                 #"-0000-0000-0000-0000000000A1","greet_id":"00000000-0000-0000-0000-00"#,
@@ -604,30 +604,30 @@ enum SchemaReadyEnumGoldens {
                 #"e_number":7}}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "nearbyUserUpdate",
             plain: #"{"nearbyUserUpdate":{}}"#,
-            wire: #"{"nearby_user_update":{}}"#
+            akinWire: #"{"nearby_user_update":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "pong",
             plain: #"{"pong":{}}"#,
-            wire: #"{"pong":{}}"#
+            akinWire: #"{"pong":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "voipSignal",
             plain: [
                 #"{"voipSignal":{"_0":{"callType":"ringToVoipEnroute","greetID":"00000"#,
                 #"000-0000-0000-0000-0000000000A1","signal":{"caseType":"iceCandidate""#,
                 #","sdp":"gl28","sdpMLineIndex":7,"sdpMid":"0"}}}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"voip_signal":{"_0":{"call_type":"ringToVoipEnroute","greet_id":"00"#,
                 #"000000-0000-0000-0000-0000000000A1","signal":{"case_type":"iceCandid"#,
                 #"ate","sdp":"gl28","sdp_m_line_index":7,"sdp_mid":"0"}}}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "nearbyStateUpdate",
             plain: [
                 #"{"nearbyStateUpdate":{"_0":{"interaction":{"availability":"available"#,
@@ -636,7 +636,7 @@ enum SchemaReadyEnumGoldens {
                 #"observedAt":812692800.1229999,"userID":"00000000-0000-0000-0000-0000"#,
                 #"000000A1"}}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"nearby_state_update":{"_0":{"interaction":{"availability":"availab"#,
                 #"le","distance_meters":1.5,"frozen_by_viewer":true,"frozen_until":"20"#,
                 #"26-10-03T04:00:00.123Z","reservation_queue_length":7,"viewer_reserva"#,
@@ -644,14 +644,14 @@ enum SchemaReadyEnumGoldens {
                 #":"00000000-0000-0000-0000-0000000000A1"}}}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "reservationMatured",
             plain: [
                 #"{"reservationMatured":{"_0":{"otherUserID":"00000000-0000-0000-0000-"#,
                 #"0000000000A1","otherUserName":"gl28","recipientPlacedTheReservation""#,
                 #":true}}}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"reservation_matured":{"_0":{"other_user_id":"00000000-0000-0000-00"#,
                 #"00-0000000000A1","other_user_name":"gl28","recipient_placed_the_rese"#,
                 #"rvation":true}}}"#,
@@ -659,111 +659,111 @@ enum SchemaReadyEnumGoldens {
         ),
     ]
 
-    static let subscriptionTarget: [WireGolden] = [
-        WireGolden(
+    static let subscriptionTarget: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "questionnaire",
             plain: #"{"questionnaire":{"_0":"00000000-0000-0000-0000-0000000000A1"}}"#,
-            wire: #"{"questionnaire":{"_0":"00000000-0000-0000-0000-0000000000A1"}}"#
+            akinWire: #"{"questionnaire":{"_0":"00000000-0000-0000-0000-0000000000A1"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "member",
             plain: #"{"member":{"_0":"00000000-0000-0000-0000-0000000000A1"}}"#,
-            wire: #"{"member":{"_0":"00000000-0000-0000-0000-0000000000A1"}}"#
+            akinWire: #"{"member":{"_0":"00000000-0000-0000-0000-0000000000A1"}}"#
         ),
     ]
 
-    static let timingUpdate: [WireGolden] = [
-        WireGolden(
+    static let timingUpdate: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "agreed",
             plain: #"{"agreed":{"_0":7}}"#,
-            wire: #"{"agreed":{"_0":7}}"#
+            akinWire: #"{"agreed":{"_0":7}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "rejected",
             plain: #"{"rejected":{"_0":7}}"#,
-            wire: #"{"rejected":{"_0":7}}"#
+            akinWire: #"{"rejected":{"_0":7}}"#
         ),
     ]
 
-    static let travelUpdate: [WireGolden] = [
-        WireGolden(
+    static let travelUpdate: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "percentTravelled",
             plain: #"{"percentTravelled":{"_0":1.5}}"#,
-            wire: #"{"percent_travelled":{"_0":1.5}}"#
+            akinWire: #"{"percent_travelled":{"_0":1.5}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "exceededRange",
             plain: #"{"exceededRange":{}}"#,
-            wire: #"{"exceeded_range":{}}"#
+            akinWire: #"{"exceeded_range":{}}"#
         ),
     ]
 
-    static let viewSetting: [WireGolden] = [
-        WireGolden(
+    static let viewSetting: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "inGreet",
             plain: #"{"inGreet":{}}"#,
-            wire: #"{"in_greet":{}}"#
+            akinWire: #"{"in_greet":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "inGreetConfirmedMet",
             plain: #"{"inGreetConfirmedMet":{"_0":"theyConfirmed"}}"#,
-            wire: #"{"in_greet_confirmed_met":{"_0":"theyConfirmed"}}"#
+            akinWire: #"{"in_greet_confirmed_met":{"_0":"theyConfirmed"}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "otherAskedIfCanMeetLater",
             plain: #"{"otherAskedIfCanMeetLater":{"_0":7}}"#,
-            wire: #"{"other_asked_if_can_meet_later":{"_0":7}}"#
+            akinWire: #"{"other_asked_if_can_meet_later":{"_0":7}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "rejected",
             plain: #"{"rejected":{}}"#,
-            wire: #"{"rejected":{}}"#
+            akinWire: #"{"rejected":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "start",
             plain: #"{"start":{}}"#,
-            wire: #"{"start":{}}"#
+            akinWire: #"{"start":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "thisUserAgreed",
             plain: #"{"thisUserAgreed":{}}"#,
-            wire: #"{"this_user_agreed":{}}"#
+            akinWire: #"{"this_user_agreed":{}}"#
         ),
     ]
 
-    static let requirementLocation: [WireGolden] = [
-        WireGolden(
+    static let requirementLocation: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "regular",
             plain: #"{"regular":{}}"#,
-            wire: #"{"regular":{}}"#
+            akinWire: #"{"regular":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "requiresDeeplinkToSettings",
             plain: #"{"requiresDeeplinkToSettings":{}}"#,
-            wire: #"{"requires_deeplink_to_settings":{}}"#
+            akinWire: #"{"requires_deeplink_to_settings":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "shouldUpgradeToAlways",
             plain: #"{"shouldUpgradeToAlways":{}}"#,
-            wire: #"{"should_upgrade_to_always":{}}"#
+            akinWire: #"{"should_upgrade_to_always":{}}"#
         ),
     ]
 
-    static let requirementPushNotification: [WireGolden] = [
-        WireGolden(
+    static let requirementPushNotification: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "requiresDeeplinkToSettings",
             plain: #"{"requiresDeeplinkToSettings":{}}"#,
-            wire: #"{"requires_deeplink_to_settings":{}}"#
+            akinWire: #"{"requires_deeplink_to_settings":{}}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "regular",
             plain: #"{"regular":{}}"#,
-            wire: #"{"regular":{}}"#
+            akinWire: #"{"regular":{}}"#
         ),
     ]
 
-    static let greetNotification: [WireGolden] = [
-        WireGolden(
+    static let greetNotification: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "getRating",
             plain: [
                 #"{"associatedValue":{"greetID":"00000000-0000-0000-0000-0000000000B1""#,
@@ -771,7 +771,7 @@ enum SchemaReadyEnumGoldens {
                 #"00000000-0000-0000-0000-0000000000B2","profileURL":"https:\/\/exampl"#,
                 #"e.invalid\/p.png","timeMet":"7:30 PM"},"caseType":"getRating"}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"associated_value":{"greet_id":"00000000-0000-0000-0000-0000000000B"#,
                 #"1","name":"Avery","notification_key":"weClosedTheGreet","other_user_"#,
                 #"id":"00000000-0000-0000-0000-0000000000B2","profile_url":"https:\/\/"#,
@@ -779,7 +779,7 @@ enum SchemaReadyEnumGoldens {
                 #""}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "greet",
             plain: [
                 #"{"associatedValue":{"compatitibility":{},"events":[],"greetID":"0000"#,
@@ -799,7 +799,7 @@ enum SchemaReadyEnumGoldens {
                 #"longitude":-122,"name":"Cafe","url":"https:\/\/example.com"}},"caseT"#,
                 #"ype":"greet"}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"associated_value":{"compatitibility":{},"events":[],"greet_id":"00"#,
                 #"000000-0000-0000-0000-0000000000C4","initiation_method":{"manual":{""#,
                 #"user_id":"00000000-0000-0000-0000-0000000000C1"}},"match_making_meth"#,
@@ -818,31 +818,31 @@ enum SchemaReadyEnumGoldens {
                 #"tps:\/\/example.com"}},"case_type":"greet"}"#,
             ].joined()
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "silentLocationUpdate",
             plain: #"{"caseType":"silentLocationUpdate"}"#,
-            wire: #"{"case_type":"silentLocationUpdate"}"#
+            akinWire: #"{"case_type":"silentLocationUpdate"}"#
         ),
     ]
 
-    static let voipSignal: [WireGolden] = [
-        WireGolden(
+    static let voipSignal: [SavedJSONBeforeChange] = [
+        SavedJSONBeforeChange(
             caseName: "offer",
             plain: #"{"caseType":"offer","sdp":"v=0 offer"}"#,
-            wire: #"{"case_type":"offer","sdp":"v=0 offer"}"#
+            akinWire: #"{"case_type":"offer","sdp":"v=0 offer"}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "answer",
             plain: #"{"caseType":"answer","sdp":"v=0 answer"}"#,
-            wire: #"{"case_type":"answer","sdp":"v=0 answer"}"#
+            akinWire: #"{"case_type":"answer","sdp":"v=0 answer"}"#
         ),
-        WireGolden(
+        SavedJSONBeforeChange(
             caseName: "iceCandidate",
             plain: [
                 #"{"caseType":"iceCandidate","sdp":"candidate:1","sdpMLineIndex":2,"sd"#,
                 #"pMid":"0"}"#,
             ].joined(),
-            wire: [
+            akinWire: [
                 #"{"case_type":"iceCandidate","sdp":"candidate:1","sdp_m_line_index":2"#,
                 #","sdp_mid":"0"}"#,
             ].joined()

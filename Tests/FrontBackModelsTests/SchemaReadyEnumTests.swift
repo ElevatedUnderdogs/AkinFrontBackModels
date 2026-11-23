@@ -14,12 +14,12 @@
 //  - `allCases` (or `CodingKeys.allCases`) names exactly the cases the enum has, in order, so a
 //    case added later without updating the list fails here.
 //  - Every case still encodes to the same JSON as before. Plain enums are checked against their
-//    raw value. Enums whose cases carry values are checked against golden JSON captured from
-//    the code before the change, see SchemaReadyEnumGoldens.swift, with both a plain
-//    `JSONEncoder` and `JSONEncoder.akinWire`.
+//    raw value. Enums whose cases carry values are checked against JSON saved from main before
+//    this change, see SavedJSONBeforeChangeCases.swift, with both a plain `JSONEncoder` and
+//    `JSONEncoder.akinWire`.
+//  - Every case decodes back from that JSON.
 //  The checks are written once, in the helpers at the bottom, and each test names the enum and
 //  its expected cases.
-//  - Every case decodes back from that JSON.
 //
 //  The two `private enum CaseType` discriminators, in `Greet.Notification` and `VoipSignal`,
 //  cannot be named from a test, so they are exercised through the type that owns them.
@@ -165,9 +165,9 @@ final class SchemaReadyEnumTests: XCTestCase {
             .connectionLost,
         ]
         XCTAssertEqual(GreetedClientStatus.allCases, expected)
-        try assertGoldens(
+        try assertMatchesSavedJSON(
             GreetedClientStatus.self,
-            SchemaReadyEnumGoldens.greetedClientStatus,
+            SavedJSONBeforeChangeCases.greetedClientStatus,
             covering: expected.map { "\($0)" }
         )
     }
@@ -175,9 +175,9 @@ final class SchemaReadyEnumTests: XCTestCase {
     func testHideOptionAllCases() throws {
         let expected: [HideOption] = [.automatic, .manual]
         XCTAssertEqual(HideOption.allCases, expected)
-        try assertGoldens(
+        try assertMatchesSavedJSON(
             HideOption.self,
-            SchemaReadyEnumGoldens.hideOption,
+            SavedJSONBeforeChangeCases.hideOption,
             covering: expected.map { "\($0)" }
         )
     }
@@ -189,9 +189,9 @@ final class SchemaReadyEnumTests: XCTestCase {
             .shouldUpgradeToAlways,
         ]
         XCTAssertEqual(Requirement.Location.allCases, expected)
-        try assertGoldens(
+        try assertMatchesSavedJSON(
             Requirement.Location.self,
-            SchemaReadyEnumGoldens.requirementLocation,
+            SavedJSONBeforeChangeCases.requirementLocation,
             covering: expected.map { "\($0)" }
         )
     }
@@ -199,9 +199,9 @@ final class SchemaReadyEnumTests: XCTestCase {
     func testRequirementPushNotificationAllCases() throws {
         let expected: [Requirement.PushNotification] = [.requiresDeeplinkToSettings, .regular]
         XCTAssertEqual(Requirement.PushNotification.allCases, expected)
-        try assertGoldens(
+        try assertMatchesSavedJSON(
             Requirement.PushNotification.self,
-            SchemaReadyEnumGoldens.requirementPushNotification,
+            SavedJSONBeforeChangeCases.requirementPushNotification,
             covering: expected.map { "\($0)" }
         )
     }
@@ -211,9 +211,9 @@ final class SchemaReadyEnumTests: XCTestCase {
     func testAutomaticGreetDebugActionCodingKeys() throws {
         let names = ["expireCooldownNow", "setLastGreet", "clearPairHistory"]
         try assertCodingKeys(AutomaticGreetDebugAction.CodingKeys.self, names)
-        try assertGoldens(
+        try assertMatchesSavedJSON(
             AutomaticGreetDebugAction.self,
-            SchemaReadyEnumGoldens.automaticGreetDebugAction,
+            SavedJSONBeforeChangeCases.automaticGreetDebugAction,
             covering: names
         )
     }
@@ -238,9 +238,9 @@ final class SchemaReadyEnumTests: XCTestCase {
             "unavailableToYou",
         ]
         try assertCodingKeys(AutomaticGreetSuppression.CodingKeys.self, names)
-        try assertGoldens(
+        try assertMatchesSavedJSON(
             AutomaticGreetSuppression.self,
-            SchemaReadyEnumGoldens.automaticGreetSuppression,
+            SavedJSONBeforeChangeCases.automaticGreetSuppression,
             covering: names
         )
     }
@@ -265,7 +265,11 @@ final class SchemaReadyEnumTests: XCTestCase {
             "rated",
         ]
         try assertCodingKeys(GreetAction.CodingKeys.self, names)
-        try assertGoldens(GreetAction.self, SchemaReadyEnumGoldens.greetAction, covering: names)
+        try assertMatchesSavedJSON(
+            GreetAction.self,
+            SavedJSONBeforeChangeCases.greetAction,
+            covering: names
+        )
     }
 
     func testGreetLogEventCodingKeys() throws {
@@ -291,15 +295,19 @@ final class SchemaReadyEnumTests: XCTestCase {
             "clientFound",
         ]
         try assertCodingKeys(GreetLogEvent.CodingKeys.self, names)
-        try assertGoldens(GreetLogEvent.self, SchemaReadyEnumGoldens.greetLogEvent, covering: names)
+        try assertMatchesSavedJSON(
+            GreetLogEvent.self,
+            SavedJSONBeforeChangeCases.greetLogEvent,
+            covering: names
+        )
     }
 
     func testInitiationMethodCodingKeys() throws {
         let names = ["manual", "automatic", "devForced", "unknown"]
         try assertCodingKeys(InitiationMethod.CodingKeys.self, names)
-        try assertGoldens(
+        try assertMatchesSavedJSON(
             InitiationMethod.self,
-            SchemaReadyEnumGoldens.initiationMethod,
+            SavedJSONBeforeChangeCases.initiationMethod,
             covering: names
         )
     }
@@ -313,9 +321,9 @@ final class SchemaReadyEnumTests: XCTestCase {
             "noNearbyVenuesOpen",
         ]
         try assertCodingKeys(ManualGreetResponse.CodingKeys.self, names)
-        try assertGoldens(
+        try assertMatchesSavedJSON(
             ManualGreetResponse.self,
-            SchemaReadyEnumGoldens.manualGreetResponse,
+            SavedJSONBeforeChangeCases.manualGreetResponse,
             covering: names
         )
     }
@@ -323,9 +331,9 @@ final class SchemaReadyEnumTests: XCTestCase {
     func testNotificationSubjectCodingKeys() throws {
         let names = ["question", "response", "questionnaire"]
         try assertCodingKeys(NotificationSubject.CodingKeys.self, names)
-        try assertGoldens(
+        try assertMatchesSavedJSON(
             NotificationSubject.self,
-            SchemaReadyEnumGoldens.notificationSubject,
+            SavedJSONBeforeChangeCases.notificationSubject,
             covering: names
         )
     }
@@ -333,9 +341,9 @@ final class SchemaReadyEnumTests: XCTestCase {
     func testQuestionRequirementCodingKeys() throws {
         let names = ["mustHaveAnswered", "mustNotHaveChosen", "mustHaveChosenOneOf"]
         try assertCodingKeys(QuestionRequirement.CodingKeys.self, names)
-        try assertGoldens(
+        try assertMatchesSavedJSON(
             QuestionRequirement.self,
-            SchemaReadyEnumGoldens.questionRequirement,
+            SavedJSONBeforeChangeCases.questionRequirement,
             covering: names
         )
     }
@@ -343,9 +351,9 @@ final class SchemaReadyEnumTests: XCTestCase {
     func testQuestionnaireCreatorCodingKeys() throws {
         let names = ["you", "member", "anonymous"]
         try assertCodingKeys(QuestionnaireCreator.CodingKeys.self, names)
-        try assertGoldens(
+        try assertMatchesSavedJSON(
             QuestionnaireCreator.self,
-            SchemaReadyEnumGoldens.questionnaireCreator,
+            SavedJSONBeforeChangeCases.questionnaireCreator,
             covering: names
         )
     }
@@ -353,9 +361,9 @@ final class SchemaReadyEnumTests: XCTestCase {
     func testRelationUpdateCodingKeys() throws {
         let names = ["automatic", "manual", "blocked"]
         try assertCodingKeys(RelationUpdate.CodingKeys.self, names)
-        try assertGoldens(
+        try assertMatchesSavedJSON(
             RelationUpdate.self,
-            SchemaReadyEnumGoldens.relationUpdate,
+            SavedJSONBeforeChangeCases.relationUpdate,
             covering: names
         )
     }
@@ -363,7 +371,11 @@ final class SchemaReadyEnumTests: XCTestCase {
     func testRequirementCodingKeys() throws {
         let names = ["birthday", "location", "profilePic", "pushNotification", "callKitConsent"]
         try assertCodingKeys(Requirement.CodingKeys.self, names)
-        try assertGoldens(Requirement.self, SchemaReadyEnumGoldens.requirement, covering: names)
+        try assertMatchesSavedJSON(
+            Requirement.self,
+            SavedJSONBeforeChangeCases.requirement,
+            covering: names
+        )
     }
 
     func testSocketPayloadCodingKeys() throws {
@@ -377,15 +389,19 @@ final class SchemaReadyEnumTests: XCTestCase {
             "reservationMatured",
         ]
         try assertCodingKeys(SocketPayload.CodingKeys.self, names)
-        try assertGoldens(SocketPayload.self, SchemaReadyEnumGoldens.socketPayload, covering: names)
+        try assertMatchesSavedJSON(
+            SocketPayload.self,
+            SavedJSONBeforeChangeCases.socketPayload,
+            covering: names
+        )
     }
 
     func testSubscriptionTargetCodingKeys() throws {
         let names = ["questionnaire", "member"]
         try assertCodingKeys(SubscriptionTarget.CodingKeys.self, names)
-        try assertGoldens(
+        try assertMatchesSavedJSON(
             SubscriptionTarget.self,
-            SchemaReadyEnumGoldens.subscriptionTarget,
+            SavedJSONBeforeChangeCases.subscriptionTarget,
             covering: names
         )
     }
@@ -393,13 +409,21 @@ final class SchemaReadyEnumTests: XCTestCase {
     func testTimingUpdateCodingKeys() throws {
         let names = ["agreed", "rejected"]
         try assertCodingKeys(TimingUpdate.CodingKeys.self, names)
-        try assertGoldens(TimingUpdate.self, SchemaReadyEnumGoldens.timingUpdate, covering: names)
+        try assertMatchesSavedJSON(
+            TimingUpdate.self,
+            SavedJSONBeforeChangeCases.timingUpdate,
+            covering: names
+        )
     }
 
     func testTravelUpdateCodingKeys() throws {
         let names = ["percentTravelled", "exceededRange"]
         try assertCodingKeys(TravelUpdate.CodingKeys.self, names)
-        try assertGoldens(TravelUpdate.self, SchemaReadyEnumGoldens.travelUpdate, covering: names)
+        try assertMatchesSavedJSON(
+            TravelUpdate.self,
+            SavedJSONBeforeChangeCases.travelUpdate,
+            covering: names
+        )
     }
 
     func testViewSettingCodingKeys() throws {
@@ -412,23 +436,27 @@ final class SchemaReadyEnumTests: XCTestCase {
             "thisUserAgreed",
         ]
         try assertCodingKeys(ViewSetting.CodingKeys.self, names)
-        try assertGoldens(ViewSetting.self, SchemaReadyEnumGoldens.viewSetting, covering: names)
+        try assertMatchesSavedJSON(
+            ViewSetting.self,
+            SavedJSONBeforeChangeCases.viewSetting,
+            covering: names
+        )
     }
 
     // MARK: - The private discriminators
 
-    func testNotificationCaseTypeKeepsTheWireFormatForEveryCase() throws {
-        try assertGoldens(
+    func testNotificationCaseTypeKeepsItsJSONForEveryCase() throws {
+        try assertMatchesSavedJSON(
             Greet.Notification.self,
-            SchemaReadyEnumGoldens.greetNotification,
+            SavedJSONBeforeChangeCases.greetNotification,
             covering: ["getRating", "greet", "silentLocationUpdate"]
         )
     }
 
-    func testVoipSignalCaseTypeKeepsTheWireFormatForEveryCase() throws {
-        try assertGoldens(
+    func testVoipSignalCaseTypeKeepsItsJSONForEveryCase() throws {
+        try assertMatchesSavedJSON(
             VoipSignal.self,
-            SchemaReadyEnumGoldens.voipSignal,
+            SavedJSONBeforeChangeCases.voipSignal,
             covering: ["offer", "answer", "iceCandidate"]
         )
     }
@@ -479,30 +507,33 @@ final class SchemaReadyEnumTests: XCTestCase {
         XCTAssertNil(K(intValue: 0), file: file, line: line)
     }
 
-    /// The goldens cover exactly the `covering` cases. Each plain golden decodes with the current
-    /// code and encodes back to the same bytes, and the same value encodes to the akinWire golden.
+    /// The saved JSON covers exactly the `covering` cases. Each plain string decodes with the
+    /// current code and encodes back to the same bytes, and the same value encodes to the saved
+    /// akinWire string.
     ///
-    /// Decoding the akinWire golden is deliberately not part of this. A key ending in `ID` does
-    /// not survive `.convertFromSnakeCase` (`user_id` comes back as `userId`), which is a known,
-    /// older problem pinned in GL28IDKeyHazardTests and is the same before and after this change.
-    private func assertGoldens<T: Codable>(
+    /// Decoding the saved akinWire string is deliberately not part of this. A key ending in `ID`
+    /// does not survive `.convertFromSnakeCase` (`user_id` comes back as `userId`), which is a
+    /// known, older problem pinned in GL28IDKeyHazardTests and is the same before and after this
+    /// change.
+    private func assertMatchesSavedJSON<T: Codable>(
         _ type: T.Type,
-        _ goldens: [WireGolden],
+        _ savedCases: [SavedJSONBeforeChange],
         covering expected: [String],
         file: StaticString = #filePath,
         line: UInt = #line
     ) throws {
-        XCTAssertEqual(goldens.map(\.caseName), expected, "a case has no golden",
+        XCTAssertEqual(savedCases.map(\.caseName), expected, "a case has no saved JSON",
                        file: file, line: line)
         let (plainEncoder, plainDecoder) = Self.coders[0]
-        let (wireEncoder, _) = Self.coders[1]
-        for golden in goldens {
-            let value = try plainDecoder.decode(T.self, from: Data(golden.plain.utf8))
+        let (akinWireEncoder, _) = Self.coders[1]
+        for saved in savedCases {
+            let value = try plainDecoder.decode(T.self, from: Data(saved.plain.utf8))
             let plain = String(decoding: try plainEncoder.encode(value), as: UTF8.self)
-            XCTAssertEqual(plain, golden.plain, "\(T.self).\(golden.caseName) moved",
+            XCTAssertEqual(plain, saved.plain, "\(T.self).\(saved.caseName) moved",
                            file: file, line: line)
-            let wire = String(decoding: try wireEncoder.encode(value), as: UTF8.self)
-            XCTAssertEqual(wire, golden.wire, "\(T.self).\(golden.caseName) moved on akinWire",
+            let akinWire = String(decoding: try akinWireEncoder.encode(value), as: UTF8.self)
+            XCTAssertEqual(akinWire, saved.akinWire,
+                           "\(T.self).\(saved.caseName) moved on akinWire",
                            file: file, line: line)
             try assertDecodesBackEqual(value, plainEncoder, plainDecoder, file: file, line: line)
         }
@@ -528,8 +559,8 @@ final class SchemaReadyEnumTests: XCTestCase {
     private static var coders: [(JSONEncoder, JSONDecoder)] {
         let plain = JSONEncoder()
         plain.outputFormatting = [.sortedKeys]
-        let wire = JSONEncoder.akinWire
-        wire.outputFormatting = [.sortedKeys]
-        return [(plain, JSONDecoder()), (wire, JSONDecoder.akinWire)]
+        let akinWire = JSONEncoder.akinWire
+        akinWire.outputFormatting = [.sortedKeys]
+        return [(plain, JSONDecoder()), (akinWire, JSONDecoder.akinWire)]
     }
 }
