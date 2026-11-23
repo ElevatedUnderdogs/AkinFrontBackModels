@@ -2,7 +2,8 @@
 //  SavedJSONBeforeChange.swift
 //  FrontBackModelsTests
 //
-//  One enum case's JSON as it was before this change, used by SavedJSONBeforeChangeCases.
+//  One enum case's JSON from before the explicit `CodingKeys` and `CaseIterable` were added
+//  to the model enums. Used by SavedJSONBeforeChangeCases.
 //
 
 struct SavedJSONBeforeChange {

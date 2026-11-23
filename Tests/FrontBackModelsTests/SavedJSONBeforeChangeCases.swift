@@ -3,12 +3,12 @@
 //  FrontBackModelsTests
 //
 //  The exact JSON every case of the changed enums produced BEFORE `CaseIterable` and the
-//  hand-written `CodingKeys` were added. Captured on commit cb51359 (main before this change)
+//  hand-written `CodingKeys` were added. Captured on commit cb51359 (main before they were added)
 //  by encoding one value per case with a plain `JSONEncoder` and with `JSONEncoder.akinWire`,
 //  both with sorted keys so the text is stable.
 //
 //  SchemaReadyEnumTests decodes each string with the new code and encodes it again. Getting the
-//  same bytes back proves the change did not change the JSON, in either direction. Do not
+//  same bytes back proves adding them did not change the JSON, in either direction. Do not
 //  regenerate these from the current code: that would only prove the code agrees with itself.
 //
 //  Long strings are split into pieces so no line passes 100 columns. The pieces are joined

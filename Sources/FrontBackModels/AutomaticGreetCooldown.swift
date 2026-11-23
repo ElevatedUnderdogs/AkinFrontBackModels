@@ -42,6 +42,7 @@ import Foundation
 public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
     /// Why do we need explicit coding keys when they match what would be synthesized?
     /// In order to give them CaseIterable conformance for schema generators to list every case.
+    /// Schema generator: https://github.com/ElevatedUnderdogs/DecodableSchema
     enum CodingKeys: String, CodingKey, CaseIterable {
         case pairCooldown, memberCapReached, alreadyInAGreet, pendingGreetUnanswered, alreadyMet,
             busy, automaticGreetsOff, hiddenFromNearby, blocked, unreachable, unverified,
@@ -947,6 +948,7 @@ public struct AutomaticGreetStatus: Codable, Hashable, Equatable, Sendable {
 public enum AutomaticGreetDebugAction: Codable, Hashable, Equatable, Sendable {
     /// Why do we need explicit coding keys when they match what would be synthesized?
     /// In order to give them CaseIterable conformance for schema generators to list every case.
+    /// Schema generator: https://github.com/ElevatedUnderdogs/DecodableSchema
     enum CodingKeys: String, CodingKey, CaseIterable {
         case expireCooldownNow, setLastGreet, clearPairHistory
     }

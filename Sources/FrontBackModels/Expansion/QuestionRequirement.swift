@@ -5,6 +5,7 @@ import Foundation
 public enum QuestionRequirement: Codable, Hashable {
     /// Why do we need explicit coding keys when they match what would be synthesized?
     /// In order to give them CaseIterable conformance for schema generators to list every case.
+    /// Schema generator: https://github.com/ElevatedUnderdogs/DecodableSchema
     enum CodingKeys: String, CodingKey, CaseIterable {
         case mustHaveAnswered, mustNotHaveChosen, mustHaveChosenOneOf
     }

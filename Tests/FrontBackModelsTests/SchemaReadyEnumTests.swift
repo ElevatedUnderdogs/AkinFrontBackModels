@@ -2,12 +2,13 @@
 //  SchemaReadyEnumTests.swift
 //  FrontBackModelsTests
 //
-//  Pins the change that lets every model type describe its own JSON shape.
+//  Pins the explicit `CodingKeys` and `CaseIterable` added to the model enums, which let every
+//  model type describe its own JSON shape.
 //
 //  MapMatesMCP builds the input schema for an MCP tool straight from a model type's
 //  `init(from:)`. To list an enum's values it needs the enum to say what all of them are:
 //  `CaseIterable` on a plain enum, and a `CaseIterable` `CodingKeys` on an enum whose cases carry
-//  values. Before this change 41 enums said neither, so any type that reached one of them came
+//  values. Before they were added, 41 enums said neither, so any type that reached one of them came
 //  out with an incomplete schema.
 //
 //  What these tests prove, per enum:
@@ -15,7 +16,7 @@
 //    case added later without updating the list fails here.
 //  - Every case still encodes to the same JSON as before. Plain enums are checked against their
 //    raw value. Enums whose cases carry values are checked against JSON saved from main before
-//    this change, see SavedJSONBeforeChangeCases.swift, with both a plain `JSONEncoder` and
+//    they were added, see SavedJSONBeforeChangeCases.swift, with both a plain `JSONEncoder` and
 //    `JSONEncoder.akinWire`.
 //  - Every case decodes back from that JSON.
 //  The checks are written once, in the helpers at the bottom, and each test names the enum and
@@ -513,8 +514,8 @@ final class SchemaReadyEnumTests: XCTestCase {
     ///
     /// Decoding the saved akinWire string is deliberately not part of this. A key ending in `ID`
     /// does not survive `.convertFromSnakeCase` (`user_id` comes back as `userId`), which is a
-    /// known, older problem pinned in GL28IDKeyHazardTests and is the same before and after this
-    /// change.
+    /// known, older problem pinned in GL28IDKeyHazardTests, and it is the same with or without
+    /// the explicit `CodingKeys`.
     private func assertMatchesSavedJSON<T: Codable>(
         _ type: T.Type,
         _ savedCases: [SavedJSONBeforeChange],
