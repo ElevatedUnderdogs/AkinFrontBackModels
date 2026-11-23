@@ -24,6 +24,10 @@ public struct TravelDistance: Codable, Equatable {
 // MARK: Server → Client
 
 public enum TravelUpdate: Codable, Equatable {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case percentTravelled, exceededRange
+    }
+
     case percentTravelled(Double)     // 0.0 ... 1.0
     case exceededRange
 }
@@ -41,6 +45,9 @@ public struct TravelUpdateResponse: Codable, Equatable {
 // MARK: Server → Client (incremental updates)
 
 public enum TimingUpdate: Codable, Equatable {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case agreed, rejected
+    }
 
     case agreed(Int)     // minutes
     case rejected(Int)   // minutes
@@ -71,7 +78,7 @@ public struct TimingUpdateResponse: Codable, Equatable {
 
 // MARK: Client → Server
 
-public enum RejectionAction: String, Codable, Equatable {
+public enum RejectionAction: String, Codable, CaseIterable, Equatable {
     case dismiss   // before agreeing
     case cancel    // after agreeing
     case rejectedVoip  // tapped red close call button.

@@ -571,7 +571,7 @@ extension DeleteAccountRequest {
     }
 }
 
-public enum ModerationContentType: String, Codable {
+public enum ModerationContentType: String, Codable, CaseIterable {
     case question
     case response
     case imageMetaData
@@ -802,7 +802,7 @@ extension RegisterDeviceTokenRequest {
     }
 }
 
-public enum HideOption: Codable, Hashable, Equatable {
+public enum HideOption: Codable, CaseIterable, Hashable, Equatable {
     case automatic
     case manual
 }
@@ -845,6 +845,10 @@ public struct RelationUpdatePayload: Codable, Hashable, Equatable {
 }
 
 public enum RelationUpdate: Codable, Hashable, Equatable {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case automatic, manual, blocked
+    }
+
     case automatic(NotificationFrequency)
     case manual(NotificationFrequency)
     case blocked(Bool)

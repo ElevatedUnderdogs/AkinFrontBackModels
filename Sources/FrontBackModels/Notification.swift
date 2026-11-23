@@ -74,7 +74,7 @@ extension Greet {
         }
 
         // Define an enum for case types to avoid stringly-typed values
-        private enum CaseType: String, Codable {
+        private enum CaseType: String, Codable, CaseIterable {
             case getRating
             case greet
             case silentLocationUpdate

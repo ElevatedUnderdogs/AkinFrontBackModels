@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum TravelMethod: String, Codable {
+public enum TravelMethod: String, Codable, CaseIterable {
     case bike
     case car
     case none

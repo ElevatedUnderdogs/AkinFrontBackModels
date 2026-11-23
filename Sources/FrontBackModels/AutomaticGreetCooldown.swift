@@ -40,6 +40,12 @@ import Foundation
 /// wants to do anything but print it has to match on words. Every case here is a value the client
 /// can switch on, and `memberFacingReason` is derived FROM the case rather than being the case.
 public enum AutomaticGreetSuppression: Equatable, Hashable, Sendable, Codable {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case pairCooldown, memberCapReached, alreadyInAGreet, pendingGreetUnanswered, alreadyMet,
+            busy, automaticGreetsOff, hiddenFromNearby, blocked, unreachable, unverified,
+            moderationFlagged, frozenByAnotherMember, outsideStatedAvailability, noVenueBetweenThem,
+            unavailableToYou
+    }
 
     /// The pair's cooldown from their last automatic greet has not elapsed.
     /// Carries the moment it does, so a caller can say when rather than only that.
@@ -937,6 +943,9 @@ public struct AutomaticGreetStatus: Codable, Hashable, Equatable, Sendable {
 /// Every case is refused unless the server has been told to allow debug routes, and the refusal
 /// says so rather than failing quietly.
 public enum AutomaticGreetDebugAction: Codable, Hashable, Equatable, Sendable {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case expireCooldownNow, setLastGreet, clearPairHistory
+    }
 
     /// Move the pair's last automatic greet far enough into the past that every cooldown has
     /// elapsed. The greet itself is left alone, so the OUTCOME still applies and the release can be

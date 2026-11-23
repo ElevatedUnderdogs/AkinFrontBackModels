@@ -3,6 +3,10 @@ import Foundation
 // Swath Q contract (item 1.6): a required-question filter flavor. One enum so a new flavor cannot
 // silently bypass the filter: every consumer must switch exhaustively over these cases.
 public enum QuestionRequirement: Codable, Hashable {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case mustHaveAnswered, mustNotHaveChosen, mustHaveChosenOneOf
+    }
+
     /// The other member must have answered this question at all.
     case mustHaveAnswered(questionID: UUID)
     /// The other member must NOT have chosen any of these responses.

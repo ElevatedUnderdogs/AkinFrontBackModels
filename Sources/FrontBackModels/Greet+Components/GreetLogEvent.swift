@@ -10,6 +10,12 @@ import Foundation
 
 // MARK: - Event enum (top-level) with helpers
 public enum GreetLogEvent: Codable, ActionStringConvertible {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case greetAction, pushQueued, pushSent, pushProviderAccepted, pushFailed, webSocketSent,
+            webSocketFailed, deliveryConfirmed, fallbackTriggered, rateLimited, pushNotifReceived,
+            voipReceived, rejectedViaAnotherCall, userViewed, greetCreated, greetExpired,
+            settingsUpdated, serverFound, clientFound
+    }
 
     case greetAction(GreetAction)
 

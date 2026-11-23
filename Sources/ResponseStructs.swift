@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum GreetedClientStatus: Codable, Equatable, Hashable {
+public enum GreetedClientStatus: Codable, CaseIterable, Equatable, Hashable {
     /// After both users confirmed that they met at the meeting point.
     case confirmedMet
     /// When the user started or is moving towards the meeting point
@@ -225,6 +225,11 @@ public struct UpdateEmailResponse: Codable {
 }
 
 public enum ManualGreetResponse: Codable {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case notification, otherUserIsInGreet, thisUserIsInGreet,
+            thisAndOtherUserAlreadyInSameGreet, noNearbyVenuesOpen
+    }
+
     case notification(ManualGreetNotification)
     case otherUserIsInGreet
     case thisUserIsInGreet
@@ -243,7 +248,7 @@ public struct ManualGreetNotification: Codable {
     }
 }
 
-public enum ManualGreetStatus: String, Codable, Equatable, Hashable {
+public enum ManualGreetStatus: String, Codable, CaseIterable, Equatable, Hashable {
     case success
 }
 

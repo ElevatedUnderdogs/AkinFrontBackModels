@@ -50,7 +50,7 @@ public struct FlagExplanation: Codable, Hashable, Equatable {
 /// Combines both manual user reports and automatic flagging (e.g. AI, heuristics)
 /// This prevents creating two nearly identical moderation models and a combinatorial
 /// explosion of join/audit logic.
-public enum FlagSource: String, Codable {
+public enum FlagSource: String, Codable, CaseIterable {
     case appleIntelligence
     case autoServerOpenAI
     case manualOtherUser

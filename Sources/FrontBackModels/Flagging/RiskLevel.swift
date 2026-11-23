@@ -9,7 +9,7 @@ import Foundation
 
 /// Represents the severity level of a moderation flag.
 /// Used to influence escalation thresholds and moderation urgency.
-public enum RiskLevel: String, Codable {
+public enum RiskLevel: String, Codable, CaseIterable {
 
     /// Minimal impact content.
     /// Example: spam, off-topic, irrelevant, or minor misuse.

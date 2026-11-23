@@ -54,6 +54,9 @@ public enum QuestionnaireTitle {
 /// questionnaire can be in and an optional would let one be represented. The two cases are the two
 /// sentences note 33 asks a row to be able to say.
 public enum QuestionnaireCreator: Codable, Hashable, Sendable {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case you, member, anonymous
+    }
 
     /// The member reading the row made it.
     case you

@@ -16,6 +16,10 @@ import Foundation
 /// each site that must decide what to do, rather than silently falling into a branch written before
 /// the third kind existed.
 public enum SubscriptionTarget: Codable, Hashable, Sendable {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case questionnaire, member
+    }
+
     /// A specific questionnaire, by id.
     case questionnaire(UUID)
     /// A specific member, by id.
@@ -305,6 +309,9 @@ public struct DisclosedAuthor: Hashable, Sendable {
 /// Every case carries an id and the text to show, because a notification that cannot say what it is
 /// about is a notification that reads "new activity", which is the thing this type exists to avoid.
 public enum NotificationSubject: Codable, Hashable, Sendable {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case question, response, questionnaire
+    }
 
     /// A question, and its text.
     case question(id: UUID, text: String)

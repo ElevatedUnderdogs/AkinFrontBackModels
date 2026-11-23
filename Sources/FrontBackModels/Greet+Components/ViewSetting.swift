@@ -9,8 +9,11 @@
 import Foundation
 
 public enum ViewSetting: Equatable, Codable {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case inGreet, inGreetConfirmedMet, otherAskedIfCanMeetLater, rejected, start, thisUserAgreed
+    }
 
-    public enum ConifirmationReason: String, Codable {
+    public enum ConifirmationReason: String, Codable, CaseIterable {
         case nearby
         case theyConfirmed
     }

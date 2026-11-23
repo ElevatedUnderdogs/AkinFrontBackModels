@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum CompatibilityRule: String, Codable, Hashable, Equatable {
+public enum CompatibilityRule: String, Codable, CaseIterable, Hashable, Equatable {
     case mandatory
     case weighted
 }

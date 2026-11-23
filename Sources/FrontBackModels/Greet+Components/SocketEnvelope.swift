@@ -8,6 +8,11 @@
 import Foundation
 
 public enum SocketPayload: Codable {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case greetUpdate, greetEvent, nearbyUserUpdate, pong, voipSignal, nearbyStateUpdate,
+            reservationMatured
+    }
+
     case greetUpdate(Greet.Notification)
     case greetEvent(GreetEvent)
     case nearbyUserUpdate

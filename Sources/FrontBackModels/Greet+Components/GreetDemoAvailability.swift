@@ -61,7 +61,7 @@ public enum GreetDemoPhase: String, Codable, Sendable, Hashable, CaseIterable {
 /// `callDeclined` or `callEnded`, so the live state is decided by the LAST
 /// CallKit action rather than by counting them. Reading the last one is also
 /// what makes a second call later in the same greet work correctly.
-public enum GreetDemoCallState: String, Codable, Sendable, Hashable {
+public enum GreetDemoCallState: String, Codable, CaseIterable, Sendable, Hashable {
 
     /// No call has been started, or the last one is over.
     case none
