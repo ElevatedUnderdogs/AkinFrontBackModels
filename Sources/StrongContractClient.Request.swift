@@ -357,6 +357,21 @@ extension ForgotPasswordEndpoint {
     }
 }
 
+public typealias VerificationDeliveryStateRequest = Request<LoginPayload, VerificationDeliveryState>
+
+extension VerificationDeliveryStateRequest {
+
+    /// Whether the last verification email to this address could be delivered.
+    ///
+    /// GOAL_LOOP42 box 78, acceptance criterion A6. Takes a `LoginPayload` because the answer is
+    /// a per-member fact and must not be readable from an address alone; the reasoning is on
+    /// `VerificationDeliveryState`. The sign in screen already holds one, so the caller builds no
+    /// new credential to ask.
+    public static var verificationDeliveryState: Self {
+        .init(method: .post)
+    }
+}
+
 public typealias NewPasswordEndpoint = Request<String, StandardPostResponse>
 
 extension NewPasswordEndpoint {
