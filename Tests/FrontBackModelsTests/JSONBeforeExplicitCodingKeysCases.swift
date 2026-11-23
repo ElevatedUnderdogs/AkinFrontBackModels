@@ -1,5 +1,5 @@
 //
-//  SavedJSONBeforeChangeCases.swift
+//  JSONBeforeExplicitCodingKeysCases.swift
 //  FrontBackModelsTests
 //
 //  The exact JSON every case of the changed enums produced BEFORE `CaseIterable` and the
@@ -15,33 +15,33 @@
 //  back into one string with nothing between them.
 //
 
-enum SavedJSONBeforeChangeCases {
+enum JSONBeforeExplicitCodingKeysCases {
 
-    static let automaticGreetDebugAction: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let automaticGreetDebugAction: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "expireCooldownNow",
             plain: #"{"expireCooldownNow":{}}"#,
             akinWire: #"{"expire_cooldown_now":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "setLastGreet",
             plain: #"{"setLastGreet":{"secondsAgo":1.5}}"#,
             akinWire: #"{"set_last_greet":{"seconds_ago":1.5}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "clearPairHistory",
             plain: #"{"clearPairHistory":{}}"#,
             akinWire: #"{"clear_pair_history":{}}"#
         ),
     ]
 
-    static let automaticGreetSuppression: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let automaticGreetSuppression: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "pairCooldown",
             plain: #"{"pairCooldown":{"until":812692800.1229999}}"#,
             akinWire: #"{"pair_cooldown":{"until":"2026-10-03T04:00:00.123Z"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "memberCapReached",
             plain: [
                 #"{"memberCapReached":{"cap":7,"count":7,"isScanner":true,"until":8126"#,
@@ -52,168 +52,168 @@ enum SavedJSONBeforeChangeCases {
                 #"2026-10-03T04:00:00.123Z"}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "alreadyInAGreet",
             plain: #"{"alreadyInAGreet":{"isScanner":true}}"#,
             akinWire: #"{"already_in_a_greet":{"is_scanner":true}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "pendingGreetUnanswered",
             plain: #"{"pendingGreetUnanswered":{}}"#,
             akinWire: #"{"pending_greet_unanswered":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "alreadyMet",
             plain: #"{"alreadyMet":{"until":812692800.1229999}}"#,
             akinWire: #"{"already_met":{"until":"2026-10-03T04:00:00.123Z"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "busy",
             plain: #"{"busy":{"isScanner":true,"until":812692800.1229999}}"#,
             akinWire: #"{"busy":{"is_scanner":true,"until":"2026-10-03T04:00:00.123Z"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "automaticGreetsOff",
             plain: #"{"automaticGreetsOff":{"isScanner":true}}"#,
             akinWire: #"{"automatic_greets_off":{"is_scanner":true}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "hiddenFromNearby",
             plain: #"{"hiddenFromNearby":{"isScanner":true}}"#,
             akinWire: #"{"hidden_from_nearby":{"is_scanner":true}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "blocked",
             plain: #"{"blocked":{}}"#,
             akinWire: #"{"blocked":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "unreachable",
             plain: #"{"unreachable":{}}"#,
             akinWire: #"{"unreachable":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "unverified",
             plain: #"{"unverified":{"isScanner":true}}"#,
             akinWire: #"{"unverified":{"is_scanner":true}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "moderationFlagged",
             plain: #"{"moderationFlagged":{}}"#,
             akinWire: #"{"moderation_flagged":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "frozenByAnotherMember",
             plain: #"{"frozenByAnotherMember":{"until":812692800.1229999}}"#,
             akinWire: #"{"frozen_by_another_member":{"until":"2026-10-03T04:00:00.123Z"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "outsideStatedAvailability",
             plain: #"{"outsideStatedAvailability":{"isScanner":true}}"#,
             akinWire: #"{"outside_stated_availability":{"is_scanner":true}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "noVenueBetweenThem",
             plain: #"{"noVenueBetweenThem":{}}"#,
             akinWire: #"{"no_venue_between_them":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "unavailableToYou",
             plain: #"{"unavailableToYou":{}}"#,
             akinWire: #"{"unavailable_to_you":{}}"#
         ),
     ]
 
-    static let greetAction: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let greetAction: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "manualGreetInitiated",
             plain: #"{"manualGreetInitiated":{}}"#,
             akinWire: #"{"manual_greet_initiated":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "agreedToMeet",
             plain: #"{"agreedToMeet":{"_0":7}}"#,
             akinWire: #"{"agreed_to_meet":{"_0":7}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "rejectTime",
             plain: #"{"rejectTime":{"_0":7}}"#,
             akinWire: #"{"reject_time":{"_0":7}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "travelTimeToVenue",
             plain: #"{"travelTimeToVenue":{"changedTo":7}}"#,
             akinWire: #"{"travel_time_to_venue":{"changed_to":7}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "travelDistanceToVenue",
             plain: #"{"travelDistanceToVenue":{"changedTo":1.5}}"#,
             akinWire: #"{"travel_distance_to_venue":{"changed_to":1.5}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "dismissGreet",
             plain: #"{"dismissGreet":{}}"#,
             akinWire: #"{"dismiss_greet":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "closeApp",
             plain: #"{"closeApp":{}}"#,
             akinWire: #"{"close_app":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "tappedRedVoipReject",
             plain: #"{"tappedRedVoipReject":{}}"#,
             akinWire: #"{"tapped_red_voip_reject":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "notGettingCloser",
             plain: #"{"notGettingCloser":{"allowance":7,"current":7,"start":7}}"#,
             akinWire: #"{"not_getting_closer":{"allowance":7,"current":7,"start":7}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "callInitiated",
             plain: #"{"callInitiated":{"_0":"ringToVoipEnroute"}}"#,
             akinWire: #"{"call_initiated":{"_0":"ringToVoipEnroute"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "callAnswered",
             plain: #"{"callAnswered":{"_0":"ringToVoipEnroute"}}"#,
             akinWire: #"{"call_answered":{"_0":"ringToVoipEnroute"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "callDeclined",
             plain: #"{"callDeclined":{"_0":"ringToVoipEnroute"}}"#,
             akinWire: #"{"call_declined":{"_0":"ringToVoipEnroute"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "callEnded",
             plain: #"{"callEnded":{"_0":"ringToVoipEnroute"}}"#,
             akinWire: #"{"call_ended":{"_0":"ringToVoipEnroute"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "viewedGreetScreen",
             plain: #"{"viewedGreetScreen":{}}"#,
             akinWire: #"{"viewed_greet_screen":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "confirmedMet",
             plain: #"{"confirmedMet":{}}"#,
             akinWire: #"{"confirmed_met":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "rated",
             plain: #"{"rated":{"_0":7,"outOf":7}}"#,
             akinWire: #"{"rated":{"_0":7,"out_of":7}}"#
         ),
     ]
 
-    static let greetLogEvent: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let greetLogEvent: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "greetAction",
             plain: #"{"greetAction":{"_0":{"manualGreetInitiated":{}}}}"#,
             akinWire: #"{"greet_action":{"_0":{"manual_greet_initiated":{}}}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "pushQueued",
             plain: [
                 #"{"pushQueued":{"channel":"apple_push","providerMessageID":"00000000-"#,
@@ -224,7 +224,7 @@ enum SavedJSONBeforeChangeCases {
                 #"00-0000-0000-0000-0000000000A1"}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "pushSent",
             plain: [
                 #"{"pushSent":{"channel":"apple_push","providerMessageID":"00000000-00"#,
@@ -235,7 +235,7 @@ enum SavedJSONBeforeChangeCases {
                 #"-0000-0000-0000-0000000000A1"}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "pushProviderAccepted",
             plain: [
                 #"{"pushProviderAccepted":{"providerMessageID":"00000000-0000-0000-000"#,
@@ -246,22 +246,22 @@ enum SavedJSONBeforeChangeCases {
                 #"-0000-0000000000A1"}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "pushFailed",
             plain: #"{"pushFailed":{"channel":"apple_push"}}"#,
             akinWire: #"{"push_failed":{"channel":"apple_push"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "webSocketSent",
             plain: #"{"webSocketSent":{}}"#,
             akinWire: #"{"web_socket_sent":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "webSocketFailed",
             plain: #"{"webSocketFailed":{}}"#,
             akinWire: #"{"web_socket_failed":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "deliveryConfirmed",
             plain: [
                 #"{"deliveryConfirmed":{"channel":"apple_push","providerMessageID":"00"#,
@@ -272,17 +272,17 @@ enum SavedJSONBeforeChangeCases {
                 #""00000000-0000-0000-0000-0000000000A1"}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "fallbackTriggered",
             plain: #"{"fallbackTriggered":{"to":"apple_push"}}"#,
             akinWire: #"{"fallback_triggered":{"to":"apple_push"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "rateLimited",
             plain: #"{"rateLimited":{}}"#,
             akinWire: #"{"rate_limited":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "pushNotifReceived",
             plain: [
                 #"{"pushNotifReceived":{"providerMessageID":"00000000-0000-0000-0000-0"#,
@@ -293,7 +293,7 @@ enum SavedJSONBeforeChangeCases {
                 #"00-0000000000A1"}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "voipReceived",
             plain: [
                 #"{"voipReceived":{"providerMessageID":"00000000-0000-0000-0000-000000"#,
@@ -304,109 +304,109 @@ enum SavedJSONBeforeChangeCases {
                 #"0000000A1"}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "rejectedViaAnotherCall",
             plain: #"{"rejectedViaAnotherCall":{}}"#,
             akinWire: #"{"rejected_via_another_call":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "userViewed",
             plain: #"{"userViewed":{}}"#,
             akinWire: #"{"user_viewed":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "greetCreated",
             plain: #"{"greetCreated":{}}"#,
             akinWire: #"{"greet_created":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "greetExpired",
             plain: #"{"greetExpired":{}}"#,
             akinWire: #"{"greet_expired":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "settingsUpdated",
             plain: #"{"settingsUpdated":{}}"#,
             akinWire: #"{"settings_updated":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "serverFound",
             plain: #"{"serverFound":{"error":"gl28"}}"#,
             akinWire: #"{"server_found":{"error":"gl28"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "clientFound",
             plain: #"{"clientFound":{"error":"gl28"}}"#,
             akinWire: #"{"client_found":{"error":"gl28"}}"#
         ),
     ]
 
-    static let greetedClientStatus: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let greetedClientStatus: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "confirmedMet",
             plain: #"{"confirmedMet":{}}"#,
             akinWire: #"{"confirmed_met":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "exceededRange",
             plain: #"{"exceededRange":{}}"#,
             akinWire: #"{"exceeded_range":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "rejectedOther",
             plain: #"{"rejectedOther":{}}"#,
             akinWire: #"{"rejected_other":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "onGoing",
             plain: #"{"onGoing":{}}"#,
             akinWire: #"{"on_going":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "connectionLost",
             plain: #"{"connectionLost":{}}"#,
             akinWire: #"{"connection_lost":{}}"#
         ),
     ]
 
-    static let hideOption: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let hideOption: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "automatic",
             plain: #"{"automatic":{}}"#,
             akinWire: #"{"automatic":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "manual",
             plain: #"{"manual":{}}"#,
             akinWire: #"{"manual":{}}"#
         ),
     ]
 
-    static let initiationMethod: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let initiationMethod: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "manual",
             plain: #"{"manual":{"userID":"00000000-0000-0000-0000-0000000000A1"}}"#,
             akinWire: #"{"manual":{"user_id":"00000000-0000-0000-0000-0000000000A1"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "automatic",
             plain: #"{"automatic":{"userID":"00000000-0000-0000-0000-0000000000A1"}}"#,
             akinWire: #"{"automatic":{"user_id":"00000000-0000-0000-0000-0000000000A1"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "devForced",
             plain: #"{"devForced":{}}"#,
             akinWire: #"{"dev_forced":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "unknown",
             plain: #"{"unknown":{}}"#,
             akinWire: #"{"unknown":{}}"#
         ),
     ]
 
-    static let manualGreetResponse: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let manualGreetResponse: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "notification",
             plain: [
                 #"{"notification":{"_0":{"notification":{"caseType":"silentLocationUpd"#,
@@ -417,30 +417,30 @@ enum SavedJSONBeforeChangeCases {
                 #"date"},"status":"success"}}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "otherUserIsInGreet",
             plain: #"{"otherUserIsInGreet":{}}"#,
             akinWire: #"{"other_user_is_in_greet":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "thisUserIsInGreet",
             plain: #"{"thisUserIsInGreet":{}}"#,
             akinWire: #"{"this_user_is_in_greet":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "thisAndOtherUserAlreadyInSameGreet",
             plain: #"{"thisAndOtherUserAlreadyInSameGreet":{}}"#,
             akinWire: #"{"this_and_other_user_already_in_same_greet":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "noNearbyVenuesOpen",
             plain: #"{"noNearbyVenuesOpen":{}}"#,
             akinWire: #"{"no_nearby_venues_open":{}}"#
         ),
     ]
 
-    static let notificationSubject: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let notificationSubject: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "question",
             plain: [
                 #"{"question":{"id":"00000000-0000-0000-0000-0000000000A1","text":"gl2"#,
@@ -451,7 +451,7 @@ enum SavedJSONBeforeChangeCases {
                 #"8"}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "response",
             plain: [
                 #"{"response":{"id":"00000000-0000-0000-0000-0000000000A1","text":"gl2"#,
@@ -462,7 +462,7 @@ enum SavedJSONBeforeChangeCases {
                 #"8"}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "questionnaire",
             plain: [
                 #"{"questionnaire":{"id":"00000000-0000-0000-0000-0000000000A1","title"#,
@@ -475,8 +475,8 @@ enum SavedJSONBeforeChangeCases {
         ),
     ]
 
-    static let questionRequirement: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let questionRequirement: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "mustHaveAnswered",
             plain: [
                 #"{"mustHaveAnswered":{"questionID":"00000000-0000-0000-0000-000000000"#,
@@ -487,7 +487,7 @@ enum SavedJSONBeforeChangeCases {
                 #"0000A1"}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "mustNotHaveChosen",
             plain: [
                 #"{"mustNotHaveChosen":{"questionID":"00000000-0000-0000-0000-00000000"#,
@@ -498,7 +498,7 @@ enum SavedJSONBeforeChangeCases {
                 #"000000A1","response_i_ds":["00000000-0000-0000-0000-0000000000A1"]}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "mustHaveChosenOneOf",
             plain: [
                 #"{"mustHaveChosenOneOf":{"questionID":"00000000-0000-0000-0000-000000"#,
@@ -512,13 +512,13 @@ enum SavedJSONBeforeChangeCases {
         ),
     ]
 
-    static let questionnaireCreator: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let questionnaireCreator: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "you",
             plain: #"{"you":{}}"#,
             akinWire: #"{"you":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "member",
             plain: [
                 #"{"member":{"id":"00000000-0000-0000-0000-0000000000A1","name":"gl28""#,
@@ -529,66 +529,66 @@ enum SavedJSONBeforeChangeCases {
                 #"}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "anonymous",
             plain: #"{"anonymous":{}}"#,
             akinWire: #"{"anonymous":{}}"#
         ),
     ]
 
-    static let relationUpdate: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let relationUpdate: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "automatic",
             plain: #"{"automatic":{"_0":"Daily"}}"#,
             akinWire: #"{"automatic":{"_0":"Daily"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "manual",
             plain: #"{"manual":{"_0":"Daily"}}"#,
             akinWire: #"{"manual":{"_0":"Daily"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "blocked",
             plain: #"{"blocked":{"_0":true}}"#,
             akinWire: #"{"blocked":{"_0":true}}"#
         ),
     ]
 
-    static let requirement: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let requirement: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "birthday",
             plain: #"{"birthday":{}}"#,
             akinWire: #"{"birthday":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "location",
             plain: #"{"location":{"_0":{"shouldUpgradeToAlways":{}}}}"#,
             akinWire: #"{"location":{"_0":{"should_upgrade_to_always":{}}}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "profilePic",
             plain: #"{"profilePic":{}}"#,
             akinWire: #"{"profile_pic":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "pushNotification",
             plain: #"{"pushNotification":{"_0":{"regular":{}}}}"#,
             akinWire: #"{"push_notification":{"_0":{"regular":{}}}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "callKitConsent",
             plain: #"{"callKitConsent":{}}"#,
             akinWire: #"{"call_kit_consent":{}}"#
         ),
     ]
 
-    static let socketPayload: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let socketPayload: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "greetUpdate",
             plain: #"{"greetUpdate":{"_0":{"caseType":"silentLocationUpdate"}}}"#,
             akinWire: #"{"greet_update":{"_0":{"case_type":"silentLocationUpdate"}}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "greetEvent",
             plain: [
                 #"{"greetEvent":{"_0":{"action":{"manualGreetInitiated":{}},"actorUser"#,
@@ -604,17 +604,17 @@ enum SavedJSONBeforeChangeCases {
                 #"e_number":7}}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "nearbyUserUpdate",
             plain: #"{"nearbyUserUpdate":{}}"#,
             akinWire: #"{"nearby_user_update":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "pong",
             plain: #"{"pong":{}}"#,
             akinWire: #"{"pong":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "voipSignal",
             plain: [
                 #"{"voipSignal":{"_0":{"callType":"ringToVoipEnroute","greetID":"00000"#,
@@ -627,7 +627,7 @@ enum SavedJSONBeforeChangeCases {
                 #"ate","sdp":"gl28","sdp_m_line_index":7,"sdp_mid":"0"}}}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "nearbyStateUpdate",
             plain: [
                 #"{"nearbyStateUpdate":{"_0":{"interaction":{"availability":"available"#,
@@ -644,7 +644,7 @@ enum SavedJSONBeforeChangeCases {
                 #":"00000000-0000-0000-0000-0000000000A1"}}}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "reservationMatured",
             plain: [
                 #"{"reservationMatured":{"_0":{"otherUserID":"00000000-0000-0000-0000-"#,
@@ -659,111 +659,111 @@ enum SavedJSONBeforeChangeCases {
         ),
     ]
 
-    static let subscriptionTarget: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let subscriptionTarget: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "questionnaire",
             plain: #"{"questionnaire":{"_0":"00000000-0000-0000-0000-0000000000A1"}}"#,
             akinWire: #"{"questionnaire":{"_0":"00000000-0000-0000-0000-0000000000A1"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "member",
             plain: #"{"member":{"_0":"00000000-0000-0000-0000-0000000000A1"}}"#,
             akinWire: #"{"member":{"_0":"00000000-0000-0000-0000-0000000000A1"}}"#
         ),
     ]
 
-    static let timingUpdate: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let timingUpdate: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "agreed",
             plain: #"{"agreed":{"_0":7}}"#,
             akinWire: #"{"agreed":{"_0":7}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "rejected",
             plain: #"{"rejected":{"_0":7}}"#,
             akinWire: #"{"rejected":{"_0":7}}"#
         ),
     ]
 
-    static let travelUpdate: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let travelUpdate: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "percentTravelled",
             plain: #"{"percentTravelled":{"_0":1.5}}"#,
             akinWire: #"{"percent_travelled":{"_0":1.5}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "exceededRange",
             plain: #"{"exceededRange":{}}"#,
             akinWire: #"{"exceeded_range":{}}"#
         ),
     ]
 
-    static let viewSetting: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let viewSetting: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "inGreet",
             plain: #"{"inGreet":{}}"#,
             akinWire: #"{"in_greet":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "inGreetConfirmedMet",
             plain: #"{"inGreetConfirmedMet":{"_0":"theyConfirmed"}}"#,
             akinWire: #"{"in_greet_confirmed_met":{"_0":"theyConfirmed"}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "otherAskedIfCanMeetLater",
             plain: #"{"otherAskedIfCanMeetLater":{"_0":7}}"#,
             akinWire: #"{"other_asked_if_can_meet_later":{"_0":7}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "rejected",
             plain: #"{"rejected":{}}"#,
             akinWire: #"{"rejected":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "start",
             plain: #"{"start":{}}"#,
             akinWire: #"{"start":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "thisUserAgreed",
             plain: #"{"thisUserAgreed":{}}"#,
             akinWire: #"{"this_user_agreed":{}}"#
         ),
     ]
 
-    static let requirementLocation: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let requirementLocation: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "regular",
             plain: #"{"regular":{}}"#,
             akinWire: #"{"regular":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "requiresDeeplinkToSettings",
             plain: #"{"requiresDeeplinkToSettings":{}}"#,
             akinWire: #"{"requires_deeplink_to_settings":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "shouldUpgradeToAlways",
             plain: #"{"shouldUpgradeToAlways":{}}"#,
             akinWire: #"{"should_upgrade_to_always":{}}"#
         ),
     ]
 
-    static let requirementPushNotification: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let requirementPushNotification: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "requiresDeeplinkToSettings",
             plain: #"{"requiresDeeplinkToSettings":{}}"#,
             akinWire: #"{"requires_deeplink_to_settings":{}}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "regular",
             plain: #"{"regular":{}}"#,
             akinWire: #"{"regular":{}}"#
         ),
     ]
 
-    static let greetNotification: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let greetNotification: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "getRating",
             plain: [
                 #"{"associatedValue":{"greetID":"00000000-0000-0000-0000-0000000000B1""#,
@@ -779,7 +779,7 @@ enum SavedJSONBeforeChangeCases {
                 #""}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "greet",
             plain: [
                 #"{"associatedValue":{"compatitibility":{},"events":[],"greetID":"0000"#,
@@ -818,25 +818,25 @@ enum SavedJSONBeforeChangeCases {
                 #"tps:\/\/example.com"}},"case_type":"greet"}"#,
             ].joined()
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "silentLocationUpdate",
             plain: #"{"caseType":"silentLocationUpdate"}"#,
             akinWire: #"{"case_type":"silentLocationUpdate"}"#
         ),
     ]
 
-    static let voipSignal: [SavedJSONBeforeChange] = [
-        SavedJSONBeforeChange(
+    static let voipSignal: [JSONBeforeExplicitCodingKeys] = [
+        JSONBeforeExplicitCodingKeys(
             caseName: "offer",
             plain: #"{"caseType":"offer","sdp":"v=0 offer"}"#,
             akinWire: #"{"case_type":"offer","sdp":"v=0 offer"}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "answer",
             plain: #"{"caseType":"answer","sdp":"v=0 answer"}"#,
             akinWire: #"{"case_type":"answer","sdp":"v=0 answer"}"#
         ),
-        SavedJSONBeforeChange(
+        JSONBeforeExplicitCodingKeys(
             caseName: "iceCandidate",
             plain: [
                 #"{"caseType":"iceCandidate","sdp":"candidate:1","sdpMLineIndex":2,"sd"#,

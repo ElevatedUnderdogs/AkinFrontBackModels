@@ -1,12 +1,12 @@
 //
-//  SavedJSONBeforeChange.swift
+//  JSONBeforeExplicitCodingKeys.swift
 //  FrontBackModelsTests
 //
 //  One enum case's JSON from before the explicit `CodingKeys` and `CaseIterable` were added
-//  to the model enums. Used by SavedJSONBeforeChangeCases.
+//  to the model enums. Used by JSONBeforeExplicitCodingKeysCases.
 //
 
-struct SavedJSONBeforeChange {
+struct JSONBeforeExplicitCodingKeys {
     /// The enum case this JSON holds, by its Swift name.
     let caseName: String
     /// What a plain `JSONEncoder` with sorted keys wrote.

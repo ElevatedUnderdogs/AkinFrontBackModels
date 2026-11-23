@@ -16,8 +16,8 @@
 //    case added later without updating the list fails here.
 //  - Every case still encodes to the same JSON as before. Plain enums are checked against their
 //    raw value. Enums whose cases carry values are checked against JSON saved from main before
-//    they were added, see SavedJSONBeforeChangeCases.swift, with both a plain `JSONEncoder` and
-//    `JSONEncoder.akinWire`.
+//    they were added, see JSONBeforeExplicitCodingKeysCases.swift, with both a plain
+//    `JSONEncoder` and `JSONEncoder.akinWire`.
 //  - Every case decodes back from that JSON.
 //  The checks are written once, in the helpers at the bottom, and each test names the enum and
 //  its expected cases.
@@ -168,7 +168,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         XCTAssertEqual(GreetedClientStatus.allCases, expected)
         try assertMatchesSavedJSON(
             GreetedClientStatus.self,
-            SavedJSONBeforeChangeCases.greetedClientStatus,
+            JSONBeforeExplicitCodingKeysCases.greetedClientStatus,
             covering: expected.map { "\($0)" }
         )
     }
@@ -178,7 +178,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         XCTAssertEqual(HideOption.allCases, expected)
         try assertMatchesSavedJSON(
             HideOption.self,
-            SavedJSONBeforeChangeCases.hideOption,
+            JSONBeforeExplicitCodingKeysCases.hideOption,
             covering: expected.map { "\($0)" }
         )
     }
@@ -192,7 +192,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         XCTAssertEqual(Requirement.Location.allCases, expected)
         try assertMatchesSavedJSON(
             Requirement.Location.self,
-            SavedJSONBeforeChangeCases.requirementLocation,
+            JSONBeforeExplicitCodingKeysCases.requirementLocation,
             covering: expected.map { "\($0)" }
         )
     }
@@ -202,7 +202,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         XCTAssertEqual(Requirement.PushNotification.allCases, expected)
         try assertMatchesSavedJSON(
             Requirement.PushNotification.self,
-            SavedJSONBeforeChangeCases.requirementPushNotification,
+            JSONBeforeExplicitCodingKeysCases.requirementPushNotification,
             covering: expected.map { "\($0)" }
         )
     }
@@ -214,7 +214,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(AutomaticGreetDebugAction.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             AutomaticGreetDebugAction.self,
-            SavedJSONBeforeChangeCases.automaticGreetDebugAction,
+            JSONBeforeExplicitCodingKeysCases.automaticGreetDebugAction,
             covering: names
         )
     }
@@ -241,7 +241,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(AutomaticGreetSuppression.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             AutomaticGreetSuppression.self,
-            SavedJSONBeforeChangeCases.automaticGreetSuppression,
+            JSONBeforeExplicitCodingKeysCases.automaticGreetSuppression,
             covering: names
         )
     }
@@ -268,7 +268,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(GreetAction.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             GreetAction.self,
-            SavedJSONBeforeChangeCases.greetAction,
+            JSONBeforeExplicitCodingKeysCases.greetAction,
             covering: names
         )
     }
@@ -298,7 +298,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(GreetLogEvent.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             GreetLogEvent.self,
-            SavedJSONBeforeChangeCases.greetLogEvent,
+            JSONBeforeExplicitCodingKeysCases.greetLogEvent,
             covering: names
         )
     }
@@ -308,7 +308,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(InitiationMethod.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             InitiationMethod.self,
-            SavedJSONBeforeChangeCases.initiationMethod,
+            JSONBeforeExplicitCodingKeysCases.initiationMethod,
             covering: names
         )
     }
@@ -324,7 +324,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(ManualGreetResponse.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             ManualGreetResponse.self,
-            SavedJSONBeforeChangeCases.manualGreetResponse,
+            JSONBeforeExplicitCodingKeysCases.manualGreetResponse,
             covering: names
         )
     }
@@ -334,7 +334,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(NotificationSubject.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             NotificationSubject.self,
-            SavedJSONBeforeChangeCases.notificationSubject,
+            JSONBeforeExplicitCodingKeysCases.notificationSubject,
             covering: names
         )
     }
@@ -344,7 +344,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(QuestionRequirement.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             QuestionRequirement.self,
-            SavedJSONBeforeChangeCases.questionRequirement,
+            JSONBeforeExplicitCodingKeysCases.questionRequirement,
             covering: names
         )
     }
@@ -354,7 +354,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(QuestionnaireCreator.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             QuestionnaireCreator.self,
-            SavedJSONBeforeChangeCases.questionnaireCreator,
+            JSONBeforeExplicitCodingKeysCases.questionnaireCreator,
             covering: names
         )
     }
@@ -364,7 +364,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(RelationUpdate.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             RelationUpdate.self,
-            SavedJSONBeforeChangeCases.relationUpdate,
+            JSONBeforeExplicitCodingKeysCases.relationUpdate,
             covering: names
         )
     }
@@ -374,7 +374,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(Requirement.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             Requirement.self,
-            SavedJSONBeforeChangeCases.requirement,
+            JSONBeforeExplicitCodingKeysCases.requirement,
             covering: names
         )
     }
@@ -392,7 +392,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(SocketPayload.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             SocketPayload.self,
-            SavedJSONBeforeChangeCases.socketPayload,
+            JSONBeforeExplicitCodingKeysCases.socketPayload,
             covering: names
         )
     }
@@ -402,7 +402,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(SubscriptionTarget.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             SubscriptionTarget.self,
-            SavedJSONBeforeChangeCases.subscriptionTarget,
+            JSONBeforeExplicitCodingKeysCases.subscriptionTarget,
             covering: names
         )
     }
@@ -412,7 +412,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(TimingUpdate.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             TimingUpdate.self,
-            SavedJSONBeforeChangeCases.timingUpdate,
+            JSONBeforeExplicitCodingKeysCases.timingUpdate,
             covering: names
         )
     }
@@ -422,7 +422,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(TravelUpdate.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             TravelUpdate.self,
-            SavedJSONBeforeChangeCases.travelUpdate,
+            JSONBeforeExplicitCodingKeysCases.travelUpdate,
             covering: names
         )
     }
@@ -439,7 +439,7 @@ final class SchemaReadyEnumTests: XCTestCase {
         try assertCodingKeys(ViewSetting.CodingKeys.self, names)
         try assertMatchesSavedJSON(
             ViewSetting.self,
-            SavedJSONBeforeChangeCases.viewSetting,
+            JSONBeforeExplicitCodingKeysCases.viewSetting,
             covering: names
         )
     }
@@ -449,7 +449,7 @@ final class SchemaReadyEnumTests: XCTestCase {
     func testNotificationCaseTypeKeepsItsJSONForEveryCase() throws {
         try assertMatchesSavedJSON(
             Greet.Notification.self,
-            SavedJSONBeforeChangeCases.greetNotification,
+            JSONBeforeExplicitCodingKeysCases.greetNotification,
             covering: ["getRating", "greet", "silentLocationUpdate"]
         )
     }
@@ -457,7 +457,7 @@ final class SchemaReadyEnumTests: XCTestCase {
     func testVoipSignalCaseTypeKeepsItsJSONForEveryCase() throws {
         try assertMatchesSavedJSON(
             VoipSignal.self,
-            SavedJSONBeforeChangeCases.voipSignal,
+            JSONBeforeExplicitCodingKeysCases.voipSignal,
             covering: ["offer", "answer", "iceCandidate"]
         )
     }
@@ -518,7 +518,7 @@ final class SchemaReadyEnumTests: XCTestCase {
     /// the explicit `CodingKeys`.
     private func assertMatchesSavedJSON<T: Codable>(
         _ type: T.Type,
-        _ savedCases: [SavedJSONBeforeChange],
+        _ savedCases: [JSONBeforeExplicitCodingKeys],
         covering expected: [String],
         file: StaticString = #filePath,
         line: UInt = #line
