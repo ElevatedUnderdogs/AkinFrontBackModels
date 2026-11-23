@@ -24,6 +24,13 @@ public struct TravelDistance: Codable, Equatable {
 // MARK: Server → Client
 
 public enum TravelUpdate: Codable, Equatable {
+    /// Why do we need explicit coding keys when they match what would be synthesized?
+    /// In order to give them CaseIterable conformance for schema generators to list every case.
+    /// Schema generator: https://github.com/ElevatedUnderdogs/DecodableSchema
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case percentTravelled, exceededRange
+    }
+
     case percentTravelled(Double)     // 0.0 ... 1.0
     case exceededRange
 }
@@ -41,6 +48,12 @@ public struct TravelUpdateResponse: Codable, Equatable {
 // MARK: Server → Client (incremental updates)
 
 public enum TimingUpdate: Codable, Equatable {
+    /// Why do we need explicit coding keys when they match what would be synthesized?
+    /// In order to give them CaseIterable conformance for schema generators to list every case.
+    /// Schema generator: https://github.com/ElevatedUnderdogs/DecodableSchema
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case agreed, rejected
+    }
 
     case agreed(Int)     // minutes
     case rejected(Int)   // minutes
@@ -71,7 +84,7 @@ public struct TimingUpdateResponse: Codable, Equatable {
 
 // MARK: Client → Server
 
-public enum RejectionAction: String, Codable, Equatable {
+public enum RejectionAction: String, Codable, CaseIterable, Equatable {
     case dismiss   // before agreeing
     case cancel    // after agreeing
     case rejectedVoip  // tapped red close call button.

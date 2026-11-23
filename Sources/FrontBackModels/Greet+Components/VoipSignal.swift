@@ -40,7 +40,7 @@ public enum VoipSignal: Codable, Equatable, Hashable, Sendable {
 
     // MARK: - Codable
 
-    private enum CaseType: String, Codable {
+    private enum CaseType: String, Codable, CaseIterable {
         case offer
         case answer
         case iceCandidate

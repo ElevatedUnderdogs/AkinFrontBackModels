@@ -42,6 +42,13 @@ extension GreetEvent: Comparable {
 }
 
 public enum InitiationMethod: Equatable, Hashable, Codable {
+    /// Why do we need explicit coding keys when they match what would be synthesized?
+    /// In order to give them CaseIterable conformance for schema generators to list every case.
+    /// Schema generator: https://github.com/ElevatedUnderdogs/DecodableSchema
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case manual, automatic, devForced, unknown
+    }
+
     /// The user that manually initiated the greet.
     case manual(userID: UUID)
     /// The user id of the user whose location update triggered the automatic greet.
@@ -260,6 +267,15 @@ public struct GreetEvent: Codable, Sendable, Hashable {
 
 // MARK: - Event enum (top-level) with helpers
 public enum GreetAction: Codable, Sendable, Hashable, Equatable, ActionStringConvertible {
+    /// Why do we need explicit coding keys when they match what would be synthesized?
+    /// In order to give them CaseIterable conformance for schema generators to list every case.
+    /// Schema generator: https://github.com/ElevatedUnderdogs/DecodableSchema
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case manualGreetInitiated, agreedToMeet, rejectTime, travelTimeToVenue,
+            travelDistanceToVenue, dismissGreet, closeApp, tappedRedVoipReject, notGettingCloser,
+            callInitiated, callAnswered, callDeclined, callEnded, viewedGreetScreen, confirmedMet,
+            rated
+    }
 
     /// When a user taps or swipes on another user to try to meet them now.
     ///  **UI Effect:**

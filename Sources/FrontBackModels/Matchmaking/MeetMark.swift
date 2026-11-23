@@ -54,7 +54,7 @@ public struct MeetMarkState: Codable, Hashable, Sendable {
 /// "On their answer: ...", and its own note calls that line "the only thing on the row that
 /// explains why the row exists". The two readings are not interchangeable: a question is what
 /// they asked everybody, an answer is what they said to one.
-public enum MeetMarkPromptKind: String, Codable, Hashable, Sendable {
+public enum MeetMarkPromptKind: String, Codable, CaseIterable, Hashable, Sendable {
 
     /// The member was reading the other member's question.
     case question
@@ -171,7 +171,7 @@ public struct MarkWantToMeetPayload: Codable, Hashable, Sendable {
 /// no name, and the response had no field to say which. This is that field.
 ///
 /// It says nothing about the OTHER member's mark, so RULE V is untouched.
-public enum MeetMarkedMemberStatus: String, Codable, Sendable {
+public enum MeetMarkedMemberStatus: String, Codable, CaseIterable, Sendable {
 
     /// They are there and they have a name.
     case named

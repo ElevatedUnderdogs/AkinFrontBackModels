@@ -46,7 +46,7 @@ public struct FreezeNearbyUserPayload: Codable, Hashable, Equatable, Sendable {
 /// What actually happened to a freeze request. A refusal is a normal outcome
 /// here, not an error, because every refusal has its own thing to say to the
 /// user and an HTTP error code cannot carry the remaining allowance back.
-public enum FreezeOutcome: String, Codable, Hashable, Sendable {
+public enum FreezeOutcome: String, Codable, CaseIterable, Hashable, Sendable {
 
     /// The hold is now the viewer's.
     case frozen
@@ -160,7 +160,7 @@ public struct ReserveNearbyUserPayload: Codable, Hashable, Equatable, Sendable {
     }
 }
 
-public enum ReserveOutcome: String, Codable, Hashable, Sendable {
+public enum ReserveOutcome: String, Codable, CaseIterable, Hashable, Sendable {
 
     /// The caller is now in the queue. Their place is in `interaction`.
     case reserved
@@ -289,7 +289,7 @@ public struct ChooseForMePayload: Codable, Hashable, Equatable, Sendable {
     }
 }
 
-public enum ChooseForMeOutcome: String, Codable, Hashable, Sendable {
+public enum ChooseForMeOutcome: String, Codable, CaseIterable, Hashable, Sendable {
 
     /// A candidate was chosen. `chosen` carries them.
     case chose

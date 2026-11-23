@@ -21,7 +21,7 @@ public enum NearbyUserMessage: Codable {
         case users
     }
 
-    public enum MessageType: String, Codable {
+    public enum MessageType: String, Codable, CaseIterable {
         case addUser
         case removeUser
         case updateUser

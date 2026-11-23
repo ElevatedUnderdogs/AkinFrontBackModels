@@ -9,6 +9,12 @@
 public typealias RequirementAction = (Requirement) -> Void
 
 public enum Requirement: Equatable, Codable {
+    /// Why do we need explicit coding keys when they match what would be synthesized?
+    /// In order to give them CaseIterable conformance for schema generators to list every case.
+    /// Schema generator: https://github.com/ElevatedUnderdogs/DecodableSchema
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case birthday, location, profilePic, pushNotification, callKitConsent
+    }
 
     case birthday,
          location(Location),
@@ -16,11 +22,11 @@ public enum Requirement: Equatable, Codable {
          pushNotification(PushNotification),
          callKitConsent
 
-    public enum Location: Codable {
+    public enum Location: Codable, CaseIterable {
         case regular, requiresDeeplinkToSettings, shouldUpgradeToAlways
     }
 
-    public enum PushNotification: Codable {
+    public enum PushNotification: Codable, CaseIterable {
         case requiresDeeplinkToSettings, regular
     }
 

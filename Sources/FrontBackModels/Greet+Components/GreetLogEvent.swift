@@ -10,6 +10,15 @@ import Foundation
 
 // MARK: - Event enum (top-level) with helpers
 public enum GreetLogEvent: Codable, ActionStringConvertible {
+    /// Why do we need explicit coding keys when they match what would be synthesized?
+    /// In order to give them CaseIterable conformance for schema generators to list every case.
+    /// Schema generator: https://github.com/ElevatedUnderdogs/DecodableSchema
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case greetAction, pushQueued, pushSent, pushProviderAccepted, pushFailed, webSocketSent,
+            webSocketFailed, deliveryConfirmed, fallbackTriggered, rateLimited, pushNotifReceived,
+            voipReceived, rejectedViaAnotherCall, userViewed, greetCreated, greetExpired,
+            settingsUpdated, serverFound, clientFound
+    }
 
     case greetAction(GreetAction)
 

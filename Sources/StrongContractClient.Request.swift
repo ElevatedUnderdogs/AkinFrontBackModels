@@ -571,7 +571,7 @@ extension DeleteAccountRequest {
     }
 }
 
-public enum ModerationContentType: String, Codable {
+public enum ModerationContentType: String, Codable, CaseIterable {
     case question
     case response
     case imageMetaData
@@ -802,7 +802,7 @@ extension RegisterDeviceTokenRequest {
     }
 }
 
-public enum HideOption: Codable, Hashable, Equatable {
+public enum HideOption: Codable, CaseIterable, Hashable, Equatable {
     case automatic
     case manual
 }
@@ -845,6 +845,13 @@ public struct RelationUpdatePayload: Codable, Hashable, Equatable {
 }
 
 public enum RelationUpdate: Codable, Hashable, Equatable {
+    /// Why do we need explicit coding keys when they match what would be synthesized?
+    /// In order to give them CaseIterable conformance for schema generators to list every case.
+    /// Schema generator: https://github.com/ElevatedUnderdogs/DecodableSchema
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case automatic, manual, blocked
+    }
+
     case automatic(NotificationFrequency)
     case manual(NotificationFrequency)
     case blocked(Bool)

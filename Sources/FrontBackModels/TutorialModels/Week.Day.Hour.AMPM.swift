@@ -9,7 +9,7 @@ import Foundation
 
 extension Week.Day.Hour {
 
-    public enum AMPM: String, Codable {
+    public enum AMPM: String, Codable, CaseIterable {
         case am
         case pm
     }

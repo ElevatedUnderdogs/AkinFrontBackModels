@@ -8,6 +8,14 @@
 import Foundation
 
 public enum SocketPayload: Codable {
+    /// Why do we need explicit coding keys when they match what would be synthesized?
+    /// In order to give them CaseIterable conformance for schema generators to list every case.
+    /// Schema generator: https://github.com/ElevatedUnderdogs/DecodableSchema
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case greetUpdate, greetEvent, nearbyUserUpdate, pong, voipSignal, nearbyStateUpdate,
+            reservationMatured
+    }
+
     case greetUpdate(Greet.Notification)
     case greetEvent(GreetEvent)
     case nearbyUserUpdate

@@ -54,6 +54,12 @@ public enum QuestionnaireTitle {
 /// questionnaire can be in and an optional would let one be represented. The two cases are the two
 /// sentences note 33 asks a row to be able to say.
 public enum QuestionnaireCreator: Codable, Hashable, Sendable {
+    /// Why do we need explicit coding keys when they match what would be synthesized?
+    /// In order to give them CaseIterable conformance for schema generators to list every case.
+    /// Schema generator: https://github.com/ElevatedUnderdogs/DecodableSchema
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case you, member, anonymous
+    }
 
     /// The member reading the row made it.
     case you

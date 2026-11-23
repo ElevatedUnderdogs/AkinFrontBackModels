@@ -12,7 +12,7 @@ extension Greet.Notification {
     
     public struct LocalModel: Codable, Equatable, Hashable {
 
-        public enum Key: String, Codable {
+        public enum Key: String, Codable, CaseIterable {
             case getReviewTime
             case weClosedTheGreet
         }
