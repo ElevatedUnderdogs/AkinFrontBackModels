@@ -85,10 +85,27 @@ public struct RegisterResponse: Codable {
     public var message: String?
     public var userId: UUID?
 
-    public init(success: Bool, message: String?, userId: UUID?) {
+    /// Whether the mail provider ACCEPTED the verification email for this registration.
+    ///
+    /// GOAL_LOOP42 box 62, acceptance criterion A1. `success` says the account was created, which
+    /// it is even when no mail went out: registration deliberately does not fail on a mail
+    /// failure, because Railway blocks outbound SMTP and every signup 500'd when it did.
+    /// Until this field existed the only record of which of the two happened was the English in
+    /// `message`, so an app that wanted to say the truthful thing had to parse a sentence. Now it
+    /// reads a field.
+    ///
+    /// Accepted is not delivered (A6). This is true when the provider took the message, and says
+    /// nothing about it reaching an inbox; a bounce arrives later, as a webhook event.
+    ///
+    /// Optional because an older server does not send it. An app reading `nil` knows only that it
+    /// is talking to a server that cannot tell it, and must not claim an email was sent.
+    public var verificationEmailSent: Bool?
+
+    public init(success: Bool, message: String?, userId: UUID?, verificationEmailSent: Bool? = nil) {
         self.success = success
         self.message = message
         self.userId = userId
+        self.verificationEmailSent = verificationEmailSent
     }
 }
 
