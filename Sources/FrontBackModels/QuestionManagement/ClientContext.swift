@@ -13,14 +13,15 @@ public struct ClientContext: Codable, Hashable, Equatable {
     public let context: Context
     public let description: String?
     public let createdAt: Date
-    public let creatorID: UUID
+    /// Nil once the creator deletes their account, so a deleted member leaves no reference behind.
+    public let creatorID: UUID?
 
     public init(
         id: UUID,
         context: Context,
         description: String?,
         createdAt: Date,
-        creatorID: UUID
+        creatorID: UUID?
     ) {
         self.id = id
         self.context = context

@@ -255,6 +255,20 @@ final class QuestionManagementBatch5Tests: XCTestCase {
         XCTAssertNil(decoded.description)
     }
 
+    /// A context whose creator deleted their account carries no creator, and still decodes.
+    func testClientContextCodableRoundTripWithNoCreator() throws {
+        let clientContext = ClientContext(
+            id: UUID(),
+            context: batch5Context(case: .social),
+            description: nil,
+            createdAt: Date(timeIntervalSince1970: 42),
+            creatorID: nil
+        )
+        let decoded = try batch5RoundTrip(clientContext)
+        XCTAssertEqual(decoded, clientContext)
+        XCTAssertNil(decoded.creatorID)
+    }
+
     // MARK: - Context
 
     func testContextInitWithCaseComputesRawValue() {
