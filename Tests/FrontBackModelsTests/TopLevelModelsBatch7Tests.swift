@@ -1216,10 +1216,10 @@ final class TopLevelModelsBatch7Tests: XCTestCase {
         XCTAssertEqual(Register.register.method, .post)
         XCTAssertEqual(TermsRequest.latestTerms.method, .get)
         XCTAssertEqual(AcceptTermsRequestType.acceptTerms.method, .post)
-        XCTAssertEqual(ForgotPasswordEndpoint.forgotPassword.method, .post)
-        XCTAssertEqual(ForgotPasswordEndpoint.resendVerification.method, .post)
-        XCTAssertEqual(NewPasswordEndpoint.newPasswordEndpoint.method, .post)
-        XCTAssertEqual(ResetPasswordEndpoint.resetPassword.method, .post)
+        XCTAssertEqual(ForgotPassword.forgotPassword.method, .post)
+        XCTAssertEqual(ForgotPassword.resendVerification.method, .post)
+        XCTAssertEqual(NewPassword.newPasswordEndpoint.method, .post)
+        XCTAssertEqual(ResetPassword.resetPassword.method, .post)
         XCTAssertEqual(PasswordlessAuthenticationRequest.passwordlessAuthentication.method, .post)
         XCTAssertEqual(PasscodeAuthenticationRequest.passcodeAuthentication.method, .post)
         XCTAssertEqual(ChangeEmailRequest.changeEmail.method, .post)
@@ -1249,11 +1249,11 @@ final class TopLevelModelsBatch7Tests: XCTestCase {
     func testRequestFactoriesVenuesAndImpact() {
         XCTAssertEqual(SearchSavedVenues.searchSavedVenues.method, .post)
         XCTAssertEqual(VenueByGoogleID.venueByGoogleID.method, .post)
-        XCTAssertEqual(EmployeeLeaderboardByVenueID.employeeLeaderboardByVenueID.method, .post)
-        XCTAssertEqual(EmployeeLeaderboardFromGoogleID.employeeLeaderboard.method, .post)
-        XCTAssertEqual(VenueIntroductionDeclineEndpoint.venueIntroductionDecline.method, .post)
-        XCTAssertEqual(NearbyEmptyStateEndpoint.nearbyEmptyStateDetails.method, .get)
-        XCTAssertEqual(NotifyUserCountProgressEndpoint.submitBenchmarkNotificationPreferences.method, .post)
+        XCTAssertEqual(EmployeeLeaderboard.employeeLeaderboard.method, .post)
+        XCTAssertEqual(EmployeeLeaderboardFromGoogleID.employeeLeaderboardFromGoogleID.method, .post)
+        XCTAssertEqual(VenueIntroductionDecline.venueIntroductionDecline.method, .post)
+        XCTAssertEqual(NearbyEmptyState.nearbyEmptyStateDetails.method, .get)
+        XCTAssertEqual(NotifyUserCountProgress.submitBenchmarkNotificationPreferences.method, .post)
     }
 
     func testRequestFactoriesQuestionsAndResponses() {

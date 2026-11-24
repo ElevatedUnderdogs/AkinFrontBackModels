@@ -186,23 +186,22 @@ extension VenueByGoogleID {
     }
 }
 
-/// A venue's employee leaderboard, by the venue's own id.
-///
-/// Its own name, rather than a second `employeeLeaderboard` beside the Google place lookup below:
-/// two contracts with one name share one path, so the server used to register this one with
-/// `path: "employeeLeaderboardByVenueID"` to keep them apart.
-public typealias EmployeeLeaderboardByVenueID = Request<UUID, VenueImpactSummary>
-extension EmployeeLeaderboardByVenueID {
+/// A venue's employee leaderboard, by the venue's own id. Looking a venue up by its id is the
+/// default, so this one carries the plain name.
+public typealias EmployeeLeaderboard = Request<UUID, VenueImpactSummary>
+extension EmployeeLeaderboard {
 
-    public static var employeeLeaderboardByVenueID: Self {
+    public static var employeeLeaderboard: Self {
         .init(method: .post)
     }
 }
 
+/// A venue's employee leaderboard, by the venue's Google place. The path comes from the name, so
+/// this one is named for what it looks up by, which keeps it apart from `employeeLeaderboard`.
 public typealias EmployeeLeaderboardFromGoogleID = Request<PlaceSuggestion, VenueImpactSummary>
 extension EmployeeLeaderboardFromGoogleID {
 
-    public static var employeeLeaderboard: Self {
+    public static var employeeLeaderboardFromGoogleID: Self {
         .init(method: .post)
     }
 }
@@ -279,8 +278,8 @@ public struct NearbyEmptyStateResponse: Codable, Hashable, Equatable {
     }
 }
 
-public typealias NearbyEmptyStateEndpoint = Request<Empty, NearbyEmptyStateResponse>
-extension NearbyEmptyStateEndpoint {
+public typealias NearbyEmptyState = Request<Empty, NearbyEmptyStateResponse>
+extension NearbyEmptyState {
 
     /// When a user signed up to an area with few users, we can send some details as part
     /// of a pitch to convince  them to stay engaged in anticipation.
@@ -329,9 +328,9 @@ public struct NearbyEmptyStateSubmitPayload: Codable, Hashable, Equatable {
     }
 }
 
-public typealias NotifyUserCountProgressEndpoint = Request<NearbyEmptyStateSubmitPayload, StandardPostResponse>
+public typealias NotifyUserCountProgress = Request<NearbyEmptyStateSubmitPayload, StandardPostResponse>
 
-extension NotifyUserCountProgressEndpoint {
+extension NotifyUserCountProgress {
 
     /// This endpoint is designed to receive user information to maintain ongoing engagement when there aren't many users
     /// yet.  This is to attempt to solve the chicken and the egg problem.
@@ -343,9 +342,9 @@ extension NotifyUserCountProgressEndpoint {
 /// POST /forgot-password
 /// Client submits this to start the password reset flow.
 /// Server replies with success regardless of whether the email exists.
-public typealias ForgotPasswordEndpoint = Request<String, StandardPostResponse>
+public typealias ForgotPassword = Request<String, StandardPostResponse>
 
-extension ForgotPasswordEndpoint {
+extension ForgotPassword {
 
     /// Request sent from the client to initiate a password reset email.
     /// The user provides only their email. If the account exists,
@@ -377,9 +376,9 @@ extension VerificationDeliveryStateRequest {
     }
 }
 
-public typealias NewPasswordEndpoint = Request<String, StandardPostResponse>
+public typealias NewPassword = Request<String, StandardPostResponse>
 
-extension NewPasswordEndpoint {
+extension NewPassword {
     public static var newPasswordEndpoint: Self {
         .init(method: .post)
     }
@@ -403,9 +402,9 @@ public struct ResetPasswordRequest: Codable {
 /// POST /reset-password
 /// Sent after the user has clicked the link and entered a new password.
 /// If the token is valid and not expired, the server resets their password.
-public typealias ResetPasswordEndpoint = Request<ResetPasswordRequest, StandardPostResponse>
+public typealias ResetPassword = Request<ResetPasswordRequest, StandardPostResponse>
 
-extension ResetPasswordEndpoint {
+extension ResetPassword {
     public static var resetPassword: Self {
         .init(method: .post)
     }
@@ -1505,8 +1504,8 @@ extension VenueIntroductionHistory {
 ///
 /// Unauthenticated, because the venue has no account and the entire value of the
 /// branch is that they do not need one to see their own number.
-public typealias VenueIntroductionScanEndpoint = Request<VenueScanReport, VenueScanResponse>
-extension VenueIntroductionScanEndpoint {
+public typealias VenueIntroductionScan = Request<VenueScanReport, VenueScanResponse>
+extension VenueIntroductionScan {
 
     public static var venueIntroductionScan: Self {
         .init(method: .post, assertHasAccessToken: false)
@@ -1517,8 +1516,8 @@ extension VenueIntroductionScanEndpoint {
 ///
 /// Same report in and same answer out as the scan, and unauthenticated for the same reason. The
 /// server used to register it as the scan contract with `path: "venueIntroductionDecline"`.
-public typealias VenueIntroductionDeclineEndpoint = Request<VenueScanReport, VenueScanResponse>
-extension VenueIntroductionDeclineEndpoint {
+public typealias VenueIntroductionDecline = Request<VenueScanReport, VenueScanResponse>
+extension VenueIntroductionDecline {
 
     public static var venueIntroductionDecline: Self {
         .init(method: .post, assertHasAccessToken: false)
@@ -1526,8 +1525,8 @@ extension VenueIntroductionDeclineEndpoint {
 }
 
 /// A venue generating a referral code of their own, from inside the App Clip.
-public typealias VenueIntroductionJoinEndpoint = Request<VenueJoinReport, VenueJoinResponse>
-extension VenueIntroductionJoinEndpoint {
+public typealias VenueIntroductionJoin = Request<VenueJoinReport, VenueJoinResponse>
+extension VenueIntroductionJoin {
 
     public static var venueIntroductionJoin: Self {
         .init(method: .post, assertHasAccessToken: false)
