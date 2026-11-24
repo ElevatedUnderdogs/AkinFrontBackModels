@@ -1,0 +1,97 @@
+{
+  "compatitibility" : {
+
+  },
+  "events" : [
+    {
+      "action" : {
+        "manualGreetInitiated" : {
+
+        }
+      },
+      "actorUserID" : "00000000-0000-0000-0000-000000000001",
+      "eventID" : "00000000-0000-0000-0000-000000000001",
+      "greetID" : "00000000-0000-0000-0000-000000000001",
+      "serverDate" : 0,
+      "serverSequenceNumber" : 1
+    },
+    {
+      "action" : {
+        "manualGreetInitiated" : {
+
+        }
+      },
+      "actorUserID" : "00000000-0000-0000-0000-000000000001",
+      "eventID" : "00000000-0000-0000-0000-000000000001",
+      "greetID" : "00000000-0000-0000-0000-000000000001",
+      "serverDate" : 0,
+      "serverSequenceNumber" : 1
+    }
+  ],
+  "greetID" : "00000000-0000-0000-0000-000000000001",
+  "initiationMethod" : {
+    "manual" : {
+      "userID" : "00000000-0000-0000-0000-000000000001"
+    }
+  },
+  "matchMakingMethodVersion" : 1,
+  "method" : "Hand shake",
+  "minutesAway" : 1,
+  "openers" : [
+    "sample opener",
+    "sample opener"
+  ],
+  "otherMinutesAway" : 1,
+  "otherUser" : {
+    "earlyAdopterTier" : "diamond",
+    "hasGrantedCallKitConsent" : false,
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "imageMetaData" : {
+      "assessment" : {
+        "entries" : [
+          {
+            "aiConfidence" : 1,
+            "explanation" : "sample explanation",
+            "flag" : "childSexualAbuseMaterial",
+            "source" : "appleIntelligence"
+          },
+          {
+            "aiConfidence" : 1,
+            "explanation" : "sample explanation",
+            "flag" : "childSexualAbuseMaterial",
+            "source" : "appleIntelligence"
+          }
+        ]
+      },
+      "format" : "sample format",
+      "height" : 1,
+      "id" : "00000000-0000-0000-0000-000000000001",
+      "width" : 1
+    },
+    "interaction" : {
+      "availability" : "available",
+      "distanceMeters" : 1,
+      "frozenByViewer" : false,
+      "frozenUntil" : 0,
+      "reservationQueueLength" : 1,
+      "viewerReservationPosition" : 1
+    },
+    "lastLocationUpdate" : 0,
+    "name" : "sample name",
+    "profileImage" : "sample profileImage",
+    "verified" : false
+  },
+  "participantUserIDs" : [
+    "00000000-0000-0000-0000-000000000001",
+    "00000000-0000-0000-0000-000000000001"
+  ],
+  "thisUserID" : "00000000-0000-0000-0000-000000000001",
+  "travelMethod" : "bike",
+  "venue" : {
+    "address" : "sample address",
+    "latitude" : 1,
+    "longitude" : 1,
+    "name" : "sample name",
+    "url" : "https:\/\/example.invalid\/sample"
+  }
+}

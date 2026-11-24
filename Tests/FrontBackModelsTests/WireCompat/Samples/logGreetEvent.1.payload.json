@@ -1,0 +1,15 @@
+{
+  "event" : {
+    "greetAction" : {
+      "_0" : {
+        "manualGreetInitiated" : {
+
+        }
+      }
+    }
+  },
+  "greetID" : "00000000-0000-0000-0000-000000000001",
+  "otherUSerEmail" : "member@example.invalid",
+  "otherUserID" : "00000000-0000-0000-0000-000000000001",
+  "otherUserName" : "sample otherUserName"
+}

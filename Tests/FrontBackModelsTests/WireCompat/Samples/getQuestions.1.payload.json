@@ -1,0 +1,21 @@
+{
+  "isFirst" : false,
+  "limit" : 1,
+  "page" : 1,
+  "specs" : [
+    {
+      "context" : "sample context",
+      "page" : 1,
+      "required" : false,
+      "searchText" : "sample searchText",
+      "type" : "sample type"
+    },
+    {
+      "context" : "sample context",
+      "page" : 1,
+      "required" : false,
+      "searchText" : "sample searchText",
+      "type" : "sample type"
+    }
+  ]
+}

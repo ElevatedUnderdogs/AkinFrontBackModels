@@ -1,0 +1,15 @@
+{
+  "awarenessState" : "unaware",
+  "experimentArm" : "intrinsic",
+  "isEligible" : false,
+  "participatingStaffNames" : [
+    "sample participatingStaffName",
+    "sample participatingStaffName"
+  ],
+  "periodDescription" : "sample periodDescription",
+  "shiftBucket" : "overnight",
+  "suppressionReason" : "sample suppressionReason",
+  "usersSentToVenueThisMonth" : 1,
+  "venueGooglePlaceIdentifier" : "sample venueGooglePlaceIdentifier",
+  "venueName" : "sample venueName"
+}

@@ -1,0 +1,29 @@
+{
+  "acceptTermsRequest" : {
+    "acceptedAt" : 0,
+    "deviceInfo" : "sample deviceInfo",
+    "source" : "sample source"
+  },
+  "email" : "member@example.invalid",
+  "errors" : "sample errors",
+  "firstName" : "sample firstName",
+  "lastName" : "sample lastName",
+  "password" : "sample password",
+  "referral" : {
+    "personName" : "sample personName",
+    "venue" : {
+      "address" : "sample address",
+      "coordinates" : {
+        "latitude" : 1,
+        "longitude" : 1
+      },
+      "googlePlacesTypes" : [
+        "sample googlePlacesType",
+        "sample googlePlacesType"
+      ],
+      "googlePlacesid" : "00000000-0000-0000-0000-000000000001",
+      "name" : "sample name",
+      "url" : "https:\/\/example.invalid\/sample"
+    }
+  }
+}

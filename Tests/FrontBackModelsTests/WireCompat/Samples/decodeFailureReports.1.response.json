@@ -1,0 +1,22 @@
+[
+  {
+    "appBuild" : "sample appBuild",
+    "bodyBytes" : 1,
+    "codingKey" : "sample codingKey",
+    "createdAt" : 0,
+    "endpoint" : "sample endpoint",
+    "excerpt" : "sample excerpt",
+    "expectedType" : "sample expectedType",
+    "id" : "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "appBuild" : "sample appBuild",
+    "bodyBytes" : 1,
+    "codingKey" : "sample codingKey",
+    "createdAt" : 0,
+    "endpoint" : "sample endpoint",
+    "excerpt" : "sample excerpt",
+    "expectedType" : "sample expectedType",
+    "id" : "00000000-0000-0000-0000-000000000001"
+  }
+]

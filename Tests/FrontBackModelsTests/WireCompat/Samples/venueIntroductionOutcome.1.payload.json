@@ -1,0 +1,6 @@
+{
+  "clientCorrelationIdentifier" : "sample clientCorrelationIdentifier",
+  "greetIdentifier" : "00000000-0000-0000-0000-000000000001",
+  "outcome" : "receptive",
+  "source" : "card"
+}

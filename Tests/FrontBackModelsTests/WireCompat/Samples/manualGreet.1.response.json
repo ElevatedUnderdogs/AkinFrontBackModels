@@ -1,0 +1,18 @@
+{
+  "notification" : {
+    "_0" : {
+      "notification" : {
+        "associatedValue" : {
+          "greetID" : "00000000-0000-0000-0000-000000000001",
+          "name" : "sample name",
+          "notificationKey" : "getReviewTime",
+          "otherUserID" : "00000000-0000-0000-0000-000000000001",
+          "profileURL" : "https:\/\/example.invalid\/sample",
+          "timeMet" : "sample timeMet"
+        },
+        "caseType" : "getRating"
+      },
+      "status" : "success"
+    }
+  }
+}

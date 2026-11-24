@@ -1,0 +1,325 @@
+{
+  "authToken" : {
+    "expiration" : 0,
+    "token" : "sample token"
+  },
+  "refreshToken" : {
+    "expiration" : 0,
+    "token" : "sample token"
+  },
+  "success" : false,
+  "user" : {
+    "birthDate" : 0,
+    "cloudFlareImageURL" : "https:\/\/example.invalid\/sample",
+    "dobString" : "sample dobString",
+    "email" : "member@example.invalid",
+    "firstName" : "sample firstName",
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "lastName" : "sample lastName",
+    "meetingSchedule" : [
+      {
+        "name" : "Sunday",
+        "timeBlocks" : [
+          {
+            "amPM" : "am",
+            "militaryHour" : 1,
+            "travelMethod" : "bike"
+          },
+          {
+            "amPM" : "am",
+            "militaryHour" : 1,
+            "travelMethod" : "bike"
+          }
+        ]
+      },
+      {
+        "name" : "Sunday",
+        "timeBlocks" : [
+          {
+            "amPM" : "am",
+            "militaryHour" : 1,
+            "travelMethod" : "bike"
+          },
+          {
+            "amPM" : "am",
+            "militaryHour" : 1,
+            "travelMethod" : "bike"
+          }
+        ]
+      }
+    ],
+    "phoneNumber" : 1,
+    "privacy" : {
+      "password" : "sample password",
+      "romanceOn" : false,
+      "token" : "sample token"
+    },
+    "requiredQuestions" : [
+      {
+        "assessment" : {
+          "entries" : [
+            {
+              "aiConfidence" : 1,
+              "explanation" : "sample explanation",
+              "flag" : "childSexualAbuseMaterial",
+              "source" : "appleIntelligence"
+            },
+            {
+              "aiConfidence" : 1,
+              "explanation" : "sample explanation",
+              "flag" : "childSexualAbuseMaterial",
+              "source" : "appleIntelligence"
+            }
+          ]
+        },
+        "author" : {
+          "displayName" : "sample displayName",
+          "id" : "00000000-0000-0000-0000-000000000001",
+          "profileImageURL" : "https:\/\/example.invalid\/sample"
+        },
+        "authorVisibility" : "attributed",
+        "bestSuitedContextRaw" : "sample bestSuitedContextRaw",
+        "contextPopularity" : {
+
+        },
+        "creatorID" : "00000000-0000-0000-0000-000000000001",
+        "defaultCompatibilityRule" : "mandatory",
+        "id" : "00000000-0000-0000-0000-000000000001",
+        "importanceFor" : {
+
+        },
+        "isRomanceRelated" : false,
+        "originalContext" : {
+          "case" : "sample case",
+          "id" : "00000000-0000-0000-0000-000000000001",
+          "rawValue" : "sample rawValue"
+        },
+        "requirementsFor" : [
+          {
+            "case" : "sample case",
+            "id" : "00000000-0000-0000-0000-000000000001",
+            "rawValue" : "sample rawValue"
+          },
+          [
+            "my",
+            "my"
+          ]
+        ],
+        "responses" : [
+          {
+            "assessment" : {
+              "entries" : [
+                {
+                  "explanation" : "sample explanation",
+                  "flag" : "childSexualAbuseMaterial",
+                  "source" : "appleIntelligence"
+                },
+                {
+                  "explanation" : "sample explanation",
+                  "flag" : "childSexualAbuseMaterial",
+                  "source" : "appleIntelligence"
+                }
+              ]
+            },
+            "author" : {
+              "displayName" : "sample displayName",
+              "id" : "00000000-0000-0000-0000-000000000001",
+              "profileImageURL" : "https:\/\/example.invalid\/sample"
+            },
+            "authorVisibility" : "attributed",
+            "bestSuitedContextRaw" : "sample bestSuitedContextRaw",
+            "creator" : "00000000-0000-0000-0000-000000000001",
+            "id" : "00000000-0000-0000-0000-000000000001",
+            "isRomanceRelated" : false,
+            "myChoice" : {
+
+            },
+            "originalContextID" : "00000000-0000-0000-0000-000000000001",
+            "popularity" : {
+
+            },
+            "questionID" : "00000000-0000-0000-0000-000000000001",
+            "text" : "sample text",
+            "theirChoices" : {
+
+            },
+            "timeStamp" : 0
+          },
+          {
+            "assessment" : {
+              "entries" : [
+                {
+                  "explanation" : "sample explanation",
+                  "flag" : "childSexualAbuseMaterial",
+                  "source" : "appleIntelligence"
+                },
+                {
+                  "explanation" : "sample explanation",
+                  "flag" : "childSexualAbuseMaterial",
+                  "source" : "appleIntelligence"
+                }
+              ]
+            },
+            "author" : {
+              "displayName" : "sample displayName",
+              "id" : "00000000-0000-0000-0000-000000000001",
+              "profileImageURL" : "https:\/\/example.invalid\/sample"
+            },
+            "authorVisibility" : "attributed",
+            "bestSuitedContextRaw" : "sample bestSuitedContextRaw",
+            "creator" : "00000000-0000-0000-0000-000000000001",
+            "id" : "00000000-0000-0000-0000-000000000001",
+            "isRomanceRelated" : false,
+            "myChoice" : {
+
+            },
+            "originalContextID" : "00000000-0000-0000-0000-000000000001",
+            "popularity" : {
+
+            },
+            "questionID" : "00000000-0000-0000-0000-000000000001",
+            "text" : "sample text",
+            "theirChoices" : {
+
+            },
+            "timeStamp" : 0
+          }
+        ],
+        "text" : "sample text"
+      },
+      {
+        "assessment" : {
+          "entries" : [
+            {
+              "aiConfidence" : 1,
+              "explanation" : "sample explanation",
+              "flag" : "childSexualAbuseMaterial",
+              "source" : "appleIntelligence"
+            },
+            {
+              "aiConfidence" : 1,
+              "explanation" : "sample explanation",
+              "flag" : "childSexualAbuseMaterial",
+              "source" : "appleIntelligence"
+            }
+          ]
+        },
+        "author" : {
+          "displayName" : "sample displayName",
+          "id" : "00000000-0000-0000-0000-000000000001",
+          "profileImageURL" : "https:\/\/example.invalid\/sample"
+        },
+        "authorVisibility" : "attributed",
+        "bestSuitedContextRaw" : "sample bestSuitedContextRaw",
+        "contextPopularity" : {
+
+        },
+        "creatorID" : "00000000-0000-0000-0000-000000000001",
+        "defaultCompatibilityRule" : "mandatory",
+        "id" : "00000000-0000-0000-0000-000000000001",
+        "importanceFor" : {
+
+        },
+        "isRomanceRelated" : false,
+        "originalContext" : {
+          "case" : "sample case",
+          "id" : "00000000-0000-0000-0000-000000000001",
+          "rawValue" : "sample rawValue"
+        },
+        "requirementsFor" : [
+          {
+            "case" : "sample case",
+            "id" : "00000000-0000-0000-0000-000000000001",
+            "rawValue" : "sample rawValue"
+          },
+          [
+            "my",
+            "my"
+          ]
+        ],
+        "responses" : [
+          {
+            "assessment" : {
+              "entries" : [
+                {
+                  "explanation" : "sample explanation",
+                  "flag" : "childSexualAbuseMaterial",
+                  "source" : "appleIntelligence"
+                },
+                {
+                  "explanation" : "sample explanation",
+                  "flag" : "childSexualAbuseMaterial",
+                  "source" : "appleIntelligence"
+                }
+              ]
+            },
+            "author" : {
+              "displayName" : "sample displayName",
+              "id" : "00000000-0000-0000-0000-000000000001",
+              "profileImageURL" : "https:\/\/example.invalid\/sample"
+            },
+            "authorVisibility" : "attributed",
+            "bestSuitedContextRaw" : "sample bestSuitedContextRaw",
+            "creator" : "00000000-0000-0000-0000-000000000001",
+            "id" : "00000000-0000-0000-0000-000000000001",
+            "isRomanceRelated" : false,
+            "myChoice" : {
+
+            },
+            "originalContextID" : "00000000-0000-0000-0000-000000000001",
+            "popularity" : {
+
+            },
+            "questionID" : "00000000-0000-0000-0000-000000000001",
+            "text" : "sample text",
+            "theirChoices" : {
+
+            },
+            "timeStamp" : 0
+          },
+          {
+            "assessment" : {
+              "entries" : [
+                {
+                  "explanation" : "sample explanation",
+                  "flag" : "childSexualAbuseMaterial",
+                  "source" : "appleIntelligence"
+                },
+                {
+                  "explanation" : "sample explanation",
+                  "flag" : "childSexualAbuseMaterial",
+                  "source" : "appleIntelligence"
+                }
+              ]
+            },
+            "author" : {
+              "displayName" : "sample displayName",
+              "id" : "00000000-0000-0000-0000-000000000001",
+              "profileImageURL" : "https:\/\/example.invalid\/sample"
+            },
+            "authorVisibility" : "attributed",
+            "bestSuitedContextRaw" : "sample bestSuitedContextRaw",
+            "creator" : "00000000-0000-0000-0000-000000000001",
+            "id" : "00000000-0000-0000-0000-000000000001",
+            "isRomanceRelated" : false,
+            "myChoice" : {
+
+            },
+            "originalContextID" : "00000000-0000-0000-0000-000000000001",
+            "popularity" : {
+
+            },
+            "questionID" : "00000000-0000-0000-0000-000000000001",
+            "text" : "sample text",
+            "theirChoices" : {
+
+            },
+            "timeStamp" : 0
+          }
+        ],
+        "text" : "sample text"
+      }
+    ],
+    "zip" : 1
+  }
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "answeredAllCount" : 1,
+    "answeredSomeCount" : 1,
+    "creatorId" : "00000000-0000-0000-0000-000000000001",
+    "creatorName" : "sample creatorName",
+    "derivedImportance" : 1,
+    "isRated" : false,
+    "questionnaireId" : "00000000-0000-0000-0000-000000000001",
+    "title" : "sample title"
+  },
+  {
+    "answeredAllCount" : 1,
+    "answeredSomeCount" : 1,
+    "creatorId" : "00000000-0000-0000-0000-000000000001",
+    "creatorName" : "sample creatorName",
+    "derivedImportance" : 1,
+    "isRated" : false,
+    "questionnaireId" : "00000000-0000-0000-0000-000000000001",
+    "title" : "sample title"
+  }
+]

@@ -1,0 +1,20 @@
+{
+  "iceServers" : [
+    {
+      "credential" : "sample credential",
+      "urls" : [
+        "https:\/\/example.invalid\/sample",
+        "https:\/\/example.invalid\/sample"
+      ],
+      "username" : "sample username"
+    },
+    {
+      "credential" : "sample credential",
+      "urls" : [
+        "https:\/\/example.invalid\/sample",
+        "https:\/\/example.invalid\/sample"
+      ],
+      "username" : "sample username"
+    }
+  ]
+}

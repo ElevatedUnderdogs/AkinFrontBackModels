@@ -1,0 +1,74 @@
+{
+  "birthday" : {
+    "calendar" : {
+      "current" : 0,
+      "firstWeekday" : 1,
+      "identifier" : "gregorian",
+      "locale" : {
+        "current" : 0,
+        "identifier" : ""
+      },
+      "minimumDaysInFirstWeek" : 1,
+      "timeZone" : {
+        "identifier" : "GMT"
+      }
+    },
+    "day" : 1,
+    "dayOfYear" : 1,
+    "era" : 1,
+    "hour" : 1,
+    "isLeapMonth" : false,
+    "isRepeatedDay" : false,
+    "minute" : 1,
+    "month" : 1,
+    "nanosecond" : 1,
+    "quarter" : 1,
+    "second" : 1,
+    "timeZone" : {
+      "identifier" : "GMT"
+    },
+    "weekOfMonth" : 1,
+    "weekOfYear" : 1,
+    "weekday" : 1,
+    "weekdayOrdinal" : 1,
+    "year" : 1,
+    "yearForWeekOfYear" : 1
+  },
+  "cloudflareProfileImageURL" : "https:\/\/example.invalid\/sample",
+  "contextPreferences" : [
+    {
+      "allowedGreetingMethods" : [
+        "Hand shake",
+        "Hand shake"
+      ],
+      "context" : {
+        "case" : "sample case",
+        "id" : "00000000-0000-0000-0000-000000000001",
+        "rawValue" : "sample rawValue"
+      },
+      "isMeetEnabled" : false,
+      "metersWillingToTravel" : 1
+    },
+    {
+      "allowedGreetingMethods" : [
+        "Hand shake",
+        "Hand shake"
+      ],
+      "context" : {
+        "case" : "sample case",
+        "id" : "00000000-0000-0000-0000-000000000001",
+        "rawValue" : "sample rawValue"
+      },
+      "isMeetEnabled" : false,
+      "metersWillingToTravel" : 1
+    }
+  ],
+  "dob" : 0,
+  "emailPrimary" : "member@example.invalid",
+  "firstName" : "sample firstName",
+  "lastName" : "sample lastName",
+  "phone" : "sample phone",
+  "ring" : false,
+  "userID" : "00000000-0000-0000-0000-000000000001",
+  "vibrate" : false
+}

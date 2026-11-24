@@ -1,0 +1,9 @@
+{
+  "appName" : "sample appName",
+  "contactInfo" : "sample contactInfo",
+  "effectiveDate" : 0,
+  "requiresReacceptance" : false,
+  "summary" : "sample summary",
+  "text" : "sample text",
+  "version" : "sample version"
+}

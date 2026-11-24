@@ -1,0 +1,13 @@
+{
+  "selfStatus" : {
+    "demoGreetCounterpartId" : "00000000-0000-0000-0000-000000000001",
+    "freezeAllowancePerDay" : 1,
+    "freezesRemainingToday" : 1,
+    "mayTriggerDemoGreet" : false,
+    "outstandingReservations" : 1,
+    "pauseDefaultSeconds" : 1,
+    "pausedUntil" : 0,
+    "peopleWaitingForYou" : 1,
+    "reservationAllowance" : 1
+  }
+}

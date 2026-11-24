@@ -1,0 +1,8 @@
+{
+  "callType" : "ringToGreet",
+  "greetID" : "00000000-0000-0000-0000-000000000001",
+  "signal" : {
+    "caseType" : "offer",
+    "sdp" : "sample sdp"
+  }
+}

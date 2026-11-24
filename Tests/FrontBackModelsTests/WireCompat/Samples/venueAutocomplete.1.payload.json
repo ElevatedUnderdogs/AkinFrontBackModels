@@ -1,0 +1,11 @@
+{
+  "includedPrimaryTypes" : [
+    "sample includedPrimaryType",
+    "sample includedPrimaryType"
+  ],
+  "input" : "sample input",
+  "locationBias" : {
+
+  },
+  "sessionToken" : "sample sessionToken"
+}

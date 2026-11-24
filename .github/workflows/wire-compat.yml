@@ -1,0 +1,36 @@
+# Flags model changes that can break older apps or servers.
+name: Wire compatibility
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  diff-warnings:
+    name: Diff warnings (never fails)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Warn about risky model changes
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: python3 scripts/wire-compat/diff_warnings.py "origin/$BASE_REF"
+
+  saved-samples:
+    name: Saved samples still decode
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refresh the contract list
+        run: |
+          python3 scripts/wire-compat/generate_contract_list.py
+          if ! git diff --quiet -- Tests/FrontBackModelsTests/WireCompat/WireContracts.generated.swift; then
+            echo "::warning title=Contract list out of date::Run scripts/wire-compat/generate_contract_list.py and commit the result."
+          fi
+      - name: Decode saved samples
+        run: swift test --filter WireSampleTests

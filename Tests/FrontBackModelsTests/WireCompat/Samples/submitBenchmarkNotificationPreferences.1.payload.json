@@ -1,0 +1,10 @@
+{
+  "email" : "member@example.invalid",
+  "forecastDate" : 0,
+  "forecastLocationHash" : "sample forecastLocationHash",
+  "hideFoundingMemberTile" : false,
+  "locationDescription" : "sample locationDescription",
+  "notifyForLocalBenchmarks" : false,
+  "targetBenchMark" : 1,
+  "wantsCalendarReminder" : false
+}

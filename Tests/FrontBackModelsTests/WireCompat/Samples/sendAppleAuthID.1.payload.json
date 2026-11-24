@@ -1,0 +1,7 @@
+{
+  "email" : "member@example.invalid",
+  "firstName" : "sample firstName",
+  "identityToken" : "sample identityToken",
+  "lastName" : "sample lastName",
+  "userID" : "00000000-0000-0000-0000-000000000001"
+}

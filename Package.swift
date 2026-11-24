@@ -24,6 +24,10 @@ let package = Package(
                 "EncryptDecryptKey",
                 "StrongContractClient",
             ]),
-        .testTarget(name: "FrontBackModelsTests", dependencies: ["AkinFrontBackModels"]),
+        .testTarget(
+            name: "FrontBackModelsTests",
+            dependencies: ["AkinFrontBackModels"],
+            exclude: ["WireCompat/Samples"]
+        ),
     ]
 )

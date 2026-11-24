@@ -1,0 +1,32 @@
+[
+  {
+    "name" : "Sunday",
+    "timeBlocks" : [
+      {
+        "amPM" : "am",
+        "militaryHour" : 1,
+        "travelMethod" : "bike"
+      },
+      {
+        "amPM" : "am",
+        "militaryHour" : 1,
+        "travelMethod" : "bike"
+      }
+    ]
+  },
+  {
+    "name" : "Sunday",
+    "timeBlocks" : [
+      {
+        "amPM" : "am",
+        "militaryHour" : 1,
+        "travelMethod" : "bike"
+      },
+      {
+        "amPM" : "am",
+        "militaryHour" : 1,
+        "travelMethod" : "bike"
+      }
+    ]
+  }
+]

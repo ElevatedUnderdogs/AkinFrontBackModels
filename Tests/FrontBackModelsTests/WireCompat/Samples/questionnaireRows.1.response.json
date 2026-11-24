@@ -1,0 +1,34 @@
+[
+  {
+    "answeredAllCount" : 1,
+    "answeredSomeCount" : 1,
+    "creator" : {
+      "you" : {
+
+      }
+    },
+    "creatorImageURL" : "https:\/\/example.invalid\/sample",
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "normalisedTitleKey" : "sample normalisedTitleKey",
+    "questionCount" : 1,
+    "title" : "sample title",
+    "viewerAnsweredCount" : 1,
+    "withdrawnByAuthor" : false
+  },
+  {
+    "answeredAllCount" : 1,
+    "answeredSomeCount" : 1,
+    "creator" : {
+      "you" : {
+
+      }
+    },
+    "creatorImageURL" : "https:\/\/example.invalid\/sample",
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "normalisedTitleKey" : "sample normalisedTitleKey",
+    "questionCount" : 1,
+    "title" : "sample title",
+    "viewerAnsweredCount" : 1,
+    "withdrawnByAuthor" : false
+  }
+]

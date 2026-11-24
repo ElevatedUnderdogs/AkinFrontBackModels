@@ -1,0 +1,22 @@
+[
+  {
+    "environment" : "sample environment",
+    "expiresAt" : 0,
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "originalTransactionId" : "00000000-0000-0000-0000-000000000001",
+    "platform" : "sample platform",
+    "productId" : "00000000-0000-0000-0000-000000000001",
+    "revokedAt" : 0,
+    "userId" : "00000000-0000-0000-0000-000000000001"
+  },
+  {
+    "environment" : "sample environment",
+    "expiresAt" : 0,
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "originalTransactionId" : "00000000-0000-0000-0000-000000000001",
+    "platform" : "sample platform",
+    "productId" : "00000000-0000-0000-0000-000000000001",
+    "revokedAt" : 0,
+    "userId" : "00000000-0000-0000-0000-000000000001"
+  }
+]

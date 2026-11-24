@@ -1,0 +1,11 @@
+{
+  "actualDateOfBenchmark" : 0,
+  "cloutLocationDescription" : "sample cloutLocationDescription",
+  "defaultEmail" : "member@example.invalid",
+  "hideFoundingMemberTile" : false,
+  "nearbyUserCount" : 1,
+  "savedForecastDate" : 0,
+  "userJoinRank" : 1,
+  "wantsBenchmarkNotifications" : false,
+  "wantsCalendarReminder" : false
+}

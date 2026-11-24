@@ -1,0 +1,24 @@
+{
+  "displayName" : {
+    "text" : "sample text"
+  },
+  "formattedAddress" : "sample formattedAddress",
+  "googleMapsUri" : "sample googleMapsUri",
+  "id" : "00000000-0000-0000-0000-000000000001",
+  "location" : {
+    "latitude" : 1,
+    "longitude" : 1
+  },
+  "photos" : [
+    {
+      "name" : "sample name"
+    },
+    {
+      "name" : "sample name"
+    }
+  ],
+  "types" : [
+    "sample type",
+    "sample type"
+  ]
+}

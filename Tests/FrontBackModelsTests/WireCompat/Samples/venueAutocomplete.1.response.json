@@ -1,0 +1,30 @@
+{
+  "suggestions" : [
+    {
+      "placePrediction" : {
+        "placeId" : "00000000-0000-0000-0000-000000000001",
+        "structuredFormat" : {
+          "mainText" : {
+            "text" : "sample text"
+          },
+          "secondaryText" : {
+            "text" : "sample text"
+          }
+        }
+      }
+    },
+    {
+      "placePrediction" : {
+        "placeId" : "00000000-0000-0000-0000-000000000001",
+        "structuredFormat" : {
+          "mainText" : {
+            "text" : "sample text"
+          },
+          "secondaryText" : {
+            "text" : "sample text"
+          }
+        }
+      }
+    }
+  ]
+}

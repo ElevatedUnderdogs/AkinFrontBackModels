@@ -1,0 +1,6 @@
+{
+  "assertion" : false,
+  "file" : "sample file",
+  "line" : 1,
+  "message" : "sample message"
+}
