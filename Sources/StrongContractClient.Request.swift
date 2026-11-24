@@ -1512,10 +1512,7 @@ extension VenueIntroductionScan {
     }
 }
 
-/// A venue declining the introduction its scanned code offered.
-///
-/// Same report in and same answer out as the scan, and unauthenticated for the same reason. The
-/// server used to register it as the scan contract with `path: "venueIntroductionDecline"`.
+/// A venue declining its scanned introduction. Unauthenticated, like the scan.
 public typealias VenueIntroductionDecline = Request<VenueScanReport, VenueScanResponse>
 extension VenueIntroductionDecline {
 

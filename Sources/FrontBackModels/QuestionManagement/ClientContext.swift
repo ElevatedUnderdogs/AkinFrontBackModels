@@ -13,12 +13,7 @@ public struct ClientContext: Codable, Hashable, Equatable {
     public let context: Context
     public let description: String?
     public let createdAt: Date
-    /// The member who created the context, or nil once they have deleted their account.
-    ///
-    /// Optional on purpose. When a creator deletes their account and all its data, a context
-    /// other members have answered in is kept, so their answers survive, but it must not keep a
-    /// strong reference to the deleted member. The server clears the creator instead, and a
-    /// client shows "Deleted member" and offers no creator-only actions when this is nil.
+    /// Nil once the creator deletes their account, so a deleted member leaves no reference behind.
     public let creatorID: UUID?
 
     public init(
