@@ -16,14 +16,6 @@
 
 import Foundation
 
-public struct AddQuestionnaireQuestionRequest: Codable {
-    public let questionId: UUID
-
-    public init(questionId: UUID) {
-        self.questionId = questionId
-    }
-}
-
 public struct AuthorVisibilityAuditDTO: Codable {
     public let questionId: UUID
     public let oldVisibility: AuthorVisibility
@@ -113,7 +105,7 @@ public struct BrowseQuestionnaireDTO: Codable {
     }
 }
 
-public struct CreateContextRequest: Codable {
+public struct CreateContextPayload: Codable {
     public let name: String
 
     public init(name: String) {
@@ -121,7 +113,7 @@ public struct CreateContextRequest: Codable {
     }
 }
 
-public struct CreateQuestionnaireRequest: Codable {
+public struct CreateQuestionnairePayload: Codable {
     public let title: String
     public let contextId: UUID
     public let questionIds: [UUID]?
@@ -182,15 +174,6 @@ public struct MyQuestionnaireDTO: Codable {
         self.contextId = contextId
         self.authorVisibility = authorVisibility
         self.questionCount = questionCount
-    }
-}
-
-public struct NameProfileRequest: Codable {
-    /// What the member wants it called.
-    public let name: String
-
-    public init(name: String) {
-        self.name = name
     }
 }
 
@@ -329,18 +312,22 @@ public struct RedundancyExplanationResponse: Codable, Equatable {
     }
 }
 
-public struct RenameQuestionnaireRequest: Codable {
+public struct RenameQuestionnairePayload: Codable {
+    public let questionnaireId: UUID
     public let title: String
 
-    public init(title: String) {
+    public init(questionnaireId: UUID, title: String) {
+        self.questionnaireId = questionnaireId
         self.title = title
     }
 }
 
-public struct ReorderQuestionnaireRequest: Codable {
+public struct ReorderQuestionnairePayload: Codable {
+    public let questionnaireId: UUID
     public let questionIds: [UUID]
 
-    public init(questionIds: [UUID]) {
+    public init(questionnaireId: UUID, questionIds: [UUID]) {
+        self.questionnaireId = questionnaireId
         self.questionIds = questionIds
     }
 }
@@ -351,7 +338,7 @@ public enum RequirementFlavor: String, Codable, CaseIterable {
     case mustHaveChosenOneOf = "must_have_chosen_one_of"
 }
 
-public struct SetAlgorithmRequest: Codable {
+public struct SetAlgorithmPayload: Codable {
     public let algorithm: String
 
     public init(algorithm: String) {
@@ -359,16 +346,21 @@ public struct SetAlgorithmRequest: Codable {
     }
 }
 
-public struct SetAuthorVisibilityRequest: Codable {
+public struct SetQuestionAuthorVisibilityPayload: Codable {
+
+    /// The question whose author line changes.
+    public let questionId: UUID
 
     /// The value the creator is choosing.
     public let authorVisibility: AuthorVisibility
 
-    public init(authorVisibility: AuthorVisibility) {
+    public init(questionId: UUID, authorVisibility: AuthorVisibility) {
+        self.questionId = questionId
         self.authorVisibility = authorVisibility
     }
 
     private enum CodingKeys: String, CodingKey {
+        case questionId
         case authorVisibility
     }
 
@@ -379,6 +371,7 @@ public struct SetAuthorVisibilityRequest: Codable {
     /// both sides, not just at the server's door. The accepted set travels in the message.
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.questionId = try container.decode(UUID.self, forKey: .questionId)
         let raw = try container.decode(String.self, forKey: .authorVisibility)
         do {
             self.authorVisibility = try AuthorVisibility.requireKnown(raw)
@@ -390,16 +383,7 @@ public struct SetAuthorVisibilityRequest: Codable {
     }
 }
 
-public struct SetMutedRequest: Codable {
-    /// True to silence the subscription, false to hear it again.
-    public let muted: Bool
-
-    public init(muted: Bool) {
-        self.muted = muted
-    }
-}
-
-public struct SetRequirementRequest: Codable {
+public struct SetRequirementPayload: Codable {
     public let contextId: UUID
     public let questionId: UUID
     public let flavor: RequirementFlavor
@@ -492,7 +476,7 @@ public struct VenueExclusionWarning: Codable, Equatable {
     }
 }
 
-public struct VenuePreferenceRequest: Codable {
+public struct SetVenuePreferencesPayload: Codable {
     public let venueId: UUID
     public let stance: VenueStance
 

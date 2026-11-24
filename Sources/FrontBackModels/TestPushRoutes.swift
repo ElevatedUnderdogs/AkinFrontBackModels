@@ -22,21 +22,23 @@ public struct TestPushPayload<T: Codable>: Codable {
 }
 
 public typealias TestPushRequest = Request<TestPushPayload<String>, StandardPostResponse>
-public typealias TestPushKitRequest = TestPushRequest
 extension TestPushRequest {
-    /// POST `testPushRequest`. Sends a regular push to the caller's device.
+    /// Sends a regular push to the caller's device.
     public static var testPushRequest: Self {
         .init(method: .post)
     }
+}
 
-    /// POST `testPushKitRequest`. Sends a VoIP push to the caller's device.
+public typealias TestPushKitRequest = Request<TestPushPayload<String>, StandardPostResponse>
+extension TestPushKitRequest {
+    /// Sends a VoIP push to the caller's device.
     public static var testPushKitRequest: Self {
         .init(method: .post)
     }
 }
 
 /// The advertiser dashboard's sign-in body.
-public struct AdvertiserLoginRequest: Codable, Sendable {
+public struct AdvertiserLoginPayload: Codable, Sendable {
     public let email: String
     public let password: String
 
@@ -64,18 +66,14 @@ public struct AdvertiserMeResponse: Codable, Equatable, Sendable {
     }
 }
 
-public typealias AdvertiserLoginContract = Request<AdvertiserLoginRequest, AdvertiserTokenResponse>
-extension AdvertiserLoginContract {
-    /// POST. Signs an advertiser in.
-    public static var advertiserLogin: Self {
-        .init(path: "api/advertiser/login", method: .post, assertHasAccessToken: false)
-    }
+public typealias AdvertiserLoginRequest = Request<AdvertiserLoginPayload, AdvertiserTokenResponse>
+extension AdvertiserLoginRequest {
+    /// Signs an advertiser in.
+    public static var advertiserLogin: Self { .init(method: .post, assertHasAccessToken: false) }
 }
 
-public typealias AdvertiserMeContract = Request<Empty, AdvertiserMeResponse>
-extension AdvertiserMeContract {
-    /// GET. The signed-in advertiser.
-    public static var advertiserMe: Self {
-        .init(path: "api/advertiser/me", method: .get)
-    }
+public typealias AdvertiserMeRequest = Request<Empty, AdvertiserMeResponse>
+extension AdvertiserMeRequest {
+    /// The signed-in advertiser.
+    public static var advertiserMe: Self { .init(method: .get) }
 }

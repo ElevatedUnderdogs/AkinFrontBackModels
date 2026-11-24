@@ -1,7 +1,6 @@
 //
 //  MemberRoutesTests.swift
-//  These contracts replace string routes on the server, so a changed path or method is a 404 or
-//  405 for every installed build. Pin both.
+//  Each contract's path is its static var's name and carries no arguments.
 //
 
 import XCTest
@@ -10,64 +9,62 @@ import StrongContractClient
 
 final class MemberRoutesTests: XCTestCase {
 
-    func testPathsAndMethodsMatchTheRoutesTheyReplaced() {
+    func testEachPathIsTheStaticVarNameWithNoArguments() {
         let pinned: [(expected: String, actual: String)] = [
-            ("POST api/user/:id/requirements", "\(SetRequirementContract.setRequirement.method.rawValue) \(SetRequirementContract.setRequirement.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/user/:id/requirements/exclusion-cost", "\(ExclusionCostContract.exclusionCost.method.rawValue) \(ExclusionCostContract.exclusionCost.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/user/:id/redundancy-explanation", "\(RedundancyExplanationContract.redundancyExplanation.method.rawValue) \(RedundancyExplanationContract.redundancyExplanation.path)"), // literal-ok: the wire format fixes this string
-            ("POST api/user/:id/venue-preferences", "\(SetVenuePreferencesContract.setVenuePreferences.method.rawValue) \(SetVenuePreferencesContract.setVenuePreferences.path)"), // literal-ok: the wire format fixes this string
-            ("POST api/user/:id/algorithm", "\(SetAlgorithmContract.setAlgorithm.method.rawValue) \(SetAlgorithmContract.setAlgorithm.path)"), // literal-ok: the wire format fixes this string
-            ("POST api/user/:id/contexts", "\(CreateContextContract.createContext.method.rawValue) \(CreateContextContract.createContext.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/user/:id/contexts/browse", "\(BrowseContextsContract.browseContexts.method.rawValue) \(BrowseContextsContract.browseContexts.path)"), // literal-ok: the wire format fixes this string
-            ("POST api/user/:id/questionnaires", "\(CreateQuestionnaireContract.createQuestionnaire.method.rawValue) \(CreateQuestionnaireContract.createQuestionnaire.path)"), // literal-ok: the wire format fixes this string
-            ("POST api/user/:id/questionnaires/:questionnaireID/questions", "\(AddQuestionnaireQuestionContract.addQuestionnaireQuestion.method.rawValue) \(AddQuestionnaireQuestionContract.addQuestionnaireQuestion.path)"), // literal-ok: the wire format fixes this string
-            ("PUT api/user/:id/questionnaires/:questionnaireID/title", "\(RenameQuestionnaireContract.renameQuestionnaire.method.rawValue) \(RenameQuestionnaireContract.renameQuestionnaire.path)"), // literal-ok: the wire format fixes this string
-            ("PUT api/user/:id/questionnaires/:questionnaireID/order", "\(ReorderQuestionnaireContract.reorderQuestionnaire.method.rawValue) \(ReorderQuestionnaireContract.reorderQuestionnaire.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/user/:id/questionnaires/:questionnaireID/detail", "\(QuestionnaireDetailContract.questionnaireDetail.method.rawValue) \(QuestionnaireDetailContract.questionnaireDetail.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/user/:id/questionnaires/:questionnaireID", "\(QuestionnaireContentsContract.questionnaireContents.method.rawValue) \(QuestionnaireContentsContract.questionnaireContents.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/user/:id/questionnaires", "\(MyQuestionnairesContract.myQuestionnaires.method.rawValue) \(MyQuestionnairesContract.myQuestionnaires.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/user/:id/questionnaires/browse", "\(BrowseQuestionnairesContract.browseQuestionnaires.method.rawValue) \(BrowseQuestionnairesContract.browseQuestionnaires.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/user/:id/questions", "\(MyQuestionsContract.myQuestions.method.rawValue) \(MyQuestionsContract.myQuestions.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/user/:id/subscriptions", "\(MemberSubscriptionsContract.memberSubscriptions.method.rawValue) \(MemberSubscriptionsContract.memberSubscriptions.path)"), // literal-ok: the wire format fixes this string
-            ("PUT api/user/:id/questionnaires/:questionnaireID/subscription/muted", "\(SetMemberSubscriptionMutedRequest.setQuestionnaireSubscriptionMuted.method.rawValue) \(SetMemberSubscriptionMutedRequest.setQuestionnaireSubscriptionMuted.path)"), // literal-ok: the wire format fixes this string
-            ("PUT api/user/:id/questions/:questionID/authorVisibility", "\(SetAuthorVisibilityContract.setQuestionAuthorVisibility.method.rawValue) \(SetAuthorVisibilityContract.setQuestionAuthorVisibility.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/user/:id/questions/:questionID/authorVisibility/history", "\(AuthorVisibilityHistoryContract.questionAuthorVisibilityHistory.method.rawValue) \(AuthorVisibilityHistoryContract.questionAuthorVisibilityHistory.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/user/:id/members/:memberID/profile", "\(MemberProfileContract.memberProfile.method.rawValue) \(MemberProfileContract.memberProfile.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/user/:id/contexts/:contextID/profiles", "\(MatchmakingProfilesContract.matchmakingProfiles.method.rawValue) \(MatchmakingProfilesContract.matchmakingProfiles.path)"), // literal-ok: the wire format fixes this string
-            ("POST api/user/:id/contexts/:contextID/profiles", "\(NamedMatchmakingProfileContract.createMatchmakingProfile.method.rawValue) \(NamedMatchmakingProfileContract.createMatchmakingProfile.path)"), // literal-ok: the wire format fixes this string
-            ("POST api/user/:id/profiles/:profileID/duplicate", "\(NamedMatchmakingProfileContract.duplicateMatchmakingProfile.method.rawValue) \(NamedMatchmakingProfileContract.duplicateMatchmakingProfile.path)"), // literal-ok: the wire format fixes this string
-            ("PUT api/user/:id/profiles/:profileID/name", "\(RenameMatchmakingProfileContract.renameMatchmakingProfile.method.rawValue) \(RenameMatchmakingProfileContract.renameMatchmakingProfile.path)"), // literal-ok: the wire format fixes this string
-            ("POST api/user/:id/contexts/:contextID/adopt", "\(PathOnlyRequest.adoptContext.method.rawValue) \(PathOnlyRequest.adoptContext.path)"), // literal-ok: the wire format fixes this string
-            ("DELETE api/user/:id/questionnaires/:questionnaireID/questions/:questionID", "\(PathOnlyRequest.removeQuestionnaireQuestion.method.rawValue) \(PathOnlyRequest.removeQuestionnaireQuestion.path)"), // literal-ok: the wire format fixes this string
-            ("DELETE api/user/:id/questionnaires/:questionnaireID", "\(PathOnlyRequest.deleteQuestionnaire.method.rawValue) \(PathOnlyRequest.deleteQuestionnaire.path)"), // literal-ok: the wire format fixes this string
-            ("POST api/user/:id/questionnaires/:questionnaireID/subscription", "\(PathOnlyRequest.subscribeToQuestionnaire.method.rawValue) \(PathOnlyRequest.subscribeToQuestionnaire.path)"), // literal-ok: the wire format fixes this string
-            ("DELETE api/user/:id/questionnaires/:questionnaireID/subscription", "\(PathOnlyRequest.unsubscribeFromQuestionnaire.method.rawValue) \(PathOnlyRequest.unsubscribeFromQuestionnaire.path)"), // literal-ok: the wire format fixes this string
-            ("DELETE api/user/:id/profiles/:profileID", "\(PathOnlyRequest.deleteMatchmakingProfile.method.rawValue) \(PathOnlyRequest.deleteMatchmakingProfile.path)"), // literal-ok: the wire format fixes this string
-            ("PUT api/user/:id/profiles/:profileID/active", "\(PathOnlyRequest.activateMatchmakingProfile.method.rawValue) \(PathOnlyRequest.activateMatchmakingProfile.path)"), // literal-ok: the wire format fixes this string
-            ("DELETE api/user/:id/profiles/:profileID/active", "\(PathOnlyRequest.deactivateMatchmakingProfile.method.rawValue) \(PathOnlyRequest.deactivateMatchmakingProfile.path)"), // literal-ok: the wire format fixes this string
-            ("POST api/diagnostics/decode-failure", "\(ReportDecodeFailureContract.reportDecodeFailure.method.rawValue) \(ReportDecodeFailureContract.reportDecodeFailure.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/diagnostics/decode-failure", "\(DecodeFailureReportsContract.decodeFailureReports.method.rawValue) \(DecodeFailureReportsContract.decodeFailureReports.path)"), // literal-ok: the wire format fixes this string
-            ("POST testPushRequest", "\(TestPushRequest.testPushRequest.method.rawValue) \(TestPushRequest.testPushRequest.path)"), // literal-ok: the wire format fixes this string
-            ("POST testPushKitRequest", "\(TestPushKitRequest.testPushKitRequest.method.rawValue) \(TestPushKitRequest.testPushKitRequest.path)"), // literal-ok: the wire format fixes this string
-            ("POST api/advertiser/login", "\(AdvertiserLoginContract.advertiserLogin.method.rawValue) \(AdvertiserLoginContract.advertiserLogin.path)"), // literal-ok: the wire format fixes this string
-            ("GET api/advertiser/me", "\(AdvertiserMeContract.advertiserMe.method.rawValue) \(AdvertiserMeContract.advertiserMe.path)"), // literal-ok: the wire format fixes this string
+            ("setRequirement", SetRequirementRequest.setRequirement.path), // literal-ok: the wire format fixes this string
+            ("exclusionCost", ExclusionCostRequest.exclusionCost.path), // literal-ok: the wire format fixes this string
+            ("redundancyExplanation", RedundancyExplanationRequest.redundancyExplanation.path), // literal-ok: the wire format fixes this string
+            ("setVenuePreferences", SetVenuePreferencesRequest.setVenuePreferences.path), // literal-ok: the wire format fixes this string
+            ("setAlgorithm", SetAlgorithmRequest.setAlgorithm.path), // literal-ok: the wire format fixes this string
+            ("createContext", CreateContextRequest.createContext.path), // literal-ok: the wire format fixes this string
+            ("adoptContext", AdoptContextRequest.adoptContext.path), // literal-ok: the wire format fixes this string
+            ("browseContexts", BrowseContextsRequest.browseContexts.path), // literal-ok: the wire format fixes this string
+            ("createQuestionnaire", CreateQuestionnaireRequest.createQuestionnaire.path), // literal-ok: the wire format fixes this string
+            ("addQuestionnaireQuestion", AddQuestionnaireQuestionRequest.addQuestionnaireQuestion.path), // literal-ok: the wire format fixes this string
+            ("removeQuestionnaireQuestion", RemoveQuestionnaireQuestionRequest.removeQuestionnaireQuestion.path), // literal-ok: the wire format fixes this string
+            ("renameQuestionnaire", RenameQuestionnaireRequest.renameQuestionnaire.path), // literal-ok: the wire format fixes this string
+            ("reorderQuestionnaire", ReorderQuestionnaireRequest.reorderQuestionnaire.path), // literal-ok: the wire format fixes this string
+            ("deleteQuestionnaire", DeleteQuestionnaireRequest.deleteQuestionnaire.path), // literal-ok: the wire format fixes this string
+            ("deleteMyQuestionnaireAnswers", DeleteMyQuestionnaireAnswersRequest.deleteMyQuestionnaireAnswers.path), // literal-ok: the wire format fixes this string
+            ("questionnaireDetail", QuestionnaireDetailRequest.questionnaireDetail.path), // literal-ok: the wire format fixes this string
+            ("questionnaireContents", QuestionnaireContentsRequest.questionnaireContents.path), // literal-ok: the wire format fixes this string
+            ("myQuestionnaires", MyQuestionnairesRequest.myQuestionnaires.path), // literal-ok: the wire format fixes this string
+            ("browseQuestionnaires", BrowseQuestionnairesRequest.browseQuestionnaires.path), // literal-ok: the wire format fixes this string
+            ("myQuestions", MyQuestionsRequest.myQuestions.path), // literal-ok: the wire format fixes this string
+            ("memberSubscriptions", MemberSubscriptionsRequest.memberSubscriptions.path), // literal-ok: the wire format fixes this string
+            ("subscribeToQuestionnaire", SubscribeToQuestionnaireRequest.subscribeToQuestionnaire.path), // literal-ok: the wire format fixes this string
+            ("unsubscribeFromQuestionnaire", UnsubscribeFromQuestionnaireRequest.unsubscribeFromQuestionnaire.path), // literal-ok: the wire format fixes this string
+            ("setQuestionnaireSubscriptionMuted", SetQuestionnaireSubscriptionMutedRequest.setQuestionnaireSubscriptionMuted.path), // literal-ok: the wire format fixes this string
+            ("subscribeToMember", SubscribeToMemberRequest.subscribeToMember.path), // literal-ok: the wire format fixes this string
+            ("unsubscribeFromMember", UnsubscribeFromMemberRequest.unsubscribeFromMember.path), // literal-ok: the wire format fixes this string
+            ("setMemberSubscriptionMuted", SetMemberSubscriptionMutedRequest.setMemberSubscriptionMuted.path), // literal-ok: the wire format fixes this string
+            ("memberProfile", MemberProfileRequest.memberProfile.path), // literal-ok: the wire format fixes this string
+            ("setQuestionAuthorVisibility", SetQuestionAuthorVisibilityRequest.setQuestionAuthorVisibility.path), // literal-ok: the wire format fixes this string
+            ("questionAuthorVisibilityHistory", QuestionAuthorVisibilityHistoryRequest.questionAuthorVisibilityHistory.path), // literal-ok: the wire format fixes this string
+            ("matchmakingProfiles", MatchmakingProfilesRequest.matchmakingProfiles.path), // literal-ok: the wire format fixes this string
+            ("createMatchmakingProfile", CreateMatchmakingProfileRequest.createMatchmakingProfile.path), // literal-ok: the wire format fixes this string
+            ("duplicateMatchmakingProfile", DuplicateMatchmakingProfileRequest.duplicateMatchmakingProfile.path), // literal-ok: the wire format fixes this string
+            ("renameMatchmakingProfile", RenameMatchmakingProfileRequest.renameMatchmakingProfile.path), // literal-ok: the wire format fixes this string
+            ("deleteMatchmakingProfile", DeleteMatchmakingProfileRequest.deleteMatchmakingProfile.path), // literal-ok: the wire format fixes this string
+            ("activateMatchmakingProfile", ActivateMatchmakingProfileRequest.activateMatchmakingProfile.path), // literal-ok: the wire format fixes this string
+            ("deactivateMatchmakingProfile", DeactivateMatchmakingProfileRequest.deactivateMatchmakingProfile.path), // literal-ok: the wire format fixes this string
+            ("reportDecodeFailure", ReportDecodeFailureRequest.reportDecodeFailure.path), // literal-ok: the wire format fixes this string
+            ("decodeFailureReports", DecodeFailureReportsRequest.decodeFailureReports.path), // literal-ok: the wire format fixes this string
+            ("verifyEmailCode", VerifyEmailCodeRequest.verifyEmailCode.path), // literal-ok: the wire format fixes this string
+            ("subscriptionDebugSetTier", SubscriptionDebugSetTierRequest.subscriptionDebugSetTier.path), // literal-ok: the wire format fixes this string
+            ("subscriptionDebugState", SubscriptionDebugStateRequest.subscriptionDebugState.path), // literal-ok: the wire format fixes this string
+            ("uploadPublicFile", UploadPublicFileRequest.uploadPublicFile.path), // literal-ok: the wire format fixes this string
+            ("uploadTermsOfService", UploadTermsOfServiceRequest.uploadTermsOfService.path), // literal-ok: the wire format fixes this string
+            ("uploadContactInfo", UploadContactInfoRequest.uploadContactInfo.path), // literal-ok: the wire format fixes this string
+            ("testPushRequest", TestPushRequest.testPushRequest.path), // literal-ok: the wire format fixes this string
+            ("testPushKitRequest", TestPushKitRequest.testPushKitRequest.path), // literal-ok: the wire format fixes this string
+            ("advertiserLogin", AdvertiserLoginRequest.advertiserLogin.path), // literal-ok: the wire format fixes this string
+            ("advertiserMe", AdvertiserMeRequest.advertiserMe.path), // literal-ok: the wire format fixes this string
         ]
         for pair in pinned {
             XCTAssertEqual(pair.actual, pair.expected)
+            XCTAssertFalse(pair.actual.contains(":"), pair.actual)
+            XCTAssertFalse(pair.actual.contains("?"), pair.actual)
         }
-    }
-
-    func testFillingReplacesOnlyNamedParameters() {
-        let filled = PathOnlyRequest.removeQuestionnaireQuestion.filling(["id": "A", "questionnaireID": "B"])
-        XCTAssertEqual(filled.path, "api/user/A/questionnaires/B/questions/:questionID") // literal-ok: the wire format fixes this string
-        XCTAssertEqual(filled.method, PathOnlyRequest.removeQuestionnaireQuestion.method)
-    }
-
-    func testQueryingKeepsThePath() {
-        let paged = BrowseQuestionnairesContract.browseQuestionnaires
-            .filling(["id": "A"])
-            .querying([URLQueryItem(name: "page", value: "1")])
-        XCTAssertEqual(paged.path, "api/user/A/questionnaires/browse") // literal-ok: the wire format fixes this string
-        XCTAssertEqual(paged.baseComponents.queryItems, [URLQueryItem(name: "page", value: "1")])
     }
 }

@@ -2,17 +2,206 @@
 //  MemberRoutes.swift
 //  AkinFrontBackModels
 //
-//  Contracts for the `api/user/:id/...` routes and the other JSON routes the server used to
-//  register by string. Each keeps the method and path it already answers on, so installed builds
-//  are unaffected. Fill the `:name` components with `filling(_:)` before sending.
+//  Contracts for the member routes the server used to register by string.
+//  Every argument travels in the payload. The path is the static var's name.
 //
 
 import Foundation
 import StrongContractClient
 
-// MARK: - Responses that had no shared type
+// MARK: - Payloads
 
-/// What `createQuestionnaire` answers with: the two fields that round trip.
+/// Names one questionnaire.
+public struct QuestionnaireIdPayload: Codable, Hashable, Sendable {
+    public let questionnaireId: UUID
+
+    public init(questionnaireId: UUID) {
+        self.questionnaireId = questionnaireId
+    }
+}
+
+/// Names one question inside one questionnaire.
+public struct QuestionnaireQuestionPayload: Codable, Hashable, Sendable {
+    public let questionnaireId: UUID
+    public let questionId: UUID
+
+    public init(questionnaireId: UUID, questionId: UUID) {
+        self.questionnaireId = questionnaireId
+        self.questionId = questionId
+    }
+}
+
+/// Names one question.
+public struct QuestionIdPayload: Codable, Hashable, Sendable {
+    public let questionId: UUID
+
+    public init(questionId: UUID) {
+        self.questionId = questionId
+    }
+}
+
+/// Names another member.
+public struct MemberIdPayload: Codable, Hashable, Sendable {
+    public let memberId: UUID
+
+    public init(memberId: UUID) {
+        self.memberId = memberId
+    }
+}
+
+/// Names one context.
+public struct ContextIdPayload: Codable, Hashable, Sendable {
+    public let contextId: UUID
+
+    public init(contextId: UUID) {
+        self.contextId = contextId
+    }
+}
+
+/// Names one of the caller's matchmaking profiles.
+public struct MatchmakingProfileIdPayload: Codable, Hashable, Sendable {
+    public let profileId: UUID
+
+    public init(profileId: UUID) {
+        self.profileId = profileId
+    }
+}
+
+/// - Parameters:
+///   - questionnaireId: The questionnaire whose subscription changes.
+///   - muted: True to silence it, false to hear it again.
+public struct SetQuestionnaireSubscriptionMutedPayload: Codable, Hashable, Sendable {
+    public let questionnaireId: UUID
+    public let muted: Bool
+
+    public init(questionnaireId: UUID, muted: Bool) {
+        self.questionnaireId = questionnaireId
+        self.muted = muted
+    }
+}
+
+/// - Parameters:
+///   - memberId: The member whose subscription changes.
+///   - muted: True to silence it, false to hear it again.
+public struct SetMemberSubscriptionMutedPayload: Codable, Hashable, Sendable {
+    public let memberId: UUID
+    public let muted: Bool
+
+    public init(memberId: UUID, muted: Bool) {
+        self.memberId = memberId
+        self.muted = muted
+    }
+}
+
+/// - Parameters:
+///   - contextId: The context the new profile belongs to.
+///   - name: What the member calls it.
+public struct CreateMatchmakingProfilePayload: Codable, Hashable, Sendable {
+    public let contextId: UUID
+    public let name: String
+
+    public init(contextId: UUID, name: String) {
+        self.contextId = contextId
+        self.name = name
+    }
+}
+
+/// - Parameters:
+///   - profileId: The profile to copy or rename.
+///   - name: The name for the copy, or the new name.
+public struct MatchmakingProfileNamePayload: Codable, Hashable, Sendable {
+    public let profileId: UUID
+    public let name: String
+
+    public init(profileId: UUID, name: String) {
+        self.profileId = profileId
+        self.name = name
+    }
+}
+
+/// - Parameters:
+///   - page: 1 based page. Nil answers the whole list.
+///   - per: Page size, 1 to 100. Defaults to 20.
+public struct MyQuestionsPayload: Codable, Hashable, Sendable {
+    public let page: Int?
+    public let per: Int?
+
+    public init(page: Int? = nil, per: Int? = nil) {
+        self.page = page
+        self.per = per
+    }
+}
+
+/// - Parameters:
+///   - page: 1 based page. Defaults to 1.
+///   - per: Page size, 1 to 100. Defaults to 20.
+///   - includeSwitchedOff: True to include contexts the member turned off.
+public struct BrowseQuestionnairesPayload: Codable, Hashable, Sendable {
+    public let page: Int?
+    public let per: Int?
+    public let includeSwitchedOff: Bool?
+
+    public init(page: Int? = nil, per: Int? = nil, includeSwitchedOff: Bool? = nil) {
+        self.page = page
+        self.per = per
+        self.includeSwitchedOff = includeSwitchedOff
+    }
+}
+
+/// - Parameters:
+///   - email: The address the code was sent to.
+///   - code: The code the member typed.
+public struct VerifyEmailCodePayload: Codable, Hashable, Sendable {
+    public let email: String
+    public let code: String
+
+    public init(email: String, code: String) {
+        self.email = email
+        self.code = code
+    }
+}
+
+/// - Parameters:
+///   - userId: The member whose tier changes.
+///   - tier: "free" or a product name.
+///   - expiresAt: When the paid tier ends. Nil means no end.
+public struct SubscriptionDebugSetTierPayload: Codable, Hashable, Sendable {
+    public let userId: UUID
+    public let tier: String
+    public let expiresAt: Date?
+
+    public init(userId: UUID, tier: String, expiresAt: Date? = nil) {
+        self.userId = userId
+        self.tier = tier
+        self.expiresAt = expiresAt
+    }
+}
+
+/// - Parameter userId: The member whose subscriptions to list.
+public struct SubscriptionDebugStatePayload: Codable, Hashable, Sendable {
+    public let userId: UUID
+
+    public init(userId: UUID) {
+        self.userId = userId
+    }
+}
+
+/// - Parameters:
+///   - filename: The name to save it under in the public directory.
+///   - contents: The file's bytes.
+public struct UploadPublicFilePayload: Codable, Hashable, Sendable {
+    public let filename: String
+    public let contents: Data
+
+    public init(filename: String, contents: Data) {
+        self.filename = filename
+        self.contents = contents
+    }
+}
+
+// MARK: - Responses
+
+/// The questionnaire `createQuestionnaire` made.
 public struct CreatedQuestionnaire: Codable, Hashable, Sendable, Identifiable {
     public let id: UUID
     public let title: String
@@ -49,270 +238,326 @@ public struct MemberProfileDTO: Codable, Hashable, Sendable {
     }
 }
 
-// MARK: - Requirements, preferences, algorithm
+/// One stored decode failure, as an operator reads it back.
+public struct DecodeFailureReportEntry: Codable, Hashable, Sendable {
+    public let id: UUID
+    public let createdAt: Date?
+    public let endpoint: String
+    public let codingKey: String?
+    public let expectedType: String
+    public let appBuild: String
+    public let excerpt: String
+    public let bodyBytes: Int
 
-public typealias SetRequirementContract = Request<SetRequirementRequest, ExclusionCostResponse>
-extension SetRequirementContract {
-    /// POST. Sets one requirement and answers with what it now excludes.
-    public static var setRequirement: Self {
-        .init(path: "api/user/:id/requirements", method: .post)
+    public init(
+        id: UUID,
+        createdAt: Date?,
+        endpoint: String,
+        codingKey: String?,
+        expectedType: String,
+        appBuild: String,
+        excerpt: String,
+        bodyBytes: Int
+    ) {
+        self.id = id
+        self.createdAt = createdAt
+        self.endpoint = endpoint
+        self.codingKey = codingKey
+        self.expectedType = expectedType
+        self.appBuild = appBuild
+        self.excerpt = excerpt
+        self.bodyBytes = bodyBytes
     }
 }
 
-public typealias ExclusionCostContract = Request<Empty, ExclusionCostResponse>
-extension ExclusionCostContract {
-    /// GET. What the caller's current requirements exclude.
-    public static var exclusionCost: Self {
-        .init(path: "api/user/:id/requirements/exclusion-cost", method: .get)
+/// One subscription row, for the debug state route.
+public struct SubscriptionDebugStateEntry: Codable, Hashable, Sendable {
+    public let id: UUID
+    public let userId: UUID
+    public let platform: String
+    public let productId: String
+    public let originalTransactionId: String
+    public let expiresAt: Date?
+    public let environment: String
+    public let revokedAt: Date?
+
+    public init(
+        id: UUID,
+        userId: UUID,
+        platform: String,
+        productId: String,
+        originalTransactionId: String,
+        expiresAt: Date?,
+        environment: String,
+        revokedAt: Date?
+    ) {
+        self.id = id
+        self.userId = userId
+        self.platform = platform
+        self.productId = productId
+        self.originalTransactionId = originalTransactionId
+        self.expiresAt = expiresAt
+        self.environment = environment
+        self.revokedAt = revokedAt
     }
 }
 
-public typealias RedundancyExplanationContract = Request<Empty, RedundancyExplanationResponse>
-extension RedundancyExplanationContract {
-    /// GET. Why some of the caller's requirements are redundant.
-    public static var redundancyExplanation: Self {
-        .init(path: "api/user/:id/redundancy-explanation", method: .get)
-    }
+// MARK: - Requirements, venues, algorithm
+
+public typealias SetRequirementRequest = Request<SetRequirementPayload, ExclusionCostResponse>
+extension SetRequirementRequest {
+    public static var setRequirement: Self { .init(method: .post) }
 }
 
-public typealias SetVenuePreferencesContract = Request<VenuePreferenceRequest, VenueExclusionWarning>
-extension SetVenuePreferencesContract {
-    /// POST. Saves venue preferences and warns when they exclude every venue.
-    public static var setVenuePreferences: Self {
-        .init(path: "api/user/:id/venue-preferences", method: .post)
-    }
+public typealias ExclusionCostRequest = Request<Empty, ExclusionCostResponse>
+extension ExclusionCostRequest {
+    public static var exclusionCost: Self { .init(method: .get) }
 }
 
-public typealias SetAlgorithmContract = Request<SetAlgorithmRequest, Data>
-extension SetAlgorithmContract {
-    /// POST. Chooses the matching algorithm for the caller.
-    public static var setAlgorithm: Self {
-        .init(path: "api/user/:id/algorithm", method: .post)
-    }
+public typealias RedundancyExplanationRequest = Request<Empty, RedundancyExplanationResponse>
+extension RedundancyExplanationRequest {
+    public static var redundancyExplanation: Self { .init(method: .get) }
+}
+
+public typealias SetVenuePreferencesRequest = Request<SetVenuePreferencesPayload, VenueExclusionWarning>
+extension SetVenuePreferencesRequest {
+    public static var setVenuePreferences: Self { .init(method: .post) }
+}
+
+public typealias SetAlgorithmRequest = Request<SetAlgorithmPayload, StandardPostResponse>
+extension SetAlgorithmRequest {
+    public static var setAlgorithm: Self { .init(method: .post) }
 }
 
 // MARK: - Contexts
 
-public typealias CreateContextContract = Request<CreateContextRequest, Data>
-extension CreateContextContract {
-    /// POST. Creates a context.
-    public static var createContext: Self {
-        .init(path: "api/user/:id/contexts", method: .post)
-    }
+public typealias CreateContextRequest = Request<CreateContextPayload, StandardPostResponse>
+extension CreateContextRequest {
+    public static var createContext: Self { .init(method: .post) }
 }
 
-public typealias BrowseContextsContract = Request<Empty, [BrowseContextDTO]>
-extension BrowseContextsContract {
-    /// GET. Contexts the caller can adopt.
-    public static var browseContexts: Self {
-        .init(path: "api/user/:id/contexts/browse", method: .get)
-    }
+public typealias AdoptContextRequest = Request<ContextIdPayload, StandardPostResponse>
+extension AdoptContextRequest {
+    public static var adoptContext: Self { .init(method: .post) }
+}
+
+public typealias BrowseContextsRequest = Request<Empty, [BrowseContextDTO]>
+extension BrowseContextsRequest {
+    public static var browseContexts: Self { .init(method: .get) }
 }
 
 // MARK: - Questionnaires
 
-public typealias CreateQuestionnaireContract = Request<CreateQuestionnaireRequest, CreatedQuestionnaire>
-extension CreateQuestionnaireContract {
-    /// POST. Creates a questionnaire owned by the caller.
-    public static var createQuestionnaire: Self {
-        .init(path: "api/user/:id/questionnaires", method: .post)
-    }
+public typealias CreateQuestionnaireRequest = Request<CreateQuestionnairePayload, CreatedQuestionnaire>
+extension CreateQuestionnaireRequest {
+    public static var createQuestionnaire: Self { .init(method: .post) }
 }
 
-public typealias AddQuestionnaireQuestionContract = Request<AddQuestionnaireQuestionRequest, Data>
-extension AddQuestionnaireQuestionContract {
-    /// POST. Adds one of the caller's questions to their questionnaire.
-    public static var addQuestionnaireQuestion: Self {
-        .init(path: "api/user/:id/questionnaires/:questionnaireID/questions", method: .post)
-    }
+public typealias AddQuestionnaireQuestionRequest = Request<QuestionnaireQuestionPayload, StandardPostResponse>
+extension AddQuestionnaireQuestionRequest {
+    public static var addQuestionnaireQuestion: Self { .init(method: .post) }
 }
 
-public typealias RenameQuestionnaireContract = Request<RenameQuestionnaireRequest, Data>
-extension RenameQuestionnaireContract {
-    /// PUT. Renames the caller's questionnaire.
-    public static var renameQuestionnaire: Self {
-        .init(path: "api/user/:id/questionnaires/:questionnaireID/title", method: .put)
-    }
+public typealias RemoveQuestionnaireQuestionRequest = Request<QuestionnaireQuestionPayload, StandardPostResponse>
+extension RemoveQuestionnaireQuestionRequest {
+    public static var removeQuestionnaireQuestion: Self { .init(method: .delete) }
 }
 
-public typealias ReorderQuestionnaireContract = Request<ReorderQuestionnaireRequest, Data>
-extension ReorderQuestionnaireContract {
-    /// PUT. Sets the order of a questionnaire's questions.
-    public static var reorderQuestionnaire: Self {
-        .init(path: "api/user/:id/questionnaires/:questionnaireID/order", method: .put)
-    }
+public typealias RenameQuestionnaireRequest = Request<RenameQuestionnairePayload, StandardPostResponse>
+extension RenameQuestionnaireRequest {
+    public static var renameQuestionnaire: Self { .init(method: .put) }
 }
 
-public typealias QuestionnaireDetailContract = Request<Empty, QuestionnaireDetailDTO>
-extension QuestionnaireDetailContract {
-    /// GET. One questionnaire with its questions and counts.
-    public static var questionnaireDetail: Self {
-        .init(path: "api/user/:id/questionnaires/:questionnaireID/detail", method: .get)
-    }
+public typealias ReorderQuestionnaireRequest = Request<ReorderQuestionnairePayload, StandardPostResponse>
+extension ReorderQuestionnaireRequest {
+    public static var reorderQuestionnaire: Self { .init(method: .put) }
 }
 
-public typealias QuestionnaireContentsContract = Request<Empty, QuestionnaireWithQuestions>
-extension QuestionnaireContentsContract {
-    /// GET. One questionnaire with its question ids in order.
-    public static var questionnaireContents: Self {
-        .init(path: "api/user/:id/questionnaires/:questionnaireID", method: .get)
-    }
+public typealias DeleteQuestionnaireRequest = Request<QuestionnaireIdPayload, StandardPostResponse>
+extension DeleteQuestionnaireRequest {
+    public static var deleteQuestionnaire: Self { .init(method: .delete) }
 }
 
-public typealias MyQuestionnairesContract = Request<Empty, [MyQuestionnaireDTO]>
-extension MyQuestionnairesContract {
-    /// GET. The caller's own questionnaires.
-    public static var myQuestionnaires: Self {
-        .init(path: "api/user/:id/questionnaires", method: .get)
-    }
+public typealias DeleteMyQuestionnaireAnswersRequest = Request<QuestionnaireIdPayload, StandardPostResponse>
+extension DeleteMyQuestionnaireAnswersRequest {
+    public static var deleteMyQuestionnaireAnswers: Self { .init(method: .delete) }
 }
 
-public typealias BrowseQuestionnairesContract = Request<Empty, [BrowseQuestionnaireDTO]>
-extension BrowseQuestionnairesContract {
-    /// GET. A page of questionnaires. Query: `page`, `per`, optional `includeSwitchedOff`.
-    public static var browseQuestionnaires: Self {
-        .init(path: "api/user/:id/questionnaires/browse", method: .get)
-    }
+/// POST because the questionnaire id travels in the body.
+public typealias QuestionnaireDetailRequest = Request<QuestionnaireIdPayload, QuestionnaireDetailDTO>
+extension QuestionnaireDetailRequest {
+    public static var questionnaireDetail: Self { .init(method: .post) }
 }
 
-public typealias MyQuestionsContract = Request<Empty, [QuestionSummaryDTO]>
-extension MyQuestionsContract {
-    /// GET. The questions the caller wrote. Query: `page`, `per`.
-    public static var myQuestions: Self {
-        .init(path: "api/user/:id/questions", method: .get)
-    }
+/// POST because the questionnaire id travels in the body.
+public typealias QuestionnaireContentsRequest = Request<QuestionnaireIdPayload, QuestionnaireWithQuestions>
+extension QuestionnaireContentsRequest {
+    public static var questionnaireContents: Self { .init(method: .post) }
 }
 
-// MARK: - Subscriptions and author visibility
-
-public typealias MemberSubscriptionsContract = Request<Empty, [SubscriptionListEntry]>
-extension MemberSubscriptionsContract {
-    /// GET. Everything the caller subscribes to.
-    public static var memberSubscriptions: Self {
-        .init(path: "api/user/:id/subscriptions", method: .get)
-    }
+public typealias MyQuestionnairesRequest = Request<Empty, [MyQuestionnaireDTO]>
+extension MyQuestionnairesRequest {
+    public static var myQuestionnaires: Self { .init(method: .get) }
 }
 
+/// POST because the paging travels in the body.
+public typealias BrowseQuestionnairesRequest = Request<BrowseQuestionnairesPayload, [BrowseQuestionnaireDTO]>
+extension BrowseQuestionnairesRequest {
+    public static var browseQuestionnaires: Self { .init(method: .post) }
+}
+
+/// POST because the paging travels in the body.
+public typealias MyQuestionsRequest = Request<MyQuestionsPayload, [QuestionSummaryDTO]>
+extension MyQuestionsRequest {
+    public static var myQuestions: Self { .init(method: .post) }
+}
+
+// MARK: - Subscriptions
+
+public typealias MemberSubscriptionsRequest = Request<Empty, [SubscriptionListEntry]>
+extension MemberSubscriptionsRequest {
+    public static var memberSubscriptions: Self { .init(method: .get) }
+}
+
+public typealias SubscribeToQuestionnaireRequest = Request<QuestionnaireIdPayload, StandardPostResponse>
+extension SubscribeToQuestionnaireRequest {
+    public static var subscribeToQuestionnaire: Self { .init(method: .post) }
+}
+
+public typealias UnsubscribeFromQuestionnaireRequest = Request<QuestionnaireIdPayload, StandardPostResponse>
+extension UnsubscribeFromQuestionnaireRequest {
+    public static var unsubscribeFromQuestionnaire: Self { .init(method: .delete) }
+}
+
+public typealias SetQuestionnaireSubscriptionMutedRequest = Request<
+    SetQuestionnaireSubscriptionMutedPayload,
+    StandardPostResponse
+>
+extension SetQuestionnaireSubscriptionMutedRequest {
+    public static var setQuestionnaireSubscriptionMuted: Self { .init(method: .put) }
+}
+
+public typealias SubscribeToMemberRequest = Request<MemberIdPayload, StandardPostResponse>
+extension SubscribeToMemberRequest {
+    public static var subscribeToMember: Self { .init(method: .post) }
+}
+
+public typealias UnsubscribeFromMemberRequest = Request<MemberIdPayload, StandardPostResponse>
+extension UnsubscribeFromMemberRequest {
+    public static var unsubscribeFromMember: Self { .init(method: .delete) }
+}
+
+public typealias SetMemberSubscriptionMutedRequest = Request<SetMemberSubscriptionMutedPayload, StandardPostResponse>
 extension SetMemberSubscriptionMutedRequest {
-    /// PUT. Mutes or unmutes the caller's subscription to a questionnaire.
-    public static var setQuestionnaireSubscriptionMuted: Self {
-        .init(path: "api/user/:id/questionnaires/:questionnaireID/subscription/muted", method: .put)
-    }
+    public static var setMemberSubscriptionMuted: Self { .init(method: .put) }
 }
 
-public typealias SetAuthorVisibilityContract = Request<SetAuthorVisibilityRequest, Data>
-extension SetAuthorVisibilityContract {
-    /// PUT. Whether the caller's question names them.
-    public static var setQuestionAuthorVisibility: Self {
-        .init(path: "api/user/:id/questions/:questionID/authorVisibility", method: .put)
-    }
+// MARK: - Members and author visibility
+
+/// POST because the member id travels in the body.
+public typealias MemberProfileRequest = Request<MemberIdPayload, MemberProfileDTO>
+extension MemberProfileRequest {
+    public static var memberProfile: Self { .init(method: .post) }
 }
 
-public typealias AuthorVisibilityHistoryContract = Request<Empty, [AuthorVisibilityAuditDTO]>
-extension AuthorVisibilityHistoryContract {
-    /// GET. Every change to a question's author visibility.
-    public static var questionAuthorVisibilityHistory: Self {
-        .init(path: "api/user/:id/questions/:questionID/authorVisibility/history", method: .get)
-    }
+public typealias SetQuestionAuthorVisibilityRequest = Request<SetQuestionAuthorVisibilityPayload, StandardPostResponse>
+extension SetQuestionAuthorVisibilityRequest {
+    public static var setQuestionAuthorVisibility: Self { .init(method: .put) }
 }
 
-public typealias MemberProfileContract = Request<Empty, MemberProfileDTO>
-extension MemberProfileContract {
-    /// GET. Another member's profile as the caller may see it.
-    public static var memberProfile: Self {
-        .init(path: "api/user/:id/members/:memberID/profile", method: .get)
-    }
+/// POST because the question id travels in the body.
+public typealias QuestionAuthorVisibilityHistoryRequest = Request<QuestionIdPayload, [AuthorVisibilityAuditDTO]>
+extension QuestionAuthorVisibilityHistoryRequest {
+    public static var questionAuthorVisibilityHistory: Self { .init(method: .post) }
 }
 
 // MARK: - Matchmaking profiles
 
-public typealias MatchmakingProfilesContract = Request<Empty, [MatchmakingProfileSummary]>
-extension MatchmakingProfilesContract {
-    /// GET. The caller's profiles in one context.
-    public static var matchmakingProfiles: Self {
-        .init(path: "api/user/:id/contexts/:contextID/profiles", method: .get)
-    }
+/// POST because the context id travels in the body.
+public typealias MatchmakingProfilesRequest = Request<ContextIdPayload, [MatchmakingProfileSummary]>
+extension MatchmakingProfilesRequest {
+    public static var matchmakingProfiles: Self { .init(method: .post) }
 }
 
-public typealias NamedMatchmakingProfileContract = Request<NameProfileRequest, MatchmakingProfileSummary>
-extension NamedMatchmakingProfileContract {
-    /// POST. Creates a profile in a context.
-    public static var createMatchmakingProfile: Self {
-        .init(path: "api/user/:id/contexts/:contextID/profiles", method: .post)
-    }
-
-    /// POST. Copies a profile under a new name.
-    public static var duplicateMatchmakingProfile: Self {
-        .init(path: "api/user/:id/profiles/:profileID/duplicate", method: .post)
-    }
+public typealias CreateMatchmakingProfileRequest = Request<CreateMatchmakingProfilePayload, MatchmakingProfileSummary>
+extension CreateMatchmakingProfileRequest {
+    public static var createMatchmakingProfile: Self { .init(method: .post) }
 }
 
-public typealias RenameMatchmakingProfileContract = Request<NameProfileRequest, Data>
-extension RenameMatchmakingProfileContract {
-    /// PUT. Renames a profile.
-    public static var renameMatchmakingProfile: Self {
-        .init(path: "api/user/:id/profiles/:profileID/name", method: .put)
-    }
+public typealias DuplicateMatchmakingProfileRequest = Request<MatchmakingProfileNamePayload, MatchmakingProfileSummary>
+extension DuplicateMatchmakingProfileRequest {
+    public static var duplicateMatchmakingProfile: Self { .init(method: .post) }
 }
 
-// MARK: - Routes with no body that answer with a status
+public typealias RenameMatchmakingProfileRequest = Request<MatchmakingProfileNamePayload, StandardPostResponse>
+extension RenameMatchmakingProfileRequest {
+    public static var renameMatchmakingProfile: Self { .init(method: .put) }
+}
 
-extension PathOnlyRequest {
-    /// POST. The caller adopts a context.
-    public static var adoptContext: Self {
-        .init(path: "api/user/:id/contexts/:contextID/adopt", method: .post)
-    }
+public typealias DeleteMatchmakingProfileRequest = Request<MatchmakingProfileIdPayload, StandardPostResponse>
+extension DeleteMatchmakingProfileRequest {
+    public static var deleteMatchmakingProfile: Self { .init(method: .delete) }
+}
 
-    /// DELETE. Removes a question from the caller's questionnaire.
-    public static var removeQuestionnaireQuestion: Self {
-        .init(path: "api/user/:id/questionnaires/:questionnaireID/questions/:questionID", method: .delete)
-    }
+public typealias ActivateMatchmakingProfileRequest = Request<MatchmakingProfileIdPayload, StandardPostResponse>
+extension ActivateMatchmakingProfileRequest {
+    public static var activateMatchmakingProfile: Self { .init(method: .put) }
+}
 
-    /// DELETE. Deletes or withdraws the caller's questionnaire.
-    public static var deleteQuestionnaire: Self {
-        .init(path: "api/user/:id/questionnaires/:questionnaireID", method: .delete)
-    }
-
-    /// POST. The caller subscribes to a questionnaire.
-    public static var subscribeToQuestionnaire: Self {
-        .init(path: "api/user/:id/questionnaires/:questionnaireID/subscription", method: .post)
-    }
-
-    /// DELETE. The caller unsubscribes from a questionnaire.
-    public static var unsubscribeFromQuestionnaire: Self {
-        .init(path: "api/user/:id/questionnaires/:questionnaireID/subscription", method: .delete)
-    }
-
-    /// DELETE. Deletes a profile.
-    public static var deleteMatchmakingProfile: Self {
-        .init(path: "api/user/:id/profiles/:profileID", method: .delete)
-    }
-
-    /// PUT. Makes a profile the active one in its context.
-    public static var activateMatchmakingProfile: Self {
-        .init(path: "api/user/:id/profiles/:profileID/active", method: .put)
-    }
-
-    /// DELETE. Stops a profile being the active one.
-    public static var deactivateMatchmakingProfile: Self {
-        .init(path: "api/user/:id/profiles/:profileID/active", method: .delete)
-    }
+public typealias DeactivateMatchmakingProfileRequest = Request<MatchmakingProfileIdPayload, StandardPostResponse>
+extension DeactivateMatchmakingProfileRequest {
+    public static var deactivateMatchmakingProfile: Self { .init(method: .put) }
 }
 
 // MARK: - Diagnostics
 
-public typealias ReportDecodeFailureContract = Request<DecodeFailureReport, Data>
-extension ReportDecodeFailureContract {
-    /// POST. The app reports a reply it could not decode.
-    public static var reportDecodeFailure: Self {
-        .init(path: "api/diagnostics/decode-failure", method: .post)
-    }
+/// No token: a decode failure often happens on the call that would have signed the member in.
+public typealias ReportDecodeFailureRequest = Request<DecodeFailureReport, StandardPostResponse>
+extension ReportDecodeFailureRequest {
+    public static var reportDecodeFailure: Self { .init(method: .post, assertHasAccessToken: false) }
 }
 
-public typealias DecodeFailureReportsContract = Request<Empty, Data>
-extension DecodeFailureReportsContract {
-    /// GET. Admin only: the stored decode failure reports, as the server's stored rows.
-    public static var decodeFailureReports: Self {
-        .init(path: "api/diagnostics/decode-failure", method: .get)
-    }
+/// Operator only.
+public typealias DecodeFailureReportsRequest = Request<Empty, [DecodeFailureReportEntry]>
+extension DecodeFailureReportsRequest {
+    public static var decodeFailureReports: Self { .init(method: .get) }
+}
+
+// MARK: - Email verification
+
+public typealias VerifyEmailCodeRequest = Request<VerifyEmailCodePayload, StandardPostResponse>
+extension VerifyEmailCodeRequest {
+    public static var verifyEmailCode: Self { .init(method: .post, assertHasAccessToken: false) }
+}
+
+// MARK: - Subscription debug (non production deployments only)
+
+public typealias SubscriptionDebugSetTierRequest = Request<SubscriptionDebugSetTierPayload, StandardPostResponse>
+extension SubscriptionDebugSetTierRequest {
+    public static var subscriptionDebugSetTier: Self { .init(method: .post) }
+}
+
+/// POST because the user id travels in the body.
+public typealias SubscriptionDebugStateRequest = Request<SubscriptionDebugStatePayload, [SubscriptionDebugStateEntry]>
+extension SubscriptionDebugStateRequest {
+    public static var subscriptionDebugState: Self { .init(method: .post) }
+}
+
+// MARK: - Public file uploads
+
+public typealias UploadPublicFileRequest = Request<UploadPublicFilePayload, StandardPostResponse>
+extension UploadPublicFileRequest {
+    public static var uploadPublicFile: Self { .init(method: .post) }
+}
+
+/// The body is the file's raw bytes.
+public typealias UploadTermsOfServiceRequest = Request<Data, StandardPostResponse>
+extension UploadTermsOfServiceRequest {
+    public static var uploadTermsOfService: Self { .init(method: .post) }
+}
+
+/// The body is the file's raw bytes.
+public typealias UploadContactInfoRequest = Request<Data, StandardPostResponse>
+extension UploadContactInfoRequest {
+    public static var uploadContactInfo: Self { .init(method: .post) }
 }
