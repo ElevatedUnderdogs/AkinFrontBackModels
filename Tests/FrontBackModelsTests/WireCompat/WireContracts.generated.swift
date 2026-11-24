@@ -172,6 +172,7 @@ extension WireContract {
         WireContract(VenueIntroductionOutcome.venueIntroductionOutcome),
         WireContract(VenueIntroductionScan.venueIntroductionScan),
         WireContract(VenueIntroductionScanState.venueIntroductionScanState),
+        WireContract(VenuePhotoAddressRequest.venuePhotoAddress),
         WireContract(VerificationDeliveryStateRequest.verificationDeliveryState),
         WireContract(VerifyEmailCodeRequest.verifyEmailCode),
     ]

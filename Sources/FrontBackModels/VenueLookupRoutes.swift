@@ -161,3 +161,36 @@ public typealias VenueAutocompleteRequest = Request<VenueAutocompletePayload, Ve
 extension VenueAutocompleteRequest {
     public static var venueAutocomplete: Self { .init(method: .post, assertHasAccessToken: false) }
 }
+
+// MARK: - Photo address
+
+/// - Parameters:
+///   - placeId: Google's place identifier, without the `places/` prefix.
+///   - photoId: The last part of a photo `name` (`places/<placeId>/photos/<photoId>`).
+///   - maxWidthPx: The width to ask Google for; the server clamps it, and nil uses its default.
+public struct VenuePhotoAddressPayload: Codable, Hashable, Sendable {
+    public let placeId: String
+    public let photoId: String
+    public let maxWidthPx: Int?
+
+    public init(placeId: String, photoId: String, maxWidthPx: Int? = nil) {
+        self.placeId = placeId
+        self.photoId = photoId
+        self.maxWidthPx = maxWidthPx
+    }
+}
+
+/// - Parameter photoUri: Google's short-lived image address; it carries no API key.
+public struct VenuePhotoAddressResponse: Codable, Hashable, Sendable {
+    public let photoUri: String
+
+    public init(photoUri: String) {
+        self.photoUri = photoUri
+    }
+}
+
+/// The server asks Google for the image address so the key stays on the server.
+public typealias VenuePhotoAddressRequest = Request<VenuePhotoAddressPayload, VenuePhotoAddressResponse>
+extension VenuePhotoAddressRequest {
+    public static var venuePhotoAddress: Self { .init(method: .post, assertHasAccessToken: false) }
+}
