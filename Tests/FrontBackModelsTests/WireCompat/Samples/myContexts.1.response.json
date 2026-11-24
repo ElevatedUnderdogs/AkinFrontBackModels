@@ -1,0 +1,20 @@
+[
+  {
+    "answeredQuestionCount" : 1,
+    "displayName" : "sample displayName",
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "isMemberCreated" : false,
+    "isParticipating" : false,
+    "memberCount" : 1,
+    "normalisedKey" : "sample normalisedKey"
+  },
+  {
+    "answeredQuestionCount" : 1,
+    "displayName" : "sample displayName",
+    "id" : "00000000-0000-0000-0000-000000000001",
+    "isMemberCreated" : false,
+    "isParticipating" : false,
+    "memberCount" : 1,
+    "normalisedKey" : "sample normalisedKey"
+  }
+]

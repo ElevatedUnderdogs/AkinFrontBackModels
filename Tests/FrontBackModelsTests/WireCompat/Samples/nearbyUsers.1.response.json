@@ -1,0 +1,69 @@
+{
+  "hideStatusAutomatic" : false,
+  "hideStatusManual" : false,
+  "nearbyMembers" : [
+    {
+      "earlyAdopterTier" : "diamond",
+      "hasGrantedCallKitConsent" : false,
+      "id" : "00000000-0000-0000-0000-000000000001",
+      "imageMetaData" : {
+        "assessment" : {
+          "entries" : []
+        },
+        "format" : "sample format",
+        "height" : 1,
+        "id" : "00000000-0000-0000-0000-000000000001",
+        "width" : 1
+      },
+      "interaction" : {
+        "availability" : "available",
+        "distanceMeters" : 1,
+        "frozenByViewer" : false,
+        "frozenUntil" : 0,
+        "reservationQueueLength" : 1,
+        "viewerReservationPosition" : 1
+      },
+      "lastLocationUpdate" : 0,
+      "name" : "sample name",
+      "profileImage" : "sample profileImage",
+      "verified" : false
+    },
+    {
+      "earlyAdopterTier" : "diamond",
+      "hasGrantedCallKitConsent" : false,
+      "id" : "00000000-0000-0000-0000-000000000001",
+      "imageMetaData" : {
+        "assessment" : {
+          "entries" : []
+        },
+        "format" : "sample format",
+        "height" : 1,
+        "id" : "00000000-0000-0000-0000-000000000001",
+        "width" : 1
+      },
+      "interaction" : {
+        "availability" : "available",
+        "distanceMeters" : 1,
+        "frozenByViewer" : false,
+        "frozenUntil" : 0,
+        "reservationQueueLength" : 1,
+        "viewerReservationPosition" : 1
+      },
+      "lastLocationUpdate" : 0,
+      "name" : "sample name",
+      "profileImage" : "sample profileImage",
+      "verified" : false
+    }
+  ],
+  "selfStatus" : {
+    "demoGreetCounterpartId" : "00000000-0000-0000-0000-000000000001",
+    "freezeAllowancePerDay" : 1,
+    "freezesRemainingToday" : 1,
+    "mayTriggerDemoGreet" : false,
+    "outstandingReservations" : 1,
+    "pauseDefaultSeconds" : 1,
+    "pausedUntil" : 0,
+    "peopleWaitingForYou" : 1,
+    "reservationAllowance" : 1
+  }
+}

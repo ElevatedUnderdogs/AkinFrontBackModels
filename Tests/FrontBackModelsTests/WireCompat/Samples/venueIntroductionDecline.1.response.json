@@ -1,0 +1,25 @@
+{
+  "declineWaitDays" : 1,
+  "isOrphan" : false,
+  "orphanReason" : "sample orphanReason",
+  "participatingStaff" : [
+    {
+      "employeeName" : "sample employeeName",
+      "referralsCount" : 1
+    },
+    {
+      "employeeName" : "sample employeeName",
+      "referralsCount" : 1
+    }
+  ],
+  "participatingStaffCount" : 1,
+  "participatingStaffNames" : [
+    "sample participatingStaffName",
+    "sample participatingStaffName"
+  ],
+  "periodDescription" : "sample periodDescription",
+  "usersSentToVenueThisMonth" : 1,
+  "venueGooglePlaceIdentifier" : "sample venueGooglePlaceIdentifier",
+  "venueName" : "sample venueName",
+  "venueReportURLString" : "https:\/\/example.invalid\/sample"
+}
