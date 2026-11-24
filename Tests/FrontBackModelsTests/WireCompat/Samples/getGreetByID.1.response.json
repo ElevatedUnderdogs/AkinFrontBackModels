@@ -1,13 +1,9 @@
 {
-  "compatitibility" : {
-
-  },
+  "compatitibility" : {},
   "events" : [
     {
       "action" : {
-        "manualGreetInitiated" : {
-
-        }
+        "manualGreetInitiated" : {}
       },
       "actorUserID" : "00000000-0000-0000-0000-000000000001",
       "eventID" : "00000000-0000-0000-0000-000000000001",
@@ -17,9 +13,7 @@
     },
     {
       "action" : {
-        "manualGreetInitiated" : {
-
-        }
+        "manualGreetInitiated" : {}
       },
       "actorUserID" : "00000000-0000-0000-0000-000000000001",
       "eventID" : "00000000-0000-0000-0000-000000000001",
@@ -48,20 +42,7 @@
     "id" : "00000000-0000-0000-0000-000000000001",
     "imageMetaData" : {
       "assessment" : {
-        "entries" : [
-          {
-            "aiConfidence" : 1,
-            "explanation" : "sample explanation",
-            "flag" : "childSexualAbuseMaterial",
-            "source" : "appleIntelligence"
-          },
-          {
-            "aiConfidence" : 1,
-            "explanation" : "sample explanation",
-            "flag" : "childSexualAbuseMaterial",
-            "source" : "appleIntelligence"
-          }
-        ]
+        "entries" : []
       },
       "format" : "sample format",
       "height" : 1,
@@ -92,6 +73,6 @@
     "latitude" : 1,
     "longitude" : 1,
     "name" : "sample name",
-    "url" : "https:\/\/example.invalid\/sample"
+    "url" : "https://example.invalid/sample"
   }
 }

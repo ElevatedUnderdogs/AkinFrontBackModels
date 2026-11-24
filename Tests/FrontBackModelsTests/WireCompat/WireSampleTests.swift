@@ -2,8 +2,7 @@
 //  WireSampleTests.swift
 //  FrontBackModelsTests
 //
-//  Saved payload/response JSON must keep decoding, so older apps and servers still work.
-//  Record missing samples with: WIRE_SAMPLES_RECORD=1 swift test --filter WireSampleTests
+//  Saved JSON for types with their own decoding logic must keep decoding, so older apps and servers still work.
 //
 
 import Foundation
@@ -50,33 +49,5 @@ final class WireSampleTests: XCTestCase {
                         + errors.joined(separator: "\n"))
             }
         }
-    }
-
-    /// Writes samples only for contracts that have none, so old samples are never overwritten.
-    func testRecordMissingSamples() throws {
-        guard ProcessInfo.processInfo.environment["WIRE_SAMPLES_RECORD"] == "1" else {
-            throw XCTSkip("Set WIRE_SAMPLES_RECORD=1 to record missing samples.")
-        }
-        let fm = FileManager.default
-        try fm.createDirectory(at: Self.samplesDir, withIntermediateDirectories: true)
-        let existing = Set(try fm.contentsOfDirectory(atPath: Self.samplesDir.path))
-        var written = 0
-        var skipped: [String] = []
-        for (path, contracts) in Dictionary(grouping: WireContract.all, by: \.path) {
-            for (index, contract) in contracts.enumerated() {
-                for (kind, make) in [("payload", contract.makePayload), ("response", contract.makeResponse)] {
-                    let name = "\(path).\(index + 1).\(kind).json"
-                    guard !existing.contains(name) else { continue }
-                    do {
-                        guard let data = try make() else { continue }
-                        try data.write(to: Self.samplesDir.appendingPathComponent(name))
-                        written += 1
-                    } catch {
-                        skipped.append("\(name): \(error)")
-                    }
-                }
-            }
-        }
-        print("Wrote \(written) samples. Could not build \(skipped.count):\n" + skipped.joined(separator: "\n"))
     }
 }

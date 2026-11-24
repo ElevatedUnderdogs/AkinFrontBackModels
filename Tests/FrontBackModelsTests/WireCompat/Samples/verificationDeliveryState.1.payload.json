@@ -1,9 +1,0 @@
-{
-  "email" : "member@example.invalid",
-  "password" : "sample password",
-  "termsPayload" : {
-    "acceptedAt" : 0,
-    "deviceInfo" : "sample deviceInfo",
-    "source" : "sample source"
-  }
-}

@@ -8,20 +8,7 @@
       "id" : "00000000-0000-0000-0000-000000000001",
       "imageMetaData" : {
         "assessment" : {
-          "entries" : [
-            {
-              "aiConfidence" : 1,
-              "explanation" : "sample explanation",
-              "flag" : "childSexualAbuseMaterial",
-              "source" : "appleIntelligence"
-            },
-            {
-              "aiConfidence" : 1,
-              "explanation" : "sample explanation",
-              "flag" : "childSexualAbuseMaterial",
-              "source" : "appleIntelligence"
-            }
-          ]
+          "entries" : []
         },
         "format" : "sample format",
         "height" : 1,
@@ -47,20 +34,7 @@
       "id" : "00000000-0000-0000-0000-000000000001",
       "imageMetaData" : {
         "assessment" : {
-          "entries" : [
-            {
-              "aiConfidence" : 1,
-              "explanation" : "sample explanation",
-              "flag" : "childSexualAbuseMaterial",
-              "source" : "appleIntelligence"
-            },
-            {
-              "aiConfidence" : 1,
-              "explanation" : "sample explanation",
-              "flag" : "childSexualAbuseMaterial",
-              "source" : "appleIntelligence"
-            }
-          ]
+          "entries" : []
         },
         "format" : "sample format",
         "height" : 1,
