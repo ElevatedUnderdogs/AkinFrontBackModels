@@ -65,8 +65,9 @@ extension ProfilePictureRequest {
 public typealias ImageRequest = Request<UserImage, Data>
 extension ImageRequest {
 
+    /// POST because the image's identity travels in the body; a GET body is never read.
     public static var image: Self {
-        .init(method: .get, mimType: .octetStream)
+        .init(method: .post, mimType: .octetStream)
     }
 }
 
