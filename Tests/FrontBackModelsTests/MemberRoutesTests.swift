@@ -60,6 +60,8 @@ final class MemberRoutesTests: XCTestCase {
             ("testPushKitRequest", TestPushKitRequest.testPushKitRequest.path), // literal-ok: the wire format fixes this string
             ("advertiserLogin", AdvertiserLoginRequest.advertiserLogin.path), // literal-ok: the wire format fixes this string
             ("advertiserMe", AdvertiserMeRequest.advertiserMe.path), // literal-ok: the wire format fixes this string
+            ("venueDetails", VenueDetailsRequest.venueDetails.path), // literal-ok: the wire format fixes this string
+            ("venueAutocomplete", VenueAutocompleteRequest.venueAutocomplete.path), // literal-ok: the wire format fixes this string
         ]
         for pair in pinned {
             XCTAssertEqual(pair.actual, pair.expected)
