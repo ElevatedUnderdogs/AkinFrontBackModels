@@ -1249,8 +1249,9 @@ final class TopLevelModelsBatch7Tests: XCTestCase {
     func testRequestFactoriesVenuesAndImpact() {
         XCTAssertEqual(SearchSavedVenues.searchSavedVenues.method, .post)
         XCTAssertEqual(VenueByGoogleID.venueByGoogleID.method, .post)
-        XCTAssertEqual(EmployeeLeaderboard.employeeLeaderboard.method, .post)
+        XCTAssertEqual(EmployeeLeaderboardByVenueID.employeeLeaderboardByVenueID.method, .post)
         XCTAssertEqual(EmployeeLeaderboardFromGoogleID.employeeLeaderboard.method, .post)
+        XCTAssertEqual(VenueIntroductionDeclineEndpoint.venueIntroductionDecline.method, .post)
         XCTAssertEqual(NearbyEmptyStateEndpoint.nearbyEmptyStateDetails.method, .get)
         XCTAssertEqual(NotifyUserCountProgressEndpoint.submitBenchmarkNotificationPreferences.method, .post)
     }

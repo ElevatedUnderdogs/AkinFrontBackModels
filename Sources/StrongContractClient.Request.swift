@@ -186,11 +186,15 @@ extension VenueByGoogleID {
     }
 }
 
+/// A venue's employee leaderboard, by the venue's own id.
 ///
-public typealias EmployeeLeaderboard = Request<UUID, VenueImpactSummary>
-extension EmployeeLeaderboard {
+/// Its own name, rather than a second `employeeLeaderboard` beside the Google place lookup below:
+/// two contracts with one name share one path, so the server used to register this one with
+/// `path: "employeeLeaderboardByVenueID"` to keep them apart.
+public typealias EmployeeLeaderboardByVenueID = Request<UUID, VenueImpactSummary>
+extension EmployeeLeaderboardByVenueID {
 
-    public static var employeeLeaderboard: Self {
+    public static var employeeLeaderboardByVenueID: Self {
         .init(method: .post)
     }
 }
@@ -1505,6 +1509,18 @@ public typealias VenueIntroductionScanEndpoint = Request<VenueScanReport, VenueS
 extension VenueIntroductionScanEndpoint {
 
     public static var venueIntroductionScan: Self {
+        .init(method: .post, assertHasAccessToken: false)
+    }
+}
+
+/// A venue declining the introduction its scanned code offered.
+///
+/// Same report in and same answer out as the scan, and unauthenticated for the same reason. The
+/// server used to register it as the scan contract with `path: "venueIntroductionDecline"`.
+public typealias VenueIntroductionDeclineEndpoint = Request<VenueScanReport, VenueScanResponse>
+extension VenueIntroductionDeclineEndpoint {
+
+    public static var venueIntroductionDecline: Self {
         .init(method: .post, assertHasAccessToken: false)
     }
 }
