@@ -1218,7 +1218,7 @@ final class TopLevelModelsBatch7Tests: XCTestCase {
         XCTAssertEqual(AcceptTermsRequestType.acceptTerms.method, .post)
         XCTAssertEqual(ForgotPassword.forgotPassword.method, .post)
         XCTAssertEqual(ForgotPassword.resendVerification.method, .post)
-        XCTAssertEqual(NewPassword.newPasswordEndpoint.method, .post)
+        XCTAssertEqual(NewPassword.newPassword.method, .post)
         XCTAssertEqual(ResetPassword.resetPassword.method, .post)
         XCTAssertEqual(PasswordlessAuthenticationRequest.passwordlessAuthentication.method, .post)
         XCTAssertEqual(PasscodeAuthenticationRequest.passcodeAuthentication.method, .post)

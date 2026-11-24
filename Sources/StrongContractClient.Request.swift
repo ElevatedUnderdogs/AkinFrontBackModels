@@ -379,7 +379,7 @@ extension VerificationDeliveryStateRequest {
 public typealias NewPassword = Request<String, StandardPostResponse>
 
 extension NewPassword {
-    public static var newPasswordEndpoint: Self {
+    public static var newPassword: Self {
         .init(method: .post)
     }
 }
