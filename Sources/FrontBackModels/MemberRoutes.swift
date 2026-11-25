@@ -213,7 +213,7 @@ public struct CreatedQuestionnaire: Codable, Hashable, Sendable, Identifiable {
 }
 
 /// Another member's profile as the caller may see it. Counts only, never the content itself.
-public struct MemberProfileDTO: Codable, Hashable, Sendable {
+public struct MemberProfile: Codable, Hashable, Sendable, Identifiable {
     public let id: UUID
     public let displayName: String
     public let profileImageURL: String?
@@ -341,7 +341,7 @@ extension AdoptContextRequest {
     public static var adoptContext: Self { .init(method: .post) }
 }
 
-public typealias BrowseContextsRequest = Request<Empty, [BrowseContextDTO]>
+public typealias BrowseContextsRequest = Request<Empty, [BrowseContext]>
 extension BrowseContextsRequest {
     public static var browseContexts: Self { .init(method: .get) }
 }
@@ -384,7 +384,7 @@ extension DeleteMyQuestionnaireAnswersRequest {
 }
 
 /// POST because the questionnaire id travels in the body.
-public typealias QuestionnaireDetailRequest = Request<QuestionnaireIdPayload, QuestionnaireDetailDTO>
+public typealias QuestionnaireDetailRequest = Request<QuestionnaireIdPayload, QuestionnaireDetail>
 extension QuestionnaireDetailRequest {
     public static var questionnaireDetail: Self { .init(method: .post) }
 }
@@ -395,19 +395,19 @@ extension QuestionnaireContentsRequest {
     public static var questionnaireContents: Self { .init(method: .post) }
 }
 
-public typealias MyQuestionnairesRequest = Request<Empty, [MyQuestionnaireDTO]>
+public typealias MyQuestionnairesRequest = Request<Empty, [MyQuestionnaire]>
 extension MyQuestionnairesRequest {
     public static var myQuestionnaires: Self { .init(method: .get) }
 }
 
 /// POST because the paging travels in the body.
-public typealias BrowseQuestionnairesRequest = Request<BrowseQuestionnairesPayload, [BrowseQuestionnaireDTO]>
+public typealias BrowseQuestionnairesRequest = Request<BrowseQuestionnairesPayload, [BrowseQuestionnaire]>
 extension BrowseQuestionnairesRequest {
     public static var browseQuestionnaires: Self { .init(method: .post) }
 }
 
 /// POST because the paging travels in the body.
-public typealias MyQuestionsRequest = Request<MyQuestionsPayload, [QuestionSummaryDTO]>
+public typealias MyQuestionsRequest = Request<MyQuestionsPayload, [QuestionSummary]>
 extension MyQuestionsRequest {
     public static var myQuestions: Self { .init(method: .post) }
 }
@@ -455,7 +455,7 @@ extension SetMemberSubscriptionMutedRequest {
 // MARK: - Members and author visibility
 
 /// POST because the member id travels in the body.
-public typealias MemberProfileRequest = Request<MemberIdPayload, MemberProfileDTO>
+public typealias MemberProfileRequest = Request<MemberIdPayload, MemberProfile>
 extension MemberProfileRequest {
     public static var memberProfile: Self { .init(method: .post) }
 }
@@ -466,7 +466,7 @@ extension SetQuestionAuthorVisibilityRequest {
 }
 
 /// POST because the question id travels in the body.
-public typealias QuestionAuthorVisibilityHistoryRequest = Request<QuestionIdPayload, [AuthorVisibilityAuditDTO]>
+public typealias QuestionAuthorVisibilityHistoryRequest = Request<QuestionIdPayload, [AuthorVisibilityAudit]>
 extension QuestionAuthorVisibilityHistoryRequest {
     public static var questionAuthorVisibilityHistory: Self { .init(method: .post) }
 }
