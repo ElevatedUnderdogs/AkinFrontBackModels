@@ -16,7 +16,7 @@
 
 import Foundation
 
-public struct AuthorVisibilityAuditDTO: Codable {
+public struct AuthorVisibilityAudit: Codable, Hashable, Sendable {
     public let questionId: UUID
     public let oldVisibility: AuthorVisibility
     public let newVisibility: AuthorVisibility
@@ -38,7 +38,7 @@ public struct AuthorVisibilityAuditDTO: Codable {
     }
 }
 
-public struct BrowseContextDTO: Codable {
+public struct BrowseContext: Codable, Hashable, Sendable {
     public let contextId: UUID
     public let adoptionCount: Int
 
@@ -48,12 +48,14 @@ public struct BrowseContextDTO: Codable {
     }
 }
 
-public struct BrowseQuestionnaireDTO: Codable {
+public struct BrowseQuestionnaire: Codable, Hashable, Sendable, Identifiable {
+
+    public var id: UUID { questionnaireId }
     public let questionnaireId: UUID
     public let title: String
     /// Null when the author is not disclosed to this reader (swath N3 item 6.5).
     ///
-    /// Optional on purpose. Two of these three DTOs are served only to the creator, where the
+    /// Optional on purpose. Two of these three types are served only to the creator, where the
     /// value is always present, and it would be easy to argue they do not need it. They do: the
     /// grep in item 6.5 exists because "this endpoint is creator only" is a fact about today's
     /// route table, and the type is what keeps it true after somebody adds tomorrow's.
@@ -151,7 +153,9 @@ public struct ExclusionCostResponse: Codable {
     }
 }
 
-public struct MyQuestionnaireDTO: Codable {
+public struct MyQuestionnaire: Codable, Hashable, Sendable, Identifiable {
+
+    public var id: UUID { questionnaireId }
     public let questionnaireId: UUID
     public let title: String
     public let contextId: UUID
@@ -177,7 +181,9 @@ public struct MyQuestionnaireDTO: Codable {
     }
 }
 
-public struct QuestionImportanceDTO: Codable {
+public struct QuestionImportance: Codable, Hashable, Sendable, Identifiable {
+
+    public var id: UUID { questionId }
     public let questionId: UUID
     public let ownMean: Double
     public let raterCount: Int
@@ -191,7 +197,9 @@ public struct QuestionImportanceDTO: Codable {
     }
 }
 
-public struct QuestionSummaryDTO: Codable {
+public struct QuestionSummary: Codable, Hashable, Sendable, Identifiable {
+
+    public var id: UUID { questionId }
     public let questionId: UUID
     public let text: String
 
@@ -201,12 +209,12 @@ public struct QuestionSummaryDTO: Codable {
     }
 }
 
-public struct QuestionnaireDetailDTO: Codable {
+public struct QuestionnaireDetail: Codable, Hashable, Sendable {
     public let questionnaireId: UUID
     public let title: String
     /// Null when the author is not disclosed to this reader (swath N3 item 6.5).
     ///
-    /// Optional on purpose. Two of these three DTOs are served only to the creator, where the
+    /// Optional on purpose. Two of these three types are served only to the creator, where the
     /// value is always present, and it would be easy to argue they do not need it. They do: the
     /// grep in item 6.5 exists because "this endpoint is creator only" is a fact about today's
     /// route table, and the type is what keeps it true after somebody adds tomorrow's.
@@ -215,9 +223,9 @@ public struct QuestionnaireDetailDTO: Codable {
     public let questionIds: [UUID]
     /// The same questions, with their text. `questionIds` stays for callers that
     /// only need the order.
-    public let questions: [QuestionSummaryDTO]
+    public let questions: [QuestionSummary]
     /// The working behind the importance figure. Empty when nothing is rated.
-    public let importanceBreakdown: [QuestionImportanceDTO]
+    public let importanceBreakdown: [QuestionImportance]
     public let creatorName: String?
 
     /// The author's picture, when they have one and this reader may be told who they are.
@@ -248,8 +256,8 @@ public struct QuestionnaireDetailDTO: Codable {
         creatorId: UUID?,
         authorVisibility: String,
         questionIds: [UUID],
-        questions: [QuestionSummaryDTO],
-        importanceBreakdown: [QuestionImportanceDTO],
+        questions: [QuestionSummary],
+        importanceBreakdown: [QuestionImportance],
         creatorName: String?,
         creatorImageUrl: String? = nil,
         respondentCount: Int,
@@ -273,12 +281,12 @@ public struct QuestionnaireDetailDTO: Codable {
     }
 }
 
-public struct QuestionnaireWithQuestions: Codable {
+public struct QuestionnaireWithQuestions: Codable, Hashable, Sendable, Identifiable {
     public let id: UUID
     public let title: String
     /// Null when the author is not disclosed to this reader (swath N3 item 6.5).
     ///
-    /// Optional on purpose. Two of these three DTOs are served only to the creator, where the
+    /// Optional on purpose. Two of these three types are served only to the creator, where the
     /// value is always present, and it would be easy to argue they do not need it. They do: the
     /// grep in item 6.5 exists because "this endpoint is creator only" is a fact about today's
     /// route table, and the type is what keeps it true after somebody adds tomorrow's.
@@ -397,7 +405,7 @@ public struct SetRequirementPayload: Codable {
     }
 }
 
-public struct SubscriptionListEntry: Codable {
+public struct SubscriptionListEntry: Codable, Hashable, Sendable {
     public let target: SubscriptionTarget
     /// What the member subscribes to, as they would name it: a questionnaire's
     /// title, or a member's full name.

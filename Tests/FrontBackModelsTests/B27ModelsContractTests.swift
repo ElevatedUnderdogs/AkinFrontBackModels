@@ -26,8 +26,8 @@ final class B27ModelsContractTests: XCTestCase {
 
     private func sampleDetail(
         imageURL: String? = "https://example.com/sarah.jpg"
-    ) -> QuestionnaireDetailDTO {
-        QuestionnaireDetailDTO(
+    ) -> QuestionnaireDetail {
+        QuestionnaireDetail(
             questionnaireId: UUID(uuidString: "50C1A1C0-C0DE-57C0-ACDE-EC7EC7EC7EC7")!,
             title: "Example",
             creatorId: UUID(uuidString: "60C1A1C0-C0DE-57C0-ACDE-EC7EC7EC7EC7")!,
@@ -46,7 +46,7 @@ final class B27ModelsContractTests: XCTestCase {
 
     /// Existing construction sites omit the new argument and still compile, with a nil picture.
     func testDetailDefaultsThePictureToNilWhenOmitted() {
-        let detail = QuestionnaireDetailDTO(
+        let detail = QuestionnaireDetail(
             questionnaireId: UUID(uuidString: "50C1A1C0-C0DE-57C0-ACDE-EC7EC7EC7EC7")!,
             title: "Example",
             creatorId: nil,
@@ -71,7 +71,7 @@ final class B27ModelsContractTests: XCTestCase {
         let wire = try JSONDecoder().decode(QuestionnaireDetailWireProbe.self, from: encoded)
         XCTAssertEqual(wire.creatorImageURL, "https://example.com/sarah.jpg")
         XCTAssertEqual(wire.creatorName, "Sarah")
-        let decoded = try wireDecoder().decode(QuestionnaireDetailDTO.self, from: encoded)
+        let decoded = try wireDecoder().decode(QuestionnaireDetail.self, from: encoded)
         XCTAssertEqual(decoded.creatorImageUrl, "https://example.com/sarah.jpg")
         XCTAssertEqual(decoded.creatorName, "Sarah")
     }
@@ -84,7 +84,7 @@ final class B27ModelsContractTests: XCTestCase {
          "questions":[],"importance_breakdown":[],"creator_name":null,
          "respondent_count":0,"completion_count":0,"derived_importance":null,"is_rated":false}
         """
-        let decoded = try wireDecoder().decode(QuestionnaireDetailDTO.self, from: Data(raw.utf8))
+        let decoded = try wireDecoder().decode(QuestionnaireDetail.self, from: Data(raw.utf8))
         XCTAssertNil(decoded.creatorImageUrl)
     }
 

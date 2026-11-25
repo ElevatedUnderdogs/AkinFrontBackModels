@@ -4,7 +4,7 @@
 
 import Foundation
 
-/// The two creator keys of an encoded `QuestionnaireDetailDTO`, read back by their wire names.
+/// The two creator keys of an encoded `QuestionnaireDetail`, read back by their wire names.
 ///
 /// A test decodes the encoded bytes into this rather than into a `[String: Any]`, so the wire
 /// spelling it checks is written once, here, as a coding key.
